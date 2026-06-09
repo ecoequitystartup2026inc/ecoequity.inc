@@ -31,6 +31,7 @@ const distributionTracking = [
   { id: 3, program: "Research & Development", status: "Planned", count: "10+ Projects", icon: <FaFlask /> },
 ];
 
+<<<<<<< HEAD
 const seedIconMap = {
   seed: FaSeedling,
   users: FaUsers,
@@ -80,6 +81,12 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
     ...(sectorContent || {}),
     header: { ...defaultSeedBankContent.header, ...(sectorContent?.header || {}) },
   };
+=======
+function NativeSeedBankPage({ setActiveNav }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isHoveredBack, setIsHoveredBack] = useState(false);
+  const [animate, setAnimate] = useState(false);
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -122,23 +129,36 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
         </div>
         <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
           <span style={styles.badgeDot} />
+<<<<<<< HEAD
           <span style={styles.glassContentLayer}>{content.header.badge}</span>
+=======
+          <span style={styles.glassContentLayer}>Native Seed Bank</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
+<<<<<<< HEAD
         {content.header.titleLead} <span style={styles.titleAccent}>{content.header.titleAccent}</span>
+=======
+        Preserving <span style={styles.titleAccent}>Biodiversity</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </h1>
       <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+<<<<<<< HEAD
         {content.header.description}
+=======
+        Our Native Seed Bank program is dedicated to the conservation and propagation of indigenous crop varieties, ensuring agricultural resilience and cultural heritage for future generations.
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </p>
 
       <div style={{ ...styles.dashboardGrid, ...(isMobile ? styles.dashboardGridMobile : {}) }}>
         
         {/* Animated Statistics Cards */}
         <div style={styles.statsRow}>
+<<<<<<< HEAD
           {(content.stats || []).map((stat, index) => {
             const Icon = seedIconMap[stat.iconKey] || FaSeedling;
             return (
@@ -149,16 +169,32 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
             </div>
             );
           })}
+=======
+          {seedBankStats.map((stat) => (
+            <div key={stat.id} className="inner-blur-glass" style={styles.statCard}>
+              <div style={styles.statIcon}>{stat.icon}</div>
+              <div style={styles.statValue}>{stat.value}</div>
+              <div style={styles.statLabel}>{stat.label}</div>
+            </div>
+          ))}
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Seed Preservation Programs */}
         <div className="inner-blur-glass" style={styles.programsCard}>
           <div style={styles.cardHeader}>
             <FaLeaf style={styles.cardIcon} />
+<<<<<<< HEAD
             <h3 style={styles.cardTitle}>{content.programsTitle}</h3>
           </div>
           <div style={styles.programList}>
             {(content.programs || []).map((program, i) => (
+=======
+            <h3 style={styles.cardTitle}>Preservation Programs</h3>
+          </div>
+          <div style={styles.programList}>
+            {preservationPrograms.map((program, i) => (
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
               <div key={i} style={styles.programItem}>
                 <span style={styles.programIconEmoji}>{program.icon}</span>
                 <div style={styles.programText}>
@@ -168,13 +204,18 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
               </div>
             ))}
           </div>
+<<<<<<< HEAD
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.programsCtaLabel}</button>
+=======
+          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Learn More</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Distribution Tracking */}
         <div className="inner-blur-glass" style={styles.chartCard}>
           <div style={styles.cardHeader}>
             <FaTruck style={styles.cardIcon} />
+<<<<<<< HEAD
             <h3 style={styles.cardTitle}>{content.distributionTitle}</h3>
           </div>
           <div style={styles.distributionList}>
@@ -183,6 +224,14 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
               return (
               <div key={item.id || index} style={styles.distributionItem}>
                 <span style={styles.distributionIcon}><Icon /></span>
+=======
+            <h3 style={styles.cardTitle}>Distribution Tracking</h3>
+          </div>
+          <div style={styles.distributionList}>
+            {distributionTracking.map((item) => (
+              <div key={item.id} style={styles.distributionItem}>
+                <span style={styles.distributionIcon}>{item.icon}</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                 <div style={styles.distributionDetails}>
                   <span style={styles.distributionProgram}>{item.program}</span>
                   <span style={styles.distributionCount}>{item.count}</span>
@@ -191,16 +240,23 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
                   {item.status}
                 </span>
               </div>
+<<<<<<< HEAD
               );
             })}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.distributionCtaLabel}</button>
+=======
+            ))}
+          </div>
+          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>View Reports</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Agricultural Sustainability Metrics */}
         <div className="inner-blur-glass" style={styles.metricsCard}>
           <div style={styles.cardHeader}>
             <FaChartLine style={styles.cardIcon} />
+<<<<<<< HEAD
             <h3 style={styles.cardTitle}>{content.metricsTitle}</h3>
           </div>
           <div style={styles.metricsGrid}>
@@ -216,6 +272,23 @@ function NativeSeedBankPage({ setActiveNav, sectorContent }) {
             })}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.metricsCtaLabel}</button>
+=======
+            <h3 style={styles.cardTitle}>Sustainability Metrics</h3>
+          </div>
+          <div style={styles.metricsGrid}>
+            <div style={styles.metricItem}>
+              <FaAward style={styles.metricIcon} />
+              <span style={styles.metricValue}>+30%</span>
+              <span style={styles.metricLabel}>Biodiversity Index</span>
+            </div>
+            <div style={styles.metricItem}>
+              <FaHandsHelping style={styles.metricIcon} />
+              <span style={styles.metricValue}>95%</span>
+              <span style={styles.metricLabel}>Retention Rate</span>
+            </div>
+          </div>
+          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Full Analytics</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
     </div>

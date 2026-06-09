@@ -28,11 +28,18 @@ import SurplusExchangePage from "./pages/SurplusExchangePage"; // Corrected path
 import CheckoutPage from "./pages/CheckoutPage"; // Import the CheckoutPage
 import AdminPortal from "./pages/AdminPortal"; // Import the AdminPortal
 import SeasonalHarvestPage from "./pages/SeasonalHarvestPage";
+<<<<<<< HEAD
 import { initialSubscriptionPlans, SUBSCRIPTION_PLANS_STORAGE_KEY } from "./subscriptionPlans";
 
 import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
 import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell, FaCalendar } from "react-icons/fa";
 import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound, X, Send } from "lucide-react";
+=======
+
+import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
+import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell, FaCalendar } from "react-icons/fa";
+import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound } from "lucide-react";
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 import { BiCalendarEvent } from "react-icons/bi";
 const navItems = ["Home", "About Us", "Product & Services", "Target Market", "Our Team", "Seasonal Harvest"];
 
@@ -77,6 +84,7 @@ const initialOrders = [
 ];
 
 const ORDERS_STORAGE_KEY = "verdeversity_orders";
+<<<<<<< HEAD
 const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
 const HOME_GLASS_CHART_STORAGE_KEY = "verdeversity_home_glass_chart";
 const SURPLUS_LISTINGS_STORAGE_KEY = "verdeversity_surplus_listings";
@@ -396,6 +404,8 @@ const initialHomeGlassChart = {
     ],
   },
 };
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
 const getInitialOrders = () => {
   try {
@@ -408,6 +418,7 @@ const getInitialOrders = () => {
   }
 };
 
+<<<<<<< HEAD
 const getInitialSupportTickets = () => {
   try {
     const savedTickets = localStorage.getItem(SUPPORT_TICKETS_STORAGE_KEY);
@@ -560,6 +571,8 @@ const getSupportTicketContext = (activeNav) => supportTicketContexts[activeNav] 
   priority: "Medium",
 };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 const ecoTimelineActivities = [
   { title: "Redeemed Rewards", time: "2 hours ago", points: "-500", icon: "🎁", color: "#e11d48", bg: "rgba(225,29,72,0.1)", glow: "rgba(225,29,72,0.3)" },
   { title: "Workshop Attendance", time: "Yesterday", points: "+75", icon: "🧑‍🌾", color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
@@ -690,6 +703,7 @@ function App() {
   const [cartItems, setCartItems] = useState([]); // Shared cart state
   const [savedProducts, setSavedProducts] = useState([]); // Shared wishlist state
   const [orders, setOrders] = useState(getInitialOrders);
+<<<<<<< HEAD
   const [supportTickets, setSupportTickets] = useState(getInitialSupportTickets);
   const [homeGlassChart, setHomeGlassChart] = useState(getInitialHomeGlassChart);
   const [surplusListings, setSurplusListings] = useState(getInitialSurplusListings);
@@ -705,6 +719,8 @@ function App() {
     relatedOrder: "",
     contact: "",
   });
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const [visibleTimelineItems, setVisibleTimelineItems] = useState(4);
   const [notificationSettings, setNotificationSettings] = useState({
     email: true, sms: true
@@ -739,6 +755,7 @@ function App() {
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
   }, [orders]);
 
+<<<<<<< HEAD
   useEffect(() => {
     localStorage.setItem(SUPPORT_TICKETS_STORAGE_KEY, JSON.stringify(supportTickets));
   }, [supportTickets]);
@@ -804,6 +821,8 @@ function App() {
     setIsSupportTicketOpen(false);
   };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleNotify = (cropName) => {
     setNotifications(prev => [
       { message: `You will be notified when ${cropName} is available or in peak season!`, time: "Just now", read: false },
@@ -1203,7 +1222,11 @@ function App() {
 
   const isAuthPage = activeNav === "Login" || activeNav === "Sign Up";
 
+<<<<<<< HEAD
   const baseActiveTabData = {
+=======
+  const activeTabData = {
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     crop: {
       points: [
         { id: 1, cx: 80, cy: 70, label: "Day 3", value: "+5%" },
@@ -1337,6 +1360,7 @@ function App() {
       ]
     }
   }[activeHeroTab];
+<<<<<<< HEAD
   const activeManagedChartData = homeGlassChart[activeHeroTab] || initialHomeGlassChart[activeHeroTab];
   const activeTabData = {
     ...baseActiveTabData,
@@ -1356,6 +1380,8 @@ function App() {
   };
   const chartLinePath = activeTabData.points.map((point, idx) => `${idx === 0 ? "M" : "L"} ${point.cx} ${point.cy}`).join(" ");
   const chartAreaPath = `${chartLinePath} L 300 120 L 0 120 Z`;
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const isEcoAllMobile = isMobile && ecoPointsSection === "All";
   const mobileEcoGlassCardStyle = {
@@ -1365,10 +1391,13 @@ function App() {
     border: "1px solid rgba(255,255,255,0.8)",
     boxShadow: "0 8px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8)",
   };
+<<<<<<< HEAD
   const supportTicketContext = getSupportTicketContext(activeNav);
   const importantSupportSections = new Set(Object.keys(supportTicketContexts));
   const shouldShowSupportTicket = !isAuthPage && activeNav === "Product & Services" && importantSupportSections.has(activeNav);
   const recentSupportTickets = supportTickets.slice(0, 3);
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   return (
     <div style={{ 
@@ -2812,10 +2841,17 @@ function App() {
                 <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", flexDirection: "column", height: "100%" }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
                     {[
+<<<<<<< HEAD
                       { id: 'crop', label: homeGlassChart.crop?.tabLabel || 'Crop Growth', icon: <Leaf size={14} color="#15803d" />, badgeBg: 'rgba(22,163,74,0.15)', activeBorder: 'rgba(22,163,74,0.3)', activeBg: 'rgba(22,163,74,0.05)', activeColor: '#15803d' },
                       { id: 'users', label: homeGlassChart.users?.tabLabel || 'Active Users', icon: <Users size={14} color="#0369a1" />, badgeBg: 'rgba(2,132,199,0.15)', activeBorder: 'rgba(2,132,199,0.3)', activeBg: 'rgba(2,132,199,0.05)', activeColor: '#0369a1' },
                       { id: 'harvests', label: homeGlassChart.harvests?.tabLabel || 'Harvests', icon: <Wheat size={14} color="#b45309" />, badgeBg: 'rgba(245,158,11,0.15)', activeBorder: 'rgba(245,158,11,0.3)', activeBg: 'rgba(245,158,11,0.05)', activeColor: '#b45309' },
                       { id: 'subs', label: homeGlassChart.subs?.tabLabel || 'Subscribers', icon: <Activity size={14} color="#be123c" />, badgeBg: 'rgba(225,29,72,0.15)', activeBorder: 'rgba(225,29,72,0.3)', activeBg: 'rgba(225,29,72,0.05)', activeColor: '#be123c' },
+=======
+                      { id: 'crop', label: 'Crop Growth', icon: <Leaf size={14} color="#15803d" />, badgeBg: 'rgba(22,163,74,0.15)', activeBorder: 'rgba(22,163,74,0.3)', activeBg: 'rgba(22,163,74,0.05)', activeColor: '#15803d' },
+                      { id: 'users', label: 'Active Users', icon: <Users size={14} color="#0369a1" />, badgeBg: 'rgba(2,132,199,0.15)', activeBorder: 'rgba(2,132,199,0.3)', activeBg: 'rgba(2,132,199,0.05)', activeColor: '#0369a1' },
+                      { id: 'harvests', label: 'Harvests', icon: <Wheat size={14} color="#b45309" />, badgeBg: 'rgba(245,158,11,0.15)', activeBorder: 'rgba(245,158,11,0.3)', activeBg: 'rgba(245,158,11,0.05)', activeColor: '#b45309' },
+                      { id: 'subs', label: 'Subscribers', icon: <Activity size={14} color="#be123c" />, badgeBg: 'rgba(225,29,72,0.15)', activeBorder: 'rgba(225,29,72,0.3)', activeBg: 'rgba(225,29,72,0.05)', activeColor: '#be123c' },
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     ].map(tab => (
                       <button
                         key={tab.id}
@@ -2894,8 +2930,13 @@ function App() {
                             <stop offset="100%" stopColor={activeTabData.gradientEnd} />
                           </linearGradient>
                         </defs>
+<<<<<<< HEAD
                         <path d={chartAreaPath} fill="url(#growthGradient)" />
                         <path d={chartLinePath} fill="none" stroke={activeTabData.strokeColor} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+=======
+                        <path d="M 0 100 Q 40 90, 80 70 T 160 60 T 240 30 L 300 15 L 300 120 L 0 120 Z" fill="url(#growthGradient)" />
+                        <path d="M 0 100 Q 40 90, 80 70 T 160 60 T 240 30 L 300 15" fill="none" stroke={activeTabData.strokeColor} strokeWidth="4" strokeLinecap="round" />
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                         
                         {/* Data Points */}
                         {activeTabData.points.map((point, index) => (
@@ -3045,6 +3086,7 @@ function App() {
                 promoCodes={promoCodes}
               />
             )}
+<<<<<<< HEAD
             {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} homeGlassChart={homeGlassChart} setHomeGlassChart={setHomeGlassChart} surplusListings={surplusListings} setSurplusListings={setSurplusListings} expertSupportConfig={expertSupportConfig} setExpertSupportConfig={setExpertSupportConfig} impactSectorsConfig={impactSectorsConfig} setImpactSectorsConfig={setImpactSectorsConfig} subscriptionPlans={subscriptionPlans} setSubscriptionPlans={setSubscriptionPlans} />}
             {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} />}
             {activeNav === "Starter Kits & Toolsets" && <StarterKits setActiveNav={setActiveNav} />}
@@ -3058,6 +3100,21 @@ function App() {
             {activeNav === "OurImpactPage" && <OurImpactPage setActiveNav={setActiveNav} impactSectorsConfig={impactSectorsConfig} />}
             {activeNav === "IncomeGenerationPage" && <IncomeGenerationPage setActiveNav={setActiveNav} sectorContent={impactSectorsConfig.details?.["income-generation"]} />}
             {activeNav === "SurplusExchangePage" && <SurplusExchangePage setActiveNav={setActiveNav} surplusListings={surplusListings} setSurplusListings={setSurplusListings} loggedInUser={loggedInUser} />}
+=======
+            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} />}
+            {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} />}
+            {activeNav === "Starter Kits & Toolsets" && <StarterKits setActiveNav={setActiveNav} />}
+            {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} />}
+            {activeNav === "Specialist Certification" && <SpecialistCertification setActiveNav={setActiveNav} />}
+            {activeNav === "AIPlantDoctor" && <AIPlantDoctor setActiveNav={setActiveNav} />}
+            {activeNav === "ExpertSupportPage" && <ExpertSupportPage setActiveNav={setActiveNav} />} {/* Add routing for ExpertSupportPage */}
+            {activeNav === "LGUPartnershipPage" && <LGUPartnershipPage setActiveNav={setActiveNav} />}
+            {activeNav === "ImpactTrackingPage" && <ImpactTrackingPage setActiveNav={setActiveNav} />}
+            {activeNav === "NativeSeedBankPage" && <NativeSeedBankPage setActiveNav={setActiveNav} />}
+            {activeNav === "OurImpactPage" && <OurImpactPage setActiveNav={setActiveNav} />}
+            {activeNav === "IncomeGenerationPage" && <IncomeGenerationPage setActiveNav={setActiveNav} />}
+            {activeNav === "SurplusExchangePage" && <SurplusExchangePage setActiveNav={setActiveNav} />}
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             {activeNav === "CheckoutPage" && <CheckoutPage setActiveNav={setActiveNav} cartItems={cartItems} setCartItems={setCartItems} addEcoPoints={addEcoPoints} setOrders={setOrders} onTrackOrder={handleTrackOrder} products={products} setProducts={setProducts} promoCodes={promoCodes} />}
 
             {activeNav === "Login" && (
@@ -4608,6 +4665,7 @@ function App() {
           </div>
         )}
 
+<<<<<<< HEAD
         {shouldShowSupportTicket && (
           <button
             type="button"
@@ -4758,6 +4816,8 @@ function App() {
           </div>
         )}
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         {showAIChat && (
           <AIChatInterface onClose={() => setShowAIChat(false)} isMobile={isMobile} />
         )}
@@ -5859,6 +5919,7 @@ const styles = {
     color: "#b91c1c",
     border: "1px solid rgba(220, 38, 38, 0.15)",
   },
+<<<<<<< HEAD
   supportTicketButton: {
     position: "fixed",
     right: "24px",
@@ -6065,6 +6126,8 @@ const styles = {
     gap: "8px",
     boxShadow: "0 12px 24px rgba(22,163,74,0.24)",
   },
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 };
 
 export default App;

@@ -15,6 +15,7 @@ const communityImpactData = [
   { id: 4, area: "Biodiversity Preservation", progress: 65, color: "#fbbf24" },
 ];
 
+<<<<<<< HEAD
 const impactIconMap = {
   leaf: FaLeaf,
   cloud: FaCloudMeatball,
@@ -63,6 +64,12 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
     ...(sectorContent || {}),
     header: { ...defaultImpactTrackingContent.header, ...(sectorContent?.header || {}) },
   };
+=======
+function ImpactTrackingPage({ setActiveNav }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isHoveredBack, setIsHoveredBack] = useState(false);
+  const [animate, setAnimate] = useState(false);
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -105,23 +112,36 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
         </div>
         <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
           <span style={styles.badgeDot} />
+<<<<<<< HEAD
           <span style={styles.glassContentLayer}>{content.header.badge}</span>
+=======
+          <span style={styles.glassContentLayer}>Impact Tracking</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
+<<<<<<< HEAD
         {content.header.titleLead} <span style={styles.titleAccent}>{content.header.titleAccent}</span>
+=======
+        Measuring Our <span style={styles.titleAccent}>Impact</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </h1>
       <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+<<<<<<< HEAD
         {content.header.description}
+=======
+        Our commitment to sustainability is backed by data. We meticulously track key metrics to ensure transparency and drive meaningful environmental and community impact.
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </p>
 
       <div style={{ ...styles.dashboardGrid, ...(isMobile ? styles.dashboardGridMobile : {}) }}>
         
         {/* Animated Statistics Cards */}
         <div style={styles.statsRow}>
+<<<<<<< HEAD
           {(content.stats || []).map((stat, index) => {
             const Icon = impactIconMap[stat.iconKey] || FaLeaf;
             return (
@@ -132,12 +152,22 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
             </div>
             );
           })}
+=======
+          {impactStats.map((stat) => (
+            <div key={stat.id} className="inner-blur-glass" style={styles.statCard}>
+              <div style={styles.statIcon}>{stat.icon}</div>
+              <div style={styles.statValue}>{stat.value}</div>
+              <div style={styles.statLabel}>{stat.label}</div>
+            </div>
+          ))}
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Community Impact Data (Chart-like visualization) */}
         <div className="inner-blur-glass" style={styles.chartCard}>
           <div style={styles.cardHeader}>
             <FaHandshake style={styles.cardIcon} />
+<<<<<<< HEAD
             <h3 style={styles.cardTitle}>{content.chartTitle}</h3>
           </div>
           <div style={styles.chartContainer}>
@@ -148,6 +178,16 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
                 <div style={styles.barLabelRow}>
                   <span>{item.label || item.area}</span>
                   <span>{progress}%</span>
+=======
+            <h3 style={styles.cardTitle}>Community Impact Areas</h3>
+          </div>
+          <div style={styles.chartContainer}>
+            {communityImpactData.map((item, i) => (
+              <div key={item.id} style={styles.chartBarGroup}>
+                <div style={styles.barLabelRow}>
+                  <span>{item.area}</span>
+                  <span>{item.progress}%</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                 </div>
                 <div style={styles.barTrack}>
                   <div 
@@ -155,21 +195,32 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
                     style={{ 
                       ...styles.barFill, 
                       backgroundColor: item.color, 
+<<<<<<< HEAD
                       "--target-width": `${progress}%` 
+=======
+                      "--target-width": `${item.progress}%` 
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     }} 
                   />
                 </div>
               </div>
+<<<<<<< HEAD
               );
             })}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.chartCtaLabel}</button>
+=======
+            ))}
+          </div>
+          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>View Detailed Report</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Environmental Metrics (Example: Crops Grown vs. CO2 Reduced) */}
         <div className="inner-blur-glass" style={styles.metricsCard}>
           <div style={styles.cardHeader}>
             <FaTractor style={styles.cardIcon} />
+<<<<<<< HEAD
             <h3 style={styles.cardTitle}>{content.metricsTitle}</h3>
           </div>
           <div style={styles.metricsGrid}>
@@ -185,12 +236,30 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
             })}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.metricsCtaLabel}</button>
+=======
+            <h3 style={styles.cardTitle}>Environmental Metrics</h3>
+          </div>
+          <div style={styles.metricsGrid}>
+            <div style={styles.metricItem}>
+              <FaLeaf style={styles.metricIcon} />
+              <span style={styles.metricValue}>150+ Tons</span>
+              <span style={styles.metricLabel}>Crops Grown</span>
+            </div>
+            <div style={styles.metricItem}>
+              <FaCloudMeatball style={styles.metricIcon} />
+              <span style={styles.metricValue}>100+ Tons</span>
+              <span style={styles.metricLabel}>CO₂ Reduced</span>
+            </div>
+          </div>
+          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Analyze Trends</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* People Reached (Visual) */}
         <div className="inner-blur-glass" style={styles.peopleReachedCard}>
           <div style={styles.cardHeader}>
             <FaUsers style={styles.cardIcon} />
+<<<<<<< HEAD
             <h3 style={styles.cardTitle}>{content.peopleTitle}</h3>
           </div>
           <div style={styles.peopleCount}>
@@ -201,6 +270,18 @@ function ImpactTrackingPage({ setActiveNav, sectorContent }) {
             {content.peopleDescription}
           </p>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.peopleCtaLabel}</button>
+=======
+            <h3 style={styles.cardTitle}>People Reached</h3>
+          </div>
+          <div style={styles.peopleCount}>
+            <span style={styles.peopleValue}>15,000+</span>
+            <span style={styles.peopleLabel}>Individuals Empowered</span>
+          </div>
+          <p style={styles.peopleDescription}>
+            Through workshops, direct support, and community programs, we've empowered thousands to embrace sustainable agriculture.
+          </p>
+          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Explore Stories</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
     </div>
@@ -518,4 +599,8 @@ const styles = {
   },
 };
 
+<<<<<<< HEAD
 export default ImpactTrackingPage;
+=======
+export default ImpactTrackingPage;
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d

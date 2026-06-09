@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
+<<<<<<< HEAD
 import { initialSubscriptionPlans } from "../subscriptionPlans";
 import { 
   LayoutDashboard, Users, ShieldCheck, Box, ShoppingCart, 
   Truck, CreditCard, Repeat, CalendarDays, 
   BarChart2, FileText, Settings, LogOut, 
   Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Globe, Megaphone, Layout, Database, Wheat, Send
+=======
+import { 
+  LayoutDashboard, Users, ShieldCheck, Box, ShoppingCart, 
+  Truck, CreditCard, Repeat, CalendarDays, Stethoscope, 
+  BarChart2, FileText, Settings, LogOut, 
+  Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Route, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Scan, Target, Bug, Thermometer, PieChart, Globe, Lightbulb, Megaphone, Wand2, Layout, Plus, Play, Database, Wheat, Send
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 } from "lucide-react";
 
 const mockStats = [
@@ -13,6 +21,7 @@ const mockStats = [
   { label: "Total Revenue", value: "₱2.4M", trend: "+15%", up: true, icon: <CreditCard size={16} color="#b45309" /> },
   { label: "Pending Deliveries", value: "142", trend: "-3%", up: false, icon: <Truck size={16} color="#be123c" /> },
   { label: "Active Farmers", value: "3,500+", trend: "+5%", up: true, icon: <ShieldCheck size={16} color="#15803d" /> },
+<<<<<<< HEAD
   { label: "Upcoming Events", value: "12", trend: "+2", up: true, icon: <CalendarDays size={16} color="#0369a1" /> },
 ];
 
@@ -57,6 +66,12 @@ const mergeAdminSettings = (savedSettings = {}) => ({
     history: Array.isArray(savedSettings.backups?.history) ? savedSettings.backups.history : DEFAULT_ADMIN_SETTINGS.backups.history,
   },
 });
+=======
+  { label: "AI Diagnoses", value: "12,845", trend: "+22%", up: true, icon: <Stethoscope size={16} color="#0369a1" /> },
+];
+
+const ORDERS_STORAGE_KEY = "verdeversity_orders";
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
 const mockTopProducts = [
   { name: "Heirloom Tomatoes", sales: "1,240", rev: "₱186K", stock: "In Stock", emoji: "🍅" },
@@ -80,7 +95,11 @@ const mockUsers = [
 
 const mockActivityFeed = [
   { text: "New commercial farm registered from Benguet.", time: "10 mins ago", color: "#16a34a" },
+<<<<<<< HEAD
   { text: "Seasonal harvest demand increased for tomatoes and leafy greens.", time: "1 hr ago", color: "#eab308" },
+=======
+  { text: "High volume of AI diagnoses detected for 'Tomato Blight'.", time: "1 hr ago", color: "#eab308" },
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   { text: "LGU Partnership completed for Baguio City.", time: "3 hrs ago", color: "#0284c7" },
   { text: "Payouts successfully disbursed to 450 micro-vendors.", time: "5 hrs ago", color: "#8b5cf6" },
 ];
@@ -298,12 +317,33 @@ const mockSubscriptionStats = [
   { label: "Active Pro Users", value: "148", trend: "+15%", up: true, icon: <Crown size={16} color="#f59e0b" /> },
 ];
 
+<<<<<<< HEAD
 const mockSubscribers = [
   { id: "SUB-001", user: "Maria Clara", email: "maria@example.com", plan: "Pro", status: "Active", renewal: "Jun 15, 2026", payment: "GCash", joined: "Jan 10, 2026", monthlyUsage: 85, usageLimit: 100 },
   { id: "SUB-002", user: "Juan Dela Cruz", email: "juan@example.com", plan: "Basic", status: "Active", renewal: "N/A", payment: "Free", joined: "Feb 05, 2026", monthlyUsage: 8, usageLimit: 10 },
   { id: "SUB-003", user: "Healthy Eats Cafe", email: "contact@healthyeats.com", plan: "Enterprise", status: "Active", renewal: "Dec 01, 2026", payment: "Bank Transfer", joined: "Dec 01, 2025", monthlyUsage: 1250, usageLimit: 5000 },
   { id: "SUB-004", user: "Urban Roots", email: "hello@urbanroots.ph", plan: "Pro", status: "Pending Renewal", renewal: "May 30, 2026", payment: "Credit Card", joined: "May 30, 2025", monthlyUsage: 100, usageLimit: 100 },
   { id: "SUB-005", user: "Reyes Organic", email: "admin@reyesorganic.com", plan: "Pro", status: "Cancelled", renewal: "May 15, 2026", payment: "Maya", joined: "Oct 12, 2025", monthlyUsage: 20, usageLimit: 100 },
+=======
+const mockPlans = [
+  { name: "Basic", price: "Free", users: "850", revenue: "₱0", features: ["Limited AI Scans", "Community Access", "Marketplace Buying"], color: "#64748b", bg: "rgba(100,116,139,0.05)" },
+  { name: "Pro", price: "₱499/mo", users: "345", revenue: "₱172K", features: ["Unlimited AI Doctor", "Advanced Analytics", "Priority Support"], color: "#f59e0b", bg: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05))" },
+  { name: "Enterprise", price: "Custom", users: "50", revenue: "₱450K", features: ["LGU Dashboard", "API Integration", "Team Accounts"], color: "#0ea5e9", bg: "linear-gradient(135deg, rgba(14,165,233,0.1), rgba(14,165,233,0.05))" },
+];
+
+const mockSubscribers = [
+  { id: "SUB-001", user: "Maria Clara", email: "maria@example.com", plan: "Pro", status: "Active", renewal: "Jun 15, 2026", payment: "GCash", joined: "Jan 10, 2026", aiScans: 85, aiLimit: 100 },
+  { id: "SUB-002", user: "Juan Dela Cruz", email: "juan@example.com", plan: "Basic", status: "Active", renewal: "N/A", payment: "Free", joined: "Feb 05, 2026", aiScans: 8, aiLimit: 10 },
+  { id: "SUB-003", user: "Healthy Eats Cafe", email: "contact@healthyeats.com", plan: "Enterprise", status: "Active", renewal: "Dec 01, 2026", payment: "Bank Transfer", joined: "Dec 01, 2025", aiScans: 1250, aiLimit: 5000 },
+  { id: "SUB-004", user: "Urban Roots", email: "hello@urbanroots.ph", plan: "Pro", status: "Pending Renewal", renewal: "May 30, 2026", payment: "Credit Card", joined: "May 30, 2025", aiScans: 100, aiLimit: 100 },
+  { id: "SUB-005", user: "Reyes Organic", email: "admin@reyesorganic.com", plan: "Pro", status: "Cancelled", renewal: "May 15, 2026", payment: "Maya", joined: "Oct 12, 2025", aiScans: 20, aiLimit: 100 },
+];
+
+const subscriptionPlanOptions = [
+  { value: "Basic", label: "Basic" },
+  { value: "Pro", label: "Pro" },
+  { value: "Enterprise", label: "Enterprise" },
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 ];
 
 const subscriptionStatusOptions = [
@@ -370,6 +410,7 @@ const mockEventsList = [
   { id: "EVT-005", title: "Advanced Soil Health", date: "May 10, 2026", time: "07:00 PM", type: "Webinar", attendees: 250, maxAttendees: 300, status: "Completed", price: "Free", location: "Online" },
 ];
 
+<<<<<<< HEAD
 const mockEventAttendees = {
   "EVT-001": [
     { id: "ATT-1001", name: "Maria Clara", email: "maria@example.com", ticket: "Workshop Pass", status: "Checked In", payment: "Paid", registeredAt: "Jun 01, 2026" },
@@ -397,18 +438,50 @@ const mockEventAttendees = {
     { id: "ATT-5002", name: "Gina Ramos", email: "gina@example.com", ticket: "Webinar Access", status: "Checked In", payment: "Free", registeredAt: "Apr 29, 2026" },
   ],
 };
+=======
+const mockAIStats = [
+  { label: "Total AI Scans", value: "12,450", trend: "+18%", up: true, icon: <Scan size={16} color="#0284c7" /> },
+  { label: "AI Accuracy Rate", value: "98.4%", trend: "+1.2%", up: true, icon: <Target size={16} color="#16a34a" /> },
+  { label: "Diseases Detected", value: "3,248", trend: "-5%", up: false, icon: <Bug size={16} color="#eab308" /> },
+  { label: "Reports Generated", value: "2,400", trend: "+22%", up: true, icon: <FileText size={16} color="#8b5cf6" /> },
+];
+
+const mockScansList = [
+  { id: "SCN-8821", plant: "Tomato", disease: "Early Blight", confidence: "94%", user: "Maria Clara", status: "Critical", date: "May 28, 2026", recommendation: "Apply copper-based fungicide and remove affected lower leaves to prevent spore spread." },
+  { id: "SCN-8820", plant: "Lettuce", disease: "None", confidence: "99%", user: "Urban Roots", status: "Healthy", date: "May 28, 2026", recommendation: "Plant is healthy. Continue current watering and nutrient schedule." },
+  { id: "SCN-8819", plant: "Mango", disease: "Anthracnose", confidence: "87%", user: "Juan Dela Cruz", status: "Disease Detected", date: "May 27, 2026", recommendation: "Prune infected branches and apply organic fungicide during dry weather." },
+  { id: "SCN-8818", plant: "Banana", disease: "Stem Weevil", confidence: "76%", user: "Green Valley", status: "Under Review", date: "May 27, 2026", recommendation: "Requires agronomist confirmation. Temporarily isolate affected crops." },
+  { id: "SCN-8817", plant: "Eggplant", disease: "Downy Mildew", confidence: "91%", user: "Healthy Eats", status: "Resolved", date: "May 26, 2026", recommendation: "Previous treatment successful. Monitor for 7 more days." },
+];
+
+const mockDiseaseDatabase = [
+  { name: "Early Blight", crop: "Tomato, Potato", severity: "High" },
+  { name: "Downy Mildew", crop: "Eggplant, Cucumber", severity: "Medium" },
+  { name: "Anthracnose", crop: "Mango, Papaya", severity: "High" },
+  { name: "Powdery Mildew", crop: "Squash, Melon", severity: "Medium" },
+];
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
 const mockAnalyticsStats = [
   { label: "Total Revenue", value: "₱245,000", trend: "+18%", up: true, icon: <CreditCard size={16} color="#15803d" /> },
   { label: "Active Users", value: "4,200", trend: "+12%", up: true, icon: <Users size={16} color="#0284c7" /> },
+<<<<<<< HEAD
   { label: "Event Signups", value: "1,284", trend: "+24%", up: true, icon: <CalendarDays size={16} color="#8b5cf6" /> },
+=======
+  { label: "AI Diagnoses", value: "12,400", trend: "+24%", up: true, icon: <Scan size={16} color="#8b5cf6" /> },
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   { label: "CO₂ Reduced", value: "3.2 Tons", trend: "+8%", up: true, icon: <Leaf size={16} color="#16a34a" /> },
 ];
 
 const mockAIInsights = [
   { text: "Orders increased 18% this month, primarily from Metro Manila.", type: "positive", color: "#16a34a", bg: "rgba(22,163,74,0.1)" },
+<<<<<<< HEAD
   { text: "Palawan has the highest workshop registration activity this week.", type: "neutral", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" },
   { text: "Seasonal harvest listings from Region IV-B need buyer outreach.", type: "warning", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+=======
+  { text: "Palawan has the highest AI scan activity this week.", type: "neutral", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" },
+  { text: "High disease outbreak ('Tomato Blight') detected in Region IV-B.", type: "warning", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   { text: "Organic Edibles generated the most revenue in the past 30 days.", type: "positive", color: "#16a34a", bg: "rgba(22,163,74,0.1)" },
 ];
 
@@ -420,6 +493,7 @@ const mockRegionalData = [
   { region: "Others", pct: "5%", color: "#64748b" },
 ];
 
+<<<<<<< HEAD
 const initialSupplierItems = [
   { id: "SUP-001", item: "Balcony Herb Garden Kit", category: "Starter Kit", supplier: "Urban Roots Supply", stock: 84, unit: "units", status: "In Stock", reorderPoint: 24, contact: "supply@urbanroots.ph", leadTime: "3 days", notes: "Fast-moving starter kit for condo growers.", updatedAt: "May 28, 2026" },
   { id: "SUP-002", item: "Tomato Success Kit", category: "Seed Kit", supplier: "Benguet Growers Coop", stock: 18, unit: "units", status: "Low Stock", reorderPoint: 30, contact: "orders@benguetgrowers.ph", leadTime: "5 days", notes: "Prioritize before weekend campaign bundles.", updatedAt: "May 27, 2026" },
@@ -585,12 +659,39 @@ const homeGlassChartTabs = [
 export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders, supportTickets = [], homeGlassChart = {}, setHomeGlassChart, surplusListings = [], setSurplusListings, expertSupportConfig = {}, setExpertSupportConfig, impactSectorsConfig = {}, setImpactSectorsConfig, subscriptionPlans = initialSubscriptionPlans, setSubscriptionPlans }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [dashboardDateRange, setDashboardDateRange] = useState("Today");
+=======
+const mockContentStats = [
+  { label: "Total Articles", value: "245", trend: "+12", up: true, icon: <FileText size={16} color="#0284c7" /> },
+  { label: "Total Views", value: "18.4K", trend: "+15%", up: true, icon: <Eye size={16} color="#15803d" /> },
+  { label: "Active Listings", value: "120", trend: "+5", up: true, icon: <ShoppingCart size={16} color="#f59e0b" /> },
+  { label: "Announcements", value: "45", trend: "+2", up: true, icon: <Megaphone size={16} color="#8b5cf6" /> },
+];
+
+const mockContentList = [
+  { id: "CNT-001", title: "10 Benefits of Urban Farming", type: "Article", status: "Published", date: "May 28, 2026", author: "Admin" },
+  { id: "CNT-002", title: "Summer Workshop Registration", type: "Page", status: "Draft", date: "May 27, 2026", author: "Editor" },
+  { id: "CNT-003", title: "Platform Maintenance Notice", type: "Announcement", status: "Scheduled", date: "May 26, 2026", author: "Admin" },
+  { id: "CNT-004", title: "How to use the AI Plant Doctor", type: "Tutorial", status: "Published", date: "May 25, 2026", author: "Admin" },
+  { id: "CNT-005", title: "Homepage Hero Banner", type: "Component", status: "Published", date: "May 24, 2026", author: "Designer" },
+];
+
+const mockSettingsStats = [
+  { label: "System Status", value: "Online", trend: "99.9% Uptime", up: true, icon: <Activity size={16} color="#15803d" /> },
+  { label: "Active Admins", value: "5", trend: "Secure", up: true, icon: <ShieldCheck size={16} color="#0284c7" /> },
+  { label: "Database Load", value: "42%", trend: "Healthy", up: true, icon: <Database size={16} color="#f59e0b" /> },
+  { label: "API Health", value: "Stable", trend: "< 200ms ping", up: true, icon: <Globe size={16} color="#8b5cf6" /> },
+];
+
+export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders }) {
+  const [activeTab, setActiveTab] = useState("Dashboard");
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const [hoveredStat, setHoveredStat] = useState(null);
   
   const [editingProduct, setEditingProduct] = useState(null);
   const [productCategoryFilter, setProductCategoryFilter] = useState("All");
   const [toastMessage, setToastMessage] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
+<<<<<<< HEAD
   const [supplierItems, setSupplierItems] = useState(() => {
     try {
       const savedSupplierItems = localStorage.getItem(SUPPLIER_ITEMS_STORAGE_KEY);
@@ -603,6 +704,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [editingSupplierItem, setEditingSupplierItem] = useState(null);
   const [supplierSearchTerm, setSupplierSearchTerm] = useState("");
   const [supplierStatusFilter, setSupplierStatusFilter] = useState("All");
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [editableOrderDetails, setEditableOrderDetails] = useState(null);
@@ -644,7 +747,10 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   });
   const [subSearchTerm, setSubSearchTerm] = useState("");
   const [subPlanFilter, setSubPlanFilter] = useState("All");
+<<<<<<< HEAD
   const [editingSubscriptionPlan, setEditingSubscriptionPlan] = useState(null);
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventSearchTerm, setEventSearchTerm] = useState("");
@@ -652,9 +758,20 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [eventsList, setEventsList] = useState(mockEventsList);
   const [isEditingEvent, setIsEditingEvent] = useState(false);
   const [editableEvent, setEditableEvent] = useState(null);
+<<<<<<< HEAD
   const [isViewingEventAttendees, setIsViewingEventAttendees] = useState(false);
   const [eventAttendeeSearchTerm, setEventAttendeeSearchTerm] = useState("");
   const [eventAttendeeStatusFilter, setEventAttendeeStatusFilter] = useState("All");
+=======
+
+  const [selectedScan, setSelectedScan] = useState(null);
+  const [scanSearchTerm, setScanSearchTerm] = useState("");
+  const [scanStatusFilter, setScanStatusFilter] = useState("All");
+
+  const [contentSearchTerm, setContentSearchTerm] = useState("");
+  const [contentTypeFilter, setContentTypeFilter] = useState("All");
+  const [aiPrompt, setAiPrompt] = useState("");
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [editingHarvest, setEditingHarvest] = useState(null);
   const [harvestSearchTerm, setHarvestSearchTerm] = useState("");
@@ -662,6 +779,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [harvestToDelete, setHarvestToDelete] = useState(null);
 
   const [activeSettingsTab, setActiveSettingsTab] = useState("General");
+<<<<<<< HEAD
   const [adminSettings, setAdminSettings] = useState(() => {
     try {
       const savedSettings = localStorage.getItem(ADMIN_SETTINGS_STORAGE_KEY);
@@ -675,6 +793,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [paymentConfigOpen, setPaymentConfigOpen] = useState(false);
   const [activeHomeChartTab, setActiveHomeChartTab] = useState("crop");
   const [homeGlassChartDraft, setHomeGlassChartDraft] = useState(homeGlassChart);
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [editingPromo, setEditingPromo] = useState(null);
   
@@ -690,6 +810,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const notifRef = useRef(null);
   const [simulatedRiderDelivery, setSimulatedRiderDelivery] = useState(null);
 
+<<<<<<< HEAD
   useEffect(() => {
     setHomeGlassChartDraft(homeGlassChart);
   }, [homeGlassChart]);
@@ -698,6 +819,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     localStorage.setItem(SUPPLIER_ITEMS_STORAGE_KEY, JSON.stringify(supplierItems));
   }, [supplierItems]);
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleEditClick = (product) => {
     setEditingProduct({ ...product });
   };
@@ -757,6 +880,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     });
   };
 
+<<<<<<< HEAD
   const getSupplierItemStockText = (item) => `${Number(item.stock) || 0} ${item.unit || "units"}`;
 
   const getSupplierItemUpdatedAt = () => new Date().toLocaleDateString("en-US", {
@@ -828,6 +952,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     showAdminToast("Supplier item removed.");
   };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleEditOrder = (order) => {
     setEditingOrderId(order.id);
     setNewOrderStatus(order.status);
@@ -1063,6 +1189,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     });
   };
 
+<<<<<<< HEAD
   const getPlanDraftFromPlan = (plan = {}) => ({
     ...plan,
     name: plan.name || "",
@@ -1151,6 +1278,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const filteredAdminHarvests = (harvests || []).filter(h => {
     const matchesSearch = h.name.toLowerCase().includes(harvestSearchTerm.toLowerCase());
     const matchesCategory = harvestCategoryFilter === "All" || h.category === harvestCategoryFilter;
@@ -1203,7 +1332,10 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setEditableEvent(newEvent);
     setSelectedEvent(newEvent);
     setIsEditingEvent(true);
+<<<<<<< HEAD
     setIsViewingEventAttendees(false);
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   };
 
   const handleGenerateCertificates = () => {
@@ -1238,6 +1370,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     }, 1500);
   };
 
+<<<<<<< HEAD
   const getEventAttendees = (eventId) => mockEventAttendees[eventId] || [];
 
   const getFilteredEventAttendees = (eventId) => {
@@ -1286,6 +1419,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleSaveEvent = () => {
     if (!editableEvent.title || !editableEvent.title.trim()) {
       setToastMessage("Please provide a valid event title.");
@@ -1306,7 +1441,10 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setEventsList(updatedEvents);
     setSelectedEvent(eventToSave);
     setIsEditingEvent(false);
+<<<<<<< HEAD
     setIsViewingEventAttendees(false);
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     setToastMessage("Event saved successfully!");
     setTimeout(() => setToastMessage(null), 3000);
   };
@@ -1384,6 +1522,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+<<<<<<< HEAD
   const showAdminToast = (message) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(null), 3000);
@@ -1759,6 +1898,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     showAdminToast("System data exported as CSV.");
   };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const sidebarItems = [
     { name: "Dashboard", icon: LayoutDashboard },
     { name: "Users", icon: Users },
@@ -1771,6 +1912,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     { name: "Subscriptions", icon: Repeat },
     { name: "Events & Workshops", icon: CalendarDays },
     { name: "Seasonal Harvests", icon: Wheat },
+<<<<<<< HEAD
     { name: "Surplus Exchange", icon: RefreshCcw },
     { name: "Home Glass Chart", icon: BarChart2 },
     { name: "Announcements", icon: Megaphone },
@@ -1782,6 +1924,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     { name: "Impact Sectors", icon: Globe },
     { name: "Impact Metrics", icon: Leaf },
     { name: "Reports & Analytics", icon: BarChart2 },
+=======
+    { name: "AI Plant Doctor", icon: Stethoscope },
+    { name: "Reports & Analytics", icon: BarChart2 },
+    { name: "Content Management", icon: FileText },
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     { name: "Settings", icon: Settings },
   ];
 
@@ -1800,6 +1947,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   }, 0);
   const pendingOrdersCount = (orders || []).filter(order => order.status === "Pending Approval").length;
   const deliveredOrdersCount = (orders || []).filter(order => order.status === "Delivered").length;
+<<<<<<< HEAD
   const settingsTabs = [
     { id: "General", icon: <Layout size={16} /> },
     { id: "Security & Roles", icon: <ShieldCheck size={16} /> },
@@ -1820,6 +1968,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     { label: "Last Backup", value: adminSettings.backups.lastBackup ? "Saved" : "None", trend: adminSettings.backups.lastBackup || "Create one", up: Boolean(adminSettings.backups.lastBackup), icon: <Database size={16} color="#f59e0b" /> },
     { label: "Payment API", value: adminSettings.payments.payMongoEnabled ? "Enabled" : "Paused", trend: adminSettings.payments.publicKey ? "Configured" : "Missing Key", up: adminSettings.payments.payMongoEnabled && Boolean(adminSettings.payments.publicKey), icon: <Globe size={16} color="#8b5cf6" /> },
   ];
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const filteredDeliveriesList = deliveriesList.filter(delivery => {
     const matchesSearch = delivery.id.toLowerCase().includes(deliverySearchTerm.toLowerCase()) || 
@@ -1838,6 +1988,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesStatus;
   });
 
+<<<<<<< HEAD
   const managedSubscriptionPlans = Array.isArray(subscriptionPlans) && subscriptionPlans.length > 0 ? subscriptionPlans : initialSubscriptionPlans;
   const managedSubscriptionPlanOptions = managedSubscriptionPlans.map(plan => ({ value: plan.name, label: plan.name }));
   const getManagedPlanColor = (planName) => managedSubscriptionPlans.find(plan => plan.name === planName)?.color || "#475569";
@@ -1849,6 +2000,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return 100;
   };
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const filteredSubscribers = subscribersList.filter(sub => {
     const matchesSearch = sub.user.toLowerCase().includes(subSearchTerm.toLowerCase()) || 
                           sub.id.toLowerCase().includes(subSearchTerm.toLowerCase());
@@ -1863,6 +2016,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesType;
   });
 
+<<<<<<< HEAD
   const filteredAdminProducts = products.filter(p => 
     productCategoryFilter === "All" || p.category === productCategoryFilter
   );
@@ -1888,6 +2042,27 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return stat;
   });
 
+=======
+  const filteredScansList = mockScansList.filter(scan => {
+    const matchesSearch = scan.plant.toLowerCase().includes(scanSearchTerm.toLowerCase()) || 
+                          scan.disease.toLowerCase().includes(scanSearchTerm.toLowerCase()) ||
+                          scan.user.toLowerCase().includes(scanSearchTerm.toLowerCase());
+    const matchesStatus = scanStatusFilter === "All" || scan.status === scanStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const filteredContentList = mockContentList.filter(cnt => {
+    const matchesSearch = cnt.title.toLowerCase().includes(contentSearchTerm.toLowerCase()) || 
+                          cnt.id.toLowerCase().includes(contentSearchTerm.toLowerCase());
+    const matchesType = contentTypeFilter === "All" || cnt.type === contentTypeFilter;
+    return matchesSearch && matchesType;
+  });
+
+  const filteredAdminProducts = products.filter(p => 
+    productCategoryFilter === "All" || p.category === productCategoryFilter
+  );
+
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const getStatusStyle = (status) => {
     if (status === "Pending Approval") return { background: "rgba(245,158,11,0.1)", color: "#d97706" };
     if (status === "Approved") return { background: "rgba(14,165,233,0.1)", color: "#0ea5e9" };
@@ -1925,6 +2100,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
   };
 
+<<<<<<< HEAD
   const getManagedStatusStyle = (status) => {
     if (["Published", "Live", "In Stock", "Featured", "Approved", "Available"].includes(status)) return { background: "rgba(22,163,74,0.1)", color: "#16a34a" };
     if (["Scheduled", "Review", "Low Stock", "Reorder", "Draft", "Pending Review"].includes(status)) return { background: "rgba(245,158,11,0.1)", color: "#f59e0b" };
@@ -3504,6 +3680,21 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
       </div>
     </div>
   );
+=======
+  const getScanStatusStyle = (status) => {
+    if (status === "Healthy" || status === "Resolved") return { background: "rgba(22,163,74,0.1)", color: "#16a34a" };
+    if (status === "Disease Detected") return { background: "rgba(245,158,11,0.1)", color: "#f59e0b" };
+    if (status === "Critical") return { background: "rgba(220,38,38,0.1)", color: "#dc2626" };
+    if (status === "Under Review") return { background: "rgba(139,92,246,0.1)", color: "#8b5cf6" };
+    return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
+  };
+
+  const getContentStatusStyle = (status) => {
+    if (status === "Published") return { background: "rgba(22,163,74,0.1)", color: "#16a34a" };
+    if (status === "Draft") return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
+    if (status === "Scheduled") return { background: "rgba(14,165,233,0.1)", color: "#0ea5e9" };
+    return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   };
 
   return (
@@ -3535,9 +3726,14 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {productToDelete && (
+<<<<<<< HEAD
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setProductToDelete(null)}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }} onClick={e => e.stopPropagation()}>
             <button type="button" aria-label="Close delete product modal" onClick={() => setProductToDelete(null)} style={{ position: "absolute", top: "14px", right: "14px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "30px", height: "30px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#111827" }}><X size={15} /></button>
+=======
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
               <Trash2 size={24} color="#e11d48" />
             </div>
@@ -3561,9 +3757,14 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {harvestToDelete && (
+<<<<<<< HEAD
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setHarvestToDelete(null)}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }} onClick={e => e.stopPropagation()}>
             <button type="button" aria-label="Close delete crop modal" onClick={() => setHarvestToDelete(null)} style={{ position: "absolute", top: "14px", right: "14px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "30px", height: "30px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#111827" }}><X size={15} /></button>
+=======
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
               <Trash2 size={24} color="#e11d48" />
             </div>
@@ -3913,9 +4114,14 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {editingPromo && (
+<<<<<<< HEAD
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setEditingPromo(null)}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "400px", position: "relative" }} onClick={e => e.stopPropagation()}>
             <button type="button" aria-label="Close promo modal" onClick={() => setEditingPromo(null)} style={{ position: "absolute", top: "18px", right: "18px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
+=======
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "400px", position: "relative" }}>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <h3 style={{ margin: "0 0 16px", fontSize: "20px", fontWeight: 800 }}>{editingPromo.isNew ? "Add Promo Code" : "Edit Promo Code"}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
               <input type="text" placeholder="Promo Code (e.g. SUMMER20)" value={editingPromo.code} onChange={e => setEditingPromo({...editingPromo, code: e.target.value.toUpperCase().replace(/\s+/g, '')})} style={styles.editInput} />
@@ -3961,30 +4167,52 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", alignItems: "stretch", marginBottom: "14px" }}>
                <div style={{ background: "rgba(255,255,255,0.66)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "18px", padding: "12px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)" }}>
                  <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>1</span> Subscription Info</h4>
+<<<<<<< HEAD
                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Plan:</span> <span style={{ fontSize: "13px", fontWeight: 800, color: getManagedPlanColor(selectedSubscriber.plan) }}>{selectedSubscriber.plan}</span></div>
+=======
+                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Plan:</span> <span style={{ fontSize: "13px", fontWeight: 800, color: selectedSubscriber.plan === "Pro" ? "#f59e0b" : selectedSubscriber.plan === "Enterprise" ? "#0ea5e9" : "#64748b" }}>{selectedSubscriber.plan}</span></div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Status:</span> <span style={{ padding: "2px 6px", borderRadius: "4px", fontSize: "10px", fontWeight: 700, ...getSubStatusStyle(selectedSubscriber.status) }}>{selectedSubscriber.status}</span></div>
                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Payment:</span> <span style={{ fontSize: "13px", color: "rgba(0,0,0,0.7)" }}>{selectedSubscriber.payment}</span></div>
                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Renewal:</span> <span style={{ fontSize: "13px", color: "rgba(0,0,0,0.7)" }}>{selectedSubscriber.renewal}</span></div>
                </div>
                {(() => {
+<<<<<<< HEAD
                  const pct = (selectedSubscriber.monthlyUsage / selectedSubscriber.usageLimit) * 100;
+=======
+                 const pct = (selectedSubscriber.aiScans / selectedSubscriber.aiLimit) * 100;
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                  const isNearLimit = pct >= 80 && pct < 100;
                  const isAtLimit = pct >= 100;
                  return (
                    <div style={{ background: "rgba(255,255,255,0.78)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "18px", padding: "12px", boxShadow: "0 8px 22px rgba(0,0,0,0.06)" }}>
+<<<<<<< HEAD
                      <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>2</span> Monthly Usage</h4>
                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>
                        <span>Plan Uses</span>
                        <span style={{ color: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "#15803d" }}>{selectedSubscriber.monthlyUsage} / {selectedSubscriber.usageLimit}</span>
+=======
+                     <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>2</span> AI Usage</h4>
+                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>
+                       <span>Plant Scans</span>
+                       <span style={{ color: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "#15803d" }}>{selectedSubscriber.aiScans} / {selectedSubscriber.aiLimit}</span>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                      <div style={{ width: "100%", height: "8px", background: "rgba(0,0,0,0.05)", borderRadius: "999px" }}>
                        <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", background: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "linear-gradient(90deg, #16a34a, #4ade80)", borderRadius: "999px", animation: isNearLimit ? "warningPulse 1.5s infinite" : "none" }} />
                      </div>
                      {isNearLimit && (
+<<<<<<< HEAD
                        <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#f97316", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> Only {selectedSubscriber.usageLimit - selectedSubscriber.monthlyUsage} uses remaining this month</p>
                      )}
                      {isAtLimit && (
                        <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#dc2626", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> Limit reached. Upgrade to unlock higher monthly usage.</p>
+=======
+                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#f97316", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> ⚠️ Only {selectedSubscriber.aiLimit - selectedSubscriber.aiScans} scans remaining this month</p>
+                     )}
+                     {isAtLimit && (
+                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#dc2626", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> 🔒 Limit reached. Upgrade to unlock unlimited diagnostics.</p>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      )}
                    </div>
                  );
@@ -3995,7 +4223,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "8px" }}>
                    <div>
                      <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Plan</label>
+<<<<<<< HEAD
                      <AdminEcoDropdown value={editableSubscriber?.plan || selectedSubscriber.plan} options={managedSubscriptionPlanOptions} onChange={value => setEditableSubscriber({ ...(editableSubscriber || selectedSubscriber), plan: value, usageLimit: getManagedPlanLimit(value) })} />
+=======
+                     <AdminEcoDropdown value={editableSubscriber?.plan || selectedSubscriber.plan} options={subscriptionPlanOptions} onChange={value => setEditableSubscriber({ ...(editableSubscriber || selectedSubscriber), plan: value, aiLimit: value === "Basic" ? 10 : value === "Pro" ? 100 : 5000 })} />
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                    </div>
                    <div>
                      <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Status</label>
@@ -4016,7 +4248,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                  <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>4</span> Notifications</h4>
                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "142px", overflowY: "auto", paddingRight: "2px" }} className="custom-scrollbar">
                    <div style={{ padding: "7px 9px", background: "rgba(22,163,74,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#15803d", fontWeight: 600 }}><CheckCircle size={13} /> Subscription renewed successfully</div>
+<<<<<<< HEAD
                    <div style={{ padding: "7px 9px", background: "rgba(249,115,22,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#c2410c", fontWeight: 600 }}><AlertCircle size={13} /> Subscription usage limit almost reached</div>
+=======
+                   <div style={{ padding: "7px 9px", background: "rgba(249,115,22,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#c2410c", fontWeight: 600 }}><AlertCircle size={13} /> AI Scan limit almost reached</div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                    <div style={{ padding: "7px 9px", background: "rgba(14,165,233,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#0284c7", fontWeight: 600 }}><CalendarDays size={13} /> New eco workshop available</div>
                    <div style={{ padding: "7px 9px", background: "rgba(139,92,246,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#7c3aed", fontWeight: 600 }}><Tag size={13} /> Promo: 20% off yearly plan</div>
                    <div style={{ padding: "7px 9px", background: "rgba(22,163,74,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#15803d", fontWeight: 600 }}><span style={{fontSize: "13px"}}>🎉</span> You earned 120 EcoPoints this month</div>
@@ -4031,8 +4267,13 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                         <AdminEcoDropdown value={subscriberCampaignForm.delivery} options={subscriberDeliveryOptions.map(option => ({ ...option, label: `Delivery: ${option.label}` }))} onChange={value => setSubscriberCampaignForm({...subscriberCampaignForm, delivery: value})} compact />
                        <AdminEcoDropdown value={subscriberCampaignForm.schedule} options={subscriberScheduleOptions} onChange={value => setSubscriberCampaignForm({...subscriberCampaignForm, schedule: value})} compact />
                    </div>
+<<<<<<< HEAD
                    <input type="text" placeholder="Title (e.g. New workshop schedule available)" value={subscriberCampaignForm.title} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, title: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px" }} />
                    <textarea placeholder="Message body (e.g. Seats are open for the new composting workshop...)" rows={2} value={subscriberCampaignForm.message} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, message: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px", resize: "none", fontFamily: "inherit", minHeight: "56px" }} />
+=======
+                   <input type="text" placeholder="Title (e.g. New AI Plant Doctor update available)" value={subscriberCampaignForm.title} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, title: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px" }} />
+                   <textarea placeholder="Message body (e.g. You can now detect 20+ new crop diseases...)" rows={2} value={subscriberCampaignForm.message} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, message: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px", resize: "none", fontFamily: "inherit", minHeight: "56px" }} />
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                  </div>
                </div>
             </div>
@@ -4054,9 +4295,15 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {selectedEvent && (
+<<<<<<< HEAD
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); setIsViewingEventAttendees(false); }}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: isViewingEventAttendees ? "860px" : "550px", maxHeight: "86vh", overflowY: "auto", position: "relative" }} className="custom-scrollbar" onClick={e => e.stopPropagation()}>
             <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); setIsViewingEventAttendees(false); }} style={{ position: "absolute", top: "20px", right: "20px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
+=======
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); }}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "550px", position: "relative" }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); }} style={{ position: "absolute", top: "20px", right: "20px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
               {isEditingEvent ? (
@@ -4086,6 +4333,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               <h2 style={{ margin: "0 0 16px", fontSize: "22px", fontWeight: 800, lineHeight: 1.2 }}>{selectedEvent.title}</h2>
             )}
             
+<<<<<<< HEAD
             {isViewingEventAttendees ? (
               (() => {
                 const attendees = getFilteredEventAttendees(selectedEvent.id);
@@ -4166,6 +4414,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               })()
             ) : (
               <>
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
                <div style={{ background: "rgba(255,255,255,0.6)", padding: "16px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
                  <h4 style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Schedule & Location</h4>
@@ -4193,6 +4443,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                 </>
               ) : (
                 <>
+<<<<<<< HEAD
                   <button onClick={handleViewEventAttendees} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
                   <button onClick={() => { setIsViewingEventAttendees(false); setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
                 </>
@@ -4202,6 +4453,57 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
             )}
 
             <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); setIsViewingEventAttendees(false); }} style={{ width: "100%", padding: "14px", borderRadius: "16px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Close Details</button>
+=======
+                  <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
+                  <button onClick={() => { setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
+                </>
+              )}
+            </div>
+
+            <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); }} style={{ width: "100%", padding: "14px", borderRadius: "16px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Close Details</button>
+          </div>
+        </div>
+      )}
+      {selectedScan && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setSelectedScan(null)}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.3)", boxShadow: "0 20px 50px rgba(0,0,0,0.25)", width: "90%", maxWidth: "550px", position: "relative" }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedScan(null)} style={{ position: "absolute", top: "20px", right: "20px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h2 style={{ margin: "0", fontSize: "22px", fontWeight: 800 }}>AI Scan: {selectedScan.id}</h2>
+              <span style={{ padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getScanStatusStyle(selectedScan.status) }}>{selectedScan.status}</span>
+            </div>
+
+            {/* Image Preview & Holographic Scan Line */}
+            <div style={{ position: "relative", height: "200px", borderRadius: "16px", background: "linear-gradient(135deg, rgba(22,163,74,0.1), rgba(22,163,74,0.05))", border: "1px solid rgba(22,163,74,0.2)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: "inset 0 4px 20px rgba(0,0,0,0.05)" }}>
+              <div style={{ fontSize: "64px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}>🌿</div>
+              <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "4px", background: "rgba(74, 222, 128, 0.8)", boxShadow: "0 0 15px 2px #4ade80", animation: "scanLine 2.5s ease-in-out infinite" }} />
+            </div>
+
+            {/* Confidence Meter & Details */}
+            <div style={{ background: "rgba(255,255,255,0.6)", padding: "20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", marginBottom: "20px" }}>
+               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", alignItems: "center" }}>
+                 <span style={{ fontSize: "13px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}><Stethoscope size={14} color="#15803d" /> Detected: {selectedScan.disease}</span>
+                 <span style={{ fontSize: "13px", fontWeight: 800, color: parseInt(selectedScan.confidence) > 90 ? "#16a34a" : "#f59e0b" }}>{selectedScan.confidence} Confidence</span>
+               </div>
+               <div style={{ width: "100%", height: "8px", background: "rgba(0,0,0,0.05)", borderRadius: "999px", marginBottom: "16px" }}>
+                 <div style={{ width: selectedScan.confidence, height: "100%", background: parseInt(selectedScan.confidence) > 90 ? "linear-gradient(90deg, #16a34a, #4ade80)" : "linear-gradient(90deg, #f59e0b, #fbbf24)", borderRadius: "999px", boxShadow: `0 0 10px ${parseInt(selectedScan.confidence) > 90 ? "rgba(74,222,128,0.5)" : "rgba(251,191,36,0.5)"}` }} />
+               </div>
+               
+               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px", fontSize: "13px" }}>
+                 <div style={{ display: "flex", flexDirection: "column" }}><span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600, fontSize: "11px" }}>PLANT</span> <span style={{ fontWeight: 700 }}>{selectedScan.plant}</span></div>
+                 <div style={{ display: "flex", flexDirection: "column" }}><span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600, fontSize: "11px" }}>SCANNED BY</span> <span style={{ fontWeight: 700 }}>{selectedScan.user}</span></div>
+               </div>
+               
+               <h4 style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>AI Recommendation</h4>
+               <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.5, color: "rgba(0,0,0,0.8)", background: "rgba(14,165,233,0.05)", padding: "12px", borderRadius: "10px", border: "1px solid rgba(14,165,233,0.1)" }}>{selectedScan.recommendation}</p>
+            </div>
+
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(139,92,246,0.1)", color: "#8b5cf6", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={16}/> Download Report</button>
+              <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}><MessageSquare size={16}/> Consult Expert</button>
+            </div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
           </div>
         </div>
       )}
@@ -4242,6 +4544,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
       <main className="inner-blur-glass custom-scrollbar" style={styles.mainContent}>
         {/* Top Header */}
         <header style={styles.topHeader}>
+<<<<<<< HEAD
           <div style={styles.topBrandGroup}>
             <div style={styles.topLogoBadge}>
               <Leaf size={17} color="#064e3b" />
@@ -4252,6 +4555,12 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
             </div>
           </div>
           <div style={styles.headerActions}>
+=======
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <h1 style={styles.pageTitle}>{activeTab}</h1>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={styles.searchBar}>
               <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
               <input type="text" placeholder="Search..." style={styles.searchInput} />
@@ -4297,6 +4606,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         {/* Tab Content Rendering */}
         {activeTab === "Dashboard" ? (
           <div style={styles.dashboardContainer}>
+<<<<<<< HEAD
             <div style={{ ...styles.dashboardIntro, justifyContent: "flex-end", paddingTop: 0 }}>
               <div style={styles.dashboardDateControl}>
                 <CalendarDays size={14} color="#15803d" />
@@ -4309,6 +4619,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
 
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             {/* Stats Grid */}
             <div style={styles.statsGrid}>
               {mockStats.map((stat, idx) => (
@@ -5351,6 +5663,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               ))}
             </div>
 
+<<<<<<< HEAD
             <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px", marginBottom: "8px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", flexWrap: "wrap", marginBottom: "18px" }}>
                 <div>
@@ -5476,6 +5789,29 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                   );
                 })}
               </div>
+=======
+            {/* Plans Management Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px", marginBottom: "8px" }}>
+              {mockPlans.map(plan => (
+                <div key={plan.name} className="inner-blur-glass" style={{ ...styles.chartCard, background: plan.bg, padding: "20px", border: `1px solid ${plan.color}30` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: "18px", fontWeight: 800, color: plan.color, margin: 0 }}>{plan.name}</h3>
+                    <span style={{ fontSize: "14px", fontWeight: 800, color: "#000" }}>{plan.price}</span>
+                  </div>
+                  <div style={{ margin: "16px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {plan.features.map(f => (
+                      <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "rgba(0,0,0,0.7)", fontWeight: 500 }}>
+                        <CheckCircle size={14} color={plan.color} /> {f}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px" }}>
+                    <div><strong style={{ fontSize: "15px", color: "#000" }}>{plan.users}</strong> <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>Users</span></div>
+                    <div style={{ color: "#15803d", fontWeight: 800 }}>{plan.revenue} MRR</div>
+                  </div>
+                </div>
+              ))}
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
@@ -5491,7 +5827,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
                       <div style={{ width: "130px" }}>
+<<<<<<< HEAD
                         <AdminEcoDropdown value={subPlanFilter} options={[{ value: "All", label: "All Plans" }, ...managedSubscriptionPlanOptions]} onChange={setSubPlanFilter} compact align="right" />
+=======
+                        <AdminEcoDropdown value={subPlanFilter} options={[{ value: "All", label: "All Plans" }, ...subscriptionPlanOptions]} onChange={setSubPlanFilter} compact align="right" />
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                       </div>
                     </div>
                   </div>
@@ -5521,7 +5861,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                               </div>
                             </div>
                           </td>
+<<<<<<< HEAD
                           <td style={{ ...styles.td, fontWeight: 700, color: getManagedPlanColor(sub.plan) }}>{sub.plan}</td>
+=======
+                          <td style={{ ...styles.td, fontWeight: 700, color: sub.plan === "Pro" ? "#b45309" : sub.plan === "Enterprise" ? "#0284c7" : "#475569" }}>{sub.plan}</td>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                           <td style={styles.td}>
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getSubStatusStyle(sub.status) }}>{sub.status}</span>
                           </td>
@@ -5660,7 +6004,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getEventStatusStyle(ev.status) }}>{ev.status}</span>
                           </td>
                           <td style={styles.td}>
+<<<<<<< HEAD
                             <button onClick={() => { setSelectedEvent(ev); setIsEditingEvent(false); setIsViewingEventAttendees(false); }} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Manage</button>
+=======
+                            <button onClick={() => setSelectedEvent(ev)} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Manage</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                           </td>
                         </tr>
                       ))}
@@ -5937,6 +6285,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
           </div>
+<<<<<<< HEAD
         ) : activeTab === "Home Glass Chart" ? (
           renderHomeGlassChartManagement()
         ) : activeTab === "Surplus Exchange" ? (
@@ -5947,6 +6296,123 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
           renderImpactSectorsManagement()
         ) : adminManagedSections[activeTab] ? (
           renderManagedSection(adminManagedSections[activeTab])
+=======
+        ) : activeTab === "AI Plant Doctor" ? (
+          <div style={styles.dashboardContainer}>
+            {/* AI Stats Grid */}
+            <div style={styles.statsGrid}>
+              {mockAIStats.map((stat, idx) => (
+                <div key={idx} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                    <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
+                      {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                      {stat.trend}
+                    </span>
+                  </div>
+                  <div style={styles.statValue}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+              {/* Left Column - Diagnosis Table */}
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Recent Diagnoses</h3>
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div style={{ ...styles.searchBar, background: "rgba(0,0,0,0.03)" }}>
+                      <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
+                      <input type="text" placeholder="Search plant or disease..." value={scanSearchTerm} onChange={(e) => setScanSearchTerm(e.target.value)} style={styles.searchInput} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
+                      <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
+                      <select value={scanStatusFilter} onChange={(e) => setScanStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
+                        <option value="All">All Statuses</option>
+                        <option value="Healthy">Healthy</option>
+                        <option value="Disease Detected">Disease Detected</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ ...styles.table, width: "100%", minWidth: "650px" }}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Scan ID</th>
+                        <th style={styles.th}>Plant / Disease</th>
+                        <th style={styles.th}>Confidence</th>
+                        <th style={styles.th}>Status</th>
+                        <th style={styles.th}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredScansList.map((scan) => (
+                        <tr key={scan.id} style={styles.tr}>
+                          <td style={{ ...styles.td, fontWeight: 700 }}>{scan.id}</td>
+                          <td style={styles.td}>
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                              <span style={{ fontWeight: 700, fontSize: "13px" }}>{scan.plant}</span>
+                              <span style={{ fontSize: "11px", color: scan.disease === "None" ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{scan.disease}</span>
+                            </div>
+                          </td>
+                          <td style={styles.td}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              <span style={{ fontSize: "12px", fontWeight: 800 }}>{scan.confidence}</span>
+                              <div style={{ width: "40px", height: "4px", background: "rgba(0,0,0,0.05)", borderRadius: "999px" }}>
+                                <div style={{ width: scan.confidence, height: "100%", background: parseInt(scan.confidence) > 90 ? "#16a34a" : "#f59e0b", borderRadius: "999px" }} />
+                              </div>
+                            </div>
+                          </td>
+                          <td style={styles.td}>
+                            <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getScanStatusStyle(scan.status) }}>{scan.status}</span>
+                          </td>
+                          <td style={styles.td}>
+                            <button onClick={() => setSelectedScan(scan)} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}><Eye size={12} style={{ marginRight: "4px" }} /> View</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Column - AI Insights & Database */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", background: "linear-gradient(135deg, rgba(14,165,233,0.1), rgba(14,165,233,0.02))" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", color: "#0284c7", marginBottom: "16px" }}>AI System Status</h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "12px" }}>
+                    <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "linear-gradient(135deg, #0ea5e9, #0284c7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 4px 12px rgba(2,132,199,0.3)" }}>
+                      <Activity size={24} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: "#000" }}>Neural Engine Active</div>
+                      <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", fontWeight: 500 }}>V.2.4 (Philippine Climate Model)</div>
+                    </div>
+                  </div>
+                  <button style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "#fff", border: "1px solid rgba(2,132,199,0.2)", color: "#0284c7", fontSize: "12px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><RefreshCcw size={14} /> Update AI Models</button>
+                </div>
+
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Disease Library</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {mockDiseaseDatabase.map((disease, idx) => (
+                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                        <div><div style={{ fontSize: "13px", fontWeight: 700 }}>{disease.name}</div><div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>{disease.crop}</div></div>
+                        <span style={{ fontSize: "10px", fontWeight: 700, color: disease.severity === "High" ? "#dc2626" : "#f59e0b", padding: "2px 6px", borderRadius: "4px", background: disease.severity === "High" ? "rgba(220,38,38,0.1)" : "rgba(245,158,11,0.1)" }}>{disease.severity}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button style={{ width: "100%", padding: "10px", marginTop: "12px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "none", color: "#15803d", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}>Manage Database</button>
+                </div>
+              </div>
+            </div>
+          </div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         ) : activeTab === "Reports & Analytics" ? (
           <div style={styles.dashboardContainer}>
             {/* Analytics Stats Grid */}
@@ -6089,12 +6555,144 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
           </div>
+<<<<<<< HEAD
+=======
+        ) : activeTab === "Content Management" ? (
+          <div style={styles.dashboardContainer}>
+            {/* Content Stats Grid */}
+            <div style={styles.statsGrid}>
+              {mockContentStats.map((stat, idx) => (
+                <div key={idx} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                    <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
+                      {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                      {stat.trend}
+                    </span>
+                  </div>
+                  <div style={styles.statValue}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+              {/* Left Column - Content CMS Table */}
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Content Library</h3>
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div style={{ ...styles.searchBar, background: "rgba(0,0,0,0.03)" }}>
+                      <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
+                      <input type="text" placeholder="Search content..." value={contentSearchTerm} onChange={(e) => setContentSearchTerm(e.target.value)} style={styles.searchInput} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
+                      <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
+                      <select value={contentTypeFilter} onChange={(e) => setContentTypeFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
+                        <option value="All">All Types</option>
+                        <option value="Article">Article</option>
+                        <option value="Page">Page</option>
+                        <option value="Announcement">Announcement</option>
+                        <option value="Tutorial">Tutorial</option>
+                        <option value="Component">Component</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ ...styles.table, width: "100%", minWidth: "650px" }}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Title</th>
+                        <th style={styles.th}>Type</th>
+                        <th style={styles.th}>Status</th>
+                        <th style={styles.th}>Last Updated</th>
+                        <th style={styles.th}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredContentList.map((cnt) => (
+                        <tr key={cnt.id} style={styles.tr}>
+                          <td style={{ ...styles.td, fontWeight: 700, maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis" }}>{cnt.title}</td>
+                          <td style={styles.td}>
+                            <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.7)" }}>{cnt.type}</span>
+                          </td>
+                          <td style={styles.td}>
+                            <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getContentStatusStyle(cnt.status) }}>{cnt.status}</span>
+                          </td>
+                          <td style={styles.td}>
+                            <div style={{ fontWeight: 600 }}>{cnt.date}</div>
+                            <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)" }}>by {cnt.author}</div>
+                          </td>
+                          <td style={styles.td}>
+                            <button style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}><Edit2 size={12} style={{ marginRight: "4px" }} /> Edit</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Column - Actions & AI */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {/* AI Generator Box */}
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", background: "linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.02))" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                    <Wand2 size={18} color="#7c3aed" />
+                    <h3 style={{ ...styles.cardHeading, fontSize: "16px", color: "#7c3aed", margin: 0 }}>AI Content Generator</h3>
+                  </div>
+                  <textarea 
+                    placeholder="e.g. Write a 500-word article about the benefits of organic fertilizers in urban farming..." 
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    style={{ width: "100%", height: "80px", padding: "12px", borderRadius: "12px", border: "1px solid rgba(139,92,246,0.2)", background: "rgba(255,255,255,0.8)", fontSize: "12px", resize: "none", outline: "none", marginBottom: "12px", boxSizing: "border-box", fontFamily: "inherit" }}
+                  />
+                  <button style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 4px 12px rgba(139,92,246,0.3)" }}>
+                    Generate Content ✨
+                  </button>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Quick Actions</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Edit2 size={16} /> Create New Article</button>
+                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Layout size={16} /> Edit Homepage</button>
+                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(245,158,11,0.1)", color: "#b45309", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Megaphone size={16} /> Post Announcement</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Row - Media Library */}
+            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h3 style={{ ...styles.cardHeading, fontSize: "18px", display: "flex", alignItems: "center", gap: "8px" }}><Image size={18} color="#0ea5e9"/> Media Library</h3>
+                <button style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "999px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "1px solid rgba(14,165,233,0.2)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>
+                  <Plus size={14} /> Upload Media
+                </button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "16px" }}>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <div key={i} style={{ aspectRatio: "1/1", borderRadius: "12px", background: "rgba(0,0,0,0.03)", border: "1px dashed rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                    {i % 3 === 0 ? <Play size={24} color="rgba(0,0,0,0.2)" /> : <Image size={24} color="rgba(0,0,0,0.2)" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         ) : (
           activeTab === "Settings" ? (
             <div style={styles.dashboardContainer}>
               {/* Settings Stats Grid */}
               <div style={styles.statsGrid}>
+<<<<<<< HEAD
                 {settingsStats.map((stat, idx) => (
+=======
+                {mockSettingsStats.map((stat, idx) => (
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   <div key={idx} className="inner-blur-glass" style={styles.statCard}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                       <div style={styles.statIconWrap}>{stat.icon}</div>
@@ -6112,7 +6710,18 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               <div style={{ display: "grid", gridTemplateColumns: "250px 1fr", gap: "24px" }}>
                 {/* Settings Sidebar */}
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
+<<<<<<< HEAD
                   {settingsTabs.map(tab => (
+=======
+                  {[
+                    { id: "General", icon: <Layout size={16} /> },
+                    { id: "Security & Roles", icon: <ShieldCheck size={16} /> },
+                    { id: "Payments", icon: <CreditCard size={16} /> },
+                    { id: "AI & Models", icon: <Zap size={16} /> },
+                    { id: "Appearance", icon: <Image size={16} /> },
+                    { id: "Database & Backups", icon: <Database size={16} /> },
+                  ].map(tab => (
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     <button
                       key={tab.id}
                       onClick={() => setActiveSettingsTab(tab.id)}
@@ -6132,7 +6741,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "32px", minHeight: "500px", display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                     <h3 style={{ ...styles.cardHeading, fontSize: "20px", margin: 0 }}>{activeSettingsTab}</h3>
+<<<<<<< HEAD
                     <button onClick={handleSaveAdminSettings} style={{ padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
+=======
+                    <button style={{ padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                       <Save size={16} /> Save Changes
                     </button>
                   </div>
@@ -6142,11 +6755,19 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                          <div>
                            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Platform Name</label>
+<<<<<<< HEAD
                            <input type="text" value={adminSettings.general.platformName} onChange={(e) => updateAdminSetting("general", "platformName", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
                          </div>
                          <div>
                            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Support Email</label>
                            <input type="email" value={adminSettings.general.supportEmail} onChange={(e) => updateAdminSetting("general", "supportEmail", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
+=======
+                           <input type="text" defaultValue="EcoEquity" style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
+                         </div>
+                         <div>
+                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Support Email</label>
+                           <input type="email" defaultValue="support@ecoequity.ph" style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                          </div>
                        </div>
                        <div>
@@ -6156,6 +6777,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                              <div style={{ fontSize: "14px", fontWeight: 700, color: "#000", marginBottom: "4px" }}>Enable Maintenance Mode</div>
                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Restrict public access while updating the platform. Admins can still log in.</div>
                            </div>
+<<<<<<< HEAD
                            <button
                              type="button"
                              aria-pressed={adminSettings.general.maintenanceMode}
@@ -6164,6 +6786,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            >
                              <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transform: adminSettings.general.maintenanceMode ? "translateX(20px)" : "translateX(0)", transition: "transform 0.3s" }} />
                            </button>
+=======
+                           <div style={{ width: "44px", height: "24px", background: "rgba(0,0,0,0.1)", borderRadius: "999px", position: "relative", cursor: "pointer", transition: "background 0.3s" }}>
+                             <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "transform 0.3s" }} />
+                           </div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                          </div>
                        </div>
                      </div>
@@ -6177,13 +6804,17 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            <thead>
                              <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.1)", color: "rgba(0,0,0,0.5)" }}>
                                <th style={{ padding: "12px 8px" }}>Name</th>
+<<<<<<< HEAD
                                <th style={{ padding: "12px 8px" }}>Email</th>
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                                <th style={{ padding: "12px 8px" }}>Role</th>
                                <th style={{ padding: "12px 8px" }}>2FA Status</th>
                                <th style={{ padding: "12px 8px" }}>Action</th>
                              </tr>
                            </thead>
                            <tbody>
+<<<<<<< HEAD
                              {adminSettings.admins.map(admin => {
                                const isEditingAdmin = editingAdminId === admin.id;
                                const adminRow = isEditingAdmin ? adminAccountDraft : admin;
@@ -6235,6 +6866,17 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            </tbody>
                          </table>
                          <button onClick={handleAddAdminAccount} style={{ marginTop: "16px", padding: "10px 16px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px dashed #16a34a", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", width: "100%" }}>+ Add New Admin</button>
+=======
+                             <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                               <td style={{ padding: "12px 8px", fontWeight: 600 }}>Juan Dela Cruz (You)</td>
+                               <td style={{ padding: "12px 8px", color: "#b45309", fontWeight: 700 }}>Super Admin</td>
+                               <td style={{ padding: "12px 8px", color: "#16a34a", fontWeight: 600 }}>Enabled</td>
+                               <td style={{ padding: "12px 8px" }}><button style={{ ...styles.actionBtn, background: "rgba(14,165,233,0.1)", color: "#0ea5e9", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Edit</button></td>
+                             </tr>
+                           </tbody>
+                         </table>
+                         <button style={{ marginTop: "16px", padding: "10px 16px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px dashed #16a34a", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", width: "100%" }}>+ Add New Admin</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                        </div>
                      </div>
                   )}
@@ -6249,6 +6891,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Accept GCash, Maya, and Credit Cards</div>
                            </div>
                          </div>
+<<<<<<< HEAD
                          <div style={{ display: "flex", gap: "8px" }}>
                            <button onClick={() => updateAdminSetting("payments", "payMongoEnabled", !adminSettings.payments.payMongoEnabled)} style={{ padding: "8px 16px", borderRadius: "8px", background: adminSettings.payments.payMongoEnabled ? "rgba(22,163,74,0.1)" : "rgba(225,29,72,0.1)", color: adminSettings.payments.payMongoEnabled ? "#15803d" : "#e11d48", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>{adminSettings.payments.payMongoEnabled ? "Enabled" : "Paused"}</button>
                            <button onClick={() => setPaymentConfigOpen(prev => !prev)} style={{ padding: "8px 16px", borderRadius: "8px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>{paymentConfigOpen ? "Hide API" : "Configure API"}</button>
@@ -6271,6 +6914,30 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            <button onClick={handleTestPaymentConnection} style={{ gridColumn: "1 / -1", justifySelf: "flex-start", padding: "10px 16px", borderRadius: "10px", background: "#0284c7", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Test Connection</button>
                          </div>
                        )}
+=======
+                         <button style={{ padding: "8px 16px", borderRadius: "8px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Configure API</button>
+                       </div>
+                     </div>
+                  )}
+  
+                  {activeSettingsTab === "AI & Models" && (
+                     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                       <div>
+                         <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Plant Doctor Confidence Threshold</label>
+                         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                           <input type="range" min="50" max="99" defaultValue="85" style={{ flex: 1, accentColor: "#16a34a" }} />
+                           <span style={{ fontSize: "14px", fontWeight: 800, color: "#15803d", width: "40px", textAlign: "right" }}>85%</span>
+                         </div>
+                         <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", marginTop: "8px" }}>Diagnoses below this threshold will be flagged as "Under Review" for human agronomist verification.</p>
+                       </div>
+                       <div>
+                         <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Active Neural Model</label>
+                         <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }}>
+                           <option>Verde-Agri-V2.4 (Optimized for PH Climate)</option>
+                           <option>Verde-Agri-V2.3 (Legacy)</option>
+                         </select>
+                       </div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                   )}
   
@@ -6279,18 +6946,24 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Theme Mode</label>
                          <div style={{ display: "flex", gap: "16px" }}>
+<<<<<<< HEAD
                            {["Light", "Dark"].map(mode => {
                              const isSelected = adminSettings.appearance.themeMode === mode;
                              return (
                                <button key={mode} onClick={() => updateAdminSetting("appearance", "themeMode", mode)} style={{ flex: 1, padding: "16px", borderRadius: "12px", border: `2px solid ${isSelected ? adminSettings.appearance.accentColor : "transparent"}`, background: mode === "Light" ? "rgba(255,255,255,0.8)" : "rgba(15,23,42,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: mode === "Light" ? "#0f172a" : "#fff" }}>{mode} Mode</button>
                              );
                            })}
+=======
+                           <div style={{ flex: 1, padding: "16px", borderRadius: "12px", border: "2px solid #16a34a", background: "rgba(255,255,255,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#0f172a" }}>Light Mode</div>
+                           <div style={{ flex: 1, padding: "16px", borderRadius: "12px", border: "2px solid transparent", background: "rgba(15,23,42,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#fff" }}>Dark Mode</div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                          </div>
                        </div>
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Accent Color</label>
                          <div style={{ display: "flex", gap: "12px" }}>
                            {["#16a34a", "#0284c7", "#8b5cf6", "#f59e0b", "#e11d48"].map(color => (
+<<<<<<< HEAD
                              <button key={color} type="button" aria-label={`Use accent color ${color}`} onClick={() => updateAdminSetting("appearance", "accentColor", color)} style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, cursor: "pointer", border: adminSettings.appearance.accentColor === color ? "3px solid #fff" : "none", boxShadow: adminSettings.appearance.accentColor === color ? `0 0 0 2px ${color}` : "none" }} />
                            ))}
                          </div>
@@ -6299,6 +6972,12 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                          <div style={{ fontSize: "13px", fontWeight: 800, marginBottom: "4px" }}>Theme Preview</div>
                          <div style={{ fontSize: "12px", fontWeight: 600, opacity: 0.75 }}>This preview updates immediately. Save changes to keep it after refresh.</div>
                        </div>
+=======
+                             <div key={color} style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, cursor: "pointer", border: color === "#16a34a" ? "3px solid #fff" : "none", boxShadow: color === "#16a34a" ? `0 0 0 2px ${color}` : "none" }} />
+                           ))}
+                         </div>
+                       </div>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                   )}
   
@@ -6306,6 +6985,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                        <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", background: "rgba(22,163,74,0.05)" }}>
                          <h4 style={{ margin: "0 0 8px", fontSize: "15px", fontWeight: 700, color: "#15803d" }}>Automated Backups</h4>
+<<<<<<< HEAD
                          <p style={{ margin: "0 0 16px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Your database is automatically backed up every day at 12:00 AM UTC. Last manual backup: {adminSettings.backups.lastBackup || "Not created yet"}.</p>
                          <div style={{ display: "flex", gap: "12px" }}>
                            <button onClick={handleCreateBackup} style={{ padding: "10px 16px", borderRadius: "10px", background: "#16a34a", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}><Database size={14} /> Backup Now</button>
@@ -6332,6 +7012,17 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Data Export</label>
                          <button onClick={handleExportSystemData} style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={15} /> Export Full System Data (CSV)</button>
+=======
+                         <p style={{ margin: "0 0 16px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Your database is automatically backed up every day at 12:00 AM UTC. You can also trigger a manual backup below.</p>
+                         <div style={{ display: "flex", gap: "12px" }}>
+                           <button style={{ padding: "10px 16px", borderRadius: "10px", background: "#16a34a", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Backup Now</button>
+                           <button style={{ padding: "10px 16px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Restore from Backup</button>
+                         </div>
+                       </div>
+                       <div>
+                         <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Data Export</label>
+                         <button style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}>Export Full System Data (CSV)</button>
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                        </div>
                      </div>
                   )}
@@ -6489,8 +7180,11 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+<<<<<<< HEAD
     gap: "16px",
     flexWrap: "nowrap",
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     padding: "16px 24px",
     background: "rgba(255,255,255,0.4)",
     borderBottom: "1px solid rgba(0,0,0,0.05)",
@@ -6501,6 +7195,7 @@ const styles = {
     top: 0,
     zIndex: 10,
   },
+<<<<<<< HEAD
   topBrandGroup: {
     display: "flex",
     alignItems: "center",
@@ -6529,11 +7224,14 @@ const styles = {
     marginLeft: "auto",
     flex: "0 0 auto",
   },
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   pageTitle: {
     fontSize: "18px",
     fontWeight: 800,
     color: "#000",
     margin: 0,
+<<<<<<< HEAD
     letterSpacing: 0,
     whiteSpace: "nowrap",
   },
@@ -6542,6 +7240,9 @@ const styles = {
     fontSize: "11px",
     fontWeight: 700,
     color: "rgba(6,32,24,0.52)",
+=======
+    letterSpacing: "-0.5px",
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   },
   searchBar: {
     display: "flex",
@@ -6551,14 +7252,21 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.08)",
     padding: "6px 12px",
     borderRadius: "999px",
+<<<<<<< HEAD
     flexShrink: 0,
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   },
   searchInput: {
     border: "none",
     background: "transparent",
     outline: "none",
     fontSize: "12px",
+<<<<<<< HEAD
     width: "clamp(96px, 12vw, 160px)",
+=======
+    width: "140px",
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   },
   iconBtn: {
     position: "relative",
@@ -6602,6 +7310,7 @@ const styles = {
     flexDirection: "column",
     gap: "16px",
   },
+<<<<<<< HEAD
   dashboardIntro: {
     display: "flex",
     justifyContent: "space-between",
@@ -6643,6 +7352,8 @@ const styles = {
     fontFamily: "inherit",
     cursor: "pointer",
   },
+=======
+>>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   statsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
