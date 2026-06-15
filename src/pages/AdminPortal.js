@@ -1,18 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-<<<<<<< HEAD
-import { initialSubscriptionPlans } from "../subscriptionPlans";
-import { 
-  LayoutDashboard, Users, ShieldCheck, Box, ShoppingCart, 
-  Truck, CreditCard, Repeat, CalendarDays, 
-  BarChart2, FileText, Settings, LogOut, 
-  Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Globe, Megaphone, Layout, Database, Wheat, Send
-=======
 import { 
   LayoutDashboard, Users, ShieldCheck, Box, ShoppingCart, 
   Truck, CreditCard, Repeat, CalendarDays, Stethoscope, 
   BarChart2, FileText, Settings, LogOut, 
   Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Route, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Scan, Target, Bug, Thermometer, PieChart, Globe, Lightbulb, Megaphone, Wand2, Layout, Plus, Play, Database, Wheat, Send
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 } from "lucide-react";
 
 const mockStats = [
@@ -21,57 +12,10 @@ const mockStats = [
   { label: "Total Revenue", value: "₱2.4M", trend: "+15%", up: true, icon: <CreditCard size={16} color="#b45309" /> },
   { label: "Pending Deliveries", value: "142", trend: "-3%", up: false, icon: <Truck size={16} color="#be123c" /> },
   { label: "Active Farmers", value: "3,500+", trend: "+5%", up: true, icon: <ShieldCheck size={16} color="#15803d" /> },
-<<<<<<< HEAD
-  { label: "Upcoming Events", value: "12", trend: "+2", up: true, icon: <CalendarDays size={16} color="#0369a1" /> },
-];
-
-const ORDERS_STORAGE_KEY = "verdeversity_orders";
-const ADMIN_SETTINGS_STORAGE_KEY = "verdeversity_admin_settings";
-const SUPPLIER_ITEMS_STORAGE_KEY = "verdeversity_supplier_items";
-
-const DEFAULT_ADMIN_SETTINGS = {
-  general: {
-    platformName: "EcoEquity",
-    supportEmail: "support@ecoequity.ph",
-    maintenanceMode: false,
-  },
-  admins: [
-    { id: "ADM-001", name: "Juan Dela Cruz", email: "admin@ecoequity.com", role: "Super Admin", twoFactor: true, status: "Active" },
-  ],
-  payments: {
-    payMongoEnabled: true,
-    publicKey: "pk_test_ecoequity",
-    webhookUrl: "https://ecoequity.ph/api/paymongo/webhook",
-    settlementAccount: "EcoEquity Operations",
-  },
-  appearance: {
-    themeMode: "Light",
-    accentColor: "#16a34a",
-  },
-  backups: {
-    lastBackup: "",
-    lastRestore: "",
-    history: [],
-  },
-};
-
-const mergeAdminSettings = (savedSettings = {}) => ({
-  general: { ...DEFAULT_ADMIN_SETTINGS.general, ...(savedSettings.general || {}) },
-  admins: Array.isArray(savedSettings.admins) && savedSettings.admins.length > 0 ? savedSettings.admins : DEFAULT_ADMIN_SETTINGS.admins,
-  payments: { ...DEFAULT_ADMIN_SETTINGS.payments, ...(savedSettings.payments || {}) },
-  appearance: { ...DEFAULT_ADMIN_SETTINGS.appearance, ...(savedSettings.appearance || {}) },
-  backups: {
-    ...DEFAULT_ADMIN_SETTINGS.backups,
-    ...(savedSettings.backups || {}),
-    history: Array.isArray(savedSettings.backups?.history) ? savedSettings.backups.history : DEFAULT_ADMIN_SETTINGS.backups.history,
-  },
-});
-=======
   { label: "AI Diagnoses", value: "12,845", trend: "+22%", up: true, icon: <Stethoscope size={16} color="#0369a1" /> },
 ];
 
 const ORDERS_STORAGE_KEY = "verdeversity_orders";
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
 const mockTopProducts = [
   { name: "Heirloom Tomatoes", sales: "1,240", rev: "₱186K", stock: "In Stock", emoji: "🍅" },
@@ -95,11 +39,7 @@ const mockUsers = [
 
 const mockActivityFeed = [
   { text: "New commercial farm registered from Benguet.", time: "10 mins ago", color: "#16a34a" },
-<<<<<<< HEAD
-  { text: "Seasonal harvest demand increased for tomatoes and leafy greens.", time: "1 hr ago", color: "#eab308" },
-=======
   { text: "High volume of AI diagnoses detected for 'Tomato Blight'.", time: "1 hr ago", color: "#eab308" },
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   { text: "LGU Partnership completed for Baguio City.", time: "3 hrs ago", color: "#0284c7" },
   { text: "Payouts successfully disbursed to 450 micro-vendors.", time: "5 hrs ago", color: "#8b5cf6" },
 ];
@@ -317,14 +257,6 @@ const mockSubscriptionStats = [
   { label: "Active Pro Users", value: "148", trend: "+15%", up: true, icon: <Crown size={16} color="#f59e0b" /> },
 ];
 
-<<<<<<< HEAD
-const mockSubscribers = [
-  { id: "SUB-001", user: "Maria Clara", email: "maria@example.com", plan: "Pro", status: "Active", renewal: "Jun 15, 2026", payment: "GCash", joined: "Jan 10, 2026", monthlyUsage: 85, usageLimit: 100 },
-  { id: "SUB-002", user: "Juan Dela Cruz", email: "juan@example.com", plan: "Basic", status: "Active", renewal: "N/A", payment: "Free", joined: "Feb 05, 2026", monthlyUsage: 8, usageLimit: 10 },
-  { id: "SUB-003", user: "Healthy Eats Cafe", email: "contact@healthyeats.com", plan: "Enterprise", status: "Active", renewal: "Dec 01, 2026", payment: "Bank Transfer", joined: "Dec 01, 2025", monthlyUsage: 1250, usageLimit: 5000 },
-  { id: "SUB-004", user: "Urban Roots", email: "hello@urbanroots.ph", plan: "Pro", status: "Pending Renewal", renewal: "May 30, 2026", payment: "Credit Card", joined: "May 30, 2025", monthlyUsage: 100, usageLimit: 100 },
-  { id: "SUB-005", user: "Reyes Organic", email: "admin@reyesorganic.com", plan: "Pro", status: "Cancelled", renewal: "May 15, 2026", payment: "Maya", joined: "Oct 12, 2025", monthlyUsage: 20, usageLimit: 100 },
-=======
 const mockPlans = [
   { name: "Basic", price: "Free", users: "850", revenue: "₱0", features: ["Limited AI Scans", "Community Access", "Marketplace Buying"], color: "#64748b", bg: "rgba(100,116,139,0.05)" },
   { name: "Pro", price: "₱499/mo", users: "345", revenue: "₱172K", features: ["Unlimited AI Doctor", "Advanced Analytics", "Priority Support"], color: "#f59e0b", bg: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05))" },
@@ -343,7 +275,6 @@ const subscriptionPlanOptions = [
   { value: "Basic", label: "Basic" },
   { value: "Pro", label: "Pro" },
   { value: "Enterprise", label: "Enterprise" },
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 ];
 
 const subscriptionStatusOptions = [
@@ -410,35 +341,6 @@ const mockEventsList = [
   { id: "EVT-005", title: "Advanced Soil Health", date: "May 10, 2026", time: "07:00 PM", type: "Webinar", attendees: 250, maxAttendees: 300, status: "Completed", price: "Free", location: "Online" },
 ];
 
-<<<<<<< HEAD
-const mockEventAttendees = {
-  "EVT-001": [
-    { id: "ATT-1001", name: "Maria Clara", email: "maria@example.com", ticket: "Workshop Pass", status: "Checked In", payment: "Paid", registeredAt: "Jun 01, 2026" },
-    { id: "ATT-1002", name: "Juan Dela Cruz", email: "juan@example.com", ticket: "Workshop Pass", status: "Registered", payment: "Paid", registeredAt: "Jun 02, 2026" },
-    { id: "ATT-1003", name: "Urban Roots", email: "hello@urbanroots.ph", ticket: "Group Seat", status: "Registered", payment: "Paid", registeredAt: "Jun 03, 2026" },
-    { id: "ATT-1004", name: "Isabella Cruz", email: "isabella@example.com", ticket: "Student Seat", status: "Pending", payment: "Pending", registeredAt: "Jun 03, 2026" },
-  ],
-  "EVT-002": [
-    { id: "ATT-2001", name: "Healthy Eats Cafe", email: "contact@healthyeats.com", ticket: "Webinar Access", status: "Registered", payment: "Free", registeredAt: "Jun 12, 2026" },
-    { id: "ATT-2002", name: "Reyes Organic Farm", email: "admin@reyesorganic.com", ticket: "Webinar Access", status: "Registered", payment: "Free", registeredAt: "Jun 14, 2026" },
-    { id: "ATT-2003", name: "Green Valley Co.", email: "hello@greenvalley.co", ticket: "Webinar Access", status: "Checked In", payment: "Free", registeredAt: "Jun 15, 2026" },
-  ],
-  "EVT-003": [
-    { id: "ATT-3001", name: "Ana Santos", email: "ana@example.com", ticket: "Community Seat", status: "Registered", payment: "Free", registeredAt: "Jun 20, 2026" },
-    { id: "ATT-3002", name: "Mark Tan", email: "mark@example.com", ticket: "Seed Swap Table", status: "Registered", payment: "Free", registeredAt: "Jun 21, 2026" },
-    { id: "ATT-3003", name: "Luz Villanueva", email: "luz@example.com", ticket: "Community Seat", status: "Cancelled", payment: "Free", registeredAt: "Jun 22, 2026" },
-  ],
-  "EVT-004": [
-    { id: "ATT-4001", name: "Chef Carlo Reyes", email: "carlo@example.com", ticket: "Workshop Pass", status: "Checked In", payment: "Paid", registeredAt: "May 01, 2026" },
-    { id: "ATT-4002", name: "Mina Garcia", email: "mina@example.com", ticket: "Workshop Pass", status: "Checked In", payment: "Paid", registeredAt: "May 03, 2026" },
-    { id: "ATT-4003", name: "Paolo Lim", email: "paolo@example.com", ticket: "Workshop Pass", status: "No Show", payment: "Paid", registeredAt: "May 04, 2026" },
-  ],
-  "EVT-005": [
-    { id: "ATT-5001", name: "Rene Cruz", email: "rene@example.com", ticket: "Webinar Access", status: "Checked In", payment: "Free", registeredAt: "Apr 28, 2026" },
-    { id: "ATT-5002", name: "Gina Ramos", email: "gina@example.com", ticket: "Webinar Access", status: "Checked In", payment: "Free", registeredAt: "Apr 29, 2026" },
-  ],
-};
-=======
 const mockAIStats = [
   { label: "Total AI Scans", value: "12,450", trend: "+18%", up: true, icon: <Scan size={16} color="#0284c7" /> },
   { label: "AI Accuracy Rate", value: "98.4%", trend: "+1.2%", up: true, icon: <Target size={16} color="#16a34a" /> },
@@ -460,28 +362,18 @@ const mockDiseaseDatabase = [
   { name: "Anthracnose", crop: "Mango, Papaya", severity: "High" },
   { name: "Powdery Mildew", crop: "Squash, Melon", severity: "Medium" },
 ];
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
 const mockAnalyticsStats = [
   { label: "Total Revenue", value: "₱245,000", trend: "+18%", up: true, icon: <CreditCard size={16} color="#15803d" /> },
   { label: "Active Users", value: "4,200", trend: "+12%", up: true, icon: <Users size={16} color="#0284c7" /> },
-<<<<<<< HEAD
-  { label: "Event Signups", value: "1,284", trend: "+24%", up: true, icon: <CalendarDays size={16} color="#8b5cf6" /> },
-=======
   { label: "AI Diagnoses", value: "12,400", trend: "+24%", up: true, icon: <Scan size={16} color="#8b5cf6" /> },
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   { label: "CO₂ Reduced", value: "3.2 Tons", trend: "+8%", up: true, icon: <Leaf size={16} color="#16a34a" /> },
 ];
 
 const mockAIInsights = [
   { text: "Orders increased 18% this month, primarily from Metro Manila.", type: "positive", color: "#16a34a", bg: "rgba(22,163,74,0.1)" },
-<<<<<<< HEAD
-  { text: "Palawan has the highest workshop registration activity this week.", type: "neutral", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" },
-  { text: "Seasonal harvest listings from Region IV-B need buyer outreach.", type: "warning", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
-=======
   { text: "Palawan has the highest AI scan activity this week.", type: "neutral", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" },
   { text: "High disease outbreak ('Tomato Blight') detected in Region IV-B.", type: "warning", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   { text: "Organic Edibles generated the most revenue in the past 30 days.", type: "positive", color: "#16a34a", bg: "rgba(22,163,74,0.1)" },
 ];
 
@@ -493,173 +385,6 @@ const mockRegionalData = [
   { region: "Others", pct: "5%", color: "#64748b" },
 ];
 
-<<<<<<< HEAD
-const initialSupplierItems = [
-  { id: "SUP-001", item: "Balcony Herb Garden Kit", category: "Starter Kit", supplier: "Urban Roots Supply", stock: 84, unit: "units", status: "In Stock", reorderPoint: 24, contact: "supply@urbanroots.ph", leadTime: "3 days", notes: "Fast-moving starter kit for condo growers.", updatedAt: "May 28, 2026" },
-  { id: "SUP-002", item: "Tomato Success Kit", category: "Seed Kit", supplier: "Benguet Growers Coop", stock: 18, unit: "units", status: "Low Stock", reorderPoint: 30, contact: "orders@benguetgrowers.ph", leadTime: "5 days", notes: "Prioritize before weekend campaign bundles.", updatedAt: "May 27, 2026" },
-  { id: "SUP-003", item: "Premium Potting Mix", category: "Soil", supplier: "Green Valley Co.", stock: 240, unit: "sacks", status: "In Stock", reorderPoint: 80, contact: "hello@greenvalley.co", leadTime: "4 days", notes: "Bulk item for starter kits and direct shop orders.", updatedAt: "May 26, 2026" },
-  { id: "SUP-004", item: "Native Seed Preservation Pack", category: "Seeds", supplier: "Community Seed Bank", stock: 9, unit: "packs", status: "Reorder", reorderPoint: 20, contact: "seedbank@verdeversity.ph", leadTime: "7 days", notes: "Coordinate with native seed bank partners.", updatedAt: "May 25, 2026" },
-];
-
-const adminManagedSections = {
-  "Announcements": {
-    title: "Announcements",
-    description: "Publish platform updates, maintenance notices, and workshop alerts shown across the website.",
-    actionLabel: "Publish Announcement",
-    stats: [
-      { label: "Published", value: "18", trend: "+3", up: true, icon: <Megaphone size={16} color="#0284c7" /> },
-      { label: "Scheduled", value: "6", trend: "+2", up: true, icon: <Clock size={16} color="#f59e0b" /> },
-      { label: "Workshop Alerts", value: "9", trend: "+4", up: true, icon: <CalendarDays size={16} color="#16a34a" /> },
-      { label: "Open Rate", value: "72%", trend: "+8%", up: true, icon: <TrendingUp size={16} color="#8b5cf6" /> },
-    ],
-    columns: ["Title", "Type", "Audience", "Status", "Placement"],
-    items: [
-      { title: "June Urban Hydroponics Masterclass seats are open", type: "Workshop Alert", audience: "All learners", status: "Published", placement: "Events & Workshops" },
-      { title: "PayMongo maintenance window for GCash and Maya", type: "Maintenance", audience: "All buyers", status: "Scheduled", placement: "Checkout + Payments" },
-      { title: "Native seed preservation donation tracker updated", type: "Platform Update", audience: "Shop customers", status: "Draft", placement: "Shop checkout" },
-      { title: "Seasonal harvest demand spike in Metro Manila", type: "Marketplace Alert", audience: "Farmers", status: "Published", placement: "Seasonal Harvests" },
-    ],
-    sideTitle: "Website Touchpoints",
-    sideItems: [
-      "Home notification bell",
-      "Events & Workshops cards",
-      "Checkout maintenance banner",
-      "Subscriber campaign alerts",
-    ],
-  },
-  "Learning Materials": {
-    title: "Learning Materials",
-    description: "Manage certification courses, modules, quizzes, and certificates used by the Specialist Certification page.",
-    actionLabel: "Add Course Module",
-    stats: [
-      { label: "Courses", value: "8", trend: "+1", up: true, icon: <FileText size={16} color="#0284c7" /> },
-      { label: "Modules", value: "46", trend: "+5", up: true, icon: <Layout size={16} color="#16a34a" /> },
-      { label: "Certificates", value: "1,284", trend: "+14%", up: true, icon: <Ticket size={16} color="#f59e0b" /> },
-      { label: "Quiz Pass Rate", value: "86%", trend: "+6%", up: true, icon: <CheckCircle size={16} color="#8b5cf6" /> },
-    ],
-    columns: ["Course", "Modules", "Certificate", "Quiz", "Status"],
-    items: [
-      { course: "Urban Farming Foundations", modules: "8 lessons", certificate: "Starter Grower", quiz: "12 questions", status: "Live" },
-      { course: "Advanced Soil Health", modules: "6 lessons", certificate: "Soil Steward", quiz: "Practical rubric", status: "Live" },
-      { course: "Hydroponics Masterclass", modules: "10 lessons", certificate: "Hydroponics Specialist", quiz: "20 questions", status: "Review" },
-      { course: "Organic Pest Management", modules: "7 lessons", certificate: "Pest-Safe Grower", quiz: "15 questions", status: "Draft" },
-    ],
-    sideTitle: "Website Touchpoints",
-    sideItems: [
-      "Specialist Certification catalog",
-      "Course detail modal",
-      "Certificate generator",
-      "Learner progress cards",
-    ],
-  },
-  "Support Tickets": {
-    title: "Support Tickets",
-    description: "Handle customer, farmer, workshop, and order issues while assigning the right support owner.",
-    actionLabel: "Create Ticket",
-    stats: [
-      { label: "Open Tickets", value: "31", trend: "-4", up: true, icon: <MessageSquare size={16} color="#0284c7" /> },
-      { label: "Farm Issues", value: "12", trend: "+3", up: false, icon: <Wheat size={16} color="#f59e0b" /> },
-      { label: "Avg Response", value: "1h 42m", trend: "-18m", up: true, icon: <Clock size={16} color="#16a34a" /> },
-      { label: "Resolved", value: "148", trend: "+22%", up: true, icon: <CheckCircle size={16} color="#8b5cf6" /> },
-    ],
-    columns: ["Ticket", "Requester", "Category", "Owner", "Priority"],
-    items: [
-      { ticket: "GCash payment marked pending after checkout", requester: "Maria Clara", category: "Payments", owner: "Billing Team", priority: "High" },
-      { ticket: "Farmer verification document needs review", requester: "Reyes Organic Farm", category: "Verification", owner: "Ops Admin", priority: "Medium" },
-      { ticket: "Workshop certificate name correction", requester: "Juan Dela Cruz", category: "Learning", owner: "Education Team", priority: "Low" },
-      { ticket: "Seed kit delivery rider ETA mismatch", requester: "Urban Roots", category: "Deliveries", owner: "Logistics", priority: "High" },
-    ],
-    sideTitle: "Website Touchpoints",
-    sideItems: [
-      "Get In Touch form",
-      "Checkout support notes",
-      "Delivery chat workflow",
-      "Farmer verification queue",
-    ],
-  },
-  "Community Posts": {
-    title: "Community Posts",
-    description: "Moderate garden stories, seed swaps, comments, reports, and featured community posts.",
-    actionLabel: "Feature Post",
-    stats: [
-      { label: "Pending Review", value: "17", trend: "+5", up: false, icon: <AlertCircle size={16} color="#dc2626" /> },
-      { label: "Featured", value: "24", trend: "+4", up: true, icon: <Crown size={16} color="#f59e0b" /> },
-      { label: "Comments", value: "684", trend: "+18%", up: true, icon: <MessageSquare size={16} color="#0284c7" /> },
-      { label: "Reports", value: "5", trend: "-2", up: true, icon: <ShieldCheck size={16} color="#16a34a" /> },
-    ],
-    columns: ["Post", "Author", "Topic", "Reports", "Status"],
-    items: [
-      { post: "Balcony herb garden progress after 30 days", author: "Urban Roots", topic: "Starter Kits", reports: "0", status: "Featured" },
-      { post: "Baguio seed exchange meetup recap", author: "Isabella Cruz", topic: "Community Event", reports: "1", status: "Review" },
-      { post: "Composting setup for condo growers", author: "Maria Clara", topic: "Sustainability", reports: "0", status: "Published" },
-      { post: "Bulk lettuce buyers needed this week", author: "Green Valley Co.", topic: "Surplus", reports: "3", status: "Flagged" },
-    ],
-    sideTitle: "Website Touchpoints",
-    sideItems: [
-      "Community event pages",
-      "Seed exchange content",
-      "Featured user stories",
-      "Reported comments queue",
-    ],
-  },
-  "Inventory & Suppliers": {
-    title: "Inventory & Suppliers",
-    description: "Manage seed kits, farm supplies, stock levels, reorder alerts, and supplier records.",
-    actionLabel: "Add Supplier Item",
-    stats: [
-      { label: "Active SKUs", value: "142", trend: "+9", up: true, icon: <Package size={16} color="#0284c7" /> },
-      { label: "Low Stock", value: "11", trend: "+3", up: false, icon: <AlertCircle size={16} color="#dc2626" /> },
-      { label: "Suppliers", value: "28", trend: "+2", up: true, icon: <Truck size={16} color="#16a34a" /> },
-      { label: "Seed Kits", value: "36", trend: "+6", up: true, icon: <Leaf size={16} color="#f59e0b" /> },
-    ],
-    columns: ["Item", "Category", "Supplier", "Stock", "Status"],
-    items: initialSupplierItems,
-    sideTitle: "Website Touchpoints",
-    sideItems: [
-      "Shop All Products inventory",
-      "Starter Kits product cards",
-      "Checkout stock validation",
-      "Supplier reorder workflow",
-    ],
-  },
-  "Impact Metrics": {
-    title: "Impact Metrics",
-    description: "Update sustainability, farmer reach, waste reduction, seed preservation, and CO2 savings metrics.",
-    actionLabel: "Update Impact Metric",
-    stats: [
-      { label: "Farmers Reached", value: "3,500+", trend: "+5%", up: true, icon: <Users size={16} color="#0284c7" /> },
-      { label: "Waste Reduced", value: "1.5 Tons", trend: "+12%", up: true, icon: <RefreshCcw size={16} color="#16a34a" /> },
-      { label: "CO2 Saved", value: "3.2 Tons", trend: "+8%", up: true, icon: <Leaf size={16} color="#15803d" /> },
-      { label: "LGU Gardens", value: "15", trend: "+2", up: true, icon: <Globe size={16} color="#f59e0b" /> },
-    ],
-    columns: ["Metric", "Current Value", "Source", "Website Page", "Status"],
-    items: [
-      { metric: "Micro-vendors empowered", currentValue: "3,500+", source: "Income Generation dashboard", websitePage: "Benefits / Dashboard", status: "Published" },
-      { metric: "Native seed packs supported", currentValue: "2,840", source: "Checkout donations", websitePage: "Native Seed Bank", status: "Review" },
-      { metric: "Food waste reduced", currentValue: "1.5 Tons", source: "Surplus Exchange reports", websitePage: "Our Impact", status: "Published" },
-      { metric: "CO2 reduced", currentValue: "3.2 Tons", source: "Delivery + local sourcing", websitePage: "Impact Tracking", status: "Published" },
-    ],
-    sideTitle: "Website Touchpoints",
-    sideItems: [
-      "Our Impact statistics",
-      "Impact Tracking dashboard",
-      "LGU Partnership outcomes",
-      "Sustainability App Market data",
-    ],
-  },
-};
-
-const homeGlassChartTabs = [
-  { id: "crop", label: "Crop Growth", icon: Leaf, color: "#15803d" },
-  { id: "users", label: "Active Users", icon: Users, color: "#0284c7" },
-  { id: "harvests", label: "Harvests", icon: Wheat, color: "#b45309" },
-  { id: "subs", label: "Subscribers", icon: Activity, color: "#be123c" },
-];
-
-export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders, supportTickets = [], homeGlassChart = {}, setHomeGlassChart, surplusListings = [], setSurplusListings, expertSupportConfig = {}, setExpertSupportConfig, impactSectorsConfig = {}, setImpactSectorsConfig, subscriptionPlans = initialSubscriptionPlans, setSubscriptionPlans }) {
-  const [activeTab, setActiveTab] = useState("Dashboard");
-  const [dashboardDateRange, setDashboardDateRange] = useState("Today");
-=======
 const mockContentStats = [
   { label: "Total Articles", value: "245", trend: "+12", up: true, icon: <FileText size={16} color="#0284c7" /> },
   { label: "Total Views", value: "18.4K", trend: "+15%", up: true, icon: <Eye size={16} color="#15803d" /> },
@@ -684,28 +409,12 @@ const mockSettingsStats = [
 
 export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const [hoveredStat, setHoveredStat] = useState(null);
   
   const [editingProduct, setEditingProduct] = useState(null);
   const [productCategoryFilter, setProductCategoryFilter] = useState("All");
   const [toastMessage, setToastMessage] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
-<<<<<<< HEAD
-  const [supplierItems, setSupplierItems] = useState(() => {
-    try {
-      const savedSupplierItems = localStorage.getItem(SUPPLIER_ITEMS_STORAGE_KEY);
-      const parsedSupplierItems = savedSupplierItems ? JSON.parse(savedSupplierItems) : null;
-      return Array.isArray(parsedSupplierItems) && parsedSupplierItems.length > 0 ? parsedSupplierItems : initialSupplierItems;
-    } catch (error) {
-      return initialSupplierItems;
-    }
-  });
-  const [editingSupplierItem, setEditingSupplierItem] = useState(null);
-  const [supplierSearchTerm, setSupplierSearchTerm] = useState("");
-  const [supplierStatusFilter, setSupplierStatusFilter] = useState("All");
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [editableOrderDetails, setEditableOrderDetails] = useState(null);
@@ -747,10 +456,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   });
   const [subSearchTerm, setSubSearchTerm] = useState("");
   const [subPlanFilter, setSubPlanFilter] = useState("All");
-<<<<<<< HEAD
-  const [editingSubscriptionPlan, setEditingSubscriptionPlan] = useState(null);
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventSearchTerm, setEventSearchTerm] = useState("");
@@ -758,11 +463,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [eventsList, setEventsList] = useState(mockEventsList);
   const [isEditingEvent, setIsEditingEvent] = useState(false);
   const [editableEvent, setEditableEvent] = useState(null);
-<<<<<<< HEAD
-  const [isViewingEventAttendees, setIsViewingEventAttendees] = useState(false);
-  const [eventAttendeeSearchTerm, setEventAttendeeSearchTerm] = useState("");
-  const [eventAttendeeStatusFilter, setEventAttendeeStatusFilter] = useState("All");
-=======
 
   const [selectedScan, setSelectedScan] = useState(null);
   const [scanSearchTerm, setScanSearchTerm] = useState("");
@@ -771,7 +471,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [contentSearchTerm, setContentSearchTerm] = useState("");
   const [contentTypeFilter, setContentTypeFilter] = useState("All");
   const [aiPrompt, setAiPrompt] = useState("");
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [editingHarvest, setEditingHarvest] = useState(null);
   const [harvestSearchTerm, setHarvestSearchTerm] = useState("");
@@ -779,22 +478,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [harvestToDelete, setHarvestToDelete] = useState(null);
 
   const [activeSettingsTab, setActiveSettingsTab] = useState("General");
-<<<<<<< HEAD
-  const [adminSettings, setAdminSettings] = useState(() => {
-    try {
-      const savedSettings = localStorage.getItem(ADMIN_SETTINGS_STORAGE_KEY);
-      return savedSettings ? mergeAdminSettings(JSON.parse(savedSettings)) : mergeAdminSettings();
-    } catch (error) {
-      return mergeAdminSettings();
-    }
-  });
-  const [editingAdminId, setEditingAdminId] = useState(null);
-  const [adminAccountDraft, setAdminAccountDraft] = useState(null);
-  const [paymentConfigOpen, setPaymentConfigOpen] = useState(false);
-  const [activeHomeChartTab, setActiveHomeChartTab] = useState("crop");
-  const [homeGlassChartDraft, setHomeGlassChartDraft] = useState(homeGlassChart);
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const [editingPromo, setEditingPromo] = useState(null);
   
@@ -810,17 +493,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const notifRef = useRef(null);
   const [simulatedRiderDelivery, setSimulatedRiderDelivery] = useState(null);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    setHomeGlassChartDraft(homeGlassChart);
-  }, [homeGlassChart]);
-
-  useEffect(() => {
-    localStorage.setItem(SUPPLIER_ITEMS_STORAGE_KEY, JSON.stringify(supplierItems));
-  }, [supplierItems]);
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleEditClick = (product) => {
     setEditingProduct({ ...product });
   };
@@ -880,80 +552,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     });
   };
 
-<<<<<<< HEAD
-  const getSupplierItemStockText = (item) => `${Number(item.stock) || 0} ${item.unit || "units"}`;
-
-  const getSupplierItemUpdatedAt = () => new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  const handleAddSupplierItem = () => {
-    setEditingSupplierItem({
-      id: `SUP-${Date.now()}`,
-      item: "",
-      category: "Seed Kit",
-      supplier: "",
-      stock: 0,
-      unit: "units",
-      status: "In Stock",
-      reorderPoint: 10,
-      contact: "",
-      leadTime: "3 days",
-      notes: "",
-      updatedAt: getSupplierItemUpdatedAt(),
-      isNew: true,
-    });
-  };
-
-  const handleEditSupplierItem = (supplierItem) => {
-    setEditingSupplierItem({ ...supplierItem });
-  };
-
-  const handleCancelSupplierItemEdit = () => {
-    setEditingSupplierItem(null);
-  };
-
-  const handleSupplierDraftChange = (field, value) => {
-    setEditingSupplierItem(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSaveSupplierItem = () => {
-    if (!editingSupplierItem?.item.trim() || !editingSupplierItem?.supplier.trim()) {
-      showAdminToast("Please add an item name and supplier before saving.");
-      return;
-    }
-
-    const supplierItemToSave = {
-      ...editingSupplierItem,
-      stock: Math.max(0, Number(editingSupplierItem.stock) || 0),
-      reorderPoint: Math.max(0, Number(editingSupplierItem.reorderPoint) || 0),
-      updatedAt: getSupplierItemUpdatedAt(),
-    };
-    delete supplierItemToSave.isNew;
-
-    if (editingSupplierItem.isNew) {
-      setSupplierItems(prev => [supplierItemToSave, ...prev]);
-      showAdminToast("Supplier item added.");
-    } else {
-      setSupplierItems(prev => prev.map(item => item.id === supplierItemToSave.id ? supplierItemToSave : item));
-      showAdminToast("Supplier item updated.");
-    }
-
-    setEditingSupplierItem(null);
-  };
-
-  const handleDeleteSupplierItem = (supplierItemId) => {
-    setSupplierItems(prev => prev.filter(item => item.id !== supplierItemId));
-    if (editingSupplierItem?.id === supplierItemId) {
-      setEditingSupplierItem(null);
-    }
-    showAdminToast("Supplier item removed.");
-  };
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleEditOrder = (order) => {
     setEditingOrderId(order.id);
     setNewOrderStatus(order.status);
@@ -1189,97 +787,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     });
   };
 
-<<<<<<< HEAD
-  const getPlanDraftFromPlan = (plan = {}) => ({
-    ...plan,
-    name: plan.name || "",
-    description: plan.description || "",
-    priceMonthly: plan.priceMonthly || "₱0",
-    priceYearly: plan.priceYearly || "₱0",
-    billingNoteMonthly: plan.billingNoteMonthly || "per month",
-    billingNoteYearly: plan.billingNoteYearly || "per year, billed annually",
-    color: plan.color || "#15803d",
-    accentColor: plan.accentColor || plan.color || "#16a34a",
-    bg: plan.bg || "rgba(22,163,74,0.04)",
-    badge: plan.badge || "",
-    ctaLabel: plan.ctaLabel || "Subscribe Now",
-    billingType: plan.billingType || "paid",
-    clientVisible: plan.clientVisible !== false,
-    users: plan.users || "0",
-    revenue: plan.revenue || "₱0",
-    featuresText: (plan.features || []).join("\n"),
-    excludedFeaturesText: (plan.excludedFeatures || []).join("\n"),
-  });
-
-  const handleAddSubscriptionPlan = () => {
-    setEditingSubscriptionPlan(getPlanDraftFromPlan({
-      id: `PLAN-${Date.now()}`,
-      name: "",
-      description: "Describe who this plan is for.",
-      priceMonthly: "₱999",
-      priceYearly: "₱9,590",
-      badge: "New",
-      users: "0",
-      revenue: "₱0",
-      features: ["AI advisory access", "Priority support"],
-      excludedFeatures: [],
-      isNew: true,
-    }));
-  };
-
-  const handleEditSubscriptionPlan = (plan) => {
-    setEditingSubscriptionPlan(getPlanDraftFromPlan(plan));
-  };
-
-  const handleSubscriptionPlanDraftChange = (field, value) => {
-    setEditingSubscriptionPlan(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSaveSubscriptionPlan = () => {
-    if (!editingSubscriptionPlan?.name.trim()) {
-      setToastMessage("Please add a subscription plan name.");
-      setTimeout(() => setToastMessage(null), 3000);
-      return;
-    }
-    if (!setSubscriptionPlans) {
-      setToastMessage("Subscription plan manager is not connected.");
-      setTimeout(() => setToastMessage(null), 3000);
-      return;
-    }
-
-    const planToSave = {
-      ...editingSubscriptionPlan,
-      name: editingSubscriptionPlan.name.trim(),
-      description: editingSubscriptionPlan.description.trim(),
-      features: editingSubscriptionPlan.featuresText.split("\n").map(feature => feature.trim()).filter(Boolean),
-      excludedFeatures: editingSubscriptionPlan.excludedFeaturesText.split("\n").map(feature => feature.trim()).filter(Boolean),
-      clientVisible: Boolean(editingSubscriptionPlan.clientVisible),
-    };
-    delete planToSave.featuresText;
-    delete planToSave.excludedFeaturesText;
-    delete planToSave.isNew;
-
-    setSubscriptionPlans(prev => {
-      const plans = Array.isArray(prev) && prev.length > 0 ? prev : initialSubscriptionPlans;
-      if (editingSubscriptionPlan.isNew) return [planToSave, ...plans];
-      return plans.map(plan => plan.id === planToSave.id ? planToSave : plan);
-    });
-
-    setEditingSubscriptionPlan(null);
-    setToastMessage("Subscription plan saved and published to the client pricing page.");
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  const handleDeleteSubscriptionPlan = (planId) => {
-    if (!setSubscriptionPlans) return;
-    setSubscriptionPlans(prev => (prev || []).filter(plan => plan.id !== planId));
-    if (editingSubscriptionPlan?.id === planId) setEditingSubscriptionPlan(null);
-    setToastMessage("Subscription plan removed.");
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const filteredAdminHarvests = (harvests || []).filter(h => {
     const matchesSearch = h.name.toLowerCase().includes(harvestSearchTerm.toLowerCase());
     const matchesCategory = harvestCategoryFilter === "All" || h.category === harvestCategoryFilter;
@@ -1332,10 +839,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setEditableEvent(newEvent);
     setSelectedEvent(newEvent);
     setIsEditingEvent(true);
-<<<<<<< HEAD
-    setIsViewingEventAttendees(false);
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   };
 
   const handleGenerateCertificates = () => {
@@ -1370,57 +873,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     }, 1500);
   };
 
-<<<<<<< HEAD
-  const getEventAttendees = (eventId) => mockEventAttendees[eventId] || [];
-
-  const getFilteredEventAttendees = (eventId) => {
-    const searchValue = eventAttendeeSearchTerm.toLowerCase();
-    return getEventAttendees(eventId).filter(attendee => {
-      const matchesSearch = [attendee.id, attendee.name, attendee.email, attendee.ticket]
-        .some(value => String(value || "").toLowerCase().includes(searchValue));
-      const matchesStatus = eventAttendeeStatusFilter === "All" || attendee.status === eventAttendeeStatusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  };
-
-  const getEventAttendeeStatusStyle = (status) => {
-    if (status === "Checked In") return { background: "rgba(22,163,74,0.1)", color: "#16a34a" };
-    if (status === "Registered") return { background: "rgba(14,165,233,0.1)", color: "#0ea5e9" };
-    if (status === "Pending") return { background: "rgba(245,158,11,0.1)", color: "#f59e0b" };
-    if (status === "Cancelled" || status === "No Show") return { background: "rgba(220,38,38,0.1)", color: "#dc2626" };
-    return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
-  };
-
-  const handleViewEventAttendees = () => {
-    setIsEditingEvent(false);
-    setIsViewingEventAttendees(true);
-    setEventAttendeeSearchTerm("");
-    setEventAttendeeStatusFilter("All");
-  };
-
-  const handleExportSelectedEventAttendees = (event) => {
-    const attendees = getFilteredEventAttendees(event.id);
-    const quoteCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
-    const rows = [
-      ["Event ID", "Event Title", "Attendee ID", "Name", "Email", "Ticket", "Status", "Payment", "Registered At"],
-      ...attendees.map(attendee => [event.id, event.title, attendee.id, attendee.name, attendee.email, attendee.ticket, attendee.status, attendee.payment, attendee.registeredAt]),
-    ];
-    const csvContent = rows.map(row => row.map(quoteCsv).join(",")).join("\n");
-    const element = document.createElement("a");
-    const file = new Blob([csvContent], { type: "text/csv" });
-    const fileUrl = URL.createObjectURL(file);
-    element.href = fileUrl;
-    element.download = `${event.id}_Attendees.csv`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    URL.revokeObjectURL(fileUrl);
-    setToastMessage("Selected event attendees exported.");
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handleSaveEvent = () => {
     if (!editableEvent.title || !editableEvent.title.trim()) {
       setToastMessage("Please provide a valid event title.");
@@ -1441,10 +893,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setEventsList(updatedEvents);
     setSelectedEvent(eventToSave);
     setIsEditingEvent(false);
-<<<<<<< HEAD
-    setIsViewingEventAttendees(false);
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     setToastMessage("Event saved successfully!");
     setTimeout(() => setToastMessage(null), 3000);
   };
@@ -1522,384 +970,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-<<<<<<< HEAD
-  const showAdminToast = (message) => {
-    setToastMessage(message);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  const handleUpdateSurplusStatus = (listingId, status) => {
-    if (!setSurplusListings) {
-      showAdminToast("Surplus listing manager is not connected.");
-      return;
-    }
-
-    setSurplusListings(prev => (prev || []).map(listing => listing.id === listingId ? {
-      ...listing,
-      status,
-      reviewedAt: new Date().toLocaleString(),
-    } : listing));
-    showAdminToast(`Surplus listing marked as ${status}.`);
-  };
-
-  const updateExpertSupportConfig = (updater, message = null) => {
-    if (!setExpertSupportConfig) {
-      showAdminToast("Expert Support manager is not connected.");
-      return;
-    }
-    setExpertSupportConfig(prev => updater(prev || {}));
-    if (message) showAdminToast(message);
-  };
-
-  const updateExpertSupportSection = (section, value, message) => {
-    updateExpertSupportConfig(prev => ({ ...prev, [section]: value }), message);
-  };
-
-  const updateExpertSupportInfo = (field, value) => {
-    updateExpertSupportConfig(prev => ({
-      ...prev,
-      supportInfo: {
-        ...(prev.supportInfo || {}),
-        [field]: value,
-      },
-    }));
-  };
-
-  const updateExpertAdvisor = (advisorId, field, value) => {
-    updateExpertSupportConfig(prev => ({
-      ...prev,
-      advisors: (prev.advisors || []).map(advisor => advisor.id === advisorId ? { ...advisor, [field]: value } : advisor),
-    }));
-  };
-
-  const addExpertAdvisor = () => {
-    const newAdvisor = {
-      id: `ADV-${Date.now()}`,
-      name: "New Specialist",
-      image: "/rus3.jpeg",
-      verified: false,
-      rating: 4.5,
-      expertise: ["Urban Farming"],
-      availability: "Available",
-      availableDays: "Mon - Fri",
-      availableTime: "9:00 AM - 5:00 PM",
-      bio: "Add this specialist's client-facing bio here.",
-    };
-    updateExpertSupportConfig(prev => ({ ...prev, advisors: [newAdvisor, ...(prev.advisors || [])] }), "New advisor added.");
-  };
-
-  const removeExpertAdvisor = (advisorId) => {
-    updateExpertSupportConfig(prev => ({ ...prev, advisors: (prev.advisors || []).filter(advisor => advisor.id !== advisorId) }), "Advisor removed.");
-  };
-
-  const updateExpertService = (serviceId, field, value) => {
-    updateExpertSupportConfig(prev => ({
-      ...prev,
-      consultationTypes: (prev.consultationTypes || []).map(service => service.id === serviceId ? { ...service, [field]: value } : service),
-    }));
-  };
-
-  const addExpertService = () => {
-    const newService = {
-      id: `service-${Date.now()}`,
-      name: "New Service",
-      duration: "1 hour",
-      price: 500,
-      description: "Describe what this support service includes.",
-    };
-    updateExpertSupportConfig(prev => ({ ...prev, consultationTypes: [...(prev.consultationTypes || []), newService] }), "Consultation service added.");
-  };
-
-  const removeExpertService = (serviceId) => {
-    updateExpertSupportConfig(prev => ({ ...prev, consultationTypes: (prev.consultationTypes || []).filter(service => service.id !== serviceId) }), "Consultation service removed.");
-  };
-
-  const updateExpertFaq = (faqIndex, field, value) => {
-    updateExpertSupportConfig(prev => ({
-      ...prev,
-      faqs: (prev.faqs || []).map((faq, idx) => idx === faqIndex ? { ...faq, [field]: value } : faq),
-    }));
-  };
-
-  const addExpertFaq = () => {
-    updateExpertSupportConfig(prev => ({ ...prev, faqs: [...(prev.faqs || []), { question: "New question", answer: "Add the client-facing answer here." }] }), "FAQ added.");
-  };
-
-  const removeExpertFaq = (faqIndex) => {
-    updateExpertSupportConfig(prev => ({ ...prev, faqs: (prev.faqs || []).filter((_, idx) => idx !== faqIndex) }), "FAQ removed.");
-  };
-
-  const updateImpactSectorsConfig = (updater, message = null) => {
-    if (!setImpactSectorsConfig) {
-      showAdminToast("Impact Sectors manager is not connected.");
-      return;
-    }
-    setImpactSectorsConfig(prev => updater(prev || {}));
-    if (message) showAdminToast(message);
-  };
-
-  const updateImpactSectorPageInfo = (field, value) => {
-    updateImpactSectorsConfig(prev => ({
-      ...prev,
-      pageInfo: {
-        ...(prev.pageInfo || {}),
-        [field]: value,
-      },
-    }));
-  };
-
-  const updateImpactSector = (sectorId, field, value) => {
-    updateImpactSectorsConfig(prev => ({
-      ...prev,
-      sectors: (prev.sectors || []).map(sector => sector.id === sectorId ? { ...sector, [field]: value } : sector),
-    }));
-  };
-
-  const updateImpactSectorDetail = (sectorId, field, value) => {
-    updateImpactSectorsConfig(prev => ({
-      ...prev,
-      details: {
-        ...(prev.details || {}),
-        [sectorId]: {
-          ...((prev.details || {})[sectorId] || {}),
-          [field]: value,
-        },
-      },
-    }));
-  };
-
-  const updateImpactSectorDetailListItem = (sectorId, listKey, itemIndex, field, value) => {
-    updateImpactSectorsConfig(prev => {
-      const detail = ((prev.details || {})[sectorId] || {});
-      const list = Array.isArray(detail[listKey]) ? detail[listKey] : [];
-      return {
-        ...prev,
-        details: {
-          ...(prev.details || {}),
-          [sectorId]: {
-            ...detail,
-            [listKey]: list.map((item, index) => index === itemIndex ? { ...item, [field]: value } : item),
-          },
-        },
-      };
-    });
-  };
-
-  const addImpactSectorDetailListItem = (sectorId, listKey, newItem, message) => {
-    updateImpactSectorsConfig(prev => {
-      const detail = ((prev.details || {})[sectorId] || {});
-      const list = Array.isArray(detail[listKey]) ? detail[listKey] : [];
-      return {
-        ...prev,
-        details: {
-          ...(prev.details || {}),
-          [sectorId]: {
-            ...detail,
-            [listKey]: [...list, { ...newItem, id: `${listKey}-${Date.now()}` }],
-          },
-        },
-      };
-    }, message);
-  };
-
-  const removeImpactSectorDetailListItem = (sectorId, listKey, itemIndex, message) => {
-    updateImpactSectorsConfig(prev => {
-      const detail = ((prev.details || {})[sectorId] || {});
-      const list = Array.isArray(detail[listKey]) ? detail[listKey] : [];
-      return {
-        ...prev,
-        details: {
-          ...(prev.details || {}),
-          [sectorId]: {
-            ...detail,
-            [listKey]: list.filter((_, index) => index !== itemIndex),
-          },
-        },
-      };
-    }, message);
-  };
-
-  const parsePipeRows = (value) => value.split("\n").map(row => row.split("|").map(part => part.trim())).filter(parts => parts.some(Boolean));
-  const serializeChartRows = (rows = []) => rows.map(item => `${item.label || item.area || ""} | ${item.value ?? item.progress ?? ""} | ${item.color || "#16a34a"}`).join("\n");
-  const parseChartRows = (value) => parsePipeRows(value).map(([label, rowValue, color]) => ({ label, value: Number(rowValue) || 0, color: color || "#16a34a" }));
-  const serializeProgramsRows = (rows = []) => rows.map(item => `${item.title || ""} | ${item.desc || ""} | ${item.impact || item.icon || ""}`).join("\n");
-  const parseProgramsRows = (value, thirdField = "impact") => parsePipeRows(value).map(([title, desc, third]) => ({ title, desc, [thirdField]: third || "" }));
-  const serializeMetricsRows = (rows = []) => rows.map(item => `${item.value || ""} | ${item.label || ""} | ${item.iconKey || ""}`).join("\n");
-  const parseMetricsRows = (value) => parsePipeRows(value).map(([rowValue, label, iconKey]) => ({ value: rowValue, label, iconKey }));
-  const serializeDistributionRows = (rows = []) => rows.map(item => `${item.program || ""} | ${item.status || ""} | ${item.count || ""} | ${item.iconKey || ""}`).join("\n");
-  const parseDistributionRows = (value) => parsePipeRows(value).map(([program, status, count, iconKey], index) => ({ id: index + 1, program, status, count, iconKey }));
-
-  const updateAdminSetting = (section, key, value) => {
-    setAdminSettings(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: value,
-      },
-    }));
-  };
-
-  const saveAdminSettingsToStorage = (settingsToSave) => {
-    localStorage.setItem(ADMIN_SETTINGS_STORAGE_KEY, JSON.stringify(settingsToSave));
-  };
-
-  const handleSaveAdminSettings = () => {
-    if (!adminSettings.general.platformName.trim()) {
-      showAdminToast("Please provide a platform name.");
-      return;
-    }
-    if (!adminSettings.general.supportEmail.includes("@")) {
-      showAdminToast("Please provide a valid support email.");
-      return;
-    }
-
-    saveAdminSettingsToStorage(adminSettings);
-    showAdminToast("Admin settings saved successfully.");
-  };
-
-  const handleEditAdminAccount = (adminAccount) => {
-    setEditingAdminId(adminAccount.id);
-    setAdminAccountDraft({ ...adminAccount });
-  };
-
-  const handleAddAdminAccount = () => {
-    const newAdmin = {
-      id: `ADM-${Date.now()}`,
-      name: "New Admin",
-      email: "new.admin@ecoequity.ph",
-      role: "Ops Admin",
-      twoFactor: false,
-      status: "Active",
-    };
-
-    setAdminSettings(prev => ({ ...prev, admins: [...prev.admins, newAdmin] }));
-    setEditingAdminId(newAdmin.id);
-    setAdminAccountDraft(newAdmin);
-  };
-
-  const handleCancelAdminEdit = () => {
-    const wasNewBlankAdmin = adminAccountDraft?.name === "New Admin" && adminAccountDraft?.email === "new.admin@ecoequity.ph";
-    if (wasNewBlankAdmin) {
-      setAdminSettings(prev => ({ ...prev, admins: prev.admins.filter(admin => admin.id !== adminAccountDraft.id) }));
-    }
-    setEditingAdminId(null);
-    setAdminAccountDraft(null);
-  };
-
-  const handleSaveAdminAccount = () => {
-    if (!adminAccountDraft?.name.trim() || !adminAccountDraft?.email.includes("@")) {
-      showAdminToast("Please provide a valid admin name and email.");
-      return;
-    }
-
-    setAdminSettings(prev => ({
-      ...prev,
-      admins: prev.admins.map(admin => admin.id === adminAccountDraft.id ? adminAccountDraft : admin),
-    }));
-    setEditingAdminId(null);
-    setAdminAccountDraft(null);
-    showAdminToast("Admin account updated.");
-  };
-
-  const handleDeleteAdminAccount = (adminId) => {
-    const adminAccount = adminSettings.admins.find(admin => admin.id === adminId);
-    if (adminAccount?.role === "Super Admin") {
-      showAdminToast("Super Admin accounts cannot be removed here.");
-      return;
-    }
-
-    setAdminSettings(prev => ({ ...prev, admins: prev.admins.filter(admin => admin.id !== adminId) }));
-    if (editingAdminId === adminId) {
-      setEditingAdminId(null);
-      setAdminAccountDraft(null);
-    }
-    showAdminToast("Admin account removed.");
-  };
-
-  const handleTestPaymentConnection = () => {
-    if (!adminSettings.payments.publicKey.trim()) {
-      showAdminToast("Add a PayMongo public key before testing.");
-      return;
-    }
-
-    showAdminToast(adminSettings.payments.payMongoEnabled ? "PayMongo connection looks ready." : "Enable PayMongo before accepting payments.");
-  };
-
-  const handleCreateBackup = () => {
-    const timestamp = new Date().toLocaleString();
-    const backup = {
-      id: `BKP-${Date.now()}`,
-      createdAt: timestamp,
-      summary: `${(products || []).length} products, ${(orders || []).length} orders, ${(harvests || []).length} harvests`,
-    };
-
-    setAdminSettings(prev => {
-      const updatedSettings = {
-        ...prev,
-        backups: {
-          ...prev.backups,
-          lastBackup: timestamp,
-          history: [backup, ...(prev.backups.history || [])].slice(0, 5),
-        },
-      };
-      saveAdminSettingsToStorage(updatedSettings);
-      return updatedSettings;
-    });
-    showAdminToast("Manual backup created.");
-  };
-
-  const handleRestoreBackup = () => {
-    const latestBackup = adminSettings.backups.history?.[0];
-    if (!latestBackup) {
-      showAdminToast("Create a backup before restoring.");
-      return;
-    }
-
-    const timestamp = new Date().toLocaleString();
-    setAdminSettings(prev => {
-      const updatedSettings = {
-        ...prev,
-        backups: {
-          ...prev.backups,
-          lastRestore: timestamp,
-        },
-      };
-      saveAdminSettingsToStorage(updatedSettings);
-      return updatedSettings;
-    });
-    showAdminToast(`Restored from ${latestBackup.id}.`);
-  };
-
-  const handleExportSystemData = () => {
-    const quoteCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
-    const rows = [
-      ["Section", "ID", "Name", "Status", "Details"],
-      ...mockUsers.map(user => ["Users", user.id, user.name, user.status, user.role]),
-      ...(products || []).map(product => ["Products", product.id, product.name, product.stock || product.status || "", product.category || ""]),
-      ...(orders || []).map(order => ["Orders", order.id, order.customer, order.status, order.total || ""]),
-      ...(harvests || []).map(harvest => ["Harvests", harvest.id, harvest.name, harvest.risk || "", harvest.category || ""]),
-      ...supplierItems.map(item => ["Supplier Inventory", item.id, item.item, item.status || "", `${item.supplier || ""} | ${getSupplierItemStockText(item)}`]),
-      ...managedSubscriptionPlans.map(plan => ["Subscription Plans", plan.id, plan.name, plan.clientVisible === false ? "Hidden" : "Visible", `${plan.priceMonthly} monthly | ${plan.priceYearly} yearly`]),
-      ...(surplusListings || []).map(listing => ["Surplus", listing.id, listing.product, listing.status || "Pending Review", `${listing.quantity}${listing.unit} at ₱${listing.price}/${listing.unit}`]),
-      ...(promoCodes || []).map(promo => ["Promos", promo.id, promo.code, promo.status || "", promo.type || ""]),
-      ...eventsList.map(event => ["Events", event.id, event.title, event.status, event.date]),
-      ...deliveriesList.map(delivery => ["Deliveries", delivery.id, delivery.customer, delivery.status, delivery.orderId]),
-    ];
-    const csvContent = rows.map(row => row.map(quoteCsv).join(",")).join("\n");
-    const element = document.createElement("a");
-    const file = new Blob([csvContent], { type: "text/csv" });
-    const fileUrl = URL.createObjectURL(file);
-    element.href = fileUrl;
-    element.download = "VerdeVersity_Admin_System_Data.csv";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    URL.revokeObjectURL(fileUrl);
-    showAdminToast("System data exported as CSV.");
-  };
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const sidebarItems = [
     { name: "Dashboard", icon: LayoutDashboard },
     { name: "Users", icon: Users },
@@ -1912,23 +982,9 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     { name: "Subscriptions", icon: Repeat },
     { name: "Events & Workshops", icon: CalendarDays },
     { name: "Seasonal Harvests", icon: Wheat },
-<<<<<<< HEAD
-    { name: "Surplus Exchange", icon: RefreshCcw },
-    { name: "Home Glass Chart", icon: BarChart2 },
-    { name: "Announcements", icon: Megaphone },
-    { name: "Learning Materials", icon: FileText },
-    { name: "Expert Support", icon: UserCheck },
-    { name: "Support Tickets", icon: MessageSquare },
-    { name: "Community Posts", icon: Users },
-    { name: "Inventory & Suppliers", icon: Package },
-    { name: "Impact Sectors", icon: Globe },
-    { name: "Impact Metrics", icon: Leaf },
-    { name: "Reports & Analytics", icon: BarChart2 },
-=======
     { name: "AI Plant Doctor", icon: Stethoscope },
     { name: "Reports & Analytics", icon: BarChart2 },
     { name: "Content Management", icon: FileText },
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     { name: "Settings", icon: Settings },
   ];
 
@@ -1947,29 +1003,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   }, 0);
   const pendingOrdersCount = (orders || []).filter(order => order.status === "Pending Approval").length;
   const deliveredOrdersCount = (orders || []).filter(order => order.status === "Delivered").length;
-<<<<<<< HEAD
-  const settingsTabs = [
-    { id: "General", icon: <Layout size={16} /> },
-    { id: "Security & Roles", icon: <ShieldCheck size={16} /> },
-    { id: "Payments", icon: <CreditCard size={16} /> },
-    { id: "Appearance", icon: <Image size={16} /> },
-    { id: "Database & Backups", icon: <Database size={16} /> },
-  ];
-  const adminRoleOptions = ["Super Admin", "Ops Admin", "Support Admin", "Finance Admin", "Content Admin"];
-  const settingsStats = [
-    {
-      label: "System Status",
-      value: adminSettings.general.maintenanceMode ? "Maintenance" : "Online",
-      trend: adminSettings.general.maintenanceMode ? "Restricted" : "99.9% Uptime",
-      up: !adminSettings.general.maintenanceMode,
-      icon: <Activity size={16} color={adminSettings.general.maintenanceMode ? "#e11d48" : "#15803d"} />,
-    },
-    { label: "Active Admins", value: String(adminSettings.admins.length), trend: "Role Managed", up: true, icon: <ShieldCheck size={16} color="#0284c7" /> },
-    { label: "Last Backup", value: adminSettings.backups.lastBackup ? "Saved" : "None", trend: adminSettings.backups.lastBackup || "Create one", up: Boolean(adminSettings.backups.lastBackup), icon: <Database size={16} color="#f59e0b" /> },
-    { label: "Payment API", value: adminSettings.payments.payMongoEnabled ? "Enabled" : "Paused", trend: adminSettings.payments.publicKey ? "Configured" : "Missing Key", up: adminSettings.payments.payMongoEnabled && Boolean(adminSettings.payments.publicKey), icon: <Globe size={16} color="#8b5cf6" /> },
-  ];
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const filteredDeliveriesList = deliveriesList.filter(delivery => {
     const matchesSearch = delivery.id.toLowerCase().includes(deliverySearchTerm.toLowerCase()) || 
@@ -1988,20 +1021,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesStatus;
   });
 
-<<<<<<< HEAD
-  const managedSubscriptionPlans = Array.isArray(subscriptionPlans) && subscriptionPlans.length > 0 ? subscriptionPlans : initialSubscriptionPlans;
-  const managedSubscriptionPlanOptions = managedSubscriptionPlans.map(plan => ({ value: plan.name, label: plan.name }));
-  const getManagedPlanColor = (planName) => managedSubscriptionPlans.find(plan => plan.name === planName)?.color || "#475569";
-  const getManagedPlanLimit = (planName) => {
-    const plan = managedSubscriptionPlans.find(item => item.name === planName);
-    if (!plan) return 100;
-    if (plan.billingType === "free") return 10;
-    if (plan.billingType === "contact") return 5000;
-    return 100;
-  };
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const filteredSubscribers = subscribersList.filter(sub => {
     const matchesSearch = sub.user.toLowerCase().includes(subSearchTerm.toLowerCase()) || 
                           sub.id.toLowerCase().includes(subSearchTerm.toLowerCase());
@@ -2016,33 +1035,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesType;
   });
 
-<<<<<<< HEAD
-  const filteredAdminProducts = products.filter(p => 
-    productCategoryFilter === "All" || p.category === productCategoryFilter
-  );
-
-  const filteredSupplierItems = supplierItems.filter(item => {
-    const searchValue = supplierSearchTerm.toLowerCase();
-    const matchesSearch = [item.item, item.category, item.supplier, item.contact, item.notes]
-      .some(value => String(value || "").toLowerCase().includes(searchValue));
-    const matchesStatus = supplierStatusFilter === "All" || item.status === supplierStatusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const supplierStatusOptions = ["All", "In Stock", "Low Stock", "Reorder", "Out of Stock", "Paused"];
-  const supplierCategoryCount = new Set(supplierItems.map(item => item.category).filter(Boolean)).size;
-  const supplierCount = new Set(supplierItems.map(item => item.supplier).filter(Boolean)).size;
-  const lowSupplierStockCount = supplierItems.filter(item => ["Low Stock", "Reorder", "Out of Stock"].includes(item.status)).length;
-  const seedKitCount = supplierItems.filter(item => `${item.category || ""} ${item.item || ""}`.toLowerCase().includes("seed")).length;
-  const supplierInventoryStats = adminManagedSections["Inventory & Suppliers"].stats.map(stat => {
-    if (stat.label === "Active SKUs") return { ...stat, value: String(supplierItems.length), trend: `${supplierCategoryCount} categories`, up: true };
-    if (stat.label === "Low Stock") return { ...stat, value: String(lowSupplierStockCount), trend: lowSupplierStockCount ? "Needs action" : "Clear", up: lowSupplierStockCount === 0 };
-    if (stat.label === "Suppliers") return { ...stat, value: String(supplierCount), trend: "Managed", up: true };
-    if (stat.label === "Seed Kits") return { ...stat, value: String(seedKitCount), trend: "Tracked", up: true };
-    return stat;
-  });
-
-=======
   const filteredScansList = mockScansList.filter(scan => {
     const matchesSearch = scan.plant.toLowerCase().includes(scanSearchTerm.toLowerCase()) || 
                           scan.disease.toLowerCase().includes(scanSearchTerm.toLowerCase()) ||
@@ -2062,7 +1054,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     productCategoryFilter === "All" || p.category === productCategoryFilter
   );
 
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const getStatusStyle = (status) => {
     if (status === "Pending Approval") return { background: "rgba(245,158,11,0.1)", color: "#d97706" };
     if (status === "Approved") return { background: "rgba(14,165,233,0.1)", color: "#0ea5e9" };
@@ -2100,1587 +1091,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
   };
 
-<<<<<<< HEAD
-  const getManagedStatusStyle = (status) => {
-    if (["Published", "Live", "In Stock", "Featured", "Approved", "Available"].includes(status)) return { background: "rgba(22,163,74,0.1)", color: "#16a34a" };
-    if (["Scheduled", "Review", "Low Stock", "Reorder", "Draft", "Pending Review"].includes(status)) return { background: "rgba(245,158,11,0.1)", color: "#f59e0b" };
-    if (["Flagged", "High", "Removed"].includes(status)) return { background: "rgba(220,38,38,0.1)", color: "#dc2626" };
-    if (["Medium", "Paused"].includes(status)) return { background: "rgba(14,165,233,0.1)", color: "#0ea5e9" };
-    if (["Sold"].includes(status)) return { background: "rgba(107,114,128,0.1)", color: "#4b5563" };
-    return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
-  };
-
-  const getManagedCellValue = (item, column) => {
-    const key = column.charAt(0).toLowerCase() + column.slice(1).replace(/\s+/g, "");
-    return item[key] || item[column.toLowerCase()] || "";
-  };
-
-  const getSupportTicketOwner = (category = "") => {
-    const normalizedCategory = category.toLowerCase();
-    if (normalizedCategory.includes("payment") || normalizedCategory.includes("checkout")) return "Billing Team";
-    if (normalizedCategory.includes("order") || normalizedCategory.includes("delivery")) return "Logistics";
-    if (normalizedCategory.includes("learning") || normalizedCategory.includes("workshop") || normalizedCategory.includes("certificate")) return "Education Team";
-    if (normalizedCategory.includes("farm") || normalizedCategory.includes("seed") || normalizedCategory.includes("inventory")) return "Ops Admin";
-    if (normalizedCategory.includes("impact") || normalizedCategory.includes("partnership")) return "Impact Team";
-    return "Support Queue";
-  };
-
-  const submittedSupportItems = (supportTickets || []).map(ticket => ({
-    ticket: `${ticket.id}: ${ticket.subject}`,
-    requester: ticket.requester || ticket.contact || "Portal User",
-    category: ticket.category || ticket.page || "General Support",
-    owner: getSupportTicketOwner(ticket.category || ticket.page),
-    priority: ticket.priority || "Medium",
-  }));
-
-  const getManagedSectionItems = (section) => {
-    if (section.title === "Support Tickets" && submittedSupportItems.length > 0) {
-      return [...submittedSupportItems, ...section.items];
-    }
-    return section.items;
-  };
-
-  const getManagedSectionStats = (section) => {
-    if (section.title !== "Support Tickets" || !supportTickets?.length) return section.stats;
-
-    const farmIssueCount = supportTickets.filter(ticket => {
-      const category = `${ticket.category || ""} ${ticket.page || ""}`.toLowerCase();
-      return category.includes("farm") || category.includes("seed") || category.includes("inventory") || category.includes("plant");
-    }).length;
-
-    return section.stats.map(stat => {
-      if (stat.label === "Open Tickets") {
-        return { ...stat, value: String(31 + supportTickets.length), trend: `+${supportTickets.length}`, up: false };
-      }
-      if (stat.label === "Farm Issues") {
-        return { ...stat, value: String(12 + farmIssueCount), trend: farmIssueCount ? `+${farmIssueCount}` : stat.trend, up: farmIssueCount ? false : stat.up };
-      }
-      return stat;
-    });
-  };
-
-  const updateHomeGlassChartDraft = (tabId, updater) => {
-    setHomeGlassChartDraft(prev => {
-      const currentTab = prev[tabId] || { points: [], stats: [] };
-      return {
-        ...prev,
-        [tabId]: updater(currentTab),
-      };
-    });
-  };
-
-  const updateHomeChartField = (field, value) => {
-    updateHomeGlassChartDraft(activeHomeChartTab, currentTab => ({
-      ...currentTab,
-      [field]: value,
-    }));
-  };
-
-  const updateHomeChartPoint = (index, field, value) => {
-    updateHomeGlassChartDraft(activeHomeChartTab, currentTab => ({
-      ...currentTab,
-      points: (currentTab.points || []).map((point, idx) => idx === index ? { ...point, [field]: value } : point),
-    }));
-  };
-
-  const updateHomeChartStat = (index, field, value) => {
-    updateHomeGlassChartDraft(activeHomeChartTab, currentTab => ({
-      ...currentTab,
-      stats: (currentTab.stats || []).map((stat, idx) => idx === index ? { ...stat, [field]: value } : stat),
-    }));
-  };
-
-  const handleSaveHomeGlassChart = () => {
-    if (!setHomeGlassChart) {
-      setToastMessage("Home glass chart manager is not connected.");
-      setTimeout(() => setToastMessage(null), 3000);
-      return;
-    }
-    setHomeGlassChart(homeGlassChartDraft);
-    setToastMessage("Home glass chart updated successfully.");
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  const renderHomeGlassChartManagement = () => {
-    const activeDraft = homeGlassChartDraft[activeHomeChartTab] || { points: [], stats: [] };
-    const activeMeta = homeGlassChartTabs.find(tab => tab.id === activeHomeChartTab) || homeGlassChartTabs[0];
-    const ActiveIcon = activeMeta.icon;
-
-    return (
-      <div style={styles.dashboardContainer}>
-        <div style={styles.statsGrid}>
-          {homeGlassChartTabs.map(tab => {
-            const tabData = homeGlassChartDraft[tab.id] || {};
-            const TabIcon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                className="inner-blur-glass"
-                onClick={() => setActiveHomeChartTab(tab.id)}
-                style={{
-                  ...styles.statCard,
-                  textAlign: "left",
-                  cursor: "pointer",
-                  border: activeHomeChartTab === tab.id ? `1px solid ${tab.color}55` : styles.statCard.border,
-                  background: activeHomeChartTab === tab.id ? `linear-gradient(135deg, ${tab.color}18, rgba(255,255,255,0.72))` : styles.statCard.background,
-                  fontFamily: "inherit",
-                }}
-              >
-                <div style={styles.statIconWrap}><TabIcon size={16} color={tab.color} /></div>
-                <div style={{ ...styles.statValue, fontSize: "20px", marginTop: "10px" }}>{tabData.tabLabel || tab.label}</div>
-                <div style={styles.statLabel}>{tabData.title || tab.label}</div>
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1.35fr 0.85fr", gap: "24px" }}>
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
-              <div>
-                <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>Home Glass Chart Management</h3>
-                <p style={{ margin: 0, fontSize: "12px", lineHeight: 1.5, color: "rgba(0,0,0,0.58)", fontWeight: 600, maxWidth: "620px" }}>
-                  Edit the Home page hero glass chart tabs, chart point labels, and metric badges.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleSaveHomeGlassChart}
-                style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-                <Save size={14} style={{ position: "relative", zIndex: 1 }} />
-                <span style={{ position: "relative", zIndex: 1 }}>Save Home Chart</span>
-              </button>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", marginBottom: "18px" }}>
-              <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Tab Label</span>
-                <input value={activeDraft.tabLabel || ""} onChange={(e) => updateHomeChartField("tabLabel", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-              </label>
-              <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Status Badge</span>
-                <input value={activeDraft.status || ""} onChange={(e) => updateHomeChartField("status", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-              </label>
-              <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Chart Title</span>
-                <input value={activeDraft.title || ""} onChange={(e) => updateHomeChartField("title", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-              </label>
-              <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Subtitle</span>
-                <input value={activeDraft.subtitle || ""} onChange={(e) => updateHomeChartField("subtitle", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-              </label>
-            </div>
-
-            <h4 style={{ margin: "0 0 12px", fontSize: "13px", color: "#062018", fontWeight: 850 }}>Chart Points</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", marginBottom: "20px" }}>
-              {(activeDraft.points || []).map((point, idx) => (
-                <div key={point.id || idx} style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.62)", border: "1px solid rgba(255,255,255,0.72)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <input value={point.label || ""} onChange={(e) => updateHomeChartPoint(idx, "label", e.target.value)} placeholder="Point label" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  <input value={point.value || ""} onChange={(e) => updateHomeChartPoint(idx, "value", e.target.value)} placeholder="Point value" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </div>
-              ))}
-            </div>
-
-            <h4 style={{ margin: "0 0 12px", fontSize: "13px", color: "#062018", fontWeight: 850 }}>Metric Badges</h4>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px" }}>
-              {(activeDraft.stats || []).map((stat, idx) => (
-                <div key={`${stat.label}-${idx}`} style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.62)", border: "1px solid rgba(255,255,255,0.72)", display: "grid", gridTemplateColumns: "1fr 0.75fr 0.75fr", gap: "10px" }}>
-                  <input value={stat.label || ""} onChange={(e) => updateHomeChartStat(idx, "label", e.target.value)} placeholder="Label" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  <input value={stat.value || ""} onChange={(e) => updateHomeChartStat(idx, "value", e.target.value)} placeholder="Value" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  <input value={stat.progress || ""} onChange={(e) => updateHomeChartStat(idx, "progress", e.target.value)} placeholder="Progress" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "22px", background: "linear-gradient(150deg, rgba(255,255,255,0.78), rgba(240,253,244,0.46))" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
-              <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: `${activeMeta.color}1f`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <ActiveIcon size={20} color={activeMeta.color} />
-              </div>
-              <div>
-                <div style={{ fontSize: "10px", fontWeight: 850, color: activeMeta.color, textTransform: "uppercase" }}>{activeDraft.status || "Status"}</div>
-                <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 850, color: "#062018" }}>{activeDraft.title || activeMeta.label}</h3>
-                <p style={{ margin: "3px 0 0", fontSize: "12px", fontWeight: 650, color: "rgba(0,0,0,0.56)" }}>{activeDraft.subtitle || "Home page hero"}</p>
-              </div>
-            </div>
-
-            <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.78)", marginBottom: "16px" }}>
-              <svg viewBox="0 0 300 120" style={{ width: "100%", height: "150px", overflow: "visible" }}>
-                <path d={(activeDraft.points || []).map((point, idx) => `${idx === 0 ? "M" : "L"} ${point.cx || 0} ${point.cy || 60}`).join(" ")} fill="none" stroke={activeMeta.color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                {(activeDraft.points || []).map((point, idx) => (
-                  <g key={point.id || idx}>
-                    <text x={point.cx || 0} y={(point.cy || 60) - 12} fontSize="10" fill={activeMeta.color} textAnchor="middle" fontWeight="800">{point.value}</text>
-                    <circle cx={point.cx || 0} cy={point.cy || 60} r={idx === (activeDraft.points || []).length - 1 ? 6 : 5} fill="#fff" stroke={activeMeta.color} strokeWidth="2.5" />
-                  </g>
-                ))}
-              </svg>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              {(activeDraft.stats || []).map((stat, idx) => (
-                <div key={`${stat.label}-${idx}`} style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.72)", border: "1px solid rgba(255,255,255,0.78)" }}>
-                  <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.52)", fontWeight: 800, textTransform: "uppercase" }}>{stat.label}</div>
-                  <div style={{ fontSize: "18px", fontWeight: 850, color: "#062018", margin: "5px 0" }}>{stat.value}</div>
-                  <div style={{ height: "4px", background: "rgba(0,0,0,0.06)", borderRadius: "999px", overflow: "hidden" }}>
-                    <div style={{ width: stat.progress || "0%", height: "100%", background: activeMeta.color, borderRadius: "999px" }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderSurplusExchangeManagement = () => {
-    const listings = Array.isArray(surplusListings) ? surplusListings : [];
-    const visibleListings = listings.filter(listing => listing.status !== "Removed");
-    const pendingCount = listings.filter(listing => listing.status === "Pending Review").length;
-    const approvedCount = listings.filter(listing => listing.status === "Approved").length;
-    const soldCount = listings.filter(listing => listing.status === "Sold").length;
-    const totalValue = visibleListings.reduce((sum, listing) => sum + ((Number(listing.quantity) || 0) * (Number(listing.price) || 0)), 0);
-    const surplusStats = [
-      { label: "Pending Review", value: String(pendingCount), trend: pendingCount ? `+${pendingCount}` : "Clear", up: pendingCount === 0, icon: <Clock size={16} color="#f59e0b" /> },
-      { label: "Approved Listings", value: String(approvedCount), trend: "Client visible", up: true, icon: <CheckCircle size={16} color="#16a34a" /> },
-      { label: "Sold Listings", value: String(soldCount), trend: "Closed", up: true, icon: <ShoppingCart size={16} color="#0284c7" /> },
-      { label: "Listing Value", value: `₱${totalValue.toLocaleString()}`, trend: "Gross", up: true, icon: <CreditCard size={16} color="#8b5cf6" /> },
-    ];
-
-    const surplusActions = (listing) => {
-      if (listing.status === "Removed") {
-        return [{ label: "Restore", status: "Pending Review", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" }];
-      }
-      if (listing.status === "Pending Review") {
-        return [
-          { label: "Approve", status: "Approved", color: "#15803d", bg: "rgba(22,163,74,0.1)" },
-          { label: "Pause", status: "Paused", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" },
-          { label: "Remove", status: "Removed", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
-        ];
-      }
-      if (listing.status === "Approved") {
-        return [
-          { label: "Pause", status: "Paused", color: "#0ea5e9", bg: "rgba(14,165,233,0.1)" },
-          { label: "Sold", status: "Sold", color: "#4b5563", bg: "rgba(107,114,128,0.1)" },
-          { label: "Remove", status: "Removed", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
-        ];
-      }
-      if (listing.status === "Sold") {
-        return [
-          { label: "Reopen", status: "Approved", color: "#15803d", bg: "rgba(22,163,74,0.1)" },
-          { label: "Remove", status: "Removed", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
-        ];
-      }
-      return [
-        { label: "Approve", status: "Approved", color: "#15803d", bg: "rgba(22,163,74,0.1)" },
-        { label: "Remove", status: "Removed", color: "#dc2626", bg: "rgba(220,38,38,0.1)" },
-      ];
-    };
-
-    return (
-      <div style={styles.dashboardContainer}>
-        <div style={styles.statsGrid}>
-          {surplusStats.map((stat, idx) => (
-            <div key={idx} className="inner-blur-glass" style={styles.statCard}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                <div style={styles.statIconWrap}>{stat.icon}</div>
-                <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
-                  {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                  {stat.trend}
-                </span>
-              </div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
-            <div>
-              <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>Surplus Exchange Management</h3>
-              <p style={{ margin: 0, fontSize: "12px", lineHeight: 1.5, color: "rgba(0,0,0,0.58)", fontWeight: 600, maxWidth: "680px" }}>
-                Review client-submitted surplus items, approve marketplace visibility, pause listings, mark sold items, or remove entries from the client-facing exchange.
-              </p>
-            </div>
-            <button onClick={() => showAdminToast(`${listings.length} surplus listings synced from the client website.`)} style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-              <RefreshCcw size={14} style={{ position: "relative", zIndex: 1 }} />
-              <span style={{ position: "relative", zIndex: 1 }}>Sync Listings</span>
-            </button>
-          </div>
-
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ ...styles.table, width: "100%", minWidth: "860px" }}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Product</th>
-                  <th style={styles.th}>Seller</th>
-                  <th style={styles.th}>Qty</th>
-                  <th style={styles.th}>Price</th>
-                  <th style={styles.th}>Location</th>
-                  <th style={styles.th}>Submitted</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listings.length === 0 ? (
-                  <tr style={styles.tr}>
-                    <td colSpan="8" style={{ ...styles.td, textAlign: "center", color: "rgba(0,0,0,0.55)", fontWeight: 700 }}>No surplus listings submitted yet.</td>
-                  </tr>
-                ) : listings.map(listing => (
-                  <tr key={listing.id} style={styles.tr}>
-                    <td style={{ ...styles.td, fontWeight: 800, maxWidth: "220px" }}>
-                      <div>{listing.product}</div>
-                      <div style={{ marginTop: "4px", color: "rgba(0,0,0,0.5)", fontSize: "11px", fontWeight: 600, whiteSpace: "normal" }}>{listing.description || "No description provided."}</div>
-                    </td>
-                    <td style={styles.td}>{listing.farmer || listing.clientName || "Client Seller"}</td>
-                    <td style={styles.td}>{listing.quantity}{listing.unit}</td>
-                    <td style={styles.td}>₱{listing.price}/{listing.unit}</td>
-                    <td style={styles.td}>{listing.location}</td>
-                    <td style={styles.td}>{listing.submittedAt || "Website form"}</td>
-                    <td style={styles.td}>
-                      <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, ...getManagedStatusStyle(listing.status || "Pending Review") }}>{listing.status || "Pending Review"}</span>
-                    </td>
-                    <td style={styles.td}>
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                        {surplusActions(listing).map(action => (
-                          <button key={`${listing.id}-${action.status}`} onClick={() => handleUpdateSurplusStatus(listing.id, action.status)} style={{ ...styles.actionBtn, color: action.color, background: action.bg, padding: "6px 10px", fontSize: "11px", fontWeight: 800 }}>
-                            {action.label}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderExpertSupportManagement = () => {
-    const config = {
-      supportInfo: {
-        badge: "Expert Support",
-        titleLead: "Verified",
-        titleAccent: "Agriculture Specialists",
-        description: "Connect with our network of verified agriculture specialists and advisors for personalized guidance and support.",
-        emergencyNote: "Emergency consultations prioritize urgent agricultural issues and are charged a premium rate.",
-      },
-      advisors: [],
-      consultationTypes: [],
-      faqs: [],
-      timeSlots: [],
-      defaultSuggestions: [],
-      quickSuggestions: {},
-      ...expertSupportConfig,
-    };
-    const coreServiceIds = ["video", "phone", "chat", "emergency"];
-    const activeAdvisorCount = (config.advisors || []).filter(advisor => advisor.availability === "Available").length;
-    const verifiedAdvisorCount = (config.advisors || []).filter(advisor => advisor.verified).length;
-    const expertStats = [
-      { label: "Specialists", value: String((config.advisors || []).length), trend: `${activeAdvisorCount} available`, up: activeAdvisorCount > 0, icon: <UserCheck size={16} color="#15803d" /> },
-      { label: "Verified", value: String(verifiedAdvisorCount), trend: "Trust badge", up: true, icon: <ShieldCheck size={16} color="#0284c7" /> },
-      { label: "Services", value: String((config.consultationTypes || []).length), trend: "Bookable", up: true, icon: <CalendarDays size={16} color="#f59e0b" /> },
-      { label: "FAQ Items", value: String((config.faqs || []).length), trend: "Client help", up: true, icon: <MessageSquare size={16} color="#8b5cf6" /> },
-    ];
-
-    return (
-      <div style={styles.dashboardContainer}>
-        <div style={styles.statsGrid}>
-          {expertStats.map((stat, idx) => (
-            <div key={idx} className="inner-blur-glass" style={styles.statCard}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                <div style={styles.statIconWrap}>{stat.icon}</div>
-                <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
-                  {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                  {stat.trend}
-                </span>
-              </div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "flex-start", flexWrap: "wrap", marginBottom: "20px" }}>
-            <div>
-              <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>Expert Support Page Info</h3>
-              <p style={{ margin: 0, fontSize: "12px", color: "rgba(0,0,0,0.58)", fontWeight: 600 }}>Control the client-facing heading, description, emergency notice, available times, and quick chat prompts.</p>
-            </div>
-            <button onClick={() => showAdminToast("Expert Support content synced to the client website.")} style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-              <Save size={14} style={{ position: "relative", zIndex: 1 }} />
-              <span style={{ position: "relative", zIndex: 1 }}>Save Expert Support</span>
-            </button>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "14px" }}>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Badge Label</span>
-              <input value={config.supportInfo.badge || ""} onChange={e => updateExpertSupportInfo("badge", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Title Lead</span>
-              <input value={config.supportInfo.titleLead || ""} onChange={e => updateExpertSupportInfo("titleLead", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Accent Title</span>
-              <input value={config.supportInfo.titleAccent || ""} onChange={e => updateExpertSupportInfo("titleAccent", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Time Slots</span>
-              <input value={(config.timeSlots || []).join(", ")} onChange={e => updateExpertSupportSection("timeSlots", e.target.value.split(",").map(slot => slot.trim()).filter(Boolean))} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Page Description</span>
-              <textarea value={config.supportInfo.description || ""} onChange={e => updateExpertSupportInfo("description", e.target.value)} rows={2} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-            </label>
-            <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Emergency Note</span>
-              <textarea value={config.supportInfo.emergencyNote || ""} onChange={e => updateExpertSupportInfo("emergencyNote", e.target.value)} rows={2} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-            </label>
-            <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Default Quick Questions</span>
-              <textarea value={(config.defaultSuggestions || []).join("\n")} onChange={e => updateExpertSupportSection("defaultSuggestions", e.target.value.split("\n").map(item => item.trim()).filter(Boolean))} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-            </label>
-          </div>
-        </div>
-
-        <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
-            <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Specialists</h3>
-            <button onClick={addExpertAdvisor} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "8px 14px", fontWeight: 800 }}>+ Add Specialist</button>
-          </div>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ ...styles.table, width: "100%", minWidth: "980px" }}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Image</th>
-                  <th style={styles.th}>Expertise</th>
-                  <th style={styles.th}>Availability</th>
-                  <th style={styles.th}>Schedule</th>
-                  <th style={styles.th}>Rating</th>
-                  <th style={styles.th}>Verified</th>
-                  <th style={styles.th}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(config.advisors || []).map(advisor => (
-                  <tr key={advisor.id} style={styles.tr}>
-                    <td style={styles.td}><input value={advisor.name || ""} onChange={e => updateExpertAdvisor(advisor.id, "name", e.target.value)} style={styles.editInput} /></td>
-                    <td style={styles.td}><input value={advisor.image || ""} onChange={e => updateExpertAdvisor(advisor.id, "image", e.target.value)} style={styles.editInput} /></td>
-                    <td style={styles.td}><input value={(advisor.expertise || []).join(", ")} onChange={e => updateExpertAdvisor(advisor.id, "expertise", e.target.value.split(",").map(item => item.trim()).filter(Boolean))} style={styles.editInput} /></td>
-                    <td style={styles.td}>
-                      <select value={advisor.availability || "Available"} onChange={e => updateExpertAdvisor(advisor.id, "availability", e.target.value)} style={styles.editInput}>
-                        <option>Available</option>
-                        <option>Not Available</option>
-                      </select>
-                    </td>
-                    <td style={styles.td}>
-                      <div style={{ display: "grid", gap: "6px" }}>
-                        <input value={advisor.availableDays || ""} onChange={e => updateExpertAdvisor(advisor.id, "availableDays", e.target.value)} style={styles.editInput} />
-                        <input value={advisor.availableTime || ""} onChange={e => updateExpertAdvisor(advisor.id, "availableTime", e.target.value)} style={styles.editInput} />
-                      </div>
-                    </td>
-                    <td style={styles.td}><input type="number" step="0.1" min="0" max="5" value={advisor.rating || 0} onChange={e => updateExpertAdvisor(advisor.id, "rating", Number(e.target.value))} style={styles.editInput} /></td>
-                    <td style={styles.td}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", fontWeight: 700 }}>
-                        <input type="checkbox" checked={Boolean(advisor.verified)} onChange={e => updateExpertAdvisor(advisor.id, "verified", e.target.checked)} />
-                        Verified
-                      </label>
-                    </td>
-                    <td style={styles.td}><button onClick={() => removeExpertAdvisor(advisor.id)} style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px 10px", fontWeight: 800 }}>Remove</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div style={{ display: "grid", gap: "12px", marginTop: "14px" }}>
-            {(config.advisors || []).map(advisor => (
-              <label key={`${advisor.id}-bio`} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>{advisor.name || "Specialist"} Bio</span>
-                <textarea value={advisor.bio || ""} onChange={e => updateExpertAdvisor(advisor.id, "bio", e.target.value)} rows={2} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
-              <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Consultation Services</h3>
-              <button onClick={addExpertService} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "8px 14px", fontWeight: 800 }}>+ Add Service</button>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {(config.consultationTypes || []).map(service => (
-                <div key={service.id} style={{ padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.05)", display: "grid", gap: "8px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: "8px" }}>
-                    <input value={service.name || ""} onChange={e => updateExpertService(service.id, "name", e.target.value)} style={styles.editInput} />
-                    <input type="number" value={service.price || 0} onChange={e => updateExpertService(service.id, "price", Number(e.target.value))} style={styles.editInput} />
-                  </div>
-                  <input value={service.duration || ""} onChange={e => updateExpertService(service.id, "duration", e.target.value)} style={styles.editInput} />
-                  <textarea value={service.description || ""} onChange={e => updateExpertService(service.id, "description", e.target.value)} rows={2} style={{ ...styles.editInput, resize: "vertical", fontFamily: "inherit" }} />
-                  <button disabled={coreServiceIds.includes(service.id)} onClick={() => removeExpertService(service.id)} style={{ ...styles.actionBtn, justifySelf: "start", color: coreServiceIds.includes(service.id) ? "#6b7280" : "#dc2626", background: coreServiceIds.includes(service.id) ? "rgba(107,114,128,0.1)" : "rgba(220,38,38,0.1)", padding: "6px 10px", fontWeight: 800, cursor: coreServiceIds.includes(service.id) ? "not-allowed" : "pointer" }}>{coreServiceIds.includes(service.id) ? "Core Service" : "Remove"}</button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
-              <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>FAQs</h3>
-              <button onClick={addExpertFaq} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "8px 14px", fontWeight: 800 }}>+ Add FAQ</button>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {(config.faqs || []).map((faq, idx) => (
-                <div key={`faq-${idx}`} style={{ padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.05)", display: "grid", gap: "8px" }}>
-                  <input value={faq.question || ""} onChange={e => updateExpertFaq(idx, "question", e.target.value)} style={styles.editInput} />
-                  <textarea value={faq.answer || ""} onChange={e => updateExpertFaq(idx, "answer", e.target.value)} rows={2} style={{ ...styles.editInput, resize: "vertical", fontFamily: "inherit" }} />
-                  <button onClick={() => removeExpertFaq(idx)} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px 10px", fontWeight: 800 }}>Remove</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-          <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "18px" }}>Topic Quick Questions</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "14px" }}>
-            {Object.entries(config.quickSuggestions || {}).map(([topic, suggestions]) => (
-              <label key={topic} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>{topic}</span>
-                <textarea value={(suggestions || []).join("\n")} onChange={e => updateExpertSupportSection("quickSuggestions", { ...(config.quickSuggestions || {}), [topic]: e.target.value.split("\n").map(item => item.trim()).filter(Boolean) })} rows={4} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderImpactSectorsManagement = () => {
-    const defaultConfig = {
-      pageInfo: {
-        badge: "Our Impact",
-        titleLead: "Driving Sustainable",
-        titleAccent: "Change",
-        description: "EcoEquity is committed to creating tangible positive change, from empowering local communities to fostering food security and environmental stewardship.",
-        ctaLabel: "Explore More Impact",
-        ctaNavTarget: "Learn More",
-      },
-      sectors: [
-        { id: "lgu-partnerships", category: "LGU Partnerships", label: "LGU Partnerships", name: "LGU Partnerships Dashboard", metric: "42 Active LGUs", description: "Collaborating with local government units to implement sustainable agricultural programs and community initiatives.", status: "Expanding Network", badge: "Community Impact", navTarget: "LGUPartnershipPage", visible: true },
-        { id: "income-generation", category: "Income Generation", label: "Income Generation", name: "Income Generation Impact", metric: "₱63M+ Annual GMV", description: "Empowering micro-vendors and farmers through direct market access and sustainable income streams.", status: "Continuous Growth", badge: "Economic Empowerment", navTarget: "IncomeGenerationPage", visible: true },
-        { id: "native-seed-bank", category: "Native Seed Bank Program", label: "Native Seed Bank Program", name: "Native Seed Bank Management", metric: "250+ Varieties", description: "Preserving indigenous crop varieties and promoting biodiversity through community-managed seed banks.", status: "Growing Collection", badge: "Biodiversity", navTarget: "NativeSeedBankPage", visible: true },
-        { id: "impact-tracking", category: "Impact Tracking", label: "Impact Tracking", name: "Environmental Impact Tracking", metric: "100+ Tons CO2 Reduced", description: "Monitoring and reporting key environmental metrics to ensure transparency and drive sustainable practices.", status: "Real-time Data", badge: "Climate Action", navTarget: "ImpactTrackingPage", visible: true },
-      ],
-      details: {
-        "lgu-partnerships": {
-          programs: [
-            { id: "prog-1", program: "Urban Green Initiative", address: "Baguio City", status: "Active", startDate: "2023-01-15", description: "15 community gardens established, 500+ participants" },
-            { id: "prog-2", program: "Sustainable Food Hub", address: "Davao City", status: "Active", startDate: "2023-03-01", description: "3 food hubs operational, 200+ local farmers supported" },
-            { id: "prog-3", program: "Barangay Agri-Tech Program", address: "Quezon City", status: "Planning", startDate: "2024-06-01", description: "Awaiting implementation" },
-            { id: "prog-4", program: "Coastal Farm Restoration", address: "Cebu City", status: "Completed", startDate: "2022-09-10", description: "10 hectares of coastal farms restored, 100+ families benefited" },
-          ],
-          managementItems: [
-            { id: "mgmt-1", label: "Policy Integration", text: "Facilitating policy alignment for sustainable agriculture.", iconKey: "lightbulb" },
-            { id: "mgmt-2", label: "Capacity Building", text: "Training programs for LGU personnel and community leaders.", iconKey: "users" },
-          ]
-        },
-        "native-seed-bank": {
-          programs: [
-            { id: "nsb-prog-1", title: "Heirloom Seed Collection", desc: "Identifying, collecting, and cataloging rare and endangered native seed varieties across the Philippines.", icon: "🌾" },
-            { id: "nsb-prog-2", title: "Community Seed Guardians", desc: "Training local farmers and community members to become stewards of native seeds, ensuring their long-term viability.", icon: "🧑‍🌾" },
-            { id: "nsb-prog-3", title: "Digital Seed Registry", desc: "A comprehensive online database tracking all preserved seeds, their origins, and genetic information.", icon: "💻" },
-          ],
-          distribution: [
-            { id: "dist-1", program: "LGU Seed Distribution", status: "Ongoing", count: "50+ LGUs" },
-            { id: "dist-2", program: "Farmer Outreach Kits", status: "Active", count: "800+ Kits" },
-            { id: "dist-3", program: "Research & Development", status: "Planned", count: "10+ Projects" }
-          ],
-          metrics: [
-            { id: "met-1", label: "Biodiversity Index", value: 30, iconKey: "award" },
-            { id: "met-2", label: "Retention Rate", value: 95, iconKey: "users" }
-          ]
-        }
-      }
-    };
-    const config = {
-      pageInfo: { ...defaultConfig.pageInfo, ...(impactSectorsConfig.pageInfo || {}) },
-      sectors: defaultConfig.sectors.map(defaultSector => ({
-        ...defaultSector,
-        ...((Array.isArray(impactSectorsConfig.sectors) ? impactSectorsConfig.sectors : []).find(sector => sector.id === defaultSector.id) || {}),
-      })),
-      details: {
-        ...defaultConfig.details,
-        ...(impactSectorsConfig.details || {}),
-        "lgu-partnerships": {
-          ...(defaultConfig.details?.["lgu-partnerships"] || {}),
-          ...(impactSectorsConfig.details?.["lgu-partnerships"] || {})
-        },
-        "native-seed-bank": {
-          ...(defaultConfig.details?.["native-seed-bank"] || {}),
-          ...(impactSectorsConfig.details?.["native-seed-bank"] || {})
-        },
-        "income-generation": {
-          ...(defaultConfig.details?.["income-generation"] || {}),
-          ...(impactSectorsConfig.details?.["income-generation"] || {})
-        },
-        "impact-tracking": {
-          ...(defaultConfig.details?.["impact-tracking"] || {}),
-          ...(impactSectorsConfig.details?.["impact-tracking"] || {})
-        }
-      },
-    };
-    const visibleCount = config.sectors.filter(sector => sector.visible !== false).length;
-    const routeLabels = {
-      LGUPartnershipPage: "LGU Partnership",
-      IncomeGenerationPage: "Income Generation",
-      NativeSeedBankPage: "Native Seed Bank",
-      ImpactTrackingPage: "Impact Tracking",
-    };
-    const impactSectorStats = [
-      { label: "Visible Buttons", value: String(visibleCount), trend: `${config.sectors.length} total`, up: visibleCount > 0, icon: <Globe size={16} color="#15803d" /> },
-      { label: "Client Cards", value: String(config.sectors.length), trend: "Our Impact", up: true, icon: <Layout size={16} color="#0284c7" /> },
-      { label: "Routes", value: "4", trend: "Locked", up: true, icon: <Navigation size={16} color="#f59e0b" /> },
-      { label: "Content", value: "Live", trend: "Local Sync", up: true, icon: <CheckCircle size={16} color="#16a34a" /> },
-    ];
-    const fieldLabelStyle = { fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" };
-    const pipeHintStyle = { margin: "2px 0 0", fontSize: "10px", color: "rgba(0,0,0,0.46)", fontWeight: 700 };
-    const renderDetailEditor = (sector) => {
-      const detail = config.details[sector.id] || {};
-      const impactSectionTitleStyle = {
-        margin: 0,
-        fontSize: "14px",
-        fontWeight: 900,
-        background: "linear-gradient(90deg, #15803d, #4ade80)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        backgroundClip: "text",
-        textTransform: "uppercase",
-        letterSpacing: "0.5px"
-      };
-
-      const statValueInputStyle = { ...styles.editInput, ...ecoGlassInputStyle, fontSize: "16px", fontWeight: 800, textAlign: "center" };
-      const statLabelInputStyle = { ...styles.editInput, ...ecoGlassInputStyle, fontSize: "13px", fontWeight: 800, textAlign: "center" };
-
-      const statIconOptions = {
-        handshake: <Globe size={16} color="#15803d" />,
-        chart: <BarChart2 size={16} color="#0284c7" />,
-        users: <Users size={16} color="#f59e0b" />,
-        trend: <TrendingUp size={16} color="#15803d" />,
-        store: <Package size={16} color="#0284c7" />,
-        seed: <Wheat size={16} color="#15803d" />,
-        globe: <Globe size={16} color="#0284c7" />,
-        leaf: <Leaf size={16} color="#15803d" />,
-        cloud: <Activity size={16} color="#0284c7" />,
-      };
-      const statIconChoices = [
-        { value: "handshake", label: "Partnership" },
-        { value: "chart", label: "Chart" },
-        { value: "users", label: "Users" },
-        { value: "trend", label: "Growth" },
-        { value: "store", label: "Store" },
-        { value: "seed", label: "Seed" },
-        { value: "globe", label: "Globe" },
-        { value: "leaf", label: "Leaf" },
-        { value: "cloud", label: "Impact" },
-      ];
-      const defaultStatIconBySector = {
-        "lgu-partnerships": "handshake",
-        "income-generation": "trend",
-        "native-seed-bank": "seed",
-        "impact-tracking": "leaf",
-      };
-
-      const statFieldCaptionStyle = {
-        fontSize: "10px",
-        fontWeight: 900,
-        color: "rgba(0,0,0,0.42)",
-        textTransform: "uppercase",
-        textAlign: "center",
-      };
-      const statFieldCaptionLeftStyle = {
-        fontSize: "11px",
-        fontWeight: 800,
-        color: "rgba(0,0,0,0.58)",
-        textTransform: "uppercase",
-      };
-
-      const renderTopStatCardsEditor = (title, stats = [], showProgress = false) => (
-        <div style={{ display: "grid", gap: "12px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-            <h4 style={impactSectionTitleStyle}>{title}</h4>
-            <button
-              onClick={() => addImpactSectorDetailListItem(sector.id, "stats", {
-                label: "New Top Card",
-                value: "0",
-                iconKey: defaultStatIconBySector[sector.id] || "chart",
-                ...(showProgress ? { progress: 50 } : {}),
-              }, "Top card added.")}
-              style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}
-            >
-              + Add Card
-            </button>
-          </div>
-          <div style={{ ...styles.statsGrid, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
-            {stats.map((stat, index) => (
-              <div key={`${stat.label}-${index}`} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", textAlign: "center", minHeight: "172px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
-                  <div style={styles.statIconWrap}>{statIconOptions[stat.iconKey] || <Activity size={16} color="#15803d" />}</div>
-                  {showProgress && (
-                    <span style={{ ...styles.trendBadge, color: "#15803d", background: "rgba(22,163,74,0.1)" }}>
-                      {Math.max(0, Math.min(100, Number(stat.progress) || 0))}%
-                    </span>
-                  )}
-                </div>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionStyle}>Icon</span>
-                  <AdminEcoDropdown 
-                    value={stat.iconKey || defaultStatIconBySector[sector.id] || "chart"} 
-                    options={statIconChoices} 
-                    onChange={val => updateImpactSectorDetailListItem(sector.id, "stats", index, "iconKey", val)} 
-                    compact 
-                  />
-                </label>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionStyle}>Title</span>
-                  <input aria-label={`${stat.label || "Stat"} title`} value={stat.label || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "stats", index, "label", e.target.value)} style={statLabelInputStyle} />
-                </label>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionStyle}>Value</span>
-                  <input aria-label={`${stat.label || "Stat"} value`} value={stat.value || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "stats", index, "value", e.target.value)} style={statValueInputStyle} />
-                </label>
-                {showProgress && (
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionStyle}>Progress: {Math.max(0, Math.min(100, Number(stat.progress) || 0))}%</span>
-                    <div style={{ ...styles.editInput, ...ecoGlassInputStyle, display: "flex", alignItems: "center", padding: "0 14px", height: "42px" }}>
-                      <input type="range" min="0" max="100" value={Math.max(0, Math.min(100, Number(stat.progress) || 0))} onChange={e => updateImpactSectorDetailListItem(sector.id, "stats", index, "progress", Number(e.target.value))} style={{ width: "100%", accentColor: "#15803d", cursor: "pointer" }} />
-                    </div>
-                  </label>
-                )}
-                <button
-                  onClick={() => removeImpactSectorDetailListItem(sector.id, "stats", index, "Top card removed.")}
-                  style={{ ...styles.actionBtn, justifySelf: "center", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px 10px", fontWeight: 800 }}
-                >
-                  Remove Card
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-      const commonHeader = renderTopStatCardsEditor("Top Stat Cards", detail.stats || []);
-
-      if (sector.id === "lgu-partnerships") {
-        const lguStats = detail.stats || [];
-        const lguPrograms = detail.programs || [];
-        const managementItems = detail.managementItems || [];
-        return (
-          <div style={{ display: "grid", gap: "16px", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "16px", marginTop: "8px" }}>
-            {renderTopStatCardsEditor("LGU Top Cards", lguStats)}
-
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Collaboration Programs</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "programs", { program: "New Collaboration Program", address: "LGU / Address", status: "Planning", startDate: new Date().toISOString().slice(0, 10), description: "Describe this LGU collaboration program." }, "LGU collaboration program added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Program</button>
-              </div>
-              {lguPrograms.map((program, index) => (
-                <div key={program.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><MapPin size={16} color="#15803d" /></div>
-                    <div style={{ width: "130px" }}>
-                      <AdminEcoDropdown 
-                        value={program.status || "Planning"} 
-                        options={[{value:"Active",label:"Active"},{value:"Planning",label:"Planning"},{value:"Completed",label:"Completed"},{value:"Paused",label:"Paused"}]} 
-                        onChange={val => updateImpactSectorDetailListItem(sector.id, "programs", index, "status", val)} 
-                        compact align="right" 
-                      />
-                    </div>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Title</span>
-                    <input value={program.program || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "program", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 150px", gap: "10px" }}>
-                    <label style={{ display: "grid", gap: "4px" }}>
-                      <span style={statFieldCaptionLeftStyle}>Address</span>
-                      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                        <MapPin size={14} color="#15803d" style={{ position: "absolute", left: "12px" }} />
-                        <input value={program.address || program.lgu || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "address", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle, paddingLeft: "34px" }} />
-                      </div>
-                    </label>
-                    <label style={{ display: "grid", gap: "4px" }}>
-                      <span style={statFieldCaptionLeftStyle}>Date</span>
-                      <input type="date" value={program.startDate || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "startDate", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "8px 12px", height: "42px" }} />
-                    </label>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Description</span>
-                    <textarea value={program.description || program.impact || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "description", e.target.value)} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", lineHeight: 1.45, fontFamily: "inherit" }} />
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "programs", index, "LGU collaboration program removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Program</button>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Institutional Management Forms</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "managementItems", { label: "New Management Feature", text: "Add a description for this institutional management feature.", iconKey: "lightbulb" }, "Institutional management item added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Feature</button>
-              </div>
-              {managementItems.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={styles.statIconWrap}><CheckCircle size={16} color="#15803d" /></div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Title</span>
-                    <input value={item.label || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "managementItems", index, "label", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Description</span>
-                    <textarea value={item.text || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "managementItems", index, "text", e.target.value)} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", lineHeight: 1.45, fontFamily: "inherit" }} />
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "managementItems", index, "Institutional management item removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Feature</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      if (sector.id === "income-generation") {
-        const incomeStats = detail.stats || [];
-        const supportPrograms = detail.programs || [];
-        return (
-          <div style={{ display: "grid", gap: "16px", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "16px", marginTop: "8px" }}>
-            {renderTopStatCardsEditor("Income Generation Top Cards", incomeStats, true)}
-            <div style={{ display: "grid", gap: "12px" }}>
-              <h4 style={impactSectionTitleStyle}>Chart Configuration</h4>
-              <div className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionLeftStyle}>Chart Title</span>
-                  <input value={detail.chartTitle || ""} onChange={e => updateImpactSectorDetail(sector.id, "chartTitle", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </label>
-              </div>
-            </div>
-            
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Community Adoption Growth</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "chartBars", { label: "New Group", value: 50, color: "#16a34a" }, "Chart bar added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Bar</button>
-              </div>
-              {(detail.chartBars || []).map((bar, index) => (
-                <div key={bar.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><BarChart2 size={16} color="#15803d" /></div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Color</span>
-                      <input type="color" value={bar.color || "#16a34a"} onChange={e => updateImpactSectorDetailListItem(sector.id, "chartBars", index, "color", e.target.value)} style={{...styles.editInput, ...ecoGlassInputStyle, padding: "2px", height: "32px", width: "40px"}} />
-                    </label>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Label</span>
-                    <input value={bar.label || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "chartBars", index, "label", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Progress: {Math.max(0, Math.min(100, Number(bar.value) || 0))}%</span>
-                    <div style={{ ...styles.editInput, ...ecoGlassInputStyle, display: "flex", alignItems: "center", padding: "0 14px", height: "42px" }}>
-                      <input type="range" min="0" max="100" value={Math.max(0, Math.min(100, Number(bar.value) || 0))} onChange={e => updateImpactSectorDetailListItem(sector.id, "chartBars", index, "value", Number(e.target.value))} style={{ width: "100%", accentColor: "#15803d", cursor: "pointer" }} />
-                    </div>
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "chartBars", index, "Chart bar removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Bar</button>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Support Programs</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "programs", { title: "New Support Program", desc: "Describe this income support program.", status: "50% Progress", impact: "50% Progress", progress: 50 }, "Income support program added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Program</button>
-              </div>
-              {supportPrograms.map((program, index) => (
-                <div key={program.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><CheckCircle size={16} color="#15803d" /></div>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Title</span>
-                    <input value={program.title || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "title", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Impact Badge Text</span>
-                    <input value={program.impact || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "impact", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Description</span>
-                    <textarea value={program.desc || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "desc", e.target.value)} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", lineHeight: 1.45, fontFamily: "inherit" }} />
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "programs", index, "Income support program removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Program</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      if (sector.id === "native-seed-bank") {
-        const preservationPrograms = detail.programs || [];
-        return (
-          <div style={{ display: "grid", gap: "16px", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "16px", marginTop: "8px" }}>
-            {commonHeader}
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Preservation Programs</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "programs", { title: "New Program", desc: "Describe this program.", icon: "🌱" }, "Preservation program added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Program</button>
-              </div>
-              {preservationPrograms.map((program, index) => (
-                <div key={program.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><Leaf size={16} color="#15803d" /></div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Icon</span>
-                      <input value={program.icon || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "icon", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "2px", height: "32px", width: "40px", textAlign: "center" }} />
-                    </label>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Title</span>
-                    <input value={program.title || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "title", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Description</span>
-                    <textarea value={program.desc || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "programs", index, "desc", e.target.value)} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", lineHeight: 1.45, fontFamily: "inherit" }} />
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "programs", index, "Preservation program removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Program</button>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gap: "12px" }}>
-              <h4 style={impactSectionTitleStyle}>Section Labels</h4>
-              <div className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", padding: "16px" }}>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionLeftStyle}>Distribution Title</span>
-                  <input value={detail.distributionTitle || ""} onChange={e => updateImpactSectorDetail(sector.id, "distributionTitle", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </label>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionLeftStyle}>Distribution CTA</span>
-                  <input value={detail.distributionCtaLabel || ""} onChange={e => updateImpactSectorDetail(sector.id, "distributionCtaLabel", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </label>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionLeftStyle}>Metrics Title</span>
-                  <input value={detail.metricsTitle || ""} onChange={e => updateImpactSectorDetail(sector.id, "metricsTitle", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </label>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionLeftStyle}>Metrics CTA</span>
-                  <input value={detail.metricsCtaLabel || ""} onChange={e => updateImpactSectorDetail(sector.id, "metricsCtaLabel", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                </label>
-              </div>
-            </div>
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Distribution Tracking</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "distribution", { program: "New Program", count: "0", status: "Planned" }, "Distribution tracking item added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Tracking</button>
-              </div>
-              {(detail.distribution || []).map((item, index) => (
-                <div key={item.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><Truck size={16} color="#15803d" /></div>
-                    <div style={{ width: "130px" }}>
-                      <AdminEcoDropdown 
-                        value={item.status || "Planned"} 
-                        options={[{value:"Ongoing",label:"Ongoing"},{value:"Active",label:"Active"},{value:"Planned",label:"Planned"}]} 
-                        onChange={val => updateImpactSectorDetailListItem(sector.id, "distribution", index, "status", val)} 
-                        compact align="right" 
-                      />
-                    </div>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Title</span>
-                    <input value={item.program || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "distribution", index, "program", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Value</span>
-                    <input value={item.count || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "distribution", index, "count", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "distribution", index, "Distribution tracking item removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Tracking</button>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Metric Tiles</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "metrics", { label: "New Metric", value: 50, iconKey: "leaf" }, "Metric tile added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Metric</button>
-              </div>
-              {(detail.metrics || []).map((item, index) => (
-                <div key={item.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><Activity size={16} color="#15803d" /></div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Icon Key</span>
-                      <input value={item.iconKey || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "metrics", index, "iconKey", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle, width: "80px", padding: "4px 8px" }} />
-                    </label>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Label</span>
-                    <input value={item.label || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "metrics", index, "label", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Progress: {Math.max(0, Math.min(100, Number(item.value) || 0))}%</span>
-                    <div style={{ ...styles.editInput, ...ecoGlassInputStyle, display: "flex", alignItems: "center", padding: "0 14px", height: "42px" }}>
-                      <input type="range" min="0" max="100" value={Math.max(0, Math.min(100, Number(item.value) || 0))} onChange={e => updateImpactSectorDetailListItem(sector.id, "metrics", index, "value", Number(e.target.value))} style={{ width: "100%", accentColor: "#15803d", cursor: "pointer" }} />
-                    </div>
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "metrics", index, "Sustainability metric removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Metric</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      if (sector.id === "impact-tracking") {
-        const impactStats = detail.stats || [];
-        return (
-          <div style={{ display: "grid", gap: "16px", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "16px", marginTop: "8px" }}>
-            {renderTopStatCardsEditor("Impact Tracking Top Cards", impactStats)}
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Community Impact Areas</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "chartBars", { label: "New Area", value: 50, color: "#16a34a" }, "Impact area added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Area</button>
-              </div>
-              {(detail.chartBars || []).map((bar, index) => (
-                <div key={bar.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><BarChart2 size={16} color="#15803d" /></div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Color</span>
-                      <input type="color" value={bar.color || "#16a34a"} onChange={e => updateImpactSectorDetailListItem(sector.id, "chartBars", index, "color", e.target.value)} style={{...styles.editInput, ...ecoGlassInputStyle, padding: "2px", height: "32px", width: "40px"}} />
-                    </label>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Area Label</span>
-                    <input value={bar.label || bar.area || ""} onChange={e => {
-                      updateImpactSectorDetailListItem(sector.id, "chartBars", index, "label", e.target.value);
-                      updateImpactSectorDetailListItem(sector.id, "chartBars", index, "area", e.target.value);
-                    }} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Progress: {Math.max(0, Math.min(100, Number(bar.value || bar.progress) || 0))}%</span>
-                    <div style={{ ...styles.editInput, ...ecoGlassInputStyle, display: "flex", alignItems: "center", padding: "0 14px", height: "42px" }}>
-                      <input type="range" min="0" max="100" value={Math.max(0, Math.min(100, Number(bar.value || bar.progress) || 0))} onChange={e => {
-                        updateImpactSectorDetailListItem(sector.id, "chartBars", index, "value", Number(e.target.value));
-                        updateImpactSectorDetailListItem(sector.id, "chartBars", index, "progress", Number(e.target.value));
-                      }} style={{ width: "100%", accentColor: "#15803d", cursor: "pointer" }} />
-                    </div>
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "chartBars", index, "Impact area removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Area</button>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <h4 style={impactSectionTitleStyle}>Environmental Metrics</h4>
-                <button onClick={() => addImpactSectorDetailListItem(sector.id, "metrics", { label: "New Metric", value: "50 Tons", iconKey: "leaf" }, "Metric tile added.")} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "7px 11px", fontWeight: 800 }}>+ Add Metric</button>
-              </div>
-              {(detail.metrics || []).map((item, index) => (
-                <div key={item.id || index} className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
-                    <div style={styles.statIconWrap}><Activity size={16} color="#15803d" /></div>
-                    <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Icon Key</span>
-                      <input value={item.iconKey || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "metrics", index, "iconKey", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle, width: "80px", padding: "4px 8px" }} />
-                    </label>
-                  </div>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Label</span>
-                    <input value={item.label || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "metrics", index, "label", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Value</span>
-                    <input value={item.value || ""} onChange={e => updateImpactSectorDetailListItem(sector.id, "metrics", index, "value", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <button onClick={() => removeImpactSectorDetailListItem(sector.id, "metrics", index, "Metric removed.")} style={{ ...styles.actionBtn, justifySelf: "start", color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}>Remove Metric</button>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "grid", gap: "12px" }}>
-              <h4 style={impactSectionTitleStyle}>People Reached</h4>
-              <div className="inner-blur-glass" style={{ ...styles.statCard, display: "grid", gap: "12px", padding: "16px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Value</span>
-                    <input value={detail.peopleValue || ""} onChange={e => updateImpactSectorDetail(sector.id, "peopleValue", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={statFieldCaptionLeftStyle}>Label</span>
-                    <input value={detail.peopleLabel || ""} onChange={e => updateImpactSectorDetail(sector.id, "peopleLabel", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                </div>
-                <label style={{ display: "grid", gap: "4px" }}>
-                  <span style={statFieldCaptionLeftStyle}>Description</span>
-                  <textarea value={detail.peopleDescription || ""} onChange={e => updateImpactSectorDetail(sector.id, "peopleDescription", e.target.value)} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", lineHeight: 1.45, fontFamily: "inherit" }} />
-                </label>
-              </div>
-            </div>
-          </div>
-        );
-      }
-      return null;
-    };
-
-    return (
-      <div style={styles.dashboardContainer}>
-        <div style={styles.statsGrid}>
-          {impactSectorStats.map((stat, idx) => (
-            <div key={idx} className="inner-blur-glass" style={styles.statCard}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                <div style={styles.statIconWrap}>{stat.icon}</div>
-                <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
-                  {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                  {stat.trend}
-                </span>
-              </div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", flexWrap: "wrap", marginBottom: "20px" }}>
-            <div>
-              <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>Impact Sector Page Info</h3>
-              <p style={{ margin: 0, fontSize: "12px", color: "rgba(0,0,0,0.58)", fontWeight: 600 }}>Manage the heading and call-to-action above the four client sector buttons.</p>
-            </div>
-            <button onClick={() => showAdminToast("Impact sectors synced to the client website.")} style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
-              <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-              <Save size={14} style={{ position: "relative", zIndex: 1 }} />
-              <span style={{ position: "relative", zIndex: 1 }}>Save Impact Sectors</span>
-            </button>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "14px" }}>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Badge Label</span>
-              <input value={config.pageInfo.badge || ""} onChange={e => updateImpactSectorPageInfo("badge", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>CTA Label</span>
-              <input value={config.pageInfo.ctaLabel || ""} onChange={e => updateImpactSectorPageInfo("ctaLabel", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Title Lead</span>
-              <input value={config.pageInfo.titleLead || ""} onChange={e => updateImpactSectorPageInfo("titleLead", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Accent Title</span>
-              <input value={config.pageInfo.titleAccent || ""} onChange={e => updateImpactSectorPageInfo("titleAccent", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-            </label>
-            <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Page Description</span>
-              <textarea value={config.pageInfo.description || ""} onChange={e => updateImpactSectorPageInfo("description", e.target.value)} rows={3} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-            </label>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "18px" }}>
-          {config.sectors.map(sector => {
-            const sectorBgs = {
-              "lgu-partnerships": "linear-gradient(150deg, rgba(14,165,233,0.12), rgba(255,255,255,0.6))",
-              "income-generation": "linear-gradient(150deg, rgba(245,158,11,0.12), rgba(255,255,255,0.6))",
-              "native-seed-bank": "linear-gradient(150deg, rgba(34,197,94,0.12), rgba(255,255,255,0.6))",
-              "impact-tracking": "linear-gradient(150deg, rgba(168,85,247,0.12), rgba(255,255,255,0.6))",
-            };
-            const sectorBorders = {
-              "lgu-partnerships": "1px solid rgba(14,165,233,0.25)",
-              "income-generation": "1px solid rgba(245,158,11,0.25)",
-              "native-seed-bank": "1px solid rgba(34,197,94,0.25)",
-              "impact-tracking": "1px solid rgba(168,85,247,0.25)",
-            };
-            return (
-            <div key={sector.id} className="inner-blur-glass" style={{ ...styles.chartCard, padding: "22px", display: "grid", gap: "12px", background: sectorBgs[sector.id] || styles.chartCard.background, border: sectorBorders[sector.id] || styles.chartCard.border }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
-                <div>
-                  <h3 style={{ ...styles.cardHeading, fontSize: "17px", marginBottom: "4px" }}>{sector.category}</h3>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.48)", textTransform: "uppercase" }}>{routeLabels[sector.navTarget] || sector.navTarget}</span>
-                </div>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", fontWeight: 800, color: "#15803d" }}>
-                  <input type="checkbox" checked={sector.visible !== false} onChange={e => updateImpactSector(sector.id, "visible", e.target.checked)} />
-                  Visible
-                </label>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Button Label</span>
-                  <input value={sector.label || ""} onChange={e => updateImpactSector(sector.id, "label", e.target.value)} style={styles.editInput} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Card Badge</span>
-                  <input value={sector.badge || ""} onChange={e => updateImpactSector(sector.id, "badge", e.target.value)} style={styles.editInput} />
-                </label>
-                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Card Title</span>
-                  <input value={sector.name || ""} onChange={e => updateImpactSector(sector.id, "name", e.target.value)} style={styles.editInput} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Main Metric</span>
-                  <input value={sector.metric || ""} onChange={e => updateImpactSector(sector.id, "metric", e.target.value)} style={styles.editInput} />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Status Text</span>
-                  <input value={sector.status || ""} onChange={e => updateImpactSector(sector.id, "status", e.target.value)} style={styles.editInput} />
-                </label>
-                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Description</span>
-                  <textarea value={sector.description || ""} onChange={e => updateImpactSector(sector.id, "description", e.target.value)} rows={3} style={{ ...styles.editInput, resize: "vertical", fontFamily: "inherit" }} />
-                </label>
-              </div>
-              {renderDetailEditor(sector)}
-            </div>
-          )})}
-        </div>
-      </div>
-    );
-  };
-
-  const renderSupplierInventoryManagement = () => {
-    const lowStockItems = supplierItems.filter(item => ["Low Stock", "Reorder", "Out of Stock"].includes(item.status));
-    const supplierContacts = [...new Map(supplierItems
-      .filter(item => item.supplier)
-      .map(item => [item.supplier, item]))
-      .values()
-    ];
-
-    return (
-      <div style={styles.dashboardContainer}>
-        <div style={styles.statsGrid}>
-          {supplierInventoryStats.map((stat, idx) => (
-            <div key={idx} className="inner-blur-glass" style={styles.statCard}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                <div style={styles.statIconWrap}>{stat.icon}</div>
-                <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
-                  {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                  {stat.trend}
-                </span>
-              </div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px", alignItems: "start" }}>
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
-              <div>
-                <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>Supplier Item Management</h3>
-                <p style={{ margin: 0, fontSize: "12px", lineHeight: 1.5, color: "rgba(0,0,0,0.58)", fontWeight: 600, maxWidth: "680px" }}>
-                  Add supplier items, update stock levels, track reorder points, and manage supplier contacts from one admin workspace.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleAddSupplierItem}
-                style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-                <Package size={14} style={{ position: "relative", zIndex: 1 }} />
-                <span style={{ position: "relative", zIndex: 1 }}>Add Supplier Item</span>
-              </button>
-            </div>
-
-            {editingSupplierItem && (
-              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "18px", marginBottom: "20px", background: "linear-gradient(135deg, rgba(22,163,74,0.08), rgba(14,165,233,0.04))" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "16px" }}>
-                  <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#062018" }}>
-                    {editingSupplierItem.isNew ? "New Supplier Item" : `Manage ${editingSupplierItem.item}`}
-                  </h4>
-                  <span style={{ padding: "5px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, ...getManagedStatusStyle(editingSupplierItem.status) }}>{editingSupplierItem.status}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px" }}>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Item Name</span>
-                    <input value={editingSupplierItem.item} onChange={e => handleSupplierDraftChange("item", e.target.value)} placeholder="e.g. Tomato Success Kit" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Category</span>
-                    <input value={editingSupplierItem.category} onChange={e => handleSupplierDraftChange("category", e.target.value)} placeholder="Seed Kit, Soil, Tools" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Supplier</span>
-                    <input value={editingSupplierItem.supplier} onChange={e => handleSupplierDraftChange("supplier", e.target.value)} placeholder="Supplier name" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Stock</span>
-                    <input type="number" min="0" value={editingSupplierItem.stock} onChange={e => handleSupplierDraftChange("stock", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Unit</span>
-                    <input value={editingSupplierItem.unit} onChange={e => handleSupplierDraftChange("unit", e.target.value)} placeholder="units, packs, sacks" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Reorder Point</span>
-                    <input type="number" min="0" value={editingSupplierItem.reorderPoint} onChange={e => handleSupplierDraftChange("reorderPoint", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Status</span>
-                    <select value={editingSupplierItem.status} onChange={e => handleSupplierDraftChange("status", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }}>
-                      {supplierStatusOptions.filter(status => status !== "All").map(status => <option key={status} value={status}>{status}</option>)}
-                    </select>
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Lead Time</span>
-                    <input value={editingSupplierItem.leadTime} onChange={e => handleSupplierDraftChange("leadTime", e.target.value)} placeholder="e.g. 3 days" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Contact</span>
-                    <input type="email" value={editingSupplierItem.contact} onChange={e => handleSupplierDraftChange("contact", e.target.value)} placeholder="orders@supplier.ph" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                  </label>
-                  <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Notes</span>
-                    <textarea value={editingSupplierItem.notes} onChange={e => handleSupplierDraftChange("notes", e.target.value)} rows={3} placeholder="Internal supplier notes..." style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-                  </label>
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "16px", flexWrap: "wrap" }}>
-                  <button type="button" onClick={handleCancelSupplierItemEdit} style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "9px 14px", fontWeight: 800 }}><X size={14} /> Cancel</button>
-                  <button type="button" onClick={handleSaveSupplierItem} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "9px 14px", fontWeight: 800 }}><Save size={14} /> Save Supplier Item</button>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: "flex", gap: "12px", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", marginBottom: "16px" }}>
-              <div style={{ ...styles.searchBar, background: "rgba(0,0,0,0.03)", minWidth: "260px" }}>
-                <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                <input type="text" placeholder="Search supplier items..." value={supplierSearchTerm} onChange={(e) => setSupplierSearchTerm(e.target.value)} style={styles.searchInput} />
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
-                <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                <select value={supplierStatusFilter} onChange={(e) => setSupplierStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 700 }}>
-                  {supplierStatusOptions.map(status => <option key={status} value={status}>{status === "All" ? "All Statuses" : status}</option>)}
-                </select>
-              </div>
-            </div>
-
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ ...styles.table, width: "100%", minWidth: "880px" }}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>Item</th>
-                    <th style={styles.th}>Category</th>
-                    <th style={styles.th}>Supplier</th>
-                    <th style={styles.th}>Stock</th>
-                    <th style={styles.th}>Reorder</th>
-                    <th style={styles.th}>Status</th>
-                    <th style={styles.th}>Updated</th>
-                    <th style={styles.th}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSupplierItems.length > 0 ? filteredSupplierItems.map(item => (
-                    <tr key={item.id} style={styles.tr}>
-                      <td style={{ ...styles.td, fontWeight: 800 }}>
-                        <div>{item.item}</div>
-                        <div style={{ marginTop: "4px", color: "rgba(0,0,0,0.52)", fontSize: "11px", fontWeight: 600, maxWidth: "260px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.notes || "No notes"}</div>
-                      </td>
-                      <td style={styles.td}>{item.category}</td>
-                      <td style={styles.td}>
-                        <div style={{ fontWeight: 700 }}>{item.supplier}</div>
-                        <div style={{ marginTop: "3px", color: "rgba(0,0,0,0.52)", fontSize: "10px", fontWeight: 650 }}>{item.contact || "No contact"}</div>
-                      </td>
-                      <td style={{ ...styles.td, fontWeight: 800, color: Number(item.stock) <= Number(item.reorderPoint) ? "#e11d48" : "#15803d" }}>{getSupplierItemStockText(item)}</td>
-                      <td style={styles.td}>{item.reorderPoint} {item.unit}</td>
-                      <td style={styles.td}><span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, ...getManagedStatusStyle(item.status) }}>{item.status}</span></td>
-                      <td style={styles.td}>{item.updatedAt}</td>
-                      <td style={styles.td}>
-                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                          <button type="button" onClick={() => handleEditSupplierItem(item)} style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)" }} title="Manage supplier item"><Edit2 size={14} /></button>
-                          <button type="button" onClick={() => handleDeleteSupplierItem(item.id)} style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)" }} title="Remove supplier item"><Trash2 size={14} /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr style={styles.tr}>
-                      <td colSpan="8" style={{ ...styles.td, textAlign: "center", padding: "30px", color: "rgba(0,0,0,0.55)", fontWeight: 700 }}>No supplier items match the current filters.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", background: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(255,255,255,0.62))" }}>
-              <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "14px", color: "#b45309" }}>Reorder Watch</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {lowStockItems.length > 0 ? lowStockItems.slice(0, 5).map(item => (
-                  <button key={`${item.id}-watch`} type="button" onClick={() => handleEditSupplierItem(item)} style={{ textAlign: "left", padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.68)", border: "1px solid rgba(245,158,11,0.18)", cursor: "pointer", fontFamily: "inherit" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", alignItems: "center", marginBottom: "5px" }}>
-                      <span style={{ fontSize: "12px", fontWeight: 850, color: "#062018" }}>{item.item}</span>
-                      <span style={{ fontSize: "10px", fontWeight: 800, color: "#b45309" }}>{item.status}</span>
-                    </div>
-                    <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.58)" }}>{getSupplierItemStockText(item)} available, reorder at {item.reorderPoint} {item.unit}</div>
-                  </button>
-                )) : (
-                  <div style={{ padding: "14px", borderRadius: "14px", background: "rgba(255,255,255,0.68)", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.58)" }}>All tracked supplier items are above reorder thresholds.</div>
-                )}
-              </div>
-            </div>
-
-            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
-              <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "14px" }}>Supplier Contacts</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {supplierContacts.slice(0, 6).map(item => (
-                  <button key={`${item.supplier}-contact`} type="button" onClick={() => setSupplierSearchTerm(item.supplier)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "11px 12px", borderRadius: "12px", background: "rgba(255,255,255,0.64)", border: "1px solid rgba(255,255,255,0.72)", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
-                    <Truck size={14} color="#16a34a" />
-                    <span style={{ minWidth: 0 }}>
-                      <span style={{ display: "block", fontSize: "12px", fontWeight: 800, color: "#062018", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.supplier}</span>
-                      <span style={{ display: "block", fontSize: "10px", fontWeight: 650, color: "rgba(0,0,0,0.52)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.contact || item.leadTime || "No contact listed"}</span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderManagedSection = (section) => {
-    if (section.title === "Inventory & Suppliers") {
-      return renderSupplierInventoryManagement();
-    }
-
-    const managedItems = getManagedSectionItems(section);
-    const managedStats = getManagedSectionStats(section);
-
-    return (
-    <div style={styles.dashboardContainer}>
-      <div style={styles.statsGrid}>
-        {managedStats.map((stat, idx) => (
-          <div key={idx} className="inner-blur-glass" style={styles.statCard}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-              <div style={styles.statIconWrap}>{stat.icon}</div>
-              <span style={{ ...styles.trendBadge, color: stat.up ? "#15803d" : "#e11d48", background: stat.up ? "rgba(22, 163, 74, 0.1)" : "rgba(225, 29, 72, 0.1)" }}>
-                {stat.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                {stat.trend}
-              </span>
-            </div>
-            <div style={styles.statValue}>{stat.value}</div>
-            <div style={styles.statLabel}>{stat.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
-        <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
-            <div>
-              <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>{section.title}</h3>
-              <p style={{ margin: 0, fontSize: "12px", lineHeight: 1.5, color: "rgba(0,0,0,0.58)", fontWeight: 600, maxWidth: "620px" }}>{section.description}</p>
-            </div>
-            <button
-              onClick={() => {
-                setToastMessage(`${section.actionLabel} saved for review.`);
-                setTimeout(() => setToastMessage(null), 3000);
-              }}
-              style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}
-            >
-              <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-              <Save size={14} style={{ position: "relative", zIndex: 1 }} />
-              <span style={{ position: "relative", zIndex: 1 }}>{section.actionLabel}</span>
-            </button>
-          </div>
-
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ ...styles.table, width: "100%", minWidth: "720px" }}>
-              <thead>
-                <tr>
-                  {section.columns.map(column => (
-                    <th key={column} style={styles.th}>{column}</th>
-                  ))}
-                  <th style={styles.th}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {managedItems.map((item, idx) => (
-                  <tr key={`${section.title}-${idx}`} style={styles.tr}>
-                    {section.columns.map((column, colIdx) => {
-                      const value = getManagedCellValue(item, column);
-                      const isStatus = column === "Status" || column === "Priority";
-                      return (
-                        <td key={column} style={{ ...styles.td, fontWeight: colIdx === 0 ? 700 : 600, maxWidth: colIdx === 0 ? "260px" : "180px" }}>
-                          {isStatus ? (
-                            <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, ...getManagedStatusStyle(value) }}>{value}</span>
-                          ) : (
-                            <span style={{ color: colIdx === 0 ? "#000" : "rgba(0,0,0,0.68)" }}>{value}</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                    <td style={styles.td}>
-                      <div style={{ display: "flex", gap: "8px" }}>
-                        <button style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)" }}><Edit2 size={14} /></button>
-                        <button style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)" }}><Eye size={14} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
-            <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Quick Editor</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <input type="text" placeholder={`${section.title} title`} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-              <textarea placeholder="Short website-facing note" rows={4} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit", minHeight: "92px" }} />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                <select defaultValue="Published" style={{ ...styles.editInput, ...ecoGlassInputStyle }}>
-                  <option>Published</option>
-                  <option>Scheduled</option>
-                  <option>Review</option>
-                  <option>Draft</option>
-                </select>
-                <select defaultValue="Homepage" style={{ ...styles.editInput, ...ecoGlassInputStyle }}>
-                  <option>Homepage</option>
-                  <option>Marketplace</option>
-                  <option>Events</option>
-                  <option>Learning</option>
-                  <option>Impact</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", background: "linear-gradient(135deg, rgba(22,163,74,0.08), rgba(14,165,233,0.04))" }}>
-            <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px", color: "#15803d" }}>{section.sideTitle}</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {section.sideItems.map(item => (
-                <div key={item} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", borderRadius: "12px", background: "rgba(255,255,255,0.64)", border: "1px solid rgba(255,255,255,0.72)" }}>
-                  <CheckCircle size={14} color="#16a34a" />
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.72)" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-=======
   const getScanStatusStyle = (status) => {
     if (status === "Healthy" || status === "Resolved") return { background: "rgba(22,163,74,0.1)", color: "#16a34a" };
     if (status === "Disease Detected") return { background: "rgba(245,158,11,0.1)", color: "#f59e0b" };
@@ -3694,7 +1104,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     if (status === "Draft") return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
     if (status === "Scheduled") return { background: "rgba(14,165,233,0.1)", color: "#0ea5e9" };
     return { background: "rgba(107,114,128,0.1)", color: "#6b7280" };
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   };
 
   return (
@@ -3726,14 +1135,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {productToDelete && (
-<<<<<<< HEAD
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setProductToDelete(null)}>
-          <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }} onClick={e => e.stopPropagation()}>
-            <button type="button" aria-label="Close delete product modal" onClick={() => setProductToDelete(null)} style={{ position: "absolute", top: "14px", right: "14px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "30px", height: "30px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#111827" }}><X size={15} /></button>
-=======
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center" }}>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
               <Trash2 size={24} color="#e11d48" />
             </div>
@@ -3757,14 +1160,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {harvestToDelete && (
-<<<<<<< HEAD
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setHarvestToDelete(null)}>
-          <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }} onClick={e => e.stopPropagation()}>
-            <button type="button" aria-label="Close delete crop modal" onClick={() => setHarvestToDelete(null)} style={{ position: "absolute", top: "14px", right: "14px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "30px", height: "30px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#111827" }}><X size={15} /></button>
-=======
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center" }}>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
               <Trash2 size={24} color="#e11d48" />
             </div>
@@ -4114,14 +1511,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {editingPromo && (
-<<<<<<< HEAD
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setEditingPromo(null)}>
-          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "400px", position: "relative" }} onClick={e => e.stopPropagation()}>
-            <button type="button" aria-label="Close promo modal" onClick={() => setEditingPromo(null)} style={{ position: "absolute", top: "18px", right: "18px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
-=======
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "400px", position: "relative" }}>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <h3 style={{ margin: "0 0 16px", fontSize: "20px", fontWeight: 800 }}>{editingPromo.isNew ? "Add Promo Code" : "Edit Promo Code"}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
               <input type="text" placeholder="Promo Code (e.g. SUMMER20)" value={editingPromo.code} onChange={e => setEditingPromo({...editingPromo, code: e.target.value.toUpperCase().replace(/\s+/g, '')})} style={styles.editInput} />
@@ -4167,52 +1558,30 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "10px", width: "100%", alignItems: "stretch", marginBottom: "14px" }}>
                <div style={{ background: "rgba(255,255,255,0.66)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "18px", padding: "12px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)" }}>
                  <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>1</span> Subscription Info</h4>
-<<<<<<< HEAD
-                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Plan:</span> <span style={{ fontSize: "13px", fontWeight: 800, color: getManagedPlanColor(selectedSubscriber.plan) }}>{selectedSubscriber.plan}</span></div>
-=======
                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Plan:</span> <span style={{ fontSize: "13px", fontWeight: 800, color: selectedSubscriber.plan === "Pro" ? "#f59e0b" : selectedSubscriber.plan === "Enterprise" ? "#0ea5e9" : "#64748b" }}>{selectedSubscriber.plan}</span></div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Status:</span> <span style={{ padding: "2px 6px", borderRadius: "4px", fontSize: "10px", fontWeight: 700, ...getSubStatusStyle(selectedSubscriber.status) }}>{selectedSubscriber.status}</span></div>
                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Payment:</span> <span style={{ fontSize: "13px", color: "rgba(0,0,0,0.7)" }}>{selectedSubscriber.payment}</span></div>
                  <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: "13px", fontWeight: 600 }}>Renewal:</span> <span style={{ fontSize: "13px", color: "rgba(0,0,0,0.7)" }}>{selectedSubscriber.renewal}</span></div>
                </div>
                {(() => {
-<<<<<<< HEAD
-                 const pct = (selectedSubscriber.monthlyUsage / selectedSubscriber.usageLimit) * 100;
-=======
                  const pct = (selectedSubscriber.aiScans / selectedSubscriber.aiLimit) * 100;
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                  const isNearLimit = pct >= 80 && pct < 100;
                  const isAtLimit = pct >= 100;
                  return (
                    <div style={{ background: "rgba(255,255,255,0.78)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "18px", padding: "12px", boxShadow: "0 8px 22px rgba(0,0,0,0.06)" }}>
-<<<<<<< HEAD
-                     <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>2</span> Monthly Usage</h4>
-                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>
-                       <span>Plan Uses</span>
-                       <span style={{ color: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "#15803d" }}>{selectedSubscriber.monthlyUsage} / {selectedSubscriber.usageLimit}</span>
-=======
                      <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>2</span> AI Usage</h4>
                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>
                        <span>Plant Scans</span>
                        <span style={{ color: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "#15803d" }}>{selectedSubscriber.aiScans} / {selectedSubscriber.aiLimit}</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                      <div style={{ width: "100%", height: "8px", background: "rgba(0,0,0,0.05)", borderRadius: "999px" }}>
                        <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", background: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "linear-gradient(90deg, #16a34a, #4ade80)", borderRadius: "999px", animation: isNearLimit ? "warningPulse 1.5s infinite" : "none" }} />
                      </div>
                      {isNearLimit && (
-<<<<<<< HEAD
-                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#f97316", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> Only {selectedSubscriber.usageLimit - selectedSubscriber.monthlyUsage} uses remaining this month</p>
-                     )}
-                     {isAtLimit && (
-                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#dc2626", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> Limit reached. Upgrade to unlock higher monthly usage.</p>
-=======
                        <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#f97316", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> ⚠️ Only {selectedSubscriber.aiLimit - selectedSubscriber.aiScans} scans remaining this month</p>
                      )}
                      {isAtLimit && (
                        <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#dc2626", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> 🔒 Limit reached. Upgrade to unlock unlimited diagnostics.</p>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      )}
                    </div>
                  );
@@ -4223,11 +1592,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "8px" }}>
                    <div>
                      <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Plan</label>
-<<<<<<< HEAD
-                     <AdminEcoDropdown value={editableSubscriber?.plan || selectedSubscriber.plan} options={managedSubscriptionPlanOptions} onChange={value => setEditableSubscriber({ ...(editableSubscriber || selectedSubscriber), plan: value, usageLimit: getManagedPlanLimit(value) })} />
-=======
                      <AdminEcoDropdown value={editableSubscriber?.plan || selectedSubscriber.plan} options={subscriptionPlanOptions} onChange={value => setEditableSubscriber({ ...(editableSubscriber || selectedSubscriber), plan: value, aiLimit: value === "Basic" ? 10 : value === "Pro" ? 100 : 5000 })} />
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                    </div>
                    <div>
                      <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Status</label>
@@ -4248,11 +1613,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                  <h4 style={{ margin: "0 0 9px", fontSize: "14px", color: "#000", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 800 }}>4</span> Notifications</h4>
                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "142px", overflowY: "auto", paddingRight: "2px" }} className="custom-scrollbar">
                    <div style={{ padding: "7px 9px", background: "rgba(22,163,74,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#15803d", fontWeight: 600 }}><CheckCircle size={13} /> Subscription renewed successfully</div>
-<<<<<<< HEAD
-                   <div style={{ padding: "7px 9px", background: "rgba(249,115,22,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#c2410c", fontWeight: 600 }}><AlertCircle size={13} /> Subscription usage limit almost reached</div>
-=======
                    <div style={{ padding: "7px 9px", background: "rgba(249,115,22,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#c2410c", fontWeight: 600 }}><AlertCircle size={13} /> AI Scan limit almost reached</div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                    <div style={{ padding: "7px 9px", background: "rgba(14,165,233,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#0284c7", fontWeight: 600 }}><CalendarDays size={13} /> New eco workshop available</div>
                    <div style={{ padding: "7px 9px", background: "rgba(139,92,246,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#7c3aed", fontWeight: 600 }}><Tag size={13} /> Promo: 20% off yearly plan</div>
                    <div style={{ padding: "7px 9px", background: "rgba(22,163,74,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#15803d", fontWeight: 600 }}><span style={{fontSize: "13px"}}>🎉</span> You earned 120 EcoPoints this month</div>
@@ -4267,13 +1628,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                         <AdminEcoDropdown value={subscriberCampaignForm.delivery} options={subscriberDeliveryOptions.map(option => ({ ...option, label: `Delivery: ${option.label}` }))} onChange={value => setSubscriberCampaignForm({...subscriberCampaignForm, delivery: value})} compact />
                        <AdminEcoDropdown value={subscriberCampaignForm.schedule} options={subscriberScheduleOptions} onChange={value => setSubscriberCampaignForm({...subscriberCampaignForm, schedule: value})} compact />
                    </div>
-<<<<<<< HEAD
-                   <input type="text" placeholder="Title (e.g. New workshop schedule available)" value={subscriberCampaignForm.title} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, title: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px" }} />
-                   <textarea placeholder="Message body (e.g. Seats are open for the new composting workshop...)" rows={2} value={subscriberCampaignForm.message} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, message: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px", resize: "none", fontFamily: "inherit", minHeight: "56px" }} />
-=======
                    <input type="text" placeholder="Title (e.g. New AI Plant Doctor update available)" value={subscriberCampaignForm.title} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, title: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px" }} />
                    <textarea placeholder="Message body (e.g. You can now detect 20+ new crop diseases...)" rows={2} value={subscriberCampaignForm.message} onChange={e => setSubscriberCampaignForm({...subscriberCampaignForm, message: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "9px 11px", fontSize: "12px", borderRadius: "12px", resize: "none", fontFamily: "inherit", minHeight: "56px" }} />
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                  </div>
                </div>
             </div>
@@ -4295,15 +1651,9 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {selectedEvent && (
-<<<<<<< HEAD
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); setIsViewingEventAttendees(false); }}>
-          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: isViewingEventAttendees ? "860px" : "550px", maxHeight: "86vh", overflowY: "auto", position: "relative" }} className="custom-scrollbar" onClick={e => e.stopPropagation()}>
-            <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); setIsViewingEventAttendees(false); }} style={{ position: "absolute", top: "20px", right: "20px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
-=======
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); }}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "550px", position: "relative" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); }} style={{ position: "absolute", top: "20px", right: "20px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
               {isEditingEvent ? (
@@ -4333,89 +1683,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               <h2 style={{ margin: "0 0 16px", fontSize: "22px", fontWeight: 800, lineHeight: 1.2 }}>{selectedEvent.title}</h2>
             )}
             
-<<<<<<< HEAD
-            {isViewingEventAttendees ? (
-              (() => {
-                const attendees = getFilteredEventAttendees(selectedEvent.id);
-                const allAttendees = getEventAttendees(selectedEvent.id);
-                const checkedInCount = allAttendees.filter(attendee => attendee.status === "Checked In").length;
-                const pendingCount = allAttendees.filter(attendee => attendee.status === "Pending").length;
-                return (
-                  <>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px", marginBottom: "16px" }}>
-                      <div style={{ padding: "14px", borderRadius: "14px", background: "rgba(22,163,74,0.1)", border: "1px solid rgba(22,163,74,0.14)" }}>
-                        <div style={{ fontSize: "20px", fontWeight: 850, color: "#15803d" }}>{allAttendees.length}</div>
-                        <div style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Registered</div>
-                      </div>
-                      <div style={{ padding: "14px", borderRadius: "14px", background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.14)" }}>
-                        <div style={{ fontSize: "20px", fontWeight: 850, color: "#0ea5e9" }}>{checkedInCount}</div>
-                        <div style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Checked In</div>
-                      </div>
-                      <div style={{ padding: "14px", borderRadius: "14px", background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.14)" }}>
-                        <div style={{ fontSize: "20px", fontWeight: 850, color: "#b45309" }}>{pendingCount}</div>
-                        <div style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Pending</div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
-                      <div style={{ ...styles.searchBar, background: "rgba(0,0,0,0.03)", minWidth: "260px" }}>
-                        <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                        <input type="text" placeholder="Search attendees..." value={eventAttendeeSearchTerm} onChange={(e) => setEventAttendeeSearchTerm(e.target.value)} style={styles.searchInput} />
-                      </div>
-                      <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
-                          <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                          <select value={eventAttendeeStatusFilter} onChange={(e) => setEventAttendeeStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 700 }}>
-                            {["All", "Registered", "Checked In", "Pending", "Cancelled", "No Show"].map(status => <option key={status} value={status}>{status === "All" ? "All Statuses" : status}</option>)}
-                          </select>
-                        </div>
-                        <button onClick={() => handleExportSelectedEventAttendees(selectedEvent)} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 13px", borderRadius: "999px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "1px solid rgba(2,132,199,0.14)", fontWeight: 800, fontSize: "12px", cursor: "pointer" }}><Download size={14} /> Export</button>
-                      </div>
-                    </div>
-
-                    <div style={{ overflowX: "auto", marginBottom: "18px" }}>
-                      <table style={{ ...styles.table, width: "100%", minWidth: "760px" }}>
-                        <thead>
-                          <tr>
-                            <th style={styles.th}>Attendee</th>
-                            <th style={styles.th}>Ticket</th>
-                            <th style={styles.th}>Registered</th>
-                            <th style={styles.th}>Payment</th>
-                            <th style={styles.th}>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {attendees.length > 0 ? attendees.map(attendee => (
-                            <tr key={attendee.id} style={styles.tr}>
-                              <td style={{ ...styles.td, fontWeight: 800 }}>
-                                <div>{attendee.name}</div>
-                                <div style={{ marginTop: "3px", color: "rgba(0,0,0,0.52)", fontSize: "10px", fontWeight: 650 }}>{attendee.id} • {attendee.email}</div>
-                              </td>
-                              <td style={styles.td}>{attendee.ticket}</td>
-                              <td style={styles.td}>{attendee.registeredAt}</td>
-                              <td style={{ ...styles.td, color: attendee.payment === "Paid" ? "#15803d" : attendee.payment === "Pending" ? "#b45309" : "rgba(0,0,0,0.65)", fontWeight: 800 }}>{attendee.payment}</td>
-                              <td style={styles.td}><span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, ...getEventAttendeeStatusStyle(attendee.status) }}>{attendee.status}</span></td>
-                            </tr>
-                          )) : (
-                            <tr style={styles.tr}>
-                              <td colSpan="5" style={{ ...styles.td, textAlign: "center", padding: "28px", color: "rgba(0,0,0,0.55)", fontWeight: 700 }}>No attendees match the current filters.</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", marginBottom: "18px" }}>
-                      <button onClick={() => setIsViewingEventAttendees(false)} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}>Back to Event Details</button>
-                      <button onClick={() => { setIsViewingEventAttendees(false); setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
-                    </div>
-                  </>
-                );
-              })()
-            ) : (
-              <>
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
                <div style={{ background: "rgba(255,255,255,0.6)", padding: "16px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
                  <h4 style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Schedule & Location</h4>
@@ -4443,17 +1710,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                 </>
               ) : (
                 <>
-<<<<<<< HEAD
-                  <button onClick={handleViewEventAttendees} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
-                  <button onClick={() => { setIsViewingEventAttendees(false); setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
-                </>
-              )}
-            </div>
-              </>
-            )}
-
-            <button onClick={() => { setSelectedEvent(null); setIsEditingEvent(false); setIsViewingEventAttendees(false); }} style={{ width: "100%", padding: "14px", borderRadius: "16px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Close Details</button>
-=======
                   <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
                   <button onClick={() => { setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
                 </>
@@ -4503,7 +1759,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(139,92,246,0.1)", color: "#8b5cf6", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={16}/> Download Report</button>
               <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}><MessageSquare size={16}/> Consult Expert</button>
             </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
           </div>
         </div>
       )}
@@ -4544,23 +1799,10 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
       <main className="inner-blur-glass custom-scrollbar" style={styles.mainContent}>
         {/* Top Header */}
         <header style={styles.topHeader}>
-<<<<<<< HEAD
-          <div style={styles.topBrandGroup}>
-            <div style={styles.topLogoBadge}>
-              <Leaf size={17} color="#064e3b" />
-            </div>
-            <div>
-              <h1 style={styles.pageTitle}>{activeTab === "Dashboard" ? "Welcome Back, Admin!" : "EcoEquity.Inc"}</h1>
-              <div style={styles.pageSubtitle}>{activeTab === "Dashboard" ? "Here's what's happening with EcoEquity.Inc today." : `${activeTab} Admin Portal`}</div>
-            </div>
-          </div>
-          <div style={styles.headerActions}>
-=======
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <h1 style={styles.pageTitle}>{activeTab}</h1>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             <div style={styles.searchBar}>
               <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
               <input type="text" placeholder="Search..." style={styles.searchInput} />
@@ -4606,21 +1848,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         {/* Tab Content Rendering */}
         {activeTab === "Dashboard" ? (
           <div style={styles.dashboardContainer}>
-<<<<<<< HEAD
-            <div style={{ ...styles.dashboardIntro, justifyContent: "flex-end", paddingTop: 0 }}>
-              <div style={styles.dashboardDateControl}>
-                <CalendarDays size={14} color="#15803d" />
-                <select value={dashboardDateRange} onChange={(e) => setDashboardDateRange(e.target.value)} style={styles.dashboardDateSelect}>
-                  <option value="Today">Today</option>
-                  <option value="Last 7 days">Last 7 days</option>
-                  <option value="This month">This month</option>
-                  <option value="This quarter">This quarter</option>
-                </select>
-              </div>
-            </div>
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             {/* Stats Grid */}
             <div style={styles.statsGrid}>
               {mockStats.map((stat, idx) => (
@@ -5663,133 +2890,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               ))}
             </div>
 
-<<<<<<< HEAD
-            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px", marginBottom: "8px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", flexWrap: "wrap", marginBottom: "18px" }}>
-                <div>
-                  <h3 style={{ ...styles.cardHeading, fontSize: "18px", marginBottom: "6px" }}>Subscription Plan Manager</h3>
-                  <p style={{ margin: 0, fontSize: "12px", color: "rgba(0,0,0,0.58)", fontWeight: 600, lineHeight: 1.5 }}>Create and publish client-facing subscription cards for the AI Data Subscription page.</p>
-                </div>
-                <button onClick={handleAddSubscriptionPlan} style={{ ...ecoPrimaryButtonStyle, padding: "10px 16px", borderRadius: "999px", fontSize: "12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
-                  <Repeat size={14} style={{ position: "relative", zIndex: 1 }} />
-                  <span style={{ position: "relative", zIndex: 1 }}>Add Subscription Plan</span>
-                </button>
-              </div>
-
-              {editingSubscriptionPlan && (
-                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "18px", marginBottom: "18px", background: "linear-gradient(135deg, rgba(139,92,246,0.08), rgba(22,163,74,0.04))" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
-                    <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#062018" }}>{editingSubscriptionPlan.isNew ? "New Subscription Plan" : `Edit ${editingSubscriptionPlan.name}`}</h4>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", fontWeight: 800, color: "#15803d" }}>
-                      <input type="checkbox" checked={editingSubscriptionPlan.clientVisible} onChange={e => handleSubscriptionPlanDraftChange("clientVisible", e.target.checked)} />
-                      Show on client page
-                    </label>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px" }}>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Plan Name</span>
-                      <input value={editingSubscriptionPlan.name} onChange={e => handleSubscriptionPlanDraftChange("name", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Monthly Price</span>
-                      <input value={editingSubscriptionPlan.priceMonthly} onChange={e => handleSubscriptionPlanDraftChange("priceMonthly", e.target.value)} placeholder="₱999, Free, or Custom" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Yearly Price</span>
-                      <input value={editingSubscriptionPlan.priceYearly} onChange={e => handleSubscriptionPlanDraftChange("priceYearly", e.target.value)} placeholder="₱9,590, Free, or Custom" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Description</span>
-                      <input value={editingSubscriptionPlan.description} onChange={e => handleSubscriptionPlanDraftChange("description", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Monthly Note</span>
-                      <input value={editingSubscriptionPlan.billingNoteMonthly} onChange={e => handleSubscriptionPlanDraftChange("billingNoteMonthly", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Yearly Note</span>
-                      <input value={editingSubscriptionPlan.billingNoteYearly} onChange={e => handleSubscriptionPlanDraftChange("billingNoteYearly", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Billing Type</span>
-                      <select value={editingSubscriptionPlan.billingType} onChange={e => handleSubscriptionPlanDraftChange("billingType", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }}>
-                        <option value="free">Free</option>
-                        <option value="paid">Paid Checkout</option>
-                        <option value="contact">Contact Sales</option>
-                      </select>
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Badge</span>
-                      <input value={editingSubscriptionPlan.badge} onChange={e => handleSubscriptionPlanDraftChange("badge", e.target.value)} placeholder="Most Popular, New, Best Value" style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>CTA Label</span>
-                      <input value={editingSubscriptionPlan.ctaLabel} onChange={e => handleSubscriptionPlanDraftChange("ctaLabel", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Accent Color</span>
-                      <input type="color" value={editingSubscriptionPlan.color} onChange={e => { handleSubscriptionPlanDraftChange("color", e.target.value); handleSubscriptionPlanDraftChange("accentColor", e.target.value); }} style={{ ...styles.editInput, ...ecoGlassInputStyle, padding: "6px 10px", minHeight: "44px" }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Users</span>
-                      <input value={editingSubscriptionPlan.users} onChange={e => handleSubscriptionPlanDraftChange("users", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>MRR</span>
-                      <input value={editingSubscriptionPlan.revenue} onChange={e => handleSubscriptionPlanDraftChange("revenue", e.target.value)} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Included Features</span>
-                      <textarea value={editingSubscriptionPlan.featuresText} onChange={e => handleSubscriptionPlanDraftChange("featuresText", e.target.value)} rows={5} placeholder="One feature per line" style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-                    </label>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.58)", textTransform: "uppercase" }}>Unavailable Features</span>
-                      <textarea value={editingSubscriptionPlan.excludedFeaturesText} onChange={e => handleSubscriptionPlanDraftChange("excludedFeaturesText", e.target.value)} rows={5} placeholder="Optional, one per line" style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit" }} />
-                    </label>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "16px", flexWrap: "wrap" }}>
-                    <button onClick={() => setEditingSubscriptionPlan(null)} style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "9px 14px", fontWeight: 800 }}><X size={14} /> Cancel</button>
-                    <button onClick={handleSaveSubscriptionPlan} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "9px 14px", fontWeight: 800 }}><Save size={14} /> Save Plan</button>
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px" }}>
-                {managedSubscriptionPlans.map(plan => {
-                  const isCorePlan = ["PLAN-BASIC", "PLAN-PRO", "PLAN-ENTERPRISE"].includes(plan.id);
-                  return (
-                    <div key={plan.id || plan.name} className="inner-blur-glass" style={{ ...styles.chartCard, background: plan.bg || "rgba(255,255,255,0.68)", padding: "20px", border: `1px solid ${(plan.color || "#16a34a")}30` }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
-                        <div>
-                          <h3 style={{ fontSize: "18px", fontWeight: 800, color: plan.color || "#15803d", margin: 0 }}>{plan.name}</h3>
-                          <div style={{ marginTop: "4px", fontSize: "11px", fontWeight: 800, color: plan.clientVisible === false ? "#dc2626" : "#15803d" }}>{plan.clientVisible === false ? "Hidden from client" : "Client visible"}</div>
-                        </div>
-                        <span style={{ fontSize: "14px", fontWeight: 800, color: "#000", whiteSpace: "nowrap" }}>{plan.priceMonthly}</span>
-                      </div>
-                      <p style={{ margin: "12px 0 14px", fontSize: "12px", lineHeight: 1.45, color: "rgba(0,0,0,0.58)", fontWeight: 600 }}>{plan.description}</p>
-                      <div style={{ margin: "0 0 16px", display: "flex", flexDirection: "column", gap: "9px" }}>
-                        {(plan.features || []).slice(0, 4).map(f => (
-                          <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.7)", fontWeight: 650 }}>
-                            <CheckCircle size={14} color={plan.color || "#16a34a"} /> {f}
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", fontSize: "13px", marginBottom: "14px" }}>
-                        <div><strong style={{ fontSize: "15px", color: "#000" }}>{plan.users}</strong> <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>Users</span></div>
-                        <div style={{ color: "#15803d", fontWeight: 800 }}>{plan.revenue} MRR</div>
-                      </div>
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                        <button onClick={() => handleEditSubscriptionPlan(plan)} style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "7px 11px", fontWeight: 800 }}><Edit2 size={13} /> Edit</button>
-                        {!isCorePlan && (
-                          <button onClick={() => handleDeleteSubscriptionPlan(plan.id)} style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "7px 11px", fontWeight: 800 }}><Trash2 size={13} /> Delete</button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-=======
             {/* Plans Management Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px", marginBottom: "8px" }}>
               {mockPlans.map(plan => (
@@ -5811,7 +2911,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                   </div>
                 </div>
               ))}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
@@ -5827,11 +2926,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
                       <div style={{ width: "130px" }}>
-<<<<<<< HEAD
-                        <AdminEcoDropdown value={subPlanFilter} options={[{ value: "All", label: "All Plans" }, ...managedSubscriptionPlanOptions]} onChange={setSubPlanFilter} compact align="right" />
-=======
                         <AdminEcoDropdown value={subPlanFilter} options={[{ value: "All", label: "All Plans" }, ...subscriptionPlanOptions]} onChange={setSubPlanFilter} compact align="right" />
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                       </div>
                     </div>
                   </div>
@@ -5861,11 +2956,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                               </div>
                             </div>
                           </td>
-<<<<<<< HEAD
-                          <td style={{ ...styles.td, fontWeight: 700, color: getManagedPlanColor(sub.plan) }}>{sub.plan}</td>
-=======
                           <td style={{ ...styles.td, fontWeight: 700, color: sub.plan === "Pro" ? "#b45309" : sub.plan === "Enterprise" ? "#0284c7" : "#475569" }}>{sub.plan}</td>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                           <td style={styles.td}>
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getSubStatusStyle(sub.status) }}>{sub.status}</span>
                           </td>
@@ -6004,11 +3095,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getEventStatusStyle(ev.status) }}>{ev.status}</span>
                           </td>
                           <td style={styles.td}>
-<<<<<<< HEAD
-                            <button onClick={() => { setSelectedEvent(ev); setIsEditingEvent(false); setIsViewingEventAttendees(false); }} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Manage</button>
-=======
                             <button onClick={() => setSelectedEvent(ev)} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Manage</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                           </td>
                         </tr>
                       ))}
@@ -6285,18 +3372,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-        ) : activeTab === "Home Glass Chart" ? (
-          renderHomeGlassChartManagement()
-        ) : activeTab === "Surplus Exchange" ? (
-          renderSurplusExchangeManagement()
-        ) : activeTab === "Expert Support" ? (
-          renderExpertSupportManagement()
-        ) : activeTab === "Impact Sectors" ? (
-          renderImpactSectorsManagement()
-        ) : adminManagedSections[activeTab] ? (
-          renderManagedSection(adminManagedSections[activeTab])
-=======
         ) : activeTab === "AI Plant Doctor" ? (
           <div style={styles.dashboardContainer}>
             {/* AI Stats Grid */}
@@ -6412,7 +3487,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
           </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         ) : activeTab === "Reports & Analytics" ? (
           <div style={styles.dashboardContainer}>
             {/* Analytics Stats Grid */}
@@ -6555,8 +3629,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-=======
         ) : activeTab === "Content Management" ? (
           <div style={styles.dashboardContainer}>
             {/* Content Stats Grid */}
@@ -6682,17 +3754,12 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               </div>
             </div>
           </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         ) : (
           activeTab === "Settings" ? (
             <div style={styles.dashboardContainer}>
               {/* Settings Stats Grid */}
               <div style={styles.statsGrid}>
-<<<<<<< HEAD
-                {settingsStats.map((stat, idx) => (
-=======
                 {mockSettingsStats.map((stat, idx) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   <div key={idx} className="inner-blur-glass" style={styles.statCard}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                       <div style={styles.statIconWrap}>{stat.icon}</div>
@@ -6710,9 +3777,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
               <div style={{ display: "grid", gridTemplateColumns: "250px 1fr", gap: "24px" }}>
                 {/* Settings Sidebar */}
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
-<<<<<<< HEAD
-                  {settingsTabs.map(tab => (
-=======
                   {[
                     { id: "General", icon: <Layout size={16} /> },
                     { id: "Security & Roles", icon: <ShieldCheck size={16} /> },
@@ -6721,7 +3785,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                     { id: "Appearance", icon: <Image size={16} /> },
                     { id: "Database & Backups", icon: <Database size={16} /> },
                   ].map(tab => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     <button
                       key={tab.id}
                       onClick={() => setActiveSettingsTab(tab.id)}
@@ -6741,11 +3804,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "32px", minHeight: "500px", display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                     <h3 style={{ ...styles.cardHeading, fontSize: "20px", margin: 0 }}>{activeSettingsTab}</h3>
-<<<<<<< HEAD
-                    <button onClick={handleSaveAdminSettings} style={{ padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
-=======
                     <button style={{ padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                       <Save size={16} /> Save Changes
                     </button>
                   </div>
@@ -6755,19 +3814,11 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                          <div>
                            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Platform Name</label>
-<<<<<<< HEAD
-                           <input type="text" value={adminSettings.general.platformName} onChange={(e) => updateAdminSetting("general", "platformName", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
-                         </div>
-                         <div>
-                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Support Email</label>
-                           <input type="email" value={adminSettings.general.supportEmail} onChange={(e) => updateAdminSetting("general", "supportEmail", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
-=======
                            <input type="text" defaultValue="EcoEquity" style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
                          </div>
                          <div>
                            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Support Email</label>
                            <input type="email" defaultValue="support@ecoequity.ph" style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                          </div>
                        </div>
                        <div>
@@ -6777,20 +3828,9 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                              <div style={{ fontSize: "14px", fontWeight: 700, color: "#000", marginBottom: "4px" }}>Enable Maintenance Mode</div>
                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Restrict public access while updating the platform. Admins can still log in.</div>
                            </div>
-<<<<<<< HEAD
-                           <button
-                             type="button"
-                             aria-pressed={adminSettings.general.maintenanceMode}
-                             onClick={() => updateAdminSetting("general", "maintenanceMode", !adminSettings.general.maintenanceMode)}
-                             style={{ width: "44px", height: "24px", background: adminSettings.general.maintenanceMode ? "#16a34a" : "rgba(0,0,0,0.1)", borderRadius: "999px", position: "relative", cursor: "pointer", transition: "background 0.3s", border: "none", flexShrink: 0 }}
-                           >
-                             <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transform: adminSettings.general.maintenanceMode ? "translateX(20px)" : "translateX(0)", transition: "transform 0.3s" }} />
-                           </button>
-=======
                            <div style={{ width: "44px", height: "24px", background: "rgba(0,0,0,0.1)", borderRadius: "999px", position: "relative", cursor: "pointer", transition: "background 0.3s" }}>
                              <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "transform 0.3s" }} />
                            </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                          </div>
                        </div>
                      </div>
@@ -6804,69 +3844,12 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            <thead>
                              <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.1)", color: "rgba(0,0,0,0.5)" }}>
                                <th style={{ padding: "12px 8px" }}>Name</th>
-<<<<<<< HEAD
-                               <th style={{ padding: "12px 8px" }}>Email</th>
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                                <th style={{ padding: "12px 8px" }}>Role</th>
                                <th style={{ padding: "12px 8px" }}>2FA Status</th>
                                <th style={{ padding: "12px 8px" }}>Action</th>
                              </tr>
                            </thead>
                            <tbody>
-<<<<<<< HEAD
-                             {adminSettings.admins.map(admin => {
-                               const isEditingAdmin = editingAdminId === admin.id;
-                               const adminRow = isEditingAdmin ? adminAccountDraft : admin;
-                               return (
-                                 <tr key={admin.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                                   <td style={{ padding: "12px 8px", fontWeight: 600 }}>
-                                     {isEditingAdmin ? (
-                                       <input value={adminRow.name} onChange={(e) => setAdminAccountDraft({ ...adminRow, name: e.target.value })} style={styles.editInput} />
-                                     ) : admin.name}
-                                   </td>
-                                   <td style={{ padding: "12px 8px", color: "rgba(0,0,0,0.65)", fontWeight: 600 }}>
-                                     {isEditingAdmin ? (
-                                       <input type="email" value={adminRow.email} onChange={(e) => setAdminAccountDraft({ ...adminRow, email: e.target.value })} style={styles.editInput} />
-                                     ) : admin.email}
-                                   </td>
-                                   <td style={{ padding: "12px 8px", color: admin.role === "Super Admin" ? "#b45309" : "#15803d", fontWeight: 700 }}>
-                                     {isEditingAdmin ? (
-                                       <select value={adminRow.role} onChange={(e) => setAdminAccountDraft({ ...adminRow, role: e.target.value })} style={styles.editInput}>
-                                         {adminRoleOptions.map(role => <option key={role} value={role}>{role}</option>)}
-                                       </select>
-                                     ) : admin.role}
-                                   </td>
-                                   <td style={{ padding: "12px 8px", color: admin.twoFactor ? "#16a34a" : "#e11d48", fontWeight: 600 }}>
-                                     {isEditingAdmin ? (
-                                       <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-                                         <input type="checkbox" checked={adminRow.twoFactor} onChange={(e) => setAdminAccountDraft({ ...adminRow, twoFactor: e.target.checked })} />
-                                         {adminRow.twoFactor ? "Enabled" : "Disabled"}
-                                       </label>
-                                     ) : admin.twoFactor ? "Enabled" : "Disabled"}
-                                   </td>
-                                   <td style={{ padding: "12px 8px" }}>
-                                     <div style={{ display: "flex", gap: "8px" }}>
-                                       {isEditingAdmin ? (
-                                         <>
-                                           <button onClick={handleSaveAdminAccount} style={{ ...styles.actionBtn, background: "rgba(22,163,74,0.1)", color: "#15803d", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Save</button>
-                                           <button onClick={handleCancelAdminEdit} style={{ ...styles.actionBtn, background: "rgba(220,38,38,0.1)", color: "#dc2626", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Cancel</button>
-                                         </>
-                                       ) : (
-                                         <>
-                                           <button onClick={() => handleEditAdminAccount(admin)} style={{ ...styles.actionBtn, background: "rgba(14,165,233,0.1)", color: "#0ea5e9", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Edit</button>
-                                           <button onClick={() => handleDeleteAdminAccount(admin.id)} style={{ ...styles.actionBtn, background: "rgba(220,38,38,0.1)", color: "#dc2626", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Delete</button>
-                                         </>
-                                       )}
-                                     </div>
-                                   </td>
-                                 </tr>
-                               );
-                             })}
-                           </tbody>
-                         </table>
-                         <button onClick={handleAddAdminAccount} style={{ marginTop: "16px", padding: "10px 16px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px dashed #16a34a", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", width: "100%" }}>+ Add New Admin</button>
-=======
                              <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                                <td style={{ padding: "12px 8px", fontWeight: 600 }}>Juan Dela Cruz (You)</td>
                                <td style={{ padding: "12px 8px", color: "#b45309", fontWeight: 700 }}>Super Admin</td>
@@ -6876,7 +3859,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            </tbody>
                          </table>
                          <button style={{ marginTop: "16px", padding: "10px 16px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px dashed #16a34a", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", width: "100%" }}>+ Add New Admin</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                        </div>
                      </div>
                   )}
@@ -6891,30 +3873,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Accept GCash, Maya, and Credit Cards</div>
                            </div>
                          </div>
-<<<<<<< HEAD
-                         <div style={{ display: "flex", gap: "8px" }}>
-                           <button onClick={() => updateAdminSetting("payments", "payMongoEnabled", !adminSettings.payments.payMongoEnabled)} style={{ padding: "8px 16px", borderRadius: "8px", background: adminSettings.payments.payMongoEnabled ? "rgba(22,163,74,0.1)" : "rgba(225,29,72,0.1)", color: adminSettings.payments.payMongoEnabled ? "#15803d" : "#e11d48", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>{adminSettings.payments.payMongoEnabled ? "Enabled" : "Paused"}</button>
-                           <button onClick={() => setPaymentConfigOpen(prev => !prev)} style={{ padding: "8px 16px", borderRadius: "8px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>{paymentConfigOpen ? "Hide API" : "Configure API"}</button>
-                         </div>
-                       </div>
-                       {paymentConfigOpen && (
-                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", padding: "20px", borderRadius: "16px", border: "1px solid rgba(14,165,233,0.12)", background: "rgba(14,165,233,0.05)" }}>
-                           <div>
-                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Public Key</label>
-                             <input type="text" value={adminSettings.payments.publicKey} onChange={(e) => updateAdminSetting("payments", "publicKey", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.75)", fontSize: "13px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
-                           </div>
-                           <div>
-                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Settlement Account</label>
-                             <input type="text" value={adminSettings.payments.settlementAccount} onChange={(e) => updateAdminSetting("payments", "settlementAccount", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.75)", fontSize: "13px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
-                           </div>
-                           <div style={{ gridColumn: "1 / -1" }}>
-                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Webhook URL</label>
-                             <input type="url" value={adminSettings.payments.webhookUrl} onChange={(e) => updateAdminSetting("payments", "webhookUrl", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.75)", fontSize: "13px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
-                           </div>
-                           <button onClick={handleTestPaymentConnection} style={{ gridColumn: "1 / -1", justifySelf: "flex-start", padding: "10px 16px", borderRadius: "10px", background: "#0284c7", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Test Connection</button>
-                         </div>
-                       )}
-=======
                          <button style={{ padding: "8px 16px", borderRadius: "8px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Configure API</button>
                        </div>
                      </div>
@@ -6937,7 +3895,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                            <option>Verde-Agri-V2.3 (Legacy)</option>
                          </select>
                        </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                   )}
   
@@ -6946,38 +3903,18 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Theme Mode</label>
                          <div style={{ display: "flex", gap: "16px" }}>
-<<<<<<< HEAD
-                           {["Light", "Dark"].map(mode => {
-                             const isSelected = adminSettings.appearance.themeMode === mode;
-                             return (
-                               <button key={mode} onClick={() => updateAdminSetting("appearance", "themeMode", mode)} style={{ flex: 1, padding: "16px", borderRadius: "12px", border: `2px solid ${isSelected ? adminSettings.appearance.accentColor : "transparent"}`, background: mode === "Light" ? "rgba(255,255,255,0.8)" : "rgba(15,23,42,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: mode === "Light" ? "#0f172a" : "#fff" }}>{mode} Mode</button>
-                             );
-                           })}
-=======
                            <div style={{ flex: 1, padding: "16px", borderRadius: "12px", border: "2px solid #16a34a", background: "rgba(255,255,255,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#0f172a" }}>Light Mode</div>
                            <div style={{ flex: 1, padding: "16px", borderRadius: "12px", border: "2px solid transparent", background: "rgba(15,23,42,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#fff" }}>Dark Mode</div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                          </div>
                        </div>
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Accent Color</label>
                          <div style={{ display: "flex", gap: "12px" }}>
                            {["#16a34a", "#0284c7", "#8b5cf6", "#f59e0b", "#e11d48"].map(color => (
-<<<<<<< HEAD
-                             <button key={color} type="button" aria-label={`Use accent color ${color}`} onClick={() => updateAdminSetting("appearance", "accentColor", color)} style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, cursor: "pointer", border: adminSettings.appearance.accentColor === color ? "3px solid #fff" : "none", boxShadow: adminSettings.appearance.accentColor === color ? `0 0 0 2px ${color}` : "none" }} />
-                           ))}
-                         </div>
-                       </div>
-                       <div style={{ padding: "18px", borderRadius: "14px", border: `1px solid ${adminSettings.appearance.accentColor}`, background: adminSettings.appearance.themeMode === "Dark" ? "rgba(15,23,42,0.9)" : "rgba(255,255,255,0.75)", color: adminSettings.appearance.themeMode === "Dark" ? "#fff" : "#0f172a" }}>
-                         <div style={{ fontSize: "13px", fontWeight: 800, marginBottom: "4px" }}>Theme Preview</div>
-                         <div style={{ fontSize: "12px", fontWeight: 600, opacity: 0.75 }}>This preview updates immediately. Save changes to keep it after refresh.</div>
-                       </div>
-=======
                              <div key={color} style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, cursor: "pointer", border: color === "#16a34a" ? "3px solid #fff" : "none", boxShadow: color === "#16a34a" ? `0 0 0 2px ${color}` : "none" }} />
                            ))}
                          </div>
                        </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                   )}
   
@@ -6985,34 +3922,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                        <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", background: "rgba(22,163,74,0.05)" }}>
                          <h4 style={{ margin: "0 0 8px", fontSize: "15px", fontWeight: 700, color: "#15803d" }}>Automated Backups</h4>
-<<<<<<< HEAD
-                         <p style={{ margin: "0 0 16px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Your database is automatically backed up every day at 12:00 AM UTC. Last manual backup: {adminSettings.backups.lastBackup || "Not created yet"}.</p>
-                         <div style={{ display: "flex", gap: "12px" }}>
-                           <button onClick={handleCreateBackup} style={{ padding: "10px 16px", borderRadius: "10px", background: "#16a34a", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}><Database size={14} /> Backup Now</button>
-                           <button onClick={handleRestoreBackup} style={{ padding: "10px 16px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}><RefreshCcw size={14} /> Restore from Backup</button>
-                         </div>
-                       </div>
-                       {adminSettings.backups.history.length > 0 && (
-                         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", textTransform: "uppercase" }}>Recent Backups</label>
-                           {adminSettings.backups.history.map(backup => (
-                             <div key={backup.id} style={{ display: "flex", justifyContent: "space-between", gap: "12px", padding: "12px", borderRadius: "12px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.05)", fontSize: "12px", fontWeight: 700 }}>
-                               <span>{backup.id}</span>
-                               <span style={{ color: "rgba(0,0,0,0.55)" }}>{backup.createdAt}</span>
-                               <span style={{ color: "#15803d" }}>{backup.summary}</span>
-                             </div>
-                           ))}
-                         </div>
-                       )}
-                       {adminSettings.backups.lastRestore && (
-                         <div style={{ padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.08)", color: "#0369a1", fontSize: "12px", fontWeight: 700 }}>
-                           Last restore completed: {adminSettings.backups.lastRestore}
-                         </div>
-                       )}
-                       <div>
-                         <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Data Export</label>
-                         <button onClick={handleExportSystemData} style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={15} /> Export Full System Data (CSV)</button>
-=======
                          <p style={{ margin: "0 0 16px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Your database is automatically backed up every day at 12:00 AM UTC. You can also trigger a manual backup below.</p>
                          <div style={{ display: "flex", gap: "12px" }}>
                            <button style={{ padding: "10px 16px", borderRadius: "10px", background: "#16a34a", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Backup Now</button>
@@ -7022,7 +3931,6 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Data Export</label>
                          <button style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}>Export Full System Data (CSV)</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                        </div>
                      </div>
                   )}
@@ -7180,11 +4088,6 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-<<<<<<< HEAD
-    gap: "16px",
-    flexWrap: "nowrap",
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     padding: "16px 24px",
     background: "rgba(255,255,255,0.4)",
     borderBottom: "1px solid rgba(0,0,0,0.05)",
@@ -7195,54 +4098,12 @@ const styles = {
     top: 0,
     zIndex: 10,
   },
-<<<<<<< HEAD
-  topBrandGroup: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    minWidth: 0,
-    flex: "1 1 auto",
-  },
-  topLogoBadge: {
-    width: "38px",
-    height: "38px",
-    borderRadius: "14px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    border: "1px solid rgba(255,255,255,0.72)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 12px 26px rgba(34,197,94,0.16)",
-    flexShrink: 0,
-  },
-  headerActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    flexWrap: "nowrap",
-    justifyContent: "flex-end",
-    marginLeft: "auto",
-    flex: "0 0 auto",
-  },
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   pageTitle: {
     fontSize: "18px",
     fontWeight: 800,
     color: "#000",
     margin: 0,
-<<<<<<< HEAD
-    letterSpacing: 0,
-    whiteSpace: "nowrap",
-  },
-  pageSubtitle: {
-    marginTop: "2px",
-    fontSize: "11px",
-    fontWeight: 700,
-    color: "rgba(6,32,24,0.52)",
-=======
     letterSpacing: "-0.5px",
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   },
   searchBar: {
     display: "flex",
@@ -7252,21 +4113,13 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.08)",
     padding: "6px 12px",
     borderRadius: "999px",
-<<<<<<< HEAD
-    flexShrink: 0,
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   },
   searchInput: {
     border: "none",
     background: "transparent",
     outline: "none",
     fontSize: "12px",
-<<<<<<< HEAD
-    width: "clamp(96px, 12vw, 160px)",
-=======
     width: "140px",
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   },
   iconBtn: {
     position: "relative",
@@ -7310,50 +4163,6 @@ const styles = {
     flexDirection: "column",
     gap: "16px",
   },
-<<<<<<< HEAD
-  dashboardIntro: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "16px",
-    flexWrap: "wrap",
-    padding: "2px 0 4px",
-  },
-  dashboardIntroTitle: {
-    margin: "0 0 6px",
-    fontSize: "26px",
-    fontWeight: 850,
-    color: "#062018",
-    letterSpacing: 0,
-  },
-  dashboardIntroText: {
-    margin: 0,
-    fontSize: "13px",
-    fontWeight: 600,
-    color: "rgba(6,32,24,0.58)",
-  },
-  dashboardDateControl: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "8px 12px",
-    borderRadius: "999px",
-    background: "rgba(255,255,255,0.82)",
-    border: "1px solid rgba(22,163,74,0.14)",
-    boxShadow: "0 10px 24px rgba(15,23,42,0.06)",
-  },
-  dashboardDateSelect: {
-    border: "none",
-    outline: "none",
-    background: "transparent",
-    color: "#064e3b",
-    fontSize: "12px",
-    fontWeight: 800,
-    fontFamily: "inherit",
-    cursor: "pointer",
-  },
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   statsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",

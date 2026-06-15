@@ -15,61 +15,10 @@ const communityImpactData = [
   { id: 4, area: "Biodiversity Preservation", progress: 65, color: "#fbbf24" },
 ];
 
-<<<<<<< HEAD
-const impactIconMap = {
-  leaf: FaLeaf,
-  cloud: FaCloudMeatball,
-  users: FaUsers,
-  handshake: FaHandshake,
-};
-
-const defaultImpactTrackingContent = {
-  header: {
-    badge: "Impact Tracking",
-    titleLead: "Measuring Our",
-    titleAccent: "Impact",
-    description: "Our commitment to sustainability is backed by data. We meticulously track key metrics to ensure transparency and drive meaningful environmental and community impact.",
-  },
-  stats: impactStats.map(stat => ({
-    label: stat.label,
-    value: stat.value,
-    iconKey: stat.id === 1 ? "leaf" : stat.id === 2 ? "cloud" : stat.id === 3 ? "users" : "handshake",
-  })),
-  chartTitle: "Community Impact Areas",
-  chartBars: communityImpactData.map(item => ({
-    label: item.area,
-    value: item.progress,
-    color: item.color,
-  })),
-  chartCtaLabel: "View Detailed Report",
-  metricsTitle: "Environmental Metrics",
-  metrics: [
-    { value: "150+ Tons", label: "Crops Grown", iconKey: "leaf" },
-    { value: "100+ Tons", label: "CO₂ Reduced", iconKey: "cloud" },
-  ],
-  metricsCtaLabel: "Analyze Trends",
-  peopleTitle: "People Reached",
-  peopleValue: "15,000+",
-  peopleLabel: "Individuals Empowered",
-  peopleDescription: "Through workshops, direct support, and community programs, we've empowered thousands to embrace sustainable agriculture.",
-  peopleCtaLabel: "Explore Stories",
-};
-
-function ImpactTrackingPage({ setActiveNav, sectorContent }) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isHoveredBack, setIsHoveredBack] = useState(false);
-  const [animate, setAnimate] = useState(false);
-  const content = {
-    ...defaultImpactTrackingContent,
-    ...(sectorContent || {}),
-    header: { ...defaultImpactTrackingContent.header, ...(sectorContent?.header || {}) },
-  };
-=======
 function ImpactTrackingPage({ setActiveNav }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [animate, setAnimate] = useState(false);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -112,47 +61,23 @@ function ImpactTrackingPage({ setActiveNav }) {
         </div>
         <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
           <span style={styles.badgeDot} />
-<<<<<<< HEAD
-          <span style={styles.glassContentLayer}>{content.header.badge}</span>
-=======
           <span style={styles.glassContentLayer}>Impact Tracking</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
-<<<<<<< HEAD
-        {content.header.titleLead} <span style={styles.titleAccent}>{content.header.titleAccent}</span>
-=======
         Measuring Our <span style={styles.titleAccent}>Impact</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </h1>
       <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
-<<<<<<< HEAD
-        {content.header.description}
-=======
         Our commitment to sustainability is backed by data. We meticulously track key metrics to ensure transparency and drive meaningful environmental and community impact.
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </p>
 
       <div style={{ ...styles.dashboardGrid, ...(isMobile ? styles.dashboardGridMobile : {}) }}>
         
         {/* Animated Statistics Cards */}
         <div style={styles.statsRow}>
-<<<<<<< HEAD
-          {(content.stats || []).map((stat, index) => {
-            const Icon = impactIconMap[stat.iconKey] || FaLeaf;
-            return (
-            <div key={`${stat.label}-${index}`} className="inner-blur-glass" style={styles.statCard}>
-              <div style={styles.statIcon}><Icon /></div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-            </div>
-            );
-          })}
-=======
           {impactStats.map((stat) => (
             <div key={stat.id} className="inner-blur-glass" style={styles.statCard}>
               <div style={styles.statIcon}>{stat.icon}</div>
@@ -160,25 +85,12 @@ function ImpactTrackingPage({ setActiveNav }) {
               <div style={styles.statLabel}>{stat.label}</div>
             </div>
           ))}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Community Impact Data (Chart-like visualization) */}
         <div className="inner-blur-glass" style={styles.chartCard}>
           <div style={styles.cardHeader}>
             <FaHandshake style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.chartTitle}</h3>
-          </div>
-          <div style={styles.chartContainer}>
-            {(content.chartBars || []).map((item, i) => {
-              const progress = Math.max(0, Math.min(100, Number(item.value) || 0));
-              return (
-              <div key={item.id || `${item.label}-${i}`} style={styles.chartBarGroup}>
-                <div style={styles.barLabelRow}>
-                  <span>{item.label || item.area}</span>
-                  <span>{progress}%</span>
-=======
             <h3 style={styles.cardTitle}>Community Impact Areas</h3>
           </div>
           <div style={styles.chartContainer}>
@@ -187,7 +99,6 @@ function ImpactTrackingPage({ setActiveNav }) {
                 <div style={styles.barLabelRow}>
                   <span>{item.area}</span>
                   <span>{item.progress}%</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                 </div>
                 <div style={styles.barTrack}>
                   <div 
@@ -195,48 +106,20 @@ function ImpactTrackingPage({ setActiveNav }) {
                     style={{ 
                       ...styles.barFill, 
                       backgroundColor: item.color, 
-<<<<<<< HEAD
-                      "--target-width": `${progress}%` 
-=======
                       "--target-width": `${item.progress}%` 
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     }} 
                   />
                 </div>
               </div>
-<<<<<<< HEAD
-              );
-            })}
-          </div>
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.chartCtaLabel}</button>
-=======
             ))}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>View Detailed Report</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Environmental Metrics (Example: Crops Grown vs. CO2 Reduced) */}
         <div className="inner-blur-glass" style={styles.metricsCard}>
           <div style={styles.cardHeader}>
             <FaTractor style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.metricsTitle}</h3>
-          </div>
-          <div style={styles.metricsGrid}>
-            {(content.metrics || []).map((metric, index) => {
-              const Icon = impactIconMap[metric.iconKey] || FaLeaf;
-              return (
-                <div key={`${metric.label}-${index}`} style={styles.metricItem}>
-                  <Icon style={styles.metricIcon} />
-                  <span style={styles.metricValue}>{metric.value}</span>
-                  <span style={styles.metricLabel}>{metric.label}</span>
-                </div>
-              );
-            })}
-          </div>
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.metricsCtaLabel}</button>
-=======
             <h3 style={styles.cardTitle}>Environmental Metrics</h3>
           </div>
           <div style={styles.metricsGrid}>
@@ -252,25 +135,12 @@ function ImpactTrackingPage({ setActiveNav }) {
             </div>
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Analyze Trends</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* People Reached (Visual) */}
         <div className="inner-blur-glass" style={styles.peopleReachedCard}>
           <div style={styles.cardHeader}>
             <FaUsers style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.peopleTitle}</h3>
-          </div>
-          <div style={styles.peopleCount}>
-            <span style={styles.peopleValue}>{content.peopleValue}</span>
-            <span style={styles.peopleLabel}>{content.peopleLabel}</span>
-          </div>
-          <p style={styles.peopleDescription}>
-            {content.peopleDescription}
-          </p>
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.peopleCtaLabel}</button>
-=======
             <h3 style={styles.cardTitle}>People Reached</h3>
           </div>
           <div style={styles.peopleCount}>
@@ -281,7 +151,6 @@ function ImpactTrackingPage({ setActiveNav }) {
             Through workshops, direct support, and community programs, we've empowered thousands to embrace sustainable agriculture.
           </p>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Explore Stories</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
     </div>
@@ -599,8 +468,4 @@ const styles = {
   },
 };
 
-<<<<<<< HEAD
 export default ImpactTrackingPage;
-=======
-export default ImpactTrackingPage;
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d

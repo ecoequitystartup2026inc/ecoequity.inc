@@ -31,62 +31,10 @@ const distributionTracking = [
   { id: 3, program: "Research & Development", status: "Planned", count: "10+ Projects", icon: <FaFlask /> },
 ];
 
-<<<<<<< HEAD
-const seedIconMap = {
-  seed: FaSeedling,
-  users: FaUsers,
-  globe: FaGlobeAmericas,
-  handshake: FaHandshake,
-  boxes: FaBoxes,
-  flask: FaFlask,
-  award: FaAward,
-  helping: FaHandsHelping,
-};
-
-const defaultSeedBankContent = {
-  header: {
-    badge: "Native Seed Bank",
-    titleLead: "Preserving",
-    titleAccent: "Biodiversity",
-    description: "Our Native Seed Bank program is dedicated to the conservation and propagation of indigenous crop varieties, ensuring agricultural resilience and cultural heritage for future generations.",
-  },
-  stats: seedBankStats.map(stat => ({
-    label: stat.label,
-    value: stat.value,
-    iconKey: stat.id === 1 ? "seed" : stat.id === 2 ? "users" : "globe",
-  })),
-  programsTitle: "Preservation Programs",
-  programs: preservationPrograms,
-  programsCtaLabel: "Learn More",
-  distributionTitle: "Distribution Tracking",
-  distribution: distributionTracking.map(item => ({
-    ...item,
-    iconKey: item.id === 1 ? "handshake" : item.id === 2 ? "boxes" : "flask",
-  })),
-  distributionCtaLabel: "View Reports",
-  metricsTitle: "Sustainability Metrics",
-  metrics: [
-    { value: "+30%", label: "Biodiversity Index", iconKey: "award" },
-    { value: "95%", label: "Retention Rate", iconKey: "helping" },
-  ],
-  metricsCtaLabel: "Full Analytics",
-};
-
-function NativeSeedBankPage({ setActiveNav, sectorContent }) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isHoveredBack, setIsHoveredBack] = useState(false);
-  const [animate, setAnimate] = useState(false);
-  const content = {
-    ...defaultSeedBankContent,
-    ...(sectorContent || {}),
-    header: { ...defaultSeedBankContent.header, ...(sectorContent?.header || {}) },
-  };
-=======
 function NativeSeedBankPage({ setActiveNav }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [animate, setAnimate] = useState(false);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -129,47 +77,23 @@ function NativeSeedBankPage({ setActiveNav }) {
         </div>
         <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
           <span style={styles.badgeDot} />
-<<<<<<< HEAD
-          <span style={styles.glassContentLayer}>{content.header.badge}</span>
-=======
           <span style={styles.glassContentLayer}>Native Seed Bank</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
-<<<<<<< HEAD
-        {content.header.titleLead} <span style={styles.titleAccent}>{content.header.titleAccent}</span>
-=======
         Preserving <span style={styles.titleAccent}>Biodiversity</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </h1>
       <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
-<<<<<<< HEAD
-        {content.header.description}
-=======
         Our Native Seed Bank program is dedicated to the conservation and propagation of indigenous crop varieties, ensuring agricultural resilience and cultural heritage for future generations.
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </p>
 
       <div style={{ ...styles.dashboardGrid, ...(isMobile ? styles.dashboardGridMobile : {}) }}>
         
         {/* Animated Statistics Cards */}
         <div style={styles.statsRow}>
-<<<<<<< HEAD
-          {(content.stats || []).map((stat, index) => {
-            const Icon = seedIconMap[stat.iconKey] || FaSeedling;
-            return (
-            <div key={`${stat.label}-${index}`} className="inner-blur-glass" style={styles.statCard}>
-              <div style={styles.statIcon}><Icon /></div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-            </div>
-            );
-          })}
-=======
           {seedBankStats.map((stat) => (
             <div key={stat.id} className="inner-blur-glass" style={styles.statCard}>
               <div style={styles.statIcon}>{stat.icon}</div>
@@ -177,24 +101,16 @@ function NativeSeedBankPage({ setActiveNav }) {
               <div style={styles.statLabel}>{stat.label}</div>
             </div>
           ))}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Seed Preservation Programs */}
         <div className="inner-blur-glass" style={styles.programsCard}>
           <div style={styles.cardHeader}>
             <FaLeaf style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.programsTitle}</h3>
-          </div>
-          <div style={styles.programList}>
-            {(content.programs || []).map((program, i) => (
-=======
             <h3 style={styles.cardTitle}>Preservation Programs</h3>
           </div>
           <div style={styles.programList}>
             {preservationPrograms.map((program, i) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
               <div key={i} style={styles.programItem}>
                 <span style={styles.programIconEmoji}>{program.icon}</span>
                 <div style={styles.programText}>
@@ -204,34 +120,19 @@ function NativeSeedBankPage({ setActiveNav }) {
               </div>
             ))}
           </div>
-<<<<<<< HEAD
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.programsCtaLabel}</button>
-=======
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Learn More</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Distribution Tracking */}
         <div className="inner-blur-glass" style={styles.chartCard}>
           <div style={styles.cardHeader}>
             <FaTruck style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.distributionTitle}</h3>
-          </div>
-          <div style={styles.distributionList}>
-            {(content.distribution || []).map((item, index) => {
-              const Icon = seedIconMap[item.iconKey] || FaHandshake;
-              return (
-              <div key={item.id || index} style={styles.distributionItem}>
-                <span style={styles.distributionIcon}><Icon /></span>
-=======
             <h3 style={styles.cardTitle}>Distribution Tracking</h3>
           </div>
           <div style={styles.distributionList}>
             {distributionTracking.map((item) => (
               <div key={item.id} style={styles.distributionItem}>
                 <span style={styles.distributionIcon}>{item.icon}</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                 <div style={styles.distributionDetails}>
                   <span style={styles.distributionProgram}>{item.program}</span>
                   <span style={styles.distributionCount}>{item.count}</span>
@@ -240,39 +141,15 @@ function NativeSeedBankPage({ setActiveNav }) {
                   {item.status}
                 </span>
               </div>
-<<<<<<< HEAD
-              );
-            })}
-          </div>
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.distributionCtaLabel}</button>
-=======
             ))}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>View Reports</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Agricultural Sustainability Metrics */}
         <div className="inner-blur-glass" style={styles.metricsCard}>
           <div style={styles.cardHeader}>
             <FaChartLine style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.metricsTitle}</h3>
-          </div>
-          <div style={styles.metricsGrid}>
-            {(content.metrics || []).map((metric, index) => {
-              const Icon = seedIconMap[metric.iconKey] || FaAward;
-              return (
-                <div key={`${metric.label}-${index}`} style={styles.metricItem}>
-                  <Icon style={styles.metricIcon} />
-                  <span style={styles.metricValue}>{metric.value}</span>
-                  <span style={styles.metricLabel}>{metric.label}</span>
-                </div>
-              );
-            })}
-          </div>
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.metricsCtaLabel}</button>
-=======
             <h3 style={styles.cardTitle}>Sustainability Metrics</h3>
           </div>
           <div style={styles.metricsGrid}>
@@ -288,7 +165,6 @@ function NativeSeedBankPage({ setActiveNav }) {
             </div>
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Full Analytics</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
     </div>

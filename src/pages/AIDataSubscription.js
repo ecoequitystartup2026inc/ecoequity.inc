@@ -1,14 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaCheckCircle, FaStar, FaRobot, FaTimes, FaCreditCard, FaQrcode, FaChevronDown } from "react-icons/fa";
-<<<<<<< HEAD
-import { initialSubscriptionPlans } from "../subscriptionPlans";
-
-function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, subscriptionPlans = initialSubscriptionPlans }) {
-=======
 
 function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [isYearly, setIsYearly] = useState(false);
@@ -31,11 +25,6 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
   const [enterpriseRequests, setEnterpriseRequests] = useState([
     { id: 'REQ-001', name: 'Acme Corp', email: 'contact@acme.com', status: 'Pending' }
   ]);
-<<<<<<< HEAD
-  const visibleSubscriptionPlans = (Array.isArray(subscriptionPlans) && subscriptionPlans.length > 0 ? subscriptionPlans : initialSubscriptionPlans)
-    .filter(plan => plan.clientVisible !== false);
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   const comparisonFeatures = [
     { feature: "AI Plant Diagnostics", basic: "Basic", pro: "Advanced", enterprise: "Custom" },
@@ -45,21 +34,6 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
     { feature: "Free Trial", basic: "N/A", pro: "14 Days", enterprise: "30 Days" },
   ];
 
-<<<<<<< HEAD
-  const getPlanBillingType = (plan) => {
-    if (plan.billingType) return plan.billingType;
-    const monthlyPrice = String(plan.priceMonthly || "").toLowerCase();
-    if (monthlyPrice.includes("free")) return "free";
-    if (monthlyPrice.includes("custom")) return "contact";
-    return "paid";
-  };
-
-  const isPaidPlan = (plan) => getPlanBillingType(plan) === "paid";
-  const isContactPlan = (plan) => getPlanBillingType(plan) === "contact";
-  const isFreePlan = (plan) => getPlanBillingType(plan) === "free";
-
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const handlePlanClick = (plan) => {
     setSelectedPlanDetails(plan);
     setIsModalOpen(true);
@@ -94,11 +68,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
   const handleSubscribe = (e) => {
     e.preventDefault();
 
-<<<<<<< HEAD
-    if (isPaidPlan(selectedPlanDetails)) {
-=======
     if (selectedPlanDetails.name === 'Pro') {
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       if (formData.paymentMethod === 'Credit Card') {
         if (!formData.cardName || !formData.cardNumber || !formData.cardExpiry || !formData.cardCvv) {
           setMessage({ type: 'error', text: 'Please fill all credit card details.' });
@@ -124,21 +94,12 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
 
     setTimeout(() => {
       setIsLoading(false);
-<<<<<<< HEAD
-      if (isFreePlan(selectedPlanDetails)) {
-        setSubscriptionHistory([{ id: 'SUB-' + Math.floor(Math.random()*10000), plan: selectedPlanDetails.name, status: 'Active', date: new Date().toLocaleDateString(), nextBilling: 'N/A' }, ...subscriptionHistory]);
-      } else if (isContactPlan(selectedPlanDetails)) {
-        setEnterpriseRequests([{ id: 'REQ-' + Math.floor(Math.random()*10000), name: formData.name, email: formData.email, status: 'Pending' }, ...enterpriseRequests]);
-      } else {
-        setSubscriptionHistory([{ id: 'SUB-' + Math.floor(Math.random()*10000), plan: selectedPlanDetails.name, status: 'Active', date: new Date().toLocaleDateString(), nextBilling: isYearly ? 'Next Year' : 'Next Month' }, ...subscriptionHistory]);
-=======
       if (selectedPlanDetails.name === 'Basic') {
         setSubscriptionHistory([{ id: 'SUB-' + Math.floor(Math.random()*10000), plan: 'Basic', status: 'Active', date: new Date().toLocaleDateString(), nextBilling: 'N/A' }, ...subscriptionHistory]);
       } else if (selectedPlanDetails.name === 'Enterprise') {
         setEnterpriseRequests([{ id: 'REQ-' + Math.floor(Math.random()*10000), name: formData.name, email: formData.email, status: 'Pending' }, ...enterpriseRequests]);
       } else {
         setSubscriptionHistory([{ id: 'SUB-' + Math.floor(Math.random()*10000), plan: 'Pro', status: 'Active', date: new Date().toLocaleDateString(), nextBilling: isYearly ? 'Next Year' : 'Next Month' }, ...subscriptionHistory]);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       }
       setIsModalOpen(false);
       setShowPaymentSuccess(true);
@@ -230,11 +191,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
   };
 
   const calculateTotal = () => {
-<<<<<<< HEAD
-    if (isContactPlan(selectedPlanDetails)) return 'Custom';
-=======
     if (selectedPlanDetails.name === 'Enterprise') return 'Custom';
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     let rawPrice = isYearly ? selectedPlanDetails.priceYearly : selectedPlanDetails.priceMonthly;
     let numPrice = parseFloat(rawPrice.replace(/[^\d.]/g, '')) || 0;
     let total = Math.max(0, numPrice - discountAmount);
@@ -363,41 +320,6 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
       </div>
 
       {/* Pricing Cards */}
-<<<<<<< HEAD
-            <div className="slim-scroll" style={{ display: isMobile ? "flex" : "grid", gridTemplateColumns: isMobile ? "none" : "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px", overflowX: isMobile ? "auto" : "visible", scrollSnapType: isMobile ? "x mandatory" : "none", paddingBottom: isMobile ? "8px" : "0", width: "100%", maxWidth: visibleSubscriptionPlans.length > 3 ? "1120px" : "900px", margin: "0 auto 40px" }}>
-              {visibleSubscriptionPlans.map((plan) => {
-                const accent = plan.accentColor || plan.color || "#16a34a";
-                const color = plan.color || accent;
-                const isCurrentBasicPlan = plan.id === "PLAN-BASIC";
-                const cardShadow = plan.badge ? `0 8px 16px ${accent}26` : "0 12px 24px rgba(0,0,0,0.04)";
-                const hoverShadow = plan.badge ? `0 16px 32px ${accent}35` : "0 16px 32px rgba(0,0,0,0.08)";
-                const buttonLabel = isCurrentBasicPlan ? "Current Plan" : plan.ctaLabel || (isContactPlan(plan) ? "Contact Sales" : isFreePlan(plan) ? "Activate Free Plan" : "Subscribe Now");
-                return (
-                  <div key={plan.id || plan.name} style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "24px", borderRadius: "20px", border: plan.badge ? `2px solid ${accent}` : `1px solid ${accent}66`, background: plan.bg || "#ffffff", display: "flex", flexDirection: "column", position: "relative", transition: "all 0.2s ease", boxShadow: cardShadow }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = hoverShadow; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = cardShadow; }}>
-                    {plan.badge && (
-                      <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: `linear-gradient(135deg, ${accent}, ${color})`, color: "#ffffff", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: `0 4px 12px ${accent}4d`, animation: "pulseBadge 2s infinite ease-in-out", whiteSpace: "nowrap" }}>{plan.badge}</div>
-                    )}
-                    <h3 style={{ margin: "0 0 6px", fontSize: "18px", fontWeight: 800, color }}>{plan.name}</h3>
-                    <p style={{ margin: "0 0 16px", fontSize: "13px", color: "rgba(0,0,0,0.6)", lineHeight: 1.4 }}>{plan.description}</p>
-                    <div style={{ fontSize: "32px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
-                      {isYearly ? plan.priceYearly : plan.priceMonthly}
-                    </div>
-                    <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", marginBottom: "20px", fontWeight: 500 }}>
-                      {isYearly ? plan.billingNoteYearly : plan.billingNoteMonthly}
-                    </div>
-                    <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                      {(plan.features || []).map(feature => (
-                        <li key={feature} style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: plan.badge ? 600 : 500 }}><span style={{ color: accent, fontSize: "14px" }}>✓</span> {feature}</li>
-                      ))}
-                      {(plan.excludedFeatures || []).map(feature => (
-                        <li key={feature} style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}>✗</span> {feature}</li>
-                      ))}
-                    </ul>
-                    <button disabled={isCurrentBasicPlan} onClick={() => !isCurrentBasicPlan && handlePlanClick(plan)} style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: isCurrentBasicPlan ? "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))" : `linear-gradient(135deg, ${accent}, ${color})`, color: isCurrentBasicPlan ? "#062018" : "#ffffff", fontWeight: 800, fontSize: "14px", cursor: isCurrentBasicPlan ? "not-allowed" : "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: `0 18px 38px ${accent}42, inset 0 1px 0 rgba(255,255,255,0.48)`, opacity: isCurrentBasicPlan ? 0.7 : 1 }} onMouseEnter={(e) => { if(!isCurrentBasicPlan) { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = `0 22px 42px ${accent}59, inset 0 1px 0 rgba(255,255,255,0.48)`; } }} onMouseLeave={(e) => { if(!isCurrentBasicPlan) { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = `0 18px 38px ${accent}42, inset 0 1px 0 rgba(255,255,255,0.48)`; } }}>{buttonLabel}</button>
-                  </div>
-                );
-              })}
-=======
             <div className="slim-scroll" style={{ display: isMobile ? "flex" : "grid", gridTemplateColumns: isMobile ? "none" : "repeat(3, 1fr)", gap: "16px", overflowX: isMobile ? "auto" : "visible", scrollSnapType: isMobile ? "x mandatory" : "none", paddingBottom: isMobile ? "8px" : "0", width: "100%", maxWidth: "900px", margin: "0 auto 40px" }}>
               {/* Basic Plan */}
               <div style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "24px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.08)", background: "#ffffff", display: "flex", flexDirection: "column", position: "relative", transition: "all 0.2s ease", boxShadow: "0 12px 24px rgba(0,0,0,0.04)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = "0 16px 32px rgba(0,0,0,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = "0 12px 24px rgba(0,0,0,0.04)"; }}>
@@ -457,7 +379,6 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                 </ul>
                 <button onClick={() => handlePlanClick({name: 'Enterprise', priceMonthly: '₱1,499', priceYearly: '₱14,390'})} style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, #38bdf8, #0284c7)", color: "#ffffff", fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(14,165,233,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Contact Sales</button>
               </div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             </div>
 
           <h2 style={styles.comparisonTitle}>Plan Comparison</h2>
@@ -580,11 +501,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                   <h3 style={{ margin: "0 0 16px", fontSize: "18px", fontWeight: 800, color: "#000" }}>Order Summary</h3>
                   <div style={{ background: "#f8fafc", borderRadius: "16px", padding: "24px", border: "1px solid #e2e8f0" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-<<<<<<< HEAD
-                      <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: `linear-gradient(135deg, ${selectedPlanDetails.accentColor || selectedPlanDetails.color || "#16a34a"}, ${selectedPlanDetails.color || "#15803d"})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>✨</div>
-=======
                       <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, #eab308, #ca8a04)" : "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>✨</div>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                       <div>
                         <div style={{ fontSize: "16px", fontWeight: 800, color: "#0f172a" }}>{selectedPlanDetails.name} Plan</div>
                         <div style={{ fontSize: "13px", color: "#64748b", fontWeight: 500 }}>{isYearly ? 'Yearly' : 'Monthly'} Billing</div>
@@ -595,11 +512,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                       <span>Subtotal</span>
                       <span style={{ fontWeight: 600, color: "#0f172a" }}>{isYearly ? selectedPlanDetails.priceYearly : selectedPlanDetails.priceMonthly}</span>
                     </div>
-<<<<<<< HEAD
-                    {isYearly && isPaidPlan(selectedPlanDetails) && (
-=======
                     {isYearly && selectedPlanDetails.name !== 'Basic' && (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "14px", color: "#16a34a" }}>
                         <span>Annual Discount</span>
                         <span style={{ fontWeight: 600 }}>Included</span>
@@ -644,11 +557,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
 
               {/* Right Column: Payment Details & Submit */}
               <div style={{ display: "flex", flexDirection: "column", gap: "16px", order: isMobile ? 2 : 2 }}>
-<<<<<<< HEAD
-                {isPaidPlan(selectedPlanDetails) ? (
-=======
                 {selectedPlanDetails.name !== 'Basic' && selectedPlanDetails.name !== 'Enterprise' ? (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   <>
                     <h3 style={{ margin: "0 0 4px", fontSize: "18px", fontWeight: 800, color: "#000" }}>Payment Method</h3>
                     <div style={{ display: "flex", gap: "8px", background: "#f1f5f9", padding: "4px", borderRadius: "12px" }}>
@@ -717,17 +626,10 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                 ) : (
                    <div style={{ padding: "16px", background: "#f1f5f9", borderRadius: "12px", textAlign: "center", color: "#475569", display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center", flex: 1 }}>
                      <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "8px" }}>
-<<<<<<< HEAD
-                       {isFreePlan(selectedPlanDetails) ? '🎉' : '🤝'}
-                     </div>
-                     <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                       {isFreePlan(selectedPlanDetails) ? `No payment required for the ${selectedPlanDetails.name} plan.` : `Our sales team will contact you for ${selectedPlanDetails.name} billing.`}
-=======
                        {selectedPlanDetails.name === 'Basic' ? '🎉' : '🤝'}
                      </div>
                      <div style={{ fontSize: "14px", fontWeight: 600 }}>
                        {selectedPlanDetails.name === 'Basic' ? 'No payment required for the Basic plan.' : 'Our sales team will contact you for custom Enterprise billing.'}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                      </div>
                    </div>
                 )}
@@ -753,11 +655,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                   ) : (
                     <>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-<<<<<<< HEAD
-                      {isContactPlan(selectedPlanDetails) ? "Submit Inquiry" : (isFreePlan(selectedPlanDetails) ? "Activate Free Plan" : `Pay ${isYearly ? selectedPlanDetails.priceYearly : selectedPlanDetails.priceMonthly}`)}
-=======
                       {selectedPlanDetails.name === 'Enterprise' ? "Submit Inquiry" : (selectedPlanDetails.name === 'Basic' ? "Activate Free Plan" : `Pay ${isYearly ? selectedPlanDetails.priceYearly : selectedPlanDetails.priceMonthly}`)}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     </>
                   )}
                 </button>
@@ -776,31 +674,18 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
       {showPaymentSuccess && selectedPlanDetails && ReactDOM.createPortal(
         <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease" }}>
           <div style={{ background: "#ffffff", borderRadius: "24px", padding: isMobile ? "32px 24px" : "40px", maxWidth: "380px", width: "100%", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.15)", animation: "scaleUp 0.3s ease-out", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-<<<<<<< HEAD
-            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: `linear-gradient(135deg, ${selectedPlanDetails.accentColor || selectedPlanDetails.color || "#16a34a"}, ${selectedPlanDetails.color || "#15803d"})`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: `0 8px 16px ${selectedPlanDetails.accentColor || selectedPlanDetails.color || "#16a34a"}4d`, animation: "checkmarkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards" }}>
-=======
             <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, #eab308, #ca8a04)" : "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: selectedPlanDetails.name === 'Enterprise' ? "0 8px 16px rgba(14, 165, 233, 0.3)" : selectedPlanDetails.name === 'Pro' ? "0 8px 16px rgba(234, 179, 8, 0.3)" : "0 8px 16px rgba(22, 163, 74, 0.3)", animation: "checkmarkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards" }}>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "successDraw 0.6s ease-out 0.2s both" }}>
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
             <h2 style={{ margin: "0 0 12px", fontSize: "24px", fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>
-<<<<<<< HEAD
-              {isContactPlan(selectedPlanDetails) ? "Inquiry Submitted!" : "Payment Successful!"}
-            </h2>
-            <p style={{ margin: "0 0 32px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>
-              {isContactPlan(selectedPlanDetails) 
-                ? `Our sales team will contact you shortly to discuss your ${selectedPlanDetails.name} plan.`
-                : <>You are now successfully subscribed to the <strong style={{ color: selectedPlanDetails.color || "#15803d" }}>{selectedPlanDetails.name}</strong> plan.</>}
-=======
               {selectedPlanDetails.name === 'Enterprise' ? "Inquiry Submitted!" : "Payment Successful!"}
             </h2>
             <p style={{ margin: "0 0 32px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>
               {selectedPlanDetails.name === 'Enterprise' 
                 ? "Our sales team will contact you shortly to discuss your custom plan."
                 : <>You are now successfully subscribed to the <strong style={{ color: selectedPlanDetails.name === 'Pro' ? "#ca8a04" : "#15803d" }}>{selectedPlanDetails.name}</strong> plan.</>}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             </p>
             <button 
               onClick={() => setShowPaymentSuccess(false)}
@@ -988,8 +873,4 @@ const styles = {
   },
 };
 
-<<<<<<< HEAD
 export default AIDataSubscription;
-=======
-export default AIDataSubscription;
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d

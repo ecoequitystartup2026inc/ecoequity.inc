@@ -25,52 +25,10 @@ const supportPrograms = [
   },
 ];
 
-<<<<<<< HEAD
-const incomeIconMap = {
-  trend: FaArrowTrendUp,
-  users: FaUsers,
-  store: FaStore,
-};
-
-const defaultIncomeContent = {
-  header: {
-    badge: "Income Generation",
-    titleLead: "Economic",
-    titleAccent: "Empowerment",
-    description: "EcoEquity is transforming urban gardens into sustainable income streams, empowering Filipino households to earn while contributing to local food security.",
-  },
-  stats: incomeStats.map(stat => ({
-    label: stat.label,
-    value: stat.value,
-    progress: stat.id === 1 ? 45 : stat.id === 2 ? 70 : 63,
-    iconKey: stat.id === 1 ? "trend" : stat.id === 2 ? "users" : "store",
-  })),
-  chartTitle: "Community Adoption Growth",
-  chartBars: [
-    { label: "Urban Households", value: 85, color: "#16a34a" },
-    { label: "Micro-Vendors", value: 60, color: "#0284c7" },
-    { label: "B2B Surplus Units", value: 45, color: "#15803d" },
-  ],
-  programsTitle: "Support Programs",
-  programs: supportPrograms,
-  ctaLabel: "View Details",
-};
-
-function IncomeGenerationPage({ setActiveNav, sectorContent }) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isHoveredBack, setIsHoveredBack] = useState(false);
-  const [animate, setAnimate] = useState(false);
-  const content = {
-    ...defaultIncomeContent,
-    ...(sectorContent || {}),
-    header: { ...defaultIncomeContent.header, ...(sectorContent?.header || {}) },
-  };
-=======
 function IncomeGenerationPage({ setActiveNav }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [animate, setAnimate] = useState(false);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -113,51 +71,23 @@ function IncomeGenerationPage({ setActiveNav }) {
         </div>
         <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
           <span style={styles.badgeDot} />
-<<<<<<< HEAD
-          <span style={styles.glassContentLayer}>{content.header.badge}</span>
-=======
           <span style={styles.glassContentLayer}>Income Generation</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
-<<<<<<< HEAD
-        {content.header.titleLead} <span style={styles.titleAccent}>{content.header.titleAccent}</span>
-=======
         Economic <span style={styles.titleAccent}>Empowerment</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </h1>
       <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
-<<<<<<< HEAD
-        {content.header.description}
-=======
         EcoEquity is transforming urban gardens into sustainable income streams, empowering Filipino households to earn while contributing to local food security.
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </p>
 
       <div style={{ ...styles.dashboardGrid, ...(isMobile ? styles.dashboardGridMobile : {}) }}>
         
         {/* Animated Statistics Cards */}
         <div style={styles.statsRow}>
-<<<<<<< HEAD
-          {(content.stats || []).map((stat, index) => {
-            const Icon = incomeIconMap[stat.iconKey] || FaMoneyBillWave;
-            const progress = Math.max(0, Math.min(100, Number(stat.progress) || 0));
-            return (
-            <div key={`${stat.label}-${index}`} className="inner-blur-glass" style={styles.statCard}>
-              <div style={styles.statIcon}><Icon /></div>
-              <div style={styles.statValue}>{stat.value}</div>
-              <div style={styles.statLabel}>{stat.label}</div>
-              <div style={styles.statProgressTrack}>
-                <div style={{ ...styles.statProgressFill, width: `${progress}%` }} />
-              </div>
-            </div>
-            );
-          })}
-=======
           {incomeStats.map((stat) => (
             <div key={stat.id} className="inner-blur-glass" style={styles.statCard}>
               <div style={styles.statIcon}>{stat.icon}</div>
@@ -165,25 +95,12 @@ function IncomeGenerationPage({ setActiveNav }) {
               <div style={styles.statLabel}>{stat.label}</div>
             </div>
           ))}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
 
         {/* Community Growth Chart (Visual) */}
         <div className="inner-blur-glass" style={styles.chartCard}>
           <div style={styles.cardHeader}>
             <FaChartLine style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.chartTitle}</h3>
-          </div>
-          <div style={styles.chartContainer}>
-            {(content.chartBars || []).map((bar, i) => {
-              const barWidth = `${Math.max(0, Math.min(100, Number(bar.value) || 0))}%`;
-              return (
-              <div key={i} style={styles.chartBarGroup}>
-                <div style={styles.barLabelRow}>
-                  <span>{bar.label}</span>
-                  <span>{barWidth}</span>
-=======
             <h3 style={styles.cardTitle}>Community Adoption Growth</h3>
           </div>
           <div style={styles.chartContainer}>
@@ -196,7 +113,6 @@ function IncomeGenerationPage({ setActiveNav }) {
                 <div style={styles.barLabelRow}>
                   <span>{bar.label}</span>
                   <span>{bar.width}</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                 </div>
                 <div style={styles.barTrack}>
                   <div 
@@ -204,21 +120,12 @@ function IncomeGenerationPage({ setActiveNav }) {
                     style={{ 
                       ...styles.barFill, 
                       backgroundColor: bar.color, 
-<<<<<<< HEAD
-                      "--target-width": barWidth 
-=======
                       "--target-width": bar.width 
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     }} 
                   />
                 </div>
               </div>
-<<<<<<< HEAD
-              );
-            })}
-=======
             ))}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
           </div>
         </div>
 
@@ -226,42 +133,20 @@ function IncomeGenerationPage({ setActiveNav }) {
         <div className="inner-blur-glass" style={styles.programsCard}>
           <div style={styles.cardHeader}>
             <FaHandHoldingHeart style={styles.cardIcon} />
-<<<<<<< HEAD
-            <h3 style={styles.cardTitle}>{content.programsTitle}</h3>
-          </div>
-          <div style={styles.programList}>
-            {(content.programs || []).map((program, i) => {
-              const progress = Math.max(0, Math.min(100, Number(program.progress) || 0));
-              return (
-=======
             <h3 style={styles.cardTitle}>Support Programs</h3>
           </div>
           <div style={styles.programList}>
             {supportPrograms.map((program, i) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
               <div key={i} style={styles.programItem}>
                 <div style={styles.programText}>
                   <h4 style={styles.programTitle}>{program.title}</h4>
                   <p style={styles.programDesc}>{program.desc}</p>
-<<<<<<< HEAD
-                  <div style={styles.programProgressTrack}>
-                    <div style={{ ...styles.programProgressFill, width: `${progress}%` }} />
-                  </div>
-                </div>
-                <div style={styles.programImpactBadge}>{program.status || program.impact}</div>
-              </div>
-              );
-            })}
-          </div>
-          <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{content.ctaLabel}</button>
-=======
                 </div>
                 <div style={styles.programImpactBadge}>{program.impact}</div>
               </div>
             ))}
           </div>
           <button type="button" style={styles.ctaButton} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>View Details</button>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
     </div>
@@ -426,22 +311,6 @@ const styles = {
     textTransform: "uppercase",
     letterSpacing: "0.5px",
   },
-<<<<<<< HEAD
-  statProgressTrack: {
-    width: "100%",
-    height: "8px",
-    marginTop: "14px",
-    borderRadius: "999px",
-    background: "rgba(0,0,0,0.06)",
-    overflow: "hidden",
-  },
-  statProgressFill: {
-    height: "100%",
-    borderRadius: "999px",
-    background: "linear-gradient(90deg, #16a34a, #0284c7)",
-  },
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   chartCard: {
     padding: "24px",
     borderRadius: "24px",
@@ -507,22 +376,11 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-<<<<<<< HEAD
-    gap: "16px",
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     padding: "16px",
     background: "rgba(255,255,255,0.5)",
     borderRadius: "16px",
     border: "1px solid rgba(0,0,0,0.03)",
   },
-<<<<<<< HEAD
-  programText: {
-    flex: 1,
-    minWidth: 0,
-  },
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   programTitle: {
     fontSize: "15px",
     fontWeight: 700,
@@ -534,22 +392,6 @@ const styles = {
     margin: 0,
     lineHeight: 1.4,
   },
-<<<<<<< HEAD
-  programProgressTrack: {
-    width: "100%",
-    height: "8px",
-    marginTop: "10px",
-    borderRadius: "999px",
-    background: "rgba(0,0,0,0.06)",
-    overflow: "hidden",
-  },
-  programProgressFill: {
-    height: "100%",
-    borderRadius: "999px",
-    background: "linear-gradient(90deg, #16a34a, #0284c7)",
-  },
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   programImpactBadge: {
     padding: "6px 12px",
     borderRadius: "999px",

@@ -54,12 +54,9 @@ const mockAdvisors = [
   },
 ];
 
-<<<<<<< HEAD
-=======
 // Extract unique expertise categories for filtering
 const allExpertise = [...new Set(mockAdvisors.flatMap((advisor) => advisor.expertise))];
 
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 // Consultation pricing options
 const consultationTypes = [
   { id: "video", name: "Video Call", duration: "3 hours", price: 1000, icon: FaVideo, description: "Face-to-face video consultation" },
@@ -163,18 +160,7 @@ const defaultSuggestions = [
   "Sustainable farming tips"
 ];
 
-<<<<<<< HEAD
-const consultationIconMap = {
-  video: FaVideo,
-  phone: FaPhone,
-  chat: FaPaperPlane,
-  emergency: FaExclamationTriangle,
-};
-
-function ExpertSupportPage({ setActiveNav, expertSupportConfig }) {
-=======
 function ExpertSupportPage({ setActiveNav }) {
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -207,27 +193,6 @@ function ExpertSupportPage({ setActiveNav }) {
   const [chatInput, setChatInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
-<<<<<<< HEAD
-  const advisors = Array.isArray(expertSupportConfig?.advisors) && expertSupportConfig.advisors.length > 0 ? expertSupportConfig.advisors : mockAdvisors;
-  const expertiseCategories = [...new Set(advisors.flatMap((advisor) => advisor.expertise || []))];
-  const supportInfo = {
-    badge: "Expert Support",
-    titleLead: "Verified",
-    titleAccent: "Agriculture Specialists",
-    description: "Connect with our network of verified agriculture specialists and advisors for personalized guidance and support.",
-    emergencyNote: "Emergency consultations prioritize urgent agricultural issues and are charged a premium rate.",
-    ...(expertSupportConfig?.supportInfo || {}),
-  };
-  const configuredConsultationTypes = (Array.isArray(expertSupportConfig?.consultationTypes) && expertSupportConfig.consultationTypes.length > 0 ? expertSupportConfig.consultationTypes : consultationTypes).map(type => ({
-    ...type,
-    icon: consultationIconMap[type.id] || FaCalendarCheck,
-  }));
-  const configuredFaqs = Array.isArray(expertSupportConfig?.faqs) && expertSupportConfig.faqs.length > 0 ? expertSupportConfig.faqs : faqData;
-  const configuredTimeSlots = Array.isArray(expertSupportConfig?.timeSlots) && expertSupportConfig.timeSlots.length > 0 ? expertSupportConfig.timeSlots : timeSlots;
-  const configuredQuickSuggestions = expertSupportConfig?.quickSuggestions || quickSuggestionsData;
-  const configuredDefaultSuggestions = Array.isArray(expertSupportConfig?.defaultSuggestions) && expertSupportConfig.defaultSuggestions.length > 0 ? expertSupportConfig.defaultSuggestions : defaultSuggestions;
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -253,13 +218,8 @@ useEffect(() => {
 
   // Filter advisors based on selected filter
   const filteredAdvisors = selectedFilter === "All"
-<<<<<<< HEAD
-    ? advisors
-    : advisors.filter((advisor) => (advisor.expertise || []).includes(selectedFilter));
-=======
     ? mockAdvisors
     : mockAdvisors.filter((advisor) => advisor.expertise.includes(selectedFilter));
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
 
 const handleBookConsultation = (advisor, defaultType = null, isInstant = false) => {
     setSelectedAdvisor(advisor);
@@ -492,11 +452,7 @@ const handleConfirmBooking = () => {
       return "Great question! The best crops depend on your location, soil type, and season. For Philippine climate, consider heat-tolerant varieties. Would you like specific recommendations for your area or the current season?";
     }
     if (lowerInput.includes("help") || lowerInput.includes("how")) {
-<<<<<<< HEAD
-      return "I'm here to help! Based on my expertise in " + ((advisor.expertise || []).join(", ") || "sustainable agriculture") + ", I can provide guidance. Could you tell me more about your specific situation or what you're trying to grow?";
-=======
       return "I'm here to help! Based on my expertise in " + advisor.expertise.join(", ") + ", I can provide guidance. Could you tell me more about your specific situation or what you're trying to grow?";
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
     }
     if (lowerInput.includes("thank")) {
       return "You're welcome! Don't hesitate to ask if you have more questions. Good luck with your farming journey!";
@@ -506,11 +462,7 @@ const handleConfirmBooking = () => {
     }
     
     // Default response based on advisor expertise
-<<<<<<< HEAD
-    return `Thank you for your question! Based on my experience in ${(advisor.expertise || [])[0] || "sustainable agriculture"}, I'd be happy to provide more detailed information. Could you share more details about your specific situation? For example, what are you growing, and what challenges are you facing?`;
-=======
     return `Thank you for your question! Based on my experience in ${advisor.expertise[0]}, I'd be happy to provide more detailed information. Could you share more details about your specific situation? For example, what are you growing, and what challenges are you facing?`;
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   };
 
 const handleKeyDown = (e) => {
@@ -522,16 +474,6 @@ const handleKeyDown = (e) => {
 
   // Get quick suggestions based on advisor expertise
   const getQuickSuggestions = () => {
-<<<<<<< HEAD
-    if (!selectedAdvisorForChat) return configuredDefaultSuggestions;
-    
-    for (const exp of (selectedAdvisorForChat.expertise || [])) {
-      if (configuredQuickSuggestions[exp]) {
-        return configuredQuickSuggestions[exp];
-      }
-    }
-    return configuredDefaultSuggestions;
-=======
     if (!selectedAdvisorForChat) return defaultSuggestions;
     
     for (const exp of selectedAdvisorForChat.expertise) {
@@ -540,7 +482,6 @@ const handleKeyDown = (e) => {
       }
     }
     return defaultSuggestions;
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   };
 
   // Chat Modal Render
@@ -577,11 +518,7 @@ const handleKeyDown = (e) => {
                   if (isCallPaid) {
                     alert(`Calling ${selectedAdvisorForChat.name}...`);
                   } else {
-<<<<<<< HEAD
-                    handleBookConsultation(selectedAdvisorForChat, configuredConsultationTypes.find(t => t.id === "phone"), true);
-=======
                     handleBookConsultation(selectedAdvisorForChat, consultationTypes.find(t => t.id === "phone"), true);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   }
                 }}
                 title={isCallPaid ? "Voice Call" : "Locked: Book Phone Call"}
@@ -603,11 +540,7 @@ const handleKeyDown = (e) => {
                   if (isVideoPaid) {
                     alert(`Starting video call with ${selectedAdvisorForChat.name}...`);
                   } else {
-<<<<<<< HEAD
-                    handleBookConsultation(selectedAdvisorForChat, configuredConsultationTypes.find(t => t.id === "video"), true);
-=======
                     handleBookConsultation(selectedAdvisorForChat, consultationTypes.find(t => t.id === "video"), true);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   }
                 }}
                 title={isVideoPaid ? "Video Call" : "Locked: Book Video Call"}
@@ -700,11 +633,7 @@ const handleKeyDown = (e) => {
       const dateStr = selectedDate;
       const timeStr = selectedTime;
       const title = encodeURIComponent(`Consultation with ${selectedAdvisor.name}`);
-<<<<<<< HEAD
-      const details = encodeURIComponent(`${selectedType?.name} consultation about ${selectedTopic || (selectedAdvisor.expertise || [])[0] || "agriculture support"}`);
-=======
       const details = encodeURIComponent(`${selectedType?.name} consultation about ${selectedTopic || selectedAdvisor.expertise[0]}`);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dateStr.replace(/-/g, '')}/${dateStr.replace(/-/g, '')}&details=${details}`;
       window.open(calendarUrl, '_blank');
     }
@@ -725,11 +654,7 @@ const handleKeyDown = (e) => {
                 <img src={selectedAdvisor.image} alt={selectedAdvisor.name} style={modalStyles.advisorImg} />
                 <div>
                   <h3 style={modalStyles.advisorName}>{selectedAdvisor.name}</h3>
-<<<<<<< HEAD
-                  <span style={modalStyles.advisorExpertise}>{(selectedAdvisor.expertise || []).join(", ") || "Agriculture Support"}</span>
-=======
                   <span style={modalStyles.advisorExpertise}>{selectedAdvisor.expertise.join(", ")}</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                 </div>
               </div>
               
@@ -737,11 +662,7 @@ const handleKeyDown = (e) => {
               
               {/* Consultation Type Selection */}
               <div style={modalStyles.typeGrid}>
-<<<<<<< HEAD
-                {configuredConsultationTypes.map((type) => (
-=======
                 {consultationTypes.map((type) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   <button
                     key={type.id}
                     style={{ ...modalStyles.typeCard, ...(selectedType?.id === type.id ? modalStyles.typeCardSelected : {}) }}
@@ -758,11 +679,7 @@ const handleKeyDown = (e) => {
               {/* Emergency Consultation Notice */}
               <div style={modalStyles.emergencyNote}>
                 <FaExclamationTriangle style={{ marginRight: "8px" }} />
-<<<<<<< HEAD
-                <span>{supportInfo.emergencyNote}</span>
-=======
                 <span>Emergency consultations prioritize urgent agricultural issues and are charged a premium rate.</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
               </div>
 
               {/* FAQ Toggle */}
@@ -772,11 +689,7 @@ const handleKeyDown = (e) => {
               
               {showFaq && (
                 <div style={modalStyles.faqContainer}>
-<<<<<<< HEAD
-                  {configuredFaqs.map((faq, index) => (
-=======
                   {faqData.map((faq, index) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                     <div key={index} style={modalStyles.faqItem}>
                       <button style={modalStyles.faqQuestion} onClick={() => setFaqOpenIndex(faqOpenIndex === index ? null : index)}>
                         {faq.question} {faqOpenIndex === index ? "−" : "+"}
@@ -857,11 +770,7 @@ const handleKeyDown = (e) => {
                       </button>
                       {showTopicDropdown && (
                         <div style={modalStyles.customDropdownList}>
-<<<<<<< HEAD
-                          {(selectedAdvisor.expertise || []).map((topic) => (
-=======
                           {selectedAdvisor.expertise.map((topic) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                             <div 
                               key={topic} 
                               onClick={() => { setSelectedTopic(topic); setShowTopicDropdown(false); }}
@@ -1008,11 +917,7 @@ const handleKeyDown = (e) => {
                   <div style={modalStyles.formGroup}>
                     <label style={modalStyles.label}>Preferred Time</label>
                     <div style={modalStyles.timeSlots}>
-<<<<<<< HEAD
-                      {configuredTimeSlots.map((time) => (
-=======
                       {timeSlots.map((time) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                         <button
                           key={time}
                           style={{ ...modalStyles.timeSlot, ...(selectedTime === time ? modalStyles.timeSlotSelected : {}) }}
@@ -1247,29 +1152,17 @@ return (
         </div>
         <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
           <span style={styles.badgeDot} />
-<<<<<<< HEAD
-          <span>{supportInfo.badge}</span>
-=======
           <span>Expert Support</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
         </div>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
-<<<<<<< HEAD
-        {supportInfo.titleLead} <span style={styles.accent}>{supportInfo.titleAccent}</span>
-=======
         Verified <span style={styles.accent}>Agriculture Specialists</span>
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </h1>
       <div style={styles.titleUnderline} />
 
 <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
-<<<<<<< HEAD
-        {supportInfo.description}
-=======
         Connect with our network of verified agriculture specialists and advisors for personalized guidance and support.
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
       </p>
 
       {/* Filter Buttons */}
@@ -1283,11 +1176,7 @@ return (
         >
           All
         </button>
-<<<<<<< HEAD
-        {expertiseCategories.map((category) => (
-=======
         {allExpertise.map((category) => (
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
           <button
             key={category}
             style={{
@@ -1316,19 +1205,8 @@ return (
             onMouseLeave={() => setHoveredCard(null)}
           >
             <span aria-hidden="true" style={styles.cardInnerBlur} />
-<<<<<<< HEAD
-            <div style={styles.profileHeader}> {/* Conditional rendering for advisor image */}
-              {advisor.image ? (
-                <img src={advisor.image} alt={advisor.name} style={styles.profileImage} />
-              ) : (
-                <div style={{ ...styles.profileImage, ...styles.blankImagePlaceholder }}>
-                  {/* Blank placeholder */}
-                </div>
-              )}
-=======
             <div style={styles.profileHeader}>
               <img src={advisor.image} alt={advisor.name} style={styles.profileImage} />
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
               <div style={styles.nameAndBadge}>
                 <h3 style={styles.advisorName}>{advisor.name}</h3>
                 {advisor.verified && <span style={styles.verifiedBadge}><FaCheckCircle /> Verified</span>}
@@ -1345,11 +1223,7 @@ return (
               <span style={styles.scheduleItem}><FaClock color="#15803d" /> {advisor.availableTime}</span>
             </div>
             <p style={styles.expertise}>
-<<<<<<< HEAD
-              <strong>Expertise:</strong> {(advisor.expertise || []).join(", ") || "Agriculture Support"}
-=======
               <strong>Expertise:</strong> {advisor.expertise.join(", ")}
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
             </p>
             <p style={styles.bio}>{advisor.bio}</p>
 <div style={styles.ctaButtons}>
@@ -1368,11 +1242,7 @@ return (
                   if (isChatPaid) {
                     handleOpenChat(advisor);
                   } else {
-<<<<<<< HEAD
-                    handleBookConsultation(advisor, configuredConsultationTypes.find(t => t.id === "chat"), true);
-=======
                     handleBookConsultation(advisor, consultationTypes.find(t => t.id === "chat"), true);
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
                   }
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.025)'} 
@@ -1588,17 +1458,6 @@ bodyMobile: {
     border: "3px solid #4ade80",
     boxShadow: "0 4px 12px rgba(74,222,128,0.3)",
   },
-<<<<<<< HEAD
-  blankImagePlaceholder: {
-    backgroundColor: "#f0fdf4", // Light green background for blank image
-    border: "3px solid #dcfce7",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "24px", // Optional: adjust size if you want an initial or icon
-  },
-=======
->>>>>>> 3301e12094f6b1e0be4555d6b4e832fd0a5b230d
   nameAndBadge: {
     display: "flex",
     flexDirection: "column",
