@@ -16,6 +16,7 @@ const mockStats = [
 ];
 
 const ORDERS_STORAGE_KEY = "verdeversity_orders";
+const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
 
 const mockTopProducts = [
   { name: "Heirloom Tomatoes", sales: "1,240", rev: "₱186K", stock: "In Stock", emoji: "🍅" },
@@ -407,7 +408,29 @@ const mockSettingsStats = [
   { label: "API Health", value: "Stable", trend: "< 200ms ping", up: true, icon: <Globe size={16} color="#8b5cf6" /> },
 ];
 
-export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders }) {
+const supportStatusOptions = [
+  { value: "All", label: "All Statuses" },
+  { value: "Open", label: "Open" },
+  { value: "In Review", label: "In Review" },
+  { value: "Waiting for Customer", label: "Waiting for Customer" },
+  { value: "Resolved", label: "Resolved" },
+];
+
+const supportPriorityOptions = [
+  { value: "Normal", label: "Normal" },
+  { value: "High", label: "High" },
+  { value: "Urgent", label: "Urgent" },
+];
+
+const supportAssigneeOptions = [
+  { value: "Unassigned", label: "Unassigned" },
+  { value: "Admin Support", label: "Admin Support" },
+  { value: "Technical Team", label: "Technical Team" },
+  { value: "Billing Team", label: "Billing Team" },
+  { value: "Product Specialist", label: "Product Specialist" },
+];
+
+export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders, supportTickets = [], setSupportTickets }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [hoveredStat, setHoveredStat] = useState(null);
   
@@ -480,6 +503,10 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [activeSettingsTab, setActiveSettingsTab] = useState("General");
 
   const [editingPromo, setEditingPromo] = useState(null);
+  const [selectedSupportTicket, setSelectedSupportTicket] = useState(null);
+  const [supportSearchTerm, setSupportSearchTerm] = useState("");
+  const [supportStatusFilter, setSupportStatusFilter] = useState("All");
+  const [supportReplyText, setSupportReplyText] = useState("");
   
   const [isAdminNotifOpen, setIsAdminNotifOpen] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState([
@@ -619,6 +646,66 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     } catch (error) {
       setToastMessage("Could not refresh orders.");
     }
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleRefreshSupportTickets = () => {
+    try {
+      const savedTickets = localStorage.getItem(SUPPORT_TICKETS_STORAGE_KEY);
+      if (!savedTickets) {
+        setToastMessage("No saved support tickets to refresh.");
+        setTimeout(() => setToastMessage(null), 3000);
+        return;
+      }
+
+      const parsedTickets = JSON.parse(savedTickets);
+      if (!Array.isArray(parsedTickets)) {
+        throw new Error("Invalid support tickets payload");
+      }
+
+      if (setSupportTickets) {
+        setSupportTickets(parsedTickets);
+      }
+      setSelectedSupportTicket(null);
+      setToastMessage("Support tickets refreshed.");
+    } catch (error) {
+      setToastMessage("Could not refresh support tickets.");
+    }
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleUpdateSupportTicket = (ticketId, updates) => {
+    if (!setSupportTickets) return;
+    const updatedAt = new Date().toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    setSupportTickets((supportTickets || []).map(ticket => (
+      ticket.id === ticketId ? { ...ticket, ...updates, lastUpdate: updatedAt } : ticket
+    )));
+    setSelectedSupportTicket(prev => (
+      prev && prev.id === ticketId ? { ...prev, ...updates, lastUpdate: updatedAt } : prev
+    ));
+  };
+
+  const handleSendSupportReply = () => {
+    if (!selectedSupportTicket || !supportReplyText.trim()) return;
+    const reply = {
+      sender: "Admin",
+      message: supportReplyText.trim(),
+      time: "Just now",
+    };
+    const replies = [...(selectedSupportTicket.replies || []), reply];
+    handleUpdateSupportTicket(selectedSupportTicket.id, {
+      replies,
+      status: selectedSupportTicket.status === "Resolved" ? "Resolved" : "Waiting for Customer",
+      assignee: selectedSupportTicket.assignee || "Admin Support",
+    });
+    setSupportReplyText("");
+    setToastMessage("Support reply added.");
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -978,6 +1065,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     { name: "Orders", icon: ShoppingCart },
     { name: "Deliveries", icon: Truck },
     { name: "Delivered Reports", icon: CheckCircle },
+    { name: "Support Tickets", icon: Ticket },
     { name: "Payments", icon: CreditCard },
     { name: "Subscriptions", icon: Repeat },
     { name: "Events & Workshops", icon: CalendarDays },
@@ -1013,6 +1101,29 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   });
 
   const deliveredReportsList = deliveriesList.filter(delivery => delivery.status === "Delivered");
+
+  const openSupportTicketsCount = (supportTickets || []).filter(ticket => ticket.status !== "Resolved").length;
+  const urgentSupportTicketsCount = (supportTickets || []).filter(ticket => ticket.priority === "Urgent" || ticket.priority === "High").length;
+  const dashboardStats = [
+    ...mockStats,
+    {
+      label: "Open Tickets",
+      value: String(openSupportTicketsCount),
+      trend: urgentSupportTicketsCount > 0 ? `${urgentSupportTicketsCount} priority` : "Clear",
+      up: urgentSupportTicketsCount === 0,
+      icon: <Ticket size={16} color="#7c3aed" />,
+    },
+  ];
+  const filteredSupportTickets = (supportTickets || []).filter(ticket => {
+    const query = supportSearchTerm.toLowerCase();
+    const matchesSearch = !query ||
+      ticket.id.toLowerCase().includes(query) ||
+      ticket.subject.toLowerCase().includes(query) ||
+      ticket.name.toLowerCase().includes(query) ||
+      ticket.email.toLowerCase().includes(query);
+    const matchesStatus = supportStatusFilter === "All" || ticket.status === supportStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const filteredTransactionsList = mockTransactions.filter(txn => {
     const matchesSearch = txn.id.toLowerCase().includes(paymentSearchTerm.toLowerCase()) || 
@@ -1762,6 +1873,106 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
           </div>
         </div>
       )}
+      {selectedSupportTicket && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", animation: "fadeIn 0.3s ease" }} onClick={() => setSelectedSupportTicket(null)}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "30px", borderRadius: "26px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 24px 70px rgba(15,23,42,0.2)", width: "min(820px, 100%)", maxHeight: "calc(100vh - 48px)", overflowY: "auto", position: "relative" }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedSupportTicket(null)} style={{ position: "absolute", top: "18px", right: "18px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "34px", height: "34px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
+
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "20px", marginBottom: "22px", paddingRight: "36px" }}>
+              <div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "10px" }}>
+                  <span style={{ padding: "4px 10px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d", fontSize: "11px", fontWeight: 800 }}>{selectedSupportTicket.id}</span>
+                  <span style={{ padding: "4px 10px", borderRadius: "999px", background: selectedSupportTicket.priority === "Urgent" || selectedSupportTicket.priority === "High" ? "rgba(220,38,38,0.1)" : "rgba(2,132,199,0.1)", color: selectedSupportTicket.priority === "Urgent" || selectedSupportTicket.priority === "High" ? "#dc2626" : "#0284c7", fontSize: "11px", fontWeight: 800 }}>{selectedSupportTicket.priority || "Normal"}</span>
+                  <span style={{ padding: "4px 10px", borderRadius: "999px", ...getStatusStyle(selectedSupportTicket.status), fontSize: "11px", fontWeight: 800 }}>{selectedSupportTicket.status}</span>
+                </div>
+                <h2 style={{ margin: "0 0 8px", fontSize: "24px", fontWeight: 850, color: "#000", lineHeight: 1.2 }}>{selectedSupportTicket.subject}</h2>
+                <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.58)", fontWeight: 600 }}>{selectedSupportTicket.name} • {selectedSupportTicket.email} • {selectedSupportTicket.createdAt}</p>
+              </div>
+              <div style={{ width: "180px", flexShrink: 0 }}>
+                <AdminEcoDropdown
+                  value={selectedSupportTicket.status}
+                  options={supportStatusOptions.filter(option => option.value !== "All")}
+                  onChange={(value) => handleUpdateSupportTicket(selectedSupportTicket.id, { status: value })}
+                  compact
+                  align="right"
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "18px", marginBottom: "18px" }}>
+              <div style={{ ...ecoGlassPanelStyle, borderRadius: "18px", padding: "18px" }}>
+                <h3 style={{ margin: "0 0 10px", fontSize: "13px", fontWeight: 850, color: "#064e3b", textTransform: "uppercase", letterSpacing: "0.4px" }}>Customer Description</h3>
+                <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.55, color: "rgba(0,0,0,0.72)" }}>{selectedSupportTicket.description}</p>
+              </div>
+              <div style={{ ...ecoGlassPanelStyle, borderRadius: "18px", padding: "18px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 850, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", marginBottom: "6px" }}>Category</div>
+                  <div style={{ fontSize: "14px", fontWeight: 800, color: "#000" }}>{selectedSupportTicket.category}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 850, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", marginBottom: "6px" }}>Attachment</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "rgba(0,0,0,0.68)" }}>{selectedSupportTicket.attachmentName || "No attachment"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 850, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", marginBottom: "6px" }}>Assignee</div>
+                  <AdminEcoDropdown
+                    value={selectedSupportTicket.assignee || "Unassigned"}
+                    options={supportAssigneeOptions}
+                    onChange={(value) => handleUpdateSupportTicket(selectedSupportTicket.id, { assignee: value })}
+                    compact
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 850, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", marginBottom: "6px" }}>Priority</div>
+                  <AdminEcoDropdown
+                    value={selectedSupportTicket.priority || "Normal"}
+                    options={supportPriorityOptions}
+                    onChange={(value) => handleUpdateSupportTicket(selectedSupportTicket.id, { priority: value })}
+                    compact
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ ...ecoGlassPanelStyle, borderRadius: "18px", padding: "18px", marginBottom: "18px" }}>
+              <h3 style={{ margin: "0 0 14px", fontSize: "13px", fontWeight: 850, color: "#064e3b", textTransform: "uppercase", letterSpacing: "0.4px" }}>Admin Replies</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "14px" }}>
+                {(selectedSupportTicket.replies || []).length > 0 ? (
+                  selectedSupportTicket.replies.map((reply, idx) => (
+                    <div key={`${reply.time}-${idx}`} style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginBottom: "4px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 850, color: "#15803d" }}>{reply.sender}</span>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)" }}>{reply.time}</span>
+                      </div>
+                      <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.72)", lineHeight: 1.45 }}>{reply.message}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", padding: "12px", borderRadius: "14px", border: "1px dashed rgba(0,0,0,0.12)" }}>No admin replies yet.</div>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                <textarea
+                  value={supportReplyText}
+                  onChange={(e) => setSupportReplyText(e.target.value)}
+                  placeholder="Write an internal/admin reply for this ticket..."
+                  rows={3}
+                  style={{ ...ecoGlassInputStyle, flex: 1, resize: "vertical", fontFamily: "inherit", lineHeight: 1.4 }}
+                />
+                <button onClick={handleSendSupportReply} style={{ ...ecoPrimaryButtonStyle, padding: "12px 16px", borderRadius: "14px", fontSize: "13px", fontWeight: 850, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                  <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
+                  <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "8px" }}><Send size={15} /> Reply</span>
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", flexWrap: "wrap" }}>
+              <button onClick={() => handleUpdateSupportTicket(selectedSupportTicket.id, { status: "In Review", assignee: selectedSupportTicket.assignee || "Admin Support" })} style={{ padding: "11px 16px", borderRadius: "12px", border: "none", background: "rgba(2,132,199,0.1)", color: "#0284c7", fontWeight: 850, fontSize: "13px", cursor: "pointer" }}>Mark In Review</button>
+              <button onClick={() => handleUpdateSupportTicket(selectedSupportTicket.id, { status: "Resolved" })} style={{ padding: "11px 16px", borderRadius: "12px", border: "none", background: "rgba(22,163,74,0.12)", color: "#15803d", fontWeight: 850, fontSize: "13px", cursor: "pointer" }}>Resolve Ticket</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Sidebar */}
       <aside className="inner-blur-glass" style={styles.sidebar}>
         <div style={styles.sidebarHeader}>
@@ -1850,7 +2061,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
           <div style={styles.dashboardContainer}>
             {/* Stats Grid */}
             <div style={styles.statsGrid}>
-              {mockStats.map((stat, idx) => (
+              {dashboardStats.map((stat, idx) => (
                 <div 
                   key={idx} 
                   className="inner-blur-glass" 
@@ -1956,6 +2167,37 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              {/* Support Queue */}
+              <div className="inner-blur-glass" style={styles.chartCard}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <h3 style={{ ...styles.cardHeading, display: "flex", alignItems: "center", gap: "8px" }}><Ticket size={16} color="#7c3aed" /> Support Queue</h3>
+                  <button onClick={() => setActiveTab("Support Tickets")} style={styles.textBtn}>Manage</button>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {(supportTickets || []).slice(0, 4).map(ticket => (
+                    <button
+                      key={ticket.id}
+                      onClick={() => setSelectedSupportTicket(ticket)}
+                      style={{ padding: "10px", background: "rgba(255,255,255,0.56)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px" }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", alignItems: "center" }}>
+                        <span style={{ fontSize: "12px", fontWeight: 850, color: "#000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ticket.subject}</span>
+                        <span style={{ padding: "3px 7px", borderRadius: "999px", fontSize: "10px", fontWeight: 800, flexShrink: 0, ...getStatusStyle(ticket.status) }}>{ticket.status}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", fontSize: "11px", color: "rgba(0,0,0,0.52)", fontWeight: 700 }}>
+                        <span>{ticket.id} • {ticket.category}</span>
+                        <span>{ticket.priority || "Normal"}</span>
+                      </div>
+                    </button>
+                  ))}
+                  {(supportTickets || []).length === 0 && (
+                    <div style={{ padding: "18px", borderRadius: "12px", border: "1px dashed rgba(0,0,0,0.1)", color: "rgba(0,0,0,0.5)", fontSize: "12px", textAlign: "center", fontWeight: 700 }}>
+                      No support tickets yet.
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2738,6 +2980,130 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "Support Tickets" ? (
+          <div style={styles.dashboardContainer}>
+            <div style={{ ...styles.statsGrid, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+              {[
+                { label: "Open Tickets", value: openSupportTicketsCount, trend: "Needs action", icon: <Ticket size={16} color="#7c3aed" />, color: "#7c3aed" },
+                { label: "Priority Cases", value: urgentSupportTicketsCount, trend: "High/Urgent", icon: <AlertCircle size={16} color="#dc2626" />, color: "#dc2626" },
+                { label: "Resolved", value: (supportTickets || []).filter(ticket => ticket.status === "Resolved").length, trend: "Closed", icon: <CheckCircle size={16} color="#15803d" />, color: "#15803d" },
+                { label: "Total Tickets", value: (supportTickets || []).length, trend: "All time", icon: <MessageSquare size={16} color="#0284c7" />, color: "#0284c7" },
+              ].map((stat) => (
+                <div key={stat.label} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                    <span style={{ ...styles.trendBadge, color: stat.color, background: `${stat.color}18` }}>{stat.trend}</span>
+                  </div>
+                  <div style={{ ...styles.statValue, color: stat.color }}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "14px" }}>
+                  <div>
+                    <h3 style={{ ...styles.cardHeading, fontSize: "18px", display: "flex", alignItems: "center", gap: "8px" }}><Ticket size={18} color="#7c3aed" /> Ticket Inbox</h3>
+                    <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600, marginTop: "4px" }}>Support requests submitted from the website ticket button.</div>
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    <button onClick={handleRefreshSupportTickets} style={{ ...styles.textBtn, display: "flex", alignItems: "center", gap: "6px", background: "rgba(22,163,74,0.1)", color: "#15803d", padding: "8px 12px", borderRadius: "999px" }}><RefreshCcw size={13} /> Refresh</button>
+                    <div style={{ ...styles.searchBar, background: "rgba(0,0,0,0.03)" }}>
+                      <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
+                      <input type="text" placeholder="Search tickets..." value={supportSearchTerm} onChange={(e) => setSupportSearchTerm(e.target.value)} style={styles.searchInput} />
+                    </div>
+                    <div style={{ width: "170px" }}>
+                      <AdminEcoDropdown
+                        value={supportStatusFilter}
+                        options={supportStatusOptions}
+                        onChange={setSupportStatusFilter}
+                        compact
+                        align="right"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ ...styles.table, width: "100%", minWidth: "820px" }}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Ticket</th>
+                        <th style={styles.th}>Customer</th>
+                        <th style={styles.th}>Category</th>
+                        <th style={styles.th}>Priority</th>
+                        <th style={styles.th}>Status</th>
+                        <th style={styles.th}>Assignee</th>
+                        <th style={styles.th}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSupportTickets.length > 0 ? filteredSupportTickets.map(ticket => (
+                        <tr key={ticket.id} style={styles.tr}>
+                          <td style={{ ...styles.td, whiteSpace: "normal", minWidth: "230px" }}>
+                            <div style={{ fontWeight: 850, color: "#000", marginBottom: "3px" }}>{ticket.subject}</div>
+                            <div style={{ fontSize: "11px", color: "#15803d", fontWeight: 800 }}>{ticket.id}</div>
+                          </td>
+                          <td style={{ ...styles.td, whiteSpace: "normal", minWidth: "160px" }}>
+                            <div style={{ fontWeight: 750 }}>{ticket.name}</div>
+                            <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.52)", marginTop: "2px" }}>{ticket.email}</div>
+                          </td>
+                          <td style={styles.td}>{ticket.category}</td>
+                          <td style={styles.td}>
+                            <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, background: ticket.priority === "Urgent" || ticket.priority === "High" ? "rgba(220,38,38,0.1)" : "rgba(2,132,199,0.1)", color: ticket.priority === "Urgent" || ticket.priority === "High" ? "#dc2626" : "#0284c7" }}>{ticket.priority || "Normal"}</span>
+                          </td>
+                          <td style={styles.td}>
+                            <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, ...getStatusStyle(ticket.status) }}>{ticket.status}</span>
+                          </td>
+                          <td style={styles.td}>{ticket.assignee || "Unassigned"}</td>
+                          <td style={styles.td}>
+                            <button onClick={() => setSelectedSupportTicket(ticket)} style={{ ...styles.actionBtn, color: "#7c3aed", background: "rgba(124,58,237,0.1)", padding: "6px 12px", fontWeight: 850, fontSize: "11px" }}>Open</button>
+                          </td>
+                        </tr>
+                      )) : (
+                        <tr style={styles.tr}>
+                          <td colSpan="7" style={{ ...styles.td, textAlign: "center", padding: "30px", color: "rgba(0,0,0,0.55)", fontWeight: 750 }}>
+                            No support tickets match this filter.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "22px" }}>
+                  <h3 style={{ ...styles.cardHeading, marginBottom: "14px" }}>Queue Health</h3>
+                  {[
+                    { label: "Open", count: openSupportTicketsCount, color: "#7c3aed", pct: (supportTickets || []).length ? `${Math.min((openSupportTicketsCount / (supportTickets || []).length) * 100, 100)}%` : "0%" },
+                    { label: "Priority", count: urgentSupportTicketsCount, color: "#dc2626", pct: (supportTickets || []).length ? `${Math.min((urgentSupportTicketsCount / (supportTickets || []).length) * 100, 100)}%` : "0%" },
+                    { label: "Resolved", count: (supportTickets || []).filter(ticket => ticket.status === "Resolved").length, color: "#15803d", pct: (supportTickets || []).length ? `${Math.min(((supportTickets || []).filter(ticket => ticket.status === "Resolved").length / (supportTickets || []).length) * 100, 100)}%` : "0%" },
+                  ].map(item => (
+                    <div key={item.label} style={{ marginBottom: "12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.68)", marginBottom: "5px" }}>
+                        <span>{item.label}</span>
+                        <span>{item.count}</span>
+                      </div>
+                      <div style={{ height: "7px", borderRadius: "999px", background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
+                        <div style={{ width: item.pct, height: "100%", borderRadius: "999px", background: item.color }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "22px" }}>
+                  <h3 style={{ ...styles.cardHeading, marginBottom: "14px" }}>Quick Actions</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <button onClick={() => setSupportStatusFilter("Open")} style={{ padding: "11px 12px", borderRadius: "12px", border: "none", background: "rgba(124,58,237,0.1)", color: "#7c3aed", fontWeight: 850, cursor: "pointer", textAlign: "left" }}>View Open Tickets</button>
+                    <button onClick={() => setSupportStatusFilter("In Review")} style={{ padding: "11px 12px", borderRadius: "12px", border: "none", background: "rgba(2,132,199,0.1)", color: "#0284c7", fontWeight: 850, cursor: "pointer", textAlign: "left" }}>View In Review</button>
+                    <button onClick={() => setSupportStatusFilter("Resolved")} style={{ padding: "11px 12px", borderRadius: "12px", border: "none", background: "rgba(22,163,74,0.1)", color: "#15803d", fontWeight: 850, cursor: "pointer", textAlign: "left" }}>View Resolved</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

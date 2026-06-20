@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { FaHeadset } from "react-icons/fa";
-import SupportTicketModal from "../SupportTicketModal";
 
 const productServicesCards = [
   { 
@@ -24,7 +22,6 @@ function ProductServices({ setActiveNav }) {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -130,21 +127,6 @@ function ProductServices({ setActiveNav }) {
           ))}
         </div>
       )}
-
-      {/* Floating Support Ticket Button */}
-      <button
-        type="button"
-        style={{...styles.floatingSupportBtn, ...(isMobile ? styles.floatingSupportBtnMobile : {})}}
-        onClick={() => setIsSupportModalOpen(true)}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05) translateY(-5px)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1) translateY(0)")}
-      >
-        <FaHeadset size={isMobile ? 20 : 18} />
-        {!isMobile && <span style={{ marginLeft: "8px" }}>Support</span>}
-      </button>
-
-      {/* Support Ticket Modal */}
-      <SupportTicketModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
     </div>
   );
 }
@@ -366,32 +348,6 @@ const styles = {
     background: "#4ade80",
     transform: "scale(1.25)",
     boxShadow: "0 0 10px rgba(74, 222, 128, 0.4)",
-  },
-  floatingSupportBtn: {
-    position: "fixed",
-    bottom: "30px",
-    right: "30px",
-    zIndex: 999,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "14px 22px",
-    borderRadius: "999px",
-    background: "linear-gradient(135deg, #4ade80, #7dd3fc)",
-    border: "1px solid rgba(255,255,255,0.4)",
-    color: "#062018",
-    fontSize: "14px",
-    fontWeight: 700,
-    cursor: "pointer",
-    boxShadow: "0 10px 25px rgba(34,197,94,0.3), inset 0 1px 0 rgba(255,255,255,0.5)",
-    transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-    backdropFilter: "blur(10px)",
-    animation: "floatPulse 4s infinite ease-in-out",
-  },
-  floatingSupportBtnMobile: {
-    padding: "16px",
-    bottom: "20px",
-    right: "20px",
   },
 };
 

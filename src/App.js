@@ -28,9 +28,10 @@ import SurplusExchangePage from "./pages/SurplusExchangePage"; // Corrected path
 import CheckoutPage from "./pages/CheckoutPage"; // Import the CheckoutPage
 import AdminPortal from "./pages/AdminPortal"; // Import the AdminPortal
 import SeasonalHarvestPage from "./pages/SeasonalHarvestPage";
+import SupportTicketModal from "./SupportTicketModal";
 
 import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
-import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell, FaCalendar } from "react-icons/fa";
+import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell } from "react-icons/fa";
 import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound } from "lucide-react";
 import { BiCalendarEvent } from "react-icons/bi";
 const navItems = ["Home", "About Us", "Product & Services", "Target Market", "Our Team", "Seasonal Harvest"];
@@ -76,6 +77,7 @@ const initialOrders = [
 ];
 
 const ORDERS_STORAGE_KEY = "verdeversity_orders";
+const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
 
 const getInitialOrders = () => {
   try {
@@ -85,6 +87,17 @@ const getInitialOrders = () => {
     return Array.isArray(parsedOrders) ? parsedOrders : initialOrders;
   } catch (error) {
     return initialOrders;
+  }
+};
+
+const getInitialSupportTickets = () => {
+  try {
+    const savedTickets = localStorage.getItem(SUPPORT_TICKETS_STORAGE_KEY);
+    if (!savedTickets) return [];
+    const parsedTickets = JSON.parse(savedTickets);
+    return Array.isArray(parsedTickets) ? parsedTickets : [];
+  } catch (error) {
+    return [];
   }
 };
 
@@ -170,6 +183,7 @@ function App() {
   const [hoveredSocialBtn, setHoveredSocialBtn] = useState(null); // State for social login buttons
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [loggedInEmail, setLoggedInEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
@@ -234,6 +248,9 @@ function App() {
   const [products, setProducts] = useState(initialProducts); // Global product state
   const [harvests, setHarvests] = useState(initialHarvests); // Global harvests state
   const [promoCodes, setPromoCodes] = useState(initialPromoCodes); // Global promo codes state
+  const [supportTickets, setSupportTickets] = useState(getInitialSupportTickets);
+  const [showSupportTicketModal, setShowSupportTicketModal] = useState(false);
+  const [supportFabHovered, setSupportFabHovered] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -251,6 +268,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
   }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem(SUPPORT_TICKETS_STORAGE_KEY, JSON.stringify(supportTickets));
+  }, [supportTickets]);
 
   const handleNotify = (cropName) => {
     setNotifications(prev => [
@@ -273,6 +294,7 @@ function App() {
         setIsLoggedIn(true);
         setIsAdmin(true);
         setLoggedInUser("Admin");
+        setLoggedInEmail(email);
         handleNavChange("Admin Portal");
         setEmail("");
         setPassword("");
@@ -285,6 +307,7 @@ function App() {
     setTimeout(() => {
       setIsLoggedIn(true);
       setLoggedInUser(email.split('@')[0] || "User");
+      setLoggedInEmail(email);
       handleNavChange("Home");
       setEmail("");
       setPassword("");
@@ -316,6 +339,7 @@ function App() {
     setTimeout(() => {
       setIsLoggedIn(true);
       setLoggedInUser(fullName.split(' ')[0] || "User");
+      setLoggedInEmail(email);
       handleNavChange("Home");
       setFullName("");
       setEmail("");
@@ -352,6 +376,7 @@ function App() {
             setTimeout(() => {
               setIsLoggedIn(true);
               setLoggedInUser(`${provider} User`);
+              setLoggedInEmail(`${provider.toLowerCase()}user@example.com`);
               handleNavChange("Home");
               setAuthMessage(null);
             }, 1500);
@@ -374,6 +399,7 @@ function App() {
     setIsLoggedIn(false);
     setIsAdmin(false);
     setLoggedInUser("");
+    setLoggedInEmail("");
     setProfilePic(null);
     setIsProfileDropdownOpen(false);
     handleNavChange("Login");
@@ -433,6 +459,38 @@ function App() {
     setTimeout(() => {
       setRiderChatMessages(prev => [...prev, { text: "Got it, thanks!", sender: "rider" }]);
     }, 1500);
+  };
+
+  const handleSupportTicketSubmit = (ticketData) => {
+    const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
+    const newTicket = {
+      id: ticketId,
+      name: ticketData.name,
+      email: ticketData.email,
+      subject: ticketData.subject,
+      category: ticketData.category,
+      description: ticketData.description,
+      attachmentName: ticketData.attachment?.name || "No attachment",
+      status: "Open",
+      priority: ticketData.category === "Technical Issue" || ticketData.category === "Bug Report" ? "High" : "Normal",
+      createdAt: new Date().toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+      lastUpdate: "Just now",
+    };
+    setSupportTickets(prev => [newTicket, ...prev]);
+    setNotifications(prev => [
+      {
+        message: `Support ticket ${ticketId} submitted: ${ticketData.subject}`,
+        time: "Just now",
+        read: false,
+      },
+      ...prev,
+    ]);
   };
 
   const copyReferralCode = (e) => {
@@ -1625,6 +1683,20 @@ function App() {
                               </button>
                               <button 
                                 type="button" 
+                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Support Tickets" ? styles.dropdownItemHover : {}) }} 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setIsProfileDropdownOpen(false);
+                                  setShowSettingsModal(true);
+                                  setSettingsTab("support");
+                                }}
+                                onMouseEnter={() => setHoveredProfileDropdown("Support Tickets")} 
+                                onMouseLeave={() => setHoveredProfileDropdown(null)}
+                              >
+                                Support Tickets
+                              </button>
+                              <button 
+                                type="button" 
                                 style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Settings" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -1735,7 +1807,6 @@ function App() {
                       { nav: "AI Data Subscription", icon: <Headset size={36} color="url(#appIconGradient)" strokeWidth={2.5} /> },
                       { nav: "Specialist Certification", icon: <GraduationCap size={36} color="url(#appIconGradient)" strokeWidth={2.5} /> },
                       { action: () => setShowAIChat(true), nav: "ChatWithAI", icon: <FaRobot size={36} style={{ fill: "url(#appIconGradient)" }} /> },
-                      { nav: "ExpertSupportPage", icon: <FaCalendar size={36} style={{ fill: "url(#appIconGradient)" }} /> },
                       { nav: "SurplusExchangePage", icon: <Handshake size={36} color="url(#appIconGradient)" strokeWidth={2.5} /> },
                       { nav: "ImpactTrackingPage", icon: <Activity size={36} color="url(#appIconGradient)" strokeWidth={2.5} /> }
                     ].map((item, idx) => (
@@ -2413,27 +2484,40 @@ function App() {
 
           </div>
         )}
-        {/* Chat with AI Button */}
-        {activeNav === "Home" && !isMobile && (
-          <div style={isMobile ? styles.chatWithAiBtnWrapMobile : styles.chatWithAiBtnWrap}>
-            <div className="chat-ai-glow" />
+        {activeNav !== "Admin Portal" && (
+          <div style={{ ...styles.supportActionsCluster, ...(isMobile ? styles.supportActionsClusterMobile : {}) }}>
             <button
               type="button"
-              style={{
-                ...styles.primaryBtn,
-                ...(isMobile ? styles.chatWithAiBtnMobile : {}),
-                ...(chatHovered ? styles.primaryBtnHov : {}),
-              }}
+              aria-label="Chat with AI"
+              title="Chat with AI"
               onClick={() => setShowAIChat(true)}
               onMouseEnter={() => setChatHovered(true)}
               onMouseLeave={() => setChatHovered(false)}
+              style={{
+                ...styles.aiChatFab,
+                ...(isMobile ? styles.aiChatFabMobile : {}),
+                ...(chatHovered ? styles.aiChatFabHover : {}),
+              }}
             >
-              <span aria-hidden="true" style={styles.primaryInnerBlur} />
-              <span className="orbit-container" />
-              <span style={{ ...styles.glassContentLayer, display: "flex", alignItems: "center", gap: "6px", color: "#ffffff" }}>
-                <Sparkles size={16} strokeWidth={2.5} />
-                Chat with AI
-              </span>
+              <MessageCircle size={isMobile ? 21 : 20} strokeWidth={2.7} />
+            </button>
+            <button
+              type="button"
+              aria-label="Open support ticket form"
+              onClick={() => setShowSupportTicketModal(true)}
+              onMouseEnter={() => setSupportFabHovered(true)}
+              onMouseLeave={() => setSupportFabHovered(false)}
+              style={{
+                ...styles.supportTicketFab,
+                ...(isMobile ? styles.supportTicketFabMobile : {}),
+                ...(supportFabHovered ? styles.supportTicketFabHover : {}),
+              }}
+            >
+              <Headset size={isMobile ? 21 : 20} strokeWidth={2.7} />
+              {!isMobile && <span style={styles.supportTicketFabText}>Support Ticket</span>}
+              {supportTickets.filter(ticket => ticket.status === "Open").length > 0 && (
+                <span style={styles.supportTicketBadge}>{supportTickets.filter(ticket => ticket.status === "Open").length}</span>
+              )}
             </button>
           </div>
         )}
@@ -2470,7 +2554,7 @@ function App() {
                 promoCodes={promoCodes}
               />
             )}
-            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} />}
+            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} setSupportTickets={setSupportTickets} />}
             {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} />}
             {activeNav === "Starter Kits & Toolsets" && <StarterKits setActiveNav={setActiveNav} />}
             {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} />}
@@ -2969,6 +3053,14 @@ function App() {
                     style={{ padding: "12px 16px", borderRadius: "12px", border: settingsTab === "wishlist" ? "1px solid rgba(134,239,172,0.4)" : "1px solid transparent", background: settingsTab === "wishlist" ? "linear-gradient(135deg, rgba(134,239,172,0.25), rgba(125,211,252,0.25))" : hoveredSettingsTab === "wishlist" ? "linear-gradient(135deg, rgba(134,239,172,0.12), rgba(125,211,252,0.12))" : "transparent", color: settingsTab === "wishlist" || hoveredSettingsTab === "wishlist" ? "#064e3b" : "rgba(0,0,0,0.7)", fontSize: "14px", fontWeight: settingsTab === "wishlist" ? 700 : 600, textAlign: "left", cursor: "pointer", transition: "all 0.3s ease", whiteSpace: "nowrap", boxShadow: settingsTab === "wishlist" ? "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)" : hoveredSettingsTab === "wishlist" ? "0 4px 12px rgba(34,197,94,0.08)" : "none", backdropFilter: settingsTab === "wishlist" ? "blur(12px) saturate(180%)" : "none", WebkitBackdropFilter: settingsTab === "wishlist" ? "blur(12px) saturate(180%)" : "none" }}
                   >
                     Wishlist
+                  </button>
+                  <button 
+                    onClick={() => setSettingsTab("support")}
+                    onMouseEnter={() => setHoveredSettingsTab("support")}
+                    onMouseLeave={() => setHoveredSettingsTab(null)}
+                    style={{ padding: "12px 16px", borderRadius: "12px", border: settingsTab === "support" ? "1px solid rgba(134,239,172,0.4)" : "1px solid transparent", background: settingsTab === "support" ? "linear-gradient(135deg, rgba(134,239,172,0.25), rgba(125,211,252,0.25))" : hoveredSettingsTab === "support" ? "linear-gradient(135deg, rgba(134,239,172,0.12), rgba(125,211,252,0.12))" : "transparent", color: settingsTab === "support" || hoveredSettingsTab === "support" ? "#064e3b" : "rgba(0,0,0,0.7)", fontSize: "14px", fontWeight: settingsTab === "support" ? 700 : 600, textAlign: "left", cursor: "pointer", transition: "all 0.3s ease", whiteSpace: "nowrap", boxShadow: settingsTab === "support" ? "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)" : hoveredSettingsTab === "support" ? "0 4px 12px rgba(34,197,94,0.08)" : "none", backdropFilter: settingsTab === "support" ? "blur(12px) saturate(180%)" : "none", WebkitBackdropFilter: settingsTab === "support" ? "blur(12px) saturate(180%)" : "none" }}
+                  >
+                    Support Tickets
                   </button>
                   <button 
                     onClick={() => setSettingsTab("settings")}
@@ -3911,6 +4003,81 @@ function App() {
                   </div>
                 )}
 
+                {settingsTab === "support" && (
+                  <div className="w-full h-full flex-1" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
+                      <div>
+                        <h2 style={{ margin: "0 0 6px", fontSize: "24px", fontWeight: 800, color: "#000" }}>Support Tickets</h2>
+                        <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>Track submitted issues, questions, and requests in one place.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowSupportTicketModal(true)}
+                        style={{ padding: "12px 18px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "13px", fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 18px 38px rgba(34,197,94,0.24), inset 0 1px 0 rgba(255,255,255,0.48)" }}
+                      >
+                        <Headset size={16} strokeWidth={2.5} />
+                        New Ticket
+                      </button>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: "14px", marginBottom: "18px" }}>
+                      {[
+                        { label: "Open Tickets", value: supportTickets.filter(ticket => ticket.status === "Open").length, color: "#15803d" },
+                        { label: "High Priority", value: supportTickets.filter(ticket => ticket.priority === "High").length, color: "#dc2626" },
+                        { label: "Total Submitted", value: supportTickets.length, color: "#0284c7" },
+                      ].map((metric) => (
+                        <div key={metric.label} style={{ padding: "18px", borderRadius: "16px", background: "rgba(255,255,255,0.68)", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.75)" }}>
+                          <div style={{ fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.4px" }}>{metric.label}</div>
+                          <div style={{ marginTop: "8px", fontSize: "30px", fontWeight: 850, color: metric.color, lineHeight: 1 }}>{metric.value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: "12px", paddingRight: "8px" }}>
+                      {supportTickets.length > 0 ? (
+                        supportTickets.map((ticket) => (
+                          <div key={ticket.id} style={{ padding: "18px", borderRadius: "18px", background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 8px 22px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)", display: "flex", flexDirection: "column", gap: "12px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#15803d" }}>{ticket.id}</span>
+                                  <span style={{ padding: "4px 8px", borderRadius: "999px", background: ticket.priority === "High" ? "rgba(220,38,38,0.1)" : "rgba(2,132,199,0.1)", color: ticket.priority === "High" ? "#dc2626" : "#0284c7", fontSize: "11px", fontWeight: 800 }}>{ticket.priority}</span>
+                                  <span style={{ padding: "4px 8px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d", fontSize: "11px", fontWeight: 800 }}>{ticket.status}</span>
+                                </div>
+                                <h3 style={{ margin: "8px 0 4px", fontSize: "16px", fontWeight: 850, color: "#000", lineHeight: 1.25 }}>{ticket.subject}</h3>
+                                <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.6)", lineHeight: 1.45 }}>{ticket.description}</p>
+                              </div>
+                              <div style={{ textAlign: isMobile ? "left" : "right", flexShrink: 0 }}>
+                                <div style={{ fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.55)" }}>{ticket.createdAt}</div>
+                                <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 700, color: "#15803d" }}>{ticket.category}</div>
+                              </div>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", paddingTop: "10px", borderTop: "1px solid rgba(0,0,0,0.06)", flexWrap: "wrap" }}>
+                              <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>Attachment: {ticket.attachmentName}</span>
+                              <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>Last update: {ticket.lastUpdate}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ padding: "34px 22px", borderRadius: "18px", background: "rgba(255,255,255,0.62)", border: "1px dashed rgba(0,0,0,0.12)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                          <Headset size={34} color="#15803d" strokeWidth={2.3} />
+                          <div>
+                            <h3 style={{ margin: "0 0 6px", fontSize: "17px", fontWeight: 850, color: "#000" }}>No support tickets yet</h3>
+                            <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>Create a ticket for product help, technical issues, billing, bugs, or feature requests.</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowSupportTicketModal(true)}
+                            style={{ marginTop: "4px", padding: "11px 18px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "13px", fontWeight: 800, cursor: "pointer", boxShadow: "0 18px 38px rgba(34,197,94,0.22), inset 0 1px 0 rgba(255,255,255,0.48)" }}
+                          >
+                            Submit First Ticket
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {settingsTab === "settings" && (
                   <div className="w-full h-full flex-1" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
                     <h2 style={{ margin: "0 0 24px", fontSize: "24px", fontWeight: 800, color: "#000" }}>Account Settings</h2>
@@ -4036,6 +4203,14 @@ function App() {
         {showAIChat && (
           <AIChatInterface onClose={() => setShowAIChat(false)} isMobile={isMobile} />
         )}
+
+        <SupportTicketModal
+          isOpen={showSupportTicketModal}
+          onClose={() => setShowSupportTicketModal(false)}
+          loggedInUser={loggedInUser}
+          userEmail={loggedInEmail || email}
+          onSubmit={handleSupportTicketSubmit}
+        />
 
         {rewardParticles.map(p => (
           <div key={p.id} style={{
@@ -4431,6 +4606,101 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 8px 20px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.5)",
     transform: "translateY(-12px)",
+  },
+  supportActionsCluster: {
+    position: "fixed",
+    right: "28px",
+    bottom: "28px",
+    zIndex: 2100,
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  supportActionsClusterMobile: {
+    right: "clamp(20px, 6vw, 28px)",
+    bottom: "calc(clamp(16px, 3dvh, 24px) + 70px)",
+    gap: "8px",
+  },
+  aiChatFab: {
+    position: "relative",
+    width: "48px",
+    height: "48px",
+    padding: 0,
+    borderRadius: "50%",
+    border: "1px solid rgba(255,255,255,0.45)",
+    background: "linear-gradient(135deg, rgba(134,239,172,0.96), rgba(125,211,252,0.96))",
+    color: "#062018",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    boxShadow: "0 18px 40px rgba(6,32,24,0.22), inset 0 1px 0 rgba(255,255,255,0.52)",
+    backdropFilter: "blur(20px) saturate(170%)",
+    WebkitBackdropFilter: "blur(20px) saturate(170%)",
+    transition: "transform 0.18s ease, box-shadow 0.18s ease",
+  },
+  aiChatFabMobile: {
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+  },
+  aiChatFabHover: {
+    transform: "translateY(-2px) scale(1.06)",
+    boxShadow: "0 22px 46px rgba(6,32,24,0.28), inset 0 1px 0 rgba(255,255,255,0.58)",
+  },
+  supportTicketFab: {
+    position: "relative",
+    minHeight: "48px",
+    padding: "0 18px",
+    borderRadius: "999px",
+    border: "1px solid rgba(255,255,255,0.45)",
+    background: "linear-gradient(135deg, rgba(134,239,172,0.96), rgba(125,211,252,0.96))",
+    color: "#062018",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "9px",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    fontSize: "13px",
+    fontWeight: 850,
+    boxShadow: "0 18px 40px rgba(6,32,24,0.22), inset 0 1px 0 rgba(255,255,255,0.52)",
+    backdropFilter: "blur(20px) saturate(170%)",
+    WebkitBackdropFilter: "blur(20px) saturate(170%)",
+    transition: "transform 0.18s ease, box-shadow 0.18s ease",
+  },
+  supportTicketFabMobile: {
+    minWidth: "48px",
+    width: "48px",
+    height: "48px",
+    padding: 0,
+    borderRadius: "18px",
+  },
+  supportTicketFabHover: {
+    transform: "translateY(-2px) scale(1.03)",
+    boxShadow: "0 22px 46px rgba(6,32,24,0.28), inset 0 1px 0 rgba(255,255,255,0.58)",
+  },
+  supportTicketFabText: {
+    lineHeight: 1,
+    whiteSpace: "nowrap",
+  },
+  supportTicketBadge: {
+    position: "absolute",
+    top: "-6px",
+    right: "-6px",
+    minWidth: "20px",
+    height: "20px",
+    padding: "0 6px",
+    borderRadius: "999px",
+    background: "#e11d48",
+    color: "#fff",
+    border: "2px solid rgba(255,255,255,0.8)",
+    fontSize: "10px",
+    fontWeight: 850,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 8px 18px rgba(225,29,72,0.28)",
   },
   navDropdownWrapMobile: {
     width: "100%",

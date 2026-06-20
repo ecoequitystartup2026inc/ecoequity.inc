@@ -167,6 +167,16 @@ code {
   to   { transform: rotate(360deg); }
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 @keyframes titleReveal {
   0%   { opacity: 0; transform: translateY(24px) scale(0.97); filter: blur(6px); }
   100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0px); }

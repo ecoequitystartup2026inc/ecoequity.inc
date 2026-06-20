@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes, FaPaperPlane, FaHeadset, FaUser, FaEnvelope, FaTag, FaCommentDots, FaUpload, FaCheckCircle, FaExclamationTriangle, FaFileAlt } from "react-icons/fa";
 
@@ -14,6 +14,15 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' or 'error'
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || loggedInUser || "",
+      email: prev.email || userEmail || "",
+    }));
+  }, [isOpen, loggedInUser, userEmail]);
 
   if (!isOpen) return null;
 
