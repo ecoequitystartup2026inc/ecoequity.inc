@@ -23,17 +23,11 @@ describe("OurTeam Component", () => {
     expect(roleElements).toHaveLength(4);
   });
 
-  it("renders team member images correctly", () => {
+  it("renders blank image placeholders without image elements", () => {
     render(<OurTeam />);
-    
-    const russelImg = screen.getByAltText("JHUN RUSSEL D. CLEMENTE");
-    expect(russelImg).toHaveAttribute("src", "Russel.jpeg");
 
-    const placeholderImgs = screen.getAllByAltText("NAME");
-    expect(placeholderImgs).toHaveLength(3);
-    expect(placeholderImgs[0]).toHaveAttribute("src", "Rus3.jpeg");
-    expect(placeholderImgs[1]).toHaveAttribute("src", "Rus4.jpeg");
-    expect(placeholderImgs[2]).toHaveAttribute("src", "Rus5.jpeg");
+    expect(screen.getAllByTestId("team-image-placeholder")).toHaveLength(4);
+    expect(screen.queryAllByRole("img")).toHaveLength(0);
   });
 
   it("handles mouse enter and leave events on cards correctly", () => {

@@ -12,10 +12,10 @@ function OurTeam() {
   }, []);
 
   const team = [
-    { name: "JHUN RUSSEL D. CLEMENTE", role: "ROLE", img: "Russel.jpeg" },
-    { name: "NAME", role: "ROLE", img: "Rus3.jpeg" },
-    { name: "NAME", role: "ROLE", img: "Rus4.jpeg" },
-    { name: "NAME", role: "ROLE", img: "Rus5.jpeg" },
+    { name: "JHUN RUSSEL D. CLEMENTE", role: "ROLE" },
+    { name: "NAME", role: "ROLE" },
+    { name: "NAME", role: "ROLE" },
+    { name: "NAME", role: "ROLE" },
   ];
 
   const handleScroll = (e) => {
@@ -78,7 +78,14 @@ function OurTeam() {
             onMouseEnter={() => setHoveredCard(index)}
             onMouseLeave={() => setHoveredCard(null)}
           >
-            <img src={c.img} alt={c.name} style={{ ...styles.cardImage, ...(isMobile ? styles.cardImageMobile : {}) }} />
+            <div
+              aria-hidden="true"
+              data-testid="team-image-placeholder"
+              style={{
+                ...styles.imagePlaceholder,
+                ...(isMobile ? styles.imagePlaceholderMobile : {}),
+              }}
+            />
             <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>{c.name}</h3>
             <p style={{ ...styles.cardRole, ...(isMobile ? styles.cardRoleMobile : {}) }}>{c.role}</p>
           </div>
@@ -195,7 +202,7 @@ const styles = {
     background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
     border: "1px solid rgba(0,0,0,0.05)",
     borderRadius: "20px",
-    padding: "32px 24px",
+    padding: "28px 24px",
     flex: "0 0 240px",
     display: "flex",
     flexDirection: "column",
@@ -209,22 +216,23 @@ const styles = {
   },
   cardMobile: {
     flex: "0 0 200px",
-    padding: "24px 18px",
+    padding: "22px 18px",
     scrollSnapAlign: "center",
   },
   cardHov: {
     transform: "scale(1.025)",
   },
-  cardImage: {
+  imagePlaceholder: {
     width: "100px",
     height: "100px",
+    flexShrink: 0,
     borderRadius: "50%",
-    objectFit: "cover",
+    background: "rgba(255, 255, 255, 0.38)",
     border: "3px solid rgba(0, 0, 0, 0.05)",
-    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+    boxShadow: "inset 0 1px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06)",
     marginBottom: "8px",
   },
-  cardImageMobile: {
+  imagePlaceholderMobile: {
     width: "80px",
     height: "80px",
   },
