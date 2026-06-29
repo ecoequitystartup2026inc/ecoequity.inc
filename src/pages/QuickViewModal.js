@@ -1,17 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Sprout } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaTimes, FaMinus, FaPlus, FaStar } from "react-icons/fa";
 
-function QuickViewModal({ product, allProducts, onClose, onSelectProduct, isMobile, setCartItems, setActiveNav, setCheckoutOpen }) {
+function QuickViewModal({ product: productProp, allProducts, onClose, onSelectProduct, isMobile, setCartItems, setActiveNav, setCheckoutOpen, onAddReview }) {
   const [quantity, setQuantity] = useState(1);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
   const modalRef = useRef(null);
 
+  // Use the live product from the store so newly added reviews appear instantly.
+  const product = (productProp && allProducts && allProducts.find((p) => p.id === productProp.id)) || productProp;
+
   useEffect(() => {
-    if (product && modalRef.current) {
+    if (productProp && modalRef.current) {
       modalRef.current.scrollTop = 0;
       setQuantity(1);
+      setShowReviewForm(false);
+      setReviewRating(5);
+      setReviewName("");
+      setReviewComment("");
     }
-  }, [product]);
+  }, [productProp]);
 
   useEffect(() => {
     if (product) {
@@ -26,6 +39,19 @@ function QuickViewModal({ product, allProducts, onClose, onSelectProduct, isMobi
 
   const handleModalContentClick = (e) => {
     e.stopPropagation();
+  };
+
+  const submitReview = () => {
+    if (!reviewComment.trim() || !onAddReview) return;
+    onAddReview(product.id, {
+      user: reviewName.trim() || "Anonymous",
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+    });
+    setShowReviewForm(false);
+    setReviewRating(5);
+    setReviewName("");
+    setReviewComment("");
   };
 
   if (!product) {
@@ -53,7 +79,7 @@ function QuickViewModal({ product, allProducts, onClose, onSelectProduct, isMobi
               <span style={{ position: "absolute", top: "12px", left: "12px", background: "#dcfce7", color: "#15803d", padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
                 {product.sustainabilityBadge || product.badge || "Eco-Friendly"}
               </span>
-              <span style={{ fontSize: "80px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}>🌱</span>
+              <span style={{ fontSize: "80px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}><Sprout size="1em" color="#16a34a" /></span>
             </div>
           </div>
 
@@ -127,6 +153,78 @@ function QuickViewModal({ product, allProducts, onClose, onSelectProduct, isMobi
            </div>
           </div>
         </div>
+
+        {/* Reviews */}
+        <div style={styles.reviewsSection}>
+          <div style={styles.reviewsHeader}>
+            <h3 style={styles.reviewsTitle}>
+              Customer Reviews
+              <span style={styles.reviewsCount}> ({product.reviewCount || 0})</span>
+            </h3>
+            {onAddReview && (
+              <button type="button" style={styles.writeReviewBtn} onClick={() => setShowReviewForm((s) => !s)}>
+                {showReviewForm ? "Cancel" : "Write a Review"}
+              </button>
+            )}
+          </div>
+
+          {showReviewForm && (
+            <div style={styles.reviewForm}>
+              <div style={styles.starPicker}>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <FaStar
+                    key={s}
+                    onClick={() => setReviewRating(s)}
+                    onMouseEnter={() => setHoverRating(s)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    style={{ cursor: "pointer", fontSize: "22px", color: (hoverRating || reviewRating) >= s ? "#fbbf24" : "#d1d5db", transition: "color 0.15s" }}
+                  />
+                ))}
+              </div>
+              <input
+                style={styles.reviewInput}
+                placeholder="Your name (optional)"
+                value={reviewName}
+                onChange={(e) => setReviewName(e.target.value)}
+              />
+              <textarea
+                style={{ ...styles.reviewInput, minHeight: "70px", resize: "vertical", fontFamily: "inherit" }}
+                placeholder="Share your experience with this product…"
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+              />
+              <button
+                type="button"
+                style={{ ...styles.submitReviewBtn, ...(reviewComment.trim() ? {} : styles.submitReviewBtnDisabled) }}
+                onClick={submitReview}
+                disabled={!reviewComment.trim()}
+              >
+                Submit Review
+              </button>
+            </div>
+          )}
+
+          {product.reviews && product.reviews.length > 0 ? (
+            <div style={styles.reviewList}>
+              {product.reviews.slice().reverse().map((r, i) => (
+                <div key={i} style={styles.reviewItem}>
+                  <div style={styles.reviewItemHead}>
+                    <div style={styles.reviewAvatar}>{(r.user || "?").charAt(0).toUpperCase()}</div>
+                    <span style={styles.reviewUser}>{r.user || "Anonymous"}</span>
+                    <span style={styles.reviewStars}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <FaStar key={s} style={{ fontSize: "11px", color: (r.rating || 0) >= s ? "#fbbf24" : "#e5e7eb" }} />
+                      ))}
+                    </span>
+                  </div>
+                  <p style={styles.reviewComment}>{r.comment}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={styles.noReviews}>No reviews yet. Be the first to review this product!</p>
+          )}
+        </div>
       </div>
     </div>,
     document.body
@@ -138,6 +236,24 @@ const styles = {
   quickViewModal: { maxWidth: "500px", width: "100%", maxHeight: "90vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "20px", padding: "20px", display: "flex", flexDirection: "column", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", position: "relative", animation: "scaleUp 0.3s ease", overflowY: "auto" },
   quickViewModalMobile: { padding: "20px 16px", maxHeight: "95vh" },
   closeModalBtn: { position: "absolute", top: "12px", right: "12px", zIndex: 50, background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", color: "rgba(0,0,0,0.6)", cursor: "pointer", transition: "background 0.2s" },
+  reviewsSection: { marginTop: "20px", paddingTop: "18px", borderTop: "1px solid rgba(0,0,0,0.08)", textAlign: "left" },
+  reviewsHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" },
+  reviewsTitle: { fontSize: "16px", fontWeight: 800, color: "#0f172a", margin: 0 },
+  reviewsCount: { fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.45)" },
+  writeReviewBtn: { padding: "7px 14px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px solid rgba(22,163,74,0.2)", color: "#15803d", fontSize: "12.5px", fontWeight: 700, cursor: "pointer" },
+  reviewForm: { background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: "14px", padding: "14px", marginBottom: "16px" },
+  starPicker: { display: "flex", gap: "4px", marginBottom: "10px" },
+  reviewInput: { width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.9)", fontSize: "13px", color: "#0f172a", marginBottom: "10px", boxSizing: "border-box", outline: "none" },
+  submitReviewBtn: { width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", border: "none", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(22,163,74,0.25)" },
+  submitReviewBtnDisabled: { opacity: 0.5, cursor: "not-allowed", boxShadow: "none" },
+  reviewList: { display: "flex", flexDirection: "column", gap: "12px", maxHeight: "240px", overflowY: "auto" },
+  reviewItem: { padding: "12px", borderRadius: "12px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.05)" },
+  reviewItemHead: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" },
+  reviewAvatar: { width: "26px", height: "26px", borderRadius: "50%", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "12px", flexShrink: 0 },
+  reviewUser: { fontSize: "13px", fontWeight: 700, color: "#0f172a", flex: 1 },
+  reviewStars: { display: "inline-flex", gap: "1px" },
+  reviewComment: { fontSize: "13px", color: "rgba(0,0,0,0.7)", lineHeight: 1.5, margin: 0 },
+  noReviews: { fontSize: "13px", color: "rgba(0,0,0,0.5)", padding: "8px 0" },
 };
 
 export default QuickViewModal;

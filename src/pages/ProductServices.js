@@ -159,7 +159,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
-    marginBottom: "12px",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -172,7 +172,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 16px",
     lineHeight: 1.15,

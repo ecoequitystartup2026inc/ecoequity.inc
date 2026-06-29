@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Sprout, Microscope, Package, Bug } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaUserTie, FaClock, FaStar, FaPlayCircle, FaTimes, FaCheckCircle, FaChevronDown, FaCreditCard, FaQrcode } from "react-icons/fa";
 
@@ -11,7 +12,7 @@ const coursesData = [
     duration: "4 Weeks",
     lessons: 12,
     price: "₱1,500",
-    icon: "🌱",
+    icon: <Sprout size="1em" color="#16a34a" />,
     badge: "Best Seller",
     rating: 4.9,
     progress: 0,
@@ -24,7 +25,7 @@ const coursesData = [
     duration: "6 Weeks",
     lessons: 18,
     price: "₱2,200",
-    icon: "🔬",
+    icon: <Microscope size="1em" color="#0284c7" />,
     badge: "Advanced",
     rating: 4.8,
     progress: 0,
@@ -37,7 +38,7 @@ const coursesData = [
     duration: "3 Weeks",
     lessons: 8,
     price: "₱1,200",
-    icon: "📦",
+    icon: <Package size="1em" color="#15803d" />,
     badge: "B2B Focus",
     rating: 4.7,
     progress: 0,
@@ -50,7 +51,7 @@ const coursesData = [
     duration: "4 Weeks",
     lessons: 10,
     price: "₱1,400",
-    icon: "🐞",
+    icon: <Bug size="1em" color="#dc2626" />,
     badge: "Essential",
     rating: 4.9,
     progress: 0,
@@ -556,7 +557,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock }) {
             {activeCourse.progress === 100 && (
               <div style={{ animation: "fadeIn 0.5s ease-out", marginTop: "24px", padding: "20px", background: "linear-gradient(135deg, rgba(134,239,172,0.2), rgba(125,211,252,0.2))", borderRadius: "16px", border: "1px solid rgba(22, 163, 74, 0.3)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
                 <div>
-                  <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#15803d", margin: "0 0 4px" }}>🎉 Course Completed!</h3>
+                  <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#15803d", margin: "0 0 4px" }}>Course Completed!</h3>
                   <p style={{ fontSize: "14px", color: "rgba(0,0,0,0.7)", margin: 0 }}>You've unlocked your Specialist Certificate.</p>
                 </div>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
@@ -705,19 +706,42 @@ const styles = {
     transform: "scale(1.035)",
   },
   badge: {
-    display: "inline-flex", alignItems: "center", gap: "7px", padding: "5px 14px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", fontSize: "11px", fontWeight: 600, color: "#15803d", letterSpacing: "0.6px", textTransform: "uppercase", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+    padding: "5px 14px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.6)",
+    border: "1px solid rgba(0,0,0,0.05)",
+    fontSize: "11px",
+    fontWeight: 600,
+    color: "#15803d",
+    letterSpacing: "0.6px",
+    textTransform: "uppercase",
+    marginBottom: "20px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
     width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block",
   },
   title: {
-    fontSize: "clamp(32px, 4.5vw, 46px)", fontWeight: 800, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    fontSize: "clamp(32px, 4.5vw, 46px)", fontWeight: 300, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
   titleUnderline: {
-    width: "118px", height: "4px", background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)", backgroundSize: "200% 100%", margin: "0 auto 18px", boxShadow: "0 0 18px rgba(134,239,172,0.75)", borderRadius: "999px",
+    width: "118px",
+    height: "4px",
+    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
+    backgroundSize: "200% 100%",
+    margin: "0 auto 18px",
+    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
+    borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
   },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   },
   body: {
     color: "#000", marginBottom: "40px", fontSize: "clamp(14px, 1.6vw, 16px)", fontWeight: 400, lineHeight: 1.6, maxWidth: "700px",

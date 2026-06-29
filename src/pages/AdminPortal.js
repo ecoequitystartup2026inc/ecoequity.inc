@@ -3,7 +3,8 @@ import {
   LayoutDashboard, Users, ShieldCheck, Box, ShoppingCart, 
   Truck, CreditCard, Repeat, CalendarDays, Stethoscope, 
   BarChart2, FileText, Settings, LogOut, 
-  Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Route, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Scan, Target, Bug, Thermometer, PieChart, Globe, Lightbulb, Megaphone, Wand2, Layout, Plus, Play, Database, Wheat, Send
+  Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Route, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Scan, Target, Bug, Thermometer, PieChart, Globe, Lightbulb, Megaphone, Wand2, Layout, Plus, Play, Database, Wheat, Send, ChevronsLeft, ChevronsRight
+  , Sprout, Cherry, PartyPopper, Star
 } from "lucide-react";
 
 const mockStats = [
@@ -19,9 +20,9 @@ const ORDERS_STORAGE_KEY = "verdeversity_orders";
 const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
 
 const mockTopProducts = [
-  { name: "Heirloom Tomatoes", sales: "1,240", rev: "₱186K", stock: "In Stock", emoji: "🍅" },
-  { name: "Premium Potting Mix", sales: "985", rev: "₱275K", stock: "Low Stock", emoji: "🪴" },
-  { name: "Basil Grow Kit", sales: "842", rev: "₱294K", stock: "In Stock", emoji: "🌿" },
+  { name: "Heirloom Tomatoes", sales: "1,240", rev: "₱186K", stock: "In Stock", emoji: <Cherry size="1em" color="#dc2626" /> },
+  { name: "Premium Potting Mix", sales: "985", rev: "₱275K", stock: "Low Stock", emoji: <Sprout size="1em" color="#16a34a" /> },
+  { name: "Basil Grow Kit", sales: "842", rev: "₱294K", stock: "In Stock", emoji: <Leaf size="1em" color="#16a34a" /> },
 ];
 
 const mockVerifications = [
@@ -264,7 +265,7 @@ const mockPlans = [
   { name: "Enterprise", price: "Custom", users: "50", revenue: "₱450K", features: ["LGU Dashboard", "API Integration", "Team Accounts"], color: "#0ea5e9", bg: "linear-gradient(135deg, rgba(14,165,233,0.1), rgba(14,165,233,0.05))" },
 ];
 
-const mockSubscribers = [
+export const mockSubscribers = [
   { id: "SUB-001", user: "Maria Clara", email: "maria@example.com", plan: "Pro", status: "Active", renewal: "Jun 15, 2026", payment: "GCash", joined: "Jan 10, 2026", aiScans: 85, aiLimit: 100 },
   { id: "SUB-002", user: "Juan Dela Cruz", email: "juan@example.com", plan: "Basic", status: "Active", renewal: "N/A", payment: "Free", joined: "Feb 05, 2026", aiScans: 8, aiLimit: 10 },
   { id: "SUB-003", user: "Healthy Eats Cafe", email: "contact@healthyeats.com", plan: "Enterprise", status: "Active", renewal: "Dec 01, 2026", payment: "Bank Transfer", joined: "Dec 01, 2025", aiScans: 1250, aiLimit: 5000 },
@@ -334,7 +335,7 @@ const mockEventStats = [
   { label: "Event Revenue", value: "₱145K", trend: "+18%", up: true, icon: <CreditCard size={16} color="#8b5cf6" /> },
 ];
 
-const mockEventsList = [
+export const mockEventsList = [
   { id: "EVT-001", title: "Urban Hydroponics Masterclass", date: "Jun 15, 2026", time: "09:00 AM", type: "Workshop", attendees: 45, maxAttendees: 50, status: "Upcoming", price: "₱1,200", location: "Baguio City Hall" },
   { id: "EVT-002", title: "Sustainable Pest Management", date: "Jul 10, 2026", time: "02:00 PM", type: "Webinar", attendees: 120, maxAttendees: 500, status: "Upcoming", price: "Free", location: "Online (Zoom)" },
   { id: "EVT-003", title: "Seed Exchange & Planting Day", date: "Aug 05, 2026", time: "04:00 PM", type: "Community", attendees: 85, maxAttendees: 100, status: "Upcoming", price: "Free", location: "Local Garden" },
@@ -349,7 +350,7 @@ const mockAIStats = [
   { label: "Reports Generated", value: "2,400", trend: "+22%", up: true, icon: <FileText size={16} color="#8b5cf6" /> },
 ];
 
-const mockScansList = [
+export const mockScansList = [
   { id: "SCN-8821", plant: "Tomato", disease: "Early Blight", confidence: "94%", user: "Maria Clara", status: "Critical", date: "May 28, 2026", recommendation: "Apply copper-based fungicide and remove affected lower leaves to prevent spore spread." },
   { id: "SCN-8820", plant: "Lettuce", disease: "None", confidence: "99%", user: "Urban Roots", status: "Healthy", date: "May 28, 2026", recommendation: "Plant is healthy. Continue current watering and nutrient schedule." },
   { id: "SCN-8819", plant: "Mango", disease: "Anthracnose", confidence: "87%", user: "Juan Dela Cruz", status: "Disease Detected", date: "May 27, 2026", recommendation: "Prune infected branches and apply organic fungicide during dry weather." },
@@ -393,7 +394,7 @@ const mockContentStats = [
   { label: "Announcements", value: "45", trend: "+2", up: true, icon: <Megaphone size={16} color="#8b5cf6" /> },
 ];
 
-const mockContentList = [
+export const mockContentList = [
   { id: "CNT-001", title: "10 Benefits of Urban Farming", type: "Article", status: "Published", date: "May 28, 2026", author: "Admin" },
   { id: "CNT-002", title: "Summer Workshop Registration", type: "Page", status: "Draft", date: "May 27, 2026", author: "Editor" },
   { id: "CNT-003", title: "Platform Maintenance Notice", type: "Announcement", status: "Scheduled", date: "May 26, 2026", author: "Admin" },
@@ -430,12 +431,86 @@ const supportAssigneeOptions = [
   { value: "Product Specialist", label: "Product Specialist" },
 ];
 
-export default function AdminPortal({ setActiveNav, handleLogout, products, setProducts, harvests, setHarvests, promoCodes, setPromoCodes, orders, setOrders, supportTickets = [], setSupportTickets }) {
+export default function AdminPortal({
+  setActiveNav, handleLogout,
+  products, setProducts,
+  harvests, setHarvests,
+  promoCodes, setPromoCodes,
+  orders, setOrders,
+  supportTickets = [], setSupportTickets,
+  plantScans = mockScansList, setPlantScans = () => {},
+  subscribers = mockSubscribers, setSubscribers = () => {},
+  events = mockEventsList, setEvents = () => {},
+  content = mockContentList, setContent = () => {},
+  forumPosts = [], setForumPosts = () => {},
+  farmPlanner = {}, setFarmPlanner = () => {},
+}) {
   const [activeTab, setActiveTab] = useState("Dashboard");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [hoveredNav, setHoveredNav] = useState(null);
   const [hoveredStat, setHoveredStat] = useState(null);
+
+  // --- Community Forum admin (moderate + author official posts) ---
+  const forumCategories = ["Growing Tips", "Pest & Disease", "Irrigation", "Weather", "Market & Prices"];
+  const [forumDraft, setForumDraft] = useState({ title: "", body: "", category: "Growing Tips" });
+  const handlePublishOfficialPost = () => {
+    if (!forumDraft.title.trim() || !forumDraft.body.trim()) return;
+    const post = {
+      id: Date.now(),
+      author: "EcoEquity Team",
+      category: forumDraft.category,
+      title: forumDraft.title.trim(),
+      body: forumDraft.body.trim(),
+      likes: 0,
+      likedByMe: false,
+      time: "Just now",
+      official: true,
+      pinned: true,
+      replies: [],
+    };
+    setForumPosts((prev) => [post, ...prev]);
+    setForumDraft({ title: "", body: "", category: "Growing Tips" });
+    setToastMessage("Official post published to the community forum");
+  };
+  const handleDeleteForumPost = (id) => {
+    setForumPosts((prev) => prev.filter((p) => p.id !== id));
+    setToastMessage("Post removed");
+  };
+  const handleTogglePinPost = (id) =>
+    setForumPosts((prev) => prev.map((p) => (p.id === id ? { ...p, pinned: !p.pinned } : p)));
+  const handleDeleteForumReply = (postId, idx) =>
+    setForumPosts((prev) =>
+      prev.map((p) => (p.id === postId ? { ...p, replies: (p.replies || []).filter((_, i) => i !== idx) } : p))
+    );
+
+  // --- Farm Planner admin (region weather + advisories) ---
+  const forecastConditions = ["Sunny", "Partly Cloudy", "Cloudy", "Light Rain", "Thunderstorms"];
+  const [plannerDraft, setPlannerDraft] = useState(() => ({
+    regions: { ...(farmPlanner?.regions || {}) },
+    advisories: { wet: "", dry: "", mild: "", ...(farmPlanner?.advisories || {}) },
+  }));
+  const updatePlannerRegion = (region, field, value) =>
+    setPlannerDraft((prev) => ({
+      ...prev,
+      regions: { ...prev.regions, [region]: { ...prev.regions[region], [field]: value } },
+    }));
+  const updatePlannerCondition = (region, dayIdx, value) =>
+    setPlannerDraft((prev) => {
+      const cond = [...(prev.regions[region]?.cond || [])];
+      cond[dayIdx] = value;
+      return { ...prev, regions: { ...prev.regions, [region]: { ...prev.regions[region], cond } } };
+    });
+  const handleSavePlanner = () => {
+    setFarmPlanner({
+      regions: plannerDraft.regions,
+      advisories: plannerDraft.advisories,
+    });
+    setToastMessage("Farm Planner settings saved");
+  };
   
   const [editingProduct, setEditingProduct] = useState(null);
   const [productCategoryFilter, setProductCategoryFilter] = useState("All");
+  const [productSearchTerm, setProductSearchTerm] = useState("");
   const [toastMessage, setToastMessage] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
 
@@ -467,7 +542,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("All");
 
   const [selectedSubscriber, setSelectedSubscriber] = useState(null);
-  const [subscribersList, setSubscribersList] = useState(mockSubscribers);
+  const subscribersList = subscribers;
+  const setSubscribersList = setSubscribers;
   const [editableSubscriber, setEditableSubscriber] = useState(null);
   const [subscriberCampaignForm, setSubscriberCampaignForm] = useState({
     audience: "subscriber",
@@ -483,7 +559,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventSearchTerm, setEventSearchTerm] = useState("");
   const [eventTypeFilter, setEventTypeFilter] = useState("All");
-  const [eventsList, setEventsList] = useState(mockEventsList);
+  const eventsList = events;
+  const setEventsList = setEvents;
   const [isEditingEvent, setIsEditingEvent] = useState(false);
   const [editableEvent, setEditableEvent] = useState(null);
 
@@ -558,6 +635,21 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const handleAddContent = (type, status) => {
+    const num = String(content.length + 1).padStart(3, "0");
+    const newItem = {
+      id: `CNT-${num}`,
+      title: type === "Announcement" ? "New Announcement" : "Untitled Article",
+      type,
+      status,
+      date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+      author: "Admin",
+    };
+    setContent([newItem, ...content]);
+    setToastMessage(`${type} created and saved.`);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
   const handleAddProduct = () => {
     const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
     setEditingProduct({
@@ -567,7 +659,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
       price: 0,
       stockQuantity: 10,
       stock: "In Stock",
-      emoji: "🌱",
+      emoji: <Sprout size="1em" color="#16a34a" />,
       image: "/tomato.png",
       badge: "New",
       description: "A brand new sustainable product.",
@@ -1003,7 +1095,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
       category: "Vegetables",
       monthsStr: "",
       peak: "",
-      icon: "🌱",
+      icon: <Sprout size="1em" color="#16a34a" />,
       estDate: "",
       location: "",
       region: "",
@@ -1057,24 +1149,90 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const sidebarItems = [
-    { name: "Dashboard", icon: LayoutDashboard },
-    { name: "Users", icon: Users },
-    { name: "Farmers Verification", icon: ShieldCheck },
-    { name: "Products", icon: Box },
-    { name: "Orders", icon: ShoppingCart },
-    { name: "Deliveries", icon: Truck },
-    { name: "Delivered Reports", icon: CheckCircle },
-    { name: "Support Tickets", icon: Ticket },
-    { name: "Payments", icon: CreditCard },
-    { name: "Subscriptions", icon: Repeat },
-    { name: "Events & Workshops", icon: CalendarDays },
-    { name: "Seasonal Harvests", icon: Wheat },
-    { name: "AI Plant Doctor", icon: Stethoscope },
-    { name: "Reports & Analytics", icon: BarChart2 },
-    { name: "Content Management", icon: FileText },
-    { name: "Settings", icon: Settings },
+  const sidebarGroups = [
+    {
+      label: "Overview",
+      items: [
+        { name: "Dashboard", icon: LayoutDashboard },
+        { name: "Reports & Analytics", icon: BarChart2 },
+      ],
+    },
+    {
+      label: "Commerce",
+      items: [
+        { name: "Products", icon: Box },
+        { name: "Orders", icon: ShoppingCart },
+        { name: "Payments", icon: CreditCard },
+        { name: "Subscriptions", icon: Repeat },
+      ],
+    },
+    {
+      label: "Operations",
+      items: [
+        { name: "Deliveries", icon: Truck },
+        { name: "Delivered Reports", icon: CheckCircle },
+        { name: "Support Tickets", icon: Ticket },
+        { name: "Seasonal Harvests", icon: Wheat },
+      ],
+    },
+    {
+      label: "Community",
+      items: [
+        { name: "Users", icon: Users },
+        { name: "Farmers Verification", icon: ShieldCheck },
+        { name: "Events & Workshops", icon: CalendarDays },
+        { name: "AI Plant Doctor", icon: Stethoscope },
+        { name: "Community Forum", icon: MessageSquare },
+        { name: "Farm Planner", icon: Thermometer },
+        { name: "Content Management", icon: FileText },
+      ],
+    },
+    {
+      label: "System",
+      items: [
+        { name: "Settings", icon: Settings },
+      ],
+    },
   ];
+  const groupForTab = (name) => (sidebarGroups.find(g => g.items.some(i => i.name === name)) || {}).label || "";
+
+  // Short context line shown under each page title (breadcrumb subtitle).
+  const tabSubtitles = {
+    "Dashboard": "Key metrics and activity at a glance",
+    "Reports & Analytics": "Performance trends and exportable reports",
+    "Products": "Manage catalog items, pricing and stock",
+    "Orders": "Review and approve incoming orders",
+    "Payments": "Track transactions and settlements",
+    "Subscriptions": "Manage subscribers and plan campaigns",
+    "Deliveries": "Monitor active deliveries and riders",
+    "Delivered Reports": "Completed delivery history",
+    "Support Tickets": "Respond to customer support requests",
+    "Seasonal Harvests": "Manage seasonal harvest listings",
+    "Users": "Browse and manage platform accounts",
+    "Farmers Verification": "Review and verify farmer applications",
+    "Events & Workshops": "Schedule and manage community events",
+    "AI Plant Doctor": "Review plant disease scan submissions",
+    "Community Forum": "Moderate posts and publish official content",
+    "Farm Planner": "Manage weather outlook and planting advisories",
+    "Content Management": "Publish and manage site content",
+    "Settings": "Configure portal preferences",
+  };
+
+  // Routes the single header search box to the active tab's search state.
+  const searchConfigByTab = {
+    "Products": { value: productSearchTerm, setValue: setProductSearchTerm, placeholder: "Search products..." },
+    "Orders": { value: orderSearchTerm, setValue: setOrderSearchTerm, placeholder: "Search orders..." },
+    "Payments": { value: paymentSearchTerm, setValue: setPaymentSearchTerm, placeholder: "Search transactions..." },
+    "Subscriptions": { value: subSearchTerm, setValue: setSubSearchTerm, placeholder: "Search subscribers..." },
+    "Deliveries": { value: deliverySearchTerm, setValue: setDeliverySearchTerm, placeholder: "Search deliveries..." },
+    "Delivered Reports": { value: deliverySearchTerm, setValue: setDeliverySearchTerm, placeholder: "Search delivered..." },
+    "Support Tickets": { value: supportSearchTerm, setValue: setSupportSearchTerm, placeholder: "Search tickets..." },
+    "Seasonal Harvests": { value: harvestSearchTerm, setValue: setHarvestSearchTerm, placeholder: "Search harvests..." },
+    "Events & Workshops": { value: eventSearchTerm, setValue: setEventSearchTerm, placeholder: "Search events..." },
+    "AI Plant Doctor": { value: scanSearchTerm, setValue: setScanSearchTerm, placeholder: "Search scans..." },
+    "Content Management": { value: contentSearchTerm, setValue: setContentSearchTerm, placeholder: "Search content..." },
+  };
+  const activeSearch = searchConfigByTab[activeTab];
 
   const filteredOrdersList = (orders || []).filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(orderSearchTerm.toLowerCase()) || 
@@ -1100,7 +1258,13 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesStatus && isActiveDelivery;
   });
 
-  const deliveredReportsList = deliveriesList.filter(delivery => delivery.status === "Delivered");
+  const deliveredReportsList = deliveriesList.filter(delivery => {
+    if (delivery.status !== "Delivered") return false;
+    const query = deliverySearchTerm.trim().toLowerCase();
+    return !query ||
+      delivery.id.toLowerCase().includes(query) ||
+      delivery.customer.toLowerCase().includes(query);
+  });
 
   const openSupportTicketsCount = (supportTickets || []).filter(ticket => ticket.status !== "Resolved").length;
   const urgentSupportTicketsCount = (supportTickets || []).filter(ticket => ticket.priority === "Urgent" || ticket.priority === "High").length;
@@ -1146,7 +1310,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesType;
   });
 
-  const filteredScansList = mockScansList.filter(scan => {
+  const filteredScansList = plantScans.filter(scan => {
     const matchesSearch = scan.plant.toLowerCase().includes(scanSearchTerm.toLowerCase()) || 
                           scan.disease.toLowerCase().includes(scanSearchTerm.toLowerCase()) ||
                           scan.user.toLowerCase().includes(scanSearchTerm.toLowerCase());
@@ -1154,16 +1318,21 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
     return matchesSearch && matchesStatus;
   });
 
-  const filteredContentList = mockContentList.filter(cnt => {
+  const filteredContentList = content.filter(cnt => {
     const matchesSearch = cnt.title.toLowerCase().includes(contentSearchTerm.toLowerCase()) || 
                           cnt.id.toLowerCase().includes(contentSearchTerm.toLowerCase());
     const matchesType = contentTypeFilter === "All" || cnt.type === contentTypeFilter;
     return matchesSearch && matchesType;
   });
 
-  const filteredAdminProducts = products.filter(p => 
-    productCategoryFilter === "All" || p.category === productCategoryFilter
-  );
+  const filteredAdminProducts = products.filter(p => {
+    const matchesCategory = productCategoryFilter === "All" || p.category === productCategoryFilter;
+    const query = productSearchTerm.trim().toLowerCase();
+    const matchesSearch = !query ||
+      (p.name && p.name.toLowerCase().includes(query)) ||
+      (p.category && p.category.toLowerCase().includes(query));
+    return matchesCategory && matchesSearch;
+  });
 
   const getStatusStyle = (status) => {
     if (status === "Pending Approval") return { background: "rgba(245,158,11,0.1)", color: "#d97706" };
@@ -1689,10 +1858,10 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                        <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", background: isAtLimit ? "#dc2626" : isNearLimit ? "#f97316" : "linear-gradient(90deg, #16a34a, #4ade80)", borderRadius: "999px", animation: isNearLimit ? "warningPulse 1.5s infinite" : "none" }} />
                      </div>
                      {isNearLimit && (
-                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#f97316", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> ⚠️ Only {selectedSubscriber.aiLimit - selectedSubscriber.aiScans} scans remaining this month</p>
+                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#f97316", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> Only {selectedSubscriber.aiLimit - selectedSubscriber.aiScans} scans remaining this month</p>
                      )}
                      {isAtLimit && (
-                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#dc2626", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> 🔒 Limit reached. Upgrade to unlock unlimited diagnostics.</p>
+                       <p style={{ margin: "8px 0 0", fontSize: "11px", color: "#dc2626", fontWeight: 700 }}><AlertCircle size={10} style={{ verticalAlign: "middle" }}/> Limit reached. Upgrade to unlock unlimited diagnostics.</p>
                      )}
                    </div>
                  );
@@ -1727,7 +1896,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                    <div style={{ padding: "7px 9px", background: "rgba(249,115,22,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#c2410c", fontWeight: 600 }}><AlertCircle size={13} /> AI Scan limit almost reached</div>
                    <div style={{ padding: "7px 9px", background: "rgba(14,165,233,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#0284c7", fontWeight: 600 }}><CalendarDays size={13} /> New eco workshop available</div>
                    <div style={{ padding: "7px 9px", background: "rgba(139,92,246,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#7c3aed", fontWeight: 600 }}><Tag size={13} /> Promo: 20% off yearly plan</div>
-                   <div style={{ padding: "7px 9px", background: "rgba(22,163,74,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#15803d", fontWeight: 600 }}><span style={{fontSize: "13px"}}>🎉</span> You earned 120 EcoPoints this month</div>
+                   <div style={{ padding: "7px 9px", background: "rgba(22,163,74,0.1)", borderRadius: "8px", display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", color: "#15803d", fontWeight: 600 }}><span style={{fontSize: "13px"}}><PartyPopper size={13} color="#16a34a" /></span> You earned 120 EcoPoints this month</div>
                  </div>
                </div>
                <div style={{ gridColumn: "1 / -1", background: "rgba(255,255,255,0.66)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "18px", padding: "14px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)" }}>
@@ -1843,7 +2012,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
 
             {/* Image Preview & Holographic Scan Line */}
             <div style={{ position: "relative", height: "200px", borderRadius: "16px", background: "linear-gradient(135deg, rgba(22,163,74,0.1), rgba(22,163,74,0.05))", border: "1px solid rgba(22,163,74,0.2)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: "inset 0 4px 20px rgba(0,0,0,0.05)" }}>
-              <div style={{ fontSize: "64px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}>🌿</div>
+              <div style={{ fontSize: "64px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}><Leaf size={28} color="#16a34a" /></div>
               <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "4px", background: "rgba(74, 222, 128, 0.8)", boxShadow: "0 0 15px 2px #4ade80", animation: "scanLine 2.5s ease-in-out infinite" }} />
             </div>
 
@@ -1974,34 +2143,84 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         </div>
       )}
       {/* Sidebar */}
-      <aside className="inner-blur-glass" style={styles.sidebar}>
-        <div style={styles.sidebarHeader}>
-          <div style={styles.logoBadge}>
-            <ShieldCheck size={16} color="#15803d" />
+      <aside className="inner-blur-glass" style={{ ...styles.sidebar, width: sidebarCollapsed ? "76px" : "220px" }}>
+        <div style={{ ...styles.sidebarHeader, justifyContent: sidebarCollapsed ? "center" : "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
+            <div style={styles.logoBadge}>
+              <ShieldCheck size={16} color="#15803d" />
+            </div>
+            {!sidebarCollapsed && <h2 style={styles.sidebarTitle}>Admin Portal</h2>}
           </div>
-          <h2 style={styles.sidebarTitle}>Admin Portal</h2>
-        </div>
-        
-        <div className="custom-scrollbar" style={styles.sidebarNav}>
-          {sidebarItems.map((item) => (
+          {!sidebarCollapsed && (
             <button
-              key={item.name}
-              onClick={() => setActiveTab(item.name)}
-              style={{
-                ...styles.navItem,
-                ...(activeTab === item.name ? styles.navItemActive : {})
-              }}
+              onClick={() => setSidebarCollapsed(true)}
+              title="Collapse sidebar"
+              style={styles.collapseBtn}
             >
-              <item.icon size={16} />
-              {item.name}
+              <ChevronsLeft size={16} />
             </button>
+          )}
+        </div>
+
+        {sidebarCollapsed && (
+          <button
+            onClick={() => setSidebarCollapsed(false)}
+            title="Expand sidebar"
+            style={{ ...styles.collapseBtn, alignSelf: "center", marginTop: "12px" }}
+          >
+            <ChevronsRight size={16} />
+          </button>
+        )}
+
+        <div className="custom-scrollbar" style={styles.sidebarNav}>
+          {sidebarGroups.map((group) => (
+            <div key={group.label} style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "8px" }}>
+              {!sidebarCollapsed ? (
+                <div style={styles.navGroupLabel}>{group.label}</div>
+              ) : (
+                <div style={styles.navGroupDivider} />
+              )}
+              {group.items.map((item) => {
+                const isActive = activeTab === item.name;
+                const isHovered = hoveredNav === item.name;
+                const badge = item.name === "Support Tickets" && openSupportTicketsCount > 0 ? openSupportTicketsCount : null;
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => setActiveTab(item.name)}
+                    onMouseEnter={() => setHoveredNav(item.name)}
+                    onMouseLeave={() => setHoveredNav(null)}
+                    title={sidebarCollapsed ? item.name : undefined}
+                    style={{
+                      ...styles.navItem,
+                      justifyContent: sidebarCollapsed ? "center" : "flex-start",
+                      padding: sidebarCollapsed ? "10px 0" : "10px 14px",
+                      ...(isActive ? styles.navItemActive : (isHovered ? styles.navItemHover : {})),
+                    }}
+                  >
+                    {isActive && !sidebarCollapsed && <span style={styles.navActiveBar} />}
+                    <item.icon size={16} style={{ flexShrink: 0 }} />
+                    {!sidebarCollapsed && <span style={{ flex: 1, textAlign: "left" }}>{item.name}</span>}
+                    {badge != null && (
+                      <span style={sidebarCollapsed ? styles.navBadgeDot : styles.navBadge}>
+                        {sidebarCollapsed ? "" : badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           ))}
         </div>
-        
-        <div style={styles.sidebarFooter}>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
+
+        <div style={{ ...styles.sidebarFooter, padding: sidebarCollapsed ? "16px 12px" : "20px" }}>
+          <button
+            onClick={handleLogout}
+            style={{ ...styles.logoutBtn, padding: sidebarCollapsed ? "10px 0" : "10px" }}
+            title={sidebarCollapsed ? "Logout" : undefined}
+          >
             <LogOut size={16} />
-            Logout
+            {!sidebarCollapsed && "Logout"}
           </button>
         </div>
       </aside>
@@ -2011,13 +2230,38 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
         {/* Top Header */}
         <header style={styles.topHeader}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <h1 style={styles.pageTitle}>{activeTab}</h1>
+            <div>
+              <div style={styles.breadcrumb}>
+                <span>Admin</span>
+                <span style={{ opacity: 0.5 }}>/</span>
+                <span>{groupForTab(activeTab)}</span>
+              </div>
+              <h1 style={styles.pageTitle}>{activeTab}</h1>
+              <p style={styles.pageSubtitle}>{tabSubtitles[activeTab] || ""}</p>
+            </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={styles.searchBar}>
-              <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-              <input type="text" placeholder="Search..." style={styles.searchInput} />
-            </div>
+            {activeSearch && (
+              <div style={styles.searchBar}>
+                <Search size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
+                <input
+                  type="text"
+                  value={activeSearch.value}
+                  onChange={(e) => activeSearch.setValue(e.target.value)}
+                  placeholder={activeSearch.placeholder}
+                  style={styles.searchInput}
+                />
+                {activeSearch.value && (
+                  <button
+                    onClick={() => activeSearch.setValue("")}
+                    title="Clear search"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+            )}
             <div style={{ position: "relative" }} ref={notifRef}>
               <button 
                 onClick={() => setIsAdminNotifOpen(!isAdminNotifOpen)}
@@ -2050,8 +2294,12 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                  </div>
               )}
             </div>
-            <div style={styles.adminProfile}>
-              A
+            <div style={styles.adminIdentity}>
+              <div style={styles.adminProfile}>A</div>
+              <div style={styles.adminMeta}>
+                <span style={styles.adminName}>Admin User</span>
+                <span style={styles.adminRole}>Administrator</span>
+              </div>
             </div>
           </div>
         </header>
@@ -2822,7 +3070,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                           </div>
                           <div>
                             <div style={{ fontSize: "13px", fontWeight: 700, color: "#000" }}>{rider.name}</div>
-                            <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>★ {rider.rating} • {rider.deliveries} trips</div>
+                            <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}><Star size={11} fill="#f59e0b" color="#f59e0b" style={{ verticalAlign: "middle" }} /> {rider.rating} • {rider.deliveries} trips</div>
                           </div>
                         </div>
                         <button style={{ background: "rgba(14,165,233,0.1)", border: "none", color: "#0ea5e9", width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
@@ -3582,7 +3830,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                         </td>
                         <td style={styles.td}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <input type="text" value={editingHarvest.weather} onChange={(e) => setEditingHarvest({...editingHarvest, weather: e.target.value})} style={styles.editInput} placeholder="Weather (e.g. Sunny ☀️)" />
+                            <input type="text" value={editingHarvest.weather} onChange={(e) => setEditingHarvest({...editingHarvest, weather: e.target.value})} style={styles.editInput} placeholder="Weather (e.g. Sunny)" />
                             <input type="text" value={editingHarvest.temp} onChange={(e) => setEditingHarvest({...editingHarvest, temp: e.target.value})} style={styles.editInput} placeholder="Temp (e.g. 20-28°C)" />
                           </div>
                         </td>
@@ -3665,7 +3913,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                         <td style={styles.td}>
                           {editingHarvest?.id === h.id && !editingHarvest.isNew ? (
                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                              <input type="text" value={editingHarvest.weather} onChange={(e) => setEditingHarvest({...editingHarvest, weather: e.target.value})} style={styles.editInput} placeholder="Weather (e.g. Sunny ☀️)" />
+                              <input type="text" value={editingHarvest.weather} onChange={(e) => setEditingHarvest({...editingHarvest, weather: e.target.value})} style={styles.editInput} placeholder="Weather (e.g. Sunny)" />
                               <input type="text" value={editingHarvest.temp} onChange={(e) => setEditingHarvest({...editingHarvest, temp: e.target.value})} style={styles.editInput} placeholder="Temp (e.g. 20-28°C)" />
                             </div>
                           ) : (
@@ -3692,8 +3940,8 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                             </div>
                           ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}>💧 {h.water} | 🌱 {h.soil}</div>
-                              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}>🐛 Pest: <span style={{ color: h.pestRisk === 'High' ? '#dc2626' : h.pestRisk === 'Medium' ? '#f59e0b' : '#16a34a' }}>{h.pestRisk}</span></div>
+                              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}>{h.water} | {h.soil}</div>
+                              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}><Bug size={11} style={{ verticalAlign: "middle" }} /> Pest: <span style={{ color: h.pestRisk === 'High' ? '#dc2626' : h.pestRisk === 'Medium' ? '#f59e0b' : '#16a34a' }}>{h.pestRisk}</span></div>
                             </div>
                           )}
                         </td>
@@ -4087,7 +4335,7 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                     style={{ width: "100%", height: "80px", padding: "12px", borderRadius: "12px", border: "1px solid rgba(139,92,246,0.2)", background: "rgba(255,255,255,0.8)", fontSize: "12px", resize: "none", outline: "none", marginBottom: "12px", boxSizing: "border-box", fontFamily: "inherit" }}
                   />
                   <button style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 4px 12px rgba(139,92,246,0.3)" }}>
-                    Generate Content ✨
+                    Generate Content
                   </button>
                 </div>
 
@@ -4095,9 +4343,9 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
                   <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Quick Actions</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Edit2 size={16} /> Create New Article</button>
+                    <button onClick={() => handleAddContent("Article", "Draft")} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Edit2 size={16} /> Create New Article</button>
                     <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Layout size={16} /> Edit Homepage</button>
-                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(245,158,11,0.1)", color: "#b45309", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Megaphone size={16} /> Post Announcement</button>
+                    <button onClick={() => handleAddContent("Announcement", "Published")} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(245,158,11,0.1)", color: "#b45309", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Megaphone size={16} /> Post Announcement</button>
                   </div>
                 </div>
               </div>
@@ -4116,6 +4364,176 @@ export default function AdminPortal({ setActiveNav, handleLogout, products, setP
                   <div key={i} style={{ aspectRatio: "1/1", borderRadius: "12px", background: "rgba(0,0,0,0.03)", border: "1px dashed rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                     {i % 3 === 0 ? <Play size={24} color="rgba(0,0,0,0.2)" /> : <Image size={24} color="rgba(0,0,0,0.2)" />}
                   </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "Community Forum" ? (
+          <div style={styles.dashboardContainer}>
+            {/* Forum Stats */}
+            <div style={styles.statsGrid}>
+              {[
+                { label: "Total Posts", value: forumPosts.length, icon: <MessageSquare size={18} color="#16a34a" /> },
+                { label: "Total Replies", value: forumPosts.reduce((s, p) => s + (p.replies || []).length, 0), icon: <MessageSquare size={18} color="#0ea5e9" /> },
+                { label: "Pinned / Official", value: forumPosts.filter((p) => p.pinned || p.official).length, icon: <Star size={18} color="#f59e0b" /> },
+              ].map((stat, idx) => (
+                <div key={idx} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                  </div>
+                  <div style={styles.statValue}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "24px", alignItems: "start" }}>
+              {/* Publish official post */}
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                  <Megaphone size={18} color="#16a34a" />
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", margin: 0 }}>Publish Official Post</h3>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Post title"
+                  value={forumDraft.title}
+                  onChange={(e) => setForumDraft({ ...forumDraft, title: e.target.value })}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "13px", outline: "none", marginBottom: "12px", boxSizing: "border-box", fontFamily: "inherit" }}
+                />
+                <textarea
+                  placeholder="Write an announcement or guidance for the community..."
+                  value={forumDraft.body}
+                  onChange={(e) => setForumDraft({ ...forumDraft, body: e.target.value })}
+                  style={{ width: "100%", height: "110px", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "13px", resize: "none", outline: "none", marginBottom: "12px", boxSizing: "border-box", fontFamily: "inherit" }}
+                />
+                <select
+                  value={forumDraft.category}
+                  onChange={(e) => setForumDraft({ ...forumDraft, category: e.target.value })}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "13px", outline: "none", marginBottom: "14px", boxSizing: "border-box", fontWeight: 600 }}
+                >
+                  {forumCategories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={handlePublishOfficialPost}
+                  style={{ width: "100%", padding: "11px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }}
+                >
+                  <Send size={15} /> Publish to Community
+                </button>
+              </div>
+
+              {/* Moderation list */}
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Community Posts ({forumPosts.length})</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px", maxHeight: "560px", overflowY: "auto" }}>
+                  {forumPosts.length === 0 && <p style={{ color: "rgba(0,0,0,0.5)", fontSize: "13px" }}>No posts yet.</p>}
+                  {forumPosts.map((post) => (
+                    <div key={post.id} style={{ borderRadius: "12px", border: "1px solid rgba(0,0,0,0.08)", background: post.official ? "rgba(22,163,74,0.06)" : "rgba(0,0,0,0.02)", padding: "14px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>
+                            {post.title}
+                            {post.official && <span style={{ marginLeft: "7px", fontSize: "9px", fontWeight: 800, color: "#fff", background: "#16a34a", padding: "2px 6px", borderRadius: "999px" }}>OFFICIAL</span>}
+                            {post.pinned && <span style={{ marginLeft: "6px", fontSize: "9px", fontWeight: 800, color: "#b45309", background: "rgba(245,158,11,0.15)", padding: "2px 6px", borderRadius: "999px" }}>PINNED</span>}
+                          </div>
+                          <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", marginTop: "2px" }}>{post.author} · {post.category} · {post.time} · {post.likes || 0} likes</div>
+                        </div>
+                        <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                          <button onClick={() => handleTogglePinPost(post.id)} title={post.pinned ? "Unpin" : "Pin"} style={{ ...styles.actionBtn, color: post.pinned ? "#b45309" : "rgba(0,0,0,0.5)", background: post.pinned ? "rgba(245,158,11,0.12)" : "rgba(0,0,0,0.04)", padding: "5px 8px" }}><Star size={13} /></button>
+                          <button onClick={() => handleDeleteForumPost(post.id)} title="Delete" style={{ ...styles.actionBtn, color: "#e11d48", background: "rgba(225,29,72,0.1)", padding: "5px 8px" }}><Trash2 size={13} /></button>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: "12.5px", color: "rgba(0,0,0,0.7)", margin: "8px 0 0" }}>{post.body}</p>
+                      {(post.replies || []).length > 0 && (
+                        <div style={{ marginTop: "10px", borderTop: "1px dashed rgba(0,0,0,0.1)", paddingTop: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                          {(post.replies || []).map((r, i) => (
+                            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px" }}>
+                              <div style={{ fontSize: "11.5px", color: "rgba(0,0,0,0.65)" }}><strong>{r.author}:</strong> {r.body}</div>
+                              <button onClick={() => handleDeleteForumReply(post.id, i)} title="Delete reply" style={{ ...styles.actionBtn, color: "#e11d48", background: "transparent", padding: "2px 4px", flexShrink: 0 }}><X size={12} /></button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "Farm Planner" ? (
+          <div style={styles.dashboardContainer}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+              <div>
+                <h3 style={{ ...styles.cardHeading, fontSize: "18px", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}><Thermometer size={18} color="#0ea5e9" /> Weather Outlook by Region</h3>
+                <p style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", margin: "4px 0 0" }}>Drives the 5-day forecast shown on the user Farm Planner.</p>
+              </div>
+              <button onClick={handleSavePlanner} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }}>
+                <Save size={15} /> Save Changes
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: "20px" }}>
+              {Object.keys(plannerDraft.regions || {}).map((region) => {
+                const r = plannerDraft.regions[region] || {};
+                return (
+                  <div key={region} className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
+                    <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a", margin: "0 0 14px" }}>{region}</h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
+                      {[
+                        { field: "base", label: "Base °C" },
+                        { field: "humidity", label: "Humidity %" },
+                        { field: "wind", label: "Wind km/h" },
+                      ].map(({ field, label }) => (
+                        <label key={field} style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.6)" }}>
+                          {label}
+                          <input
+                            type="number"
+                            value={r[field] ?? 0}
+                            onChange={(e) => updatePlannerRegion(region, field, Number(e.target.value))}
+                            style={{ width: "100%", padding: "8px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.85)", fontSize: "13px", outline: "none", marginTop: "4px", boxSizing: "border-box" }}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.6)", marginBottom: "6px" }}>5-Day Conditions</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {Array.from({ length: 5 }).map((_, dayIdx) => (
+                        <select
+                          key={dayIdx}
+                          value={(r.cond || [])[dayIdx] || "Sunny"}
+                          onChange={(e) => updatePlannerCondition(region, dayIdx, e.target.value)}
+                          style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.85)", fontSize: "12px", outline: "none", fontWeight: 600 }}
+                        >
+                          {forecastConditions.map((c) => (
+                            <option key={c} value={c}>Day {dayIdx + 1}: {c}</option>
+                          ))}
+                        </select>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+              <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "6px", display: "flex", alignItems: "center", gap: "8px" }}><Megaphone size={16} color="#16a34a" /> Planting Advisories</h3>
+              <p style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", margin: "0 0 16px" }}>Shown based on the forecast — wet (rainy), dry (sunny), or mild (mixed) conditions.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
+                {[
+                  { key: "wet", label: "Wet / Rainy advisory" },
+                  { key: "dry", label: "Dry / Sunny advisory" },
+                  { key: "mild", label: "Mild / Mixed advisory" },
+                ].map(({ key, label }) => (
+                  <label key={key} style={{ fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.6)" }}>
+                    {label}
+                    <textarea
+                      value={plannerDraft.advisories[key] || ""}
+                      onChange={(e) => setPlannerDraft((prev) => ({ ...prev, advisories: { ...prev.advisories, [key]: e.target.value } }))}
+                      style={{ width: "100%", height: "90px", padding: "10px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.85)", fontSize: "12.5px", resize: "none", outline: "none", marginTop: "6px", boxSizing: "border-box", fontFamily: "inherit" }}
+                    />
+                  </label>
                 ))}
               </div>
             </div>
@@ -4396,6 +4814,7 @@ const styles = {
     gap: "4px",
   },
   navItem: {
+    position: "relative",
     display: "flex",
     alignItems: "center",
     gap: "10px",
@@ -4415,6 +4834,71 @@ const styles = {
     color: "#064e3b",
     fontWeight: 700,
     boxShadow: "0 4px 12px rgba(34,197,94,0.1)",
+  },
+  navItemHover: {
+    background: "rgba(0,0,0,0.035)",
+    color: "rgba(0,0,0,0.85)",
+  },
+  navActiveBar: {
+    position: "absolute",
+    left: "-12px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: "4px",
+    height: "20px",
+    borderRadius: "0 4px 4px 0",
+    background: "linear-gradient(180deg, #16a34a, #0284c7)",
+  },
+  navGroupLabel: {
+    fontSize: "10px",
+    fontWeight: 800,
+    letterSpacing: "0.8px",
+    textTransform: "uppercase",
+    color: "rgba(0,0,0,0.35)",
+    padding: "4px 14px 2px",
+  },
+  navGroupDivider: {
+    height: "1px",
+    background: "rgba(0,0,0,0.06)",
+    margin: "6px 8px",
+  },
+  navBadge: {
+    minWidth: "18px",
+    height: "18px",
+    padding: "0 5px",
+    borderRadius: "999px",
+    background: "#ef4444",
+    color: "#fff",
+    fontSize: "10px",
+    fontWeight: 800,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  navBadgeDot: {
+    position: "absolute",
+    top: "8px",
+    right: "16px",
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: "#ef4444",
+    border: "1px solid #fff",
+  },
+  collapseBtn: {
+    width: "26px",
+    height: "26px",
+    borderRadius: "8px",
+    border: "1px solid rgba(0,0,0,0.06)",
+    background: "rgba(255,255,255,0.6)",
+    color: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    flexShrink: 0,
+    transition: "background 0.2s",
   },
   sidebarFooter: {
     padding: "20px",
@@ -4464,12 +4948,50 @@ const styles = {
     top: 0,
     zIndex: 10,
   },
+  breadcrumb: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "11px",
+    fontWeight: 600,
+    color: "rgba(0,0,0,0.4)",
+    marginBottom: "2px",
+  },
   pageTitle: {
     fontSize: "18px",
     fontWeight: 800,
     color: "#000",
     margin: 0,
     letterSpacing: "-0.5px",
+    lineHeight: 1.2,
+  },
+  pageSubtitle: {
+    fontSize: "12px",
+    fontWeight: 500,
+    color: "rgba(0,0,0,0.45)",
+    margin: "2px 0 0",
+  },
+  adminIdentity: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    paddingLeft: "12px",
+    borderLeft: "1px solid rgba(0,0,0,0.08)",
+  },
+  adminMeta: {
+    display: "flex",
+    flexDirection: "column",
+    lineHeight: 1.2,
+  },
+  adminName: {
+    fontSize: "13px",
+    fontWeight: 700,
+    color: "#000",
+  },
+  adminRole: {
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "rgba(0,0,0,0.45)",
   },
   searchBar: {
     display: "flex",
@@ -4485,7 +5007,7 @@ const styles = {
     background: "transparent",
     outline: "none",
     fontSize: "12px",
-    width: "140px",
+    width: "180px",
   },
   iconBtn: {
     position: "relative",

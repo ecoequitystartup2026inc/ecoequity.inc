@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Check } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUser, FaFilter, FaTimes, FaArrowLeft } from "react-icons/fa";
 
@@ -97,7 +98,7 @@ const eventSuggestions = {
   },
 };
 
-function EventsAndWorkshopsPage({ setActiveNav }) {
+function EventsAndWorkshopsPage({ setActiveNav, adminEvents = [], onRegister }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [activeFilter, setActiveFilter] = useState("All Events");
   const [hoveredFilter, setHoveredFilter] = useState(null);
@@ -123,7 +124,32 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
     setActiveIndex(Math.round(ratio * (filteredEvents.length - 1)));
   };
 
-  const filteredEvents = mockEvents.filter(event => {
+  // Map an Admin Portal event record to the website's event-card shape
+  const mapAdminEventToCard = (ae) => {
+    const typeMap = { Workshop: "Training", Community: "Community Gathering", Webinar: "Webinar" };
+    return {
+      id: ae.id,
+      type: typeMap[ae.type] || ae.type || "Training",
+      date: ae.date,
+      time: ae.time,
+      venue: ae.location || "TBA",
+      speaker: { name: "VerdeVersity Team", image: "/russell.jpeg" },
+      title: ae.title,
+      description: `${ae.type || "Event"}${ae.price ? " • " + ae.price : ""}${ae.location ? " • " + ae.location : ""}`,
+      fullDescription: `Join us for ${ae.title} on ${ae.date}${ae.time ? " at " + ae.time : ""}. ${ae.attendees || 0} of ${ae.maxAttendees || "?"} spots filled.`,
+      rsvpLink: "#",
+    };
+  };
+
+  // Curated events + admin-created events (deduped by title) for a single, synced list
+  const allEvents = [
+    ...mockEvents,
+    ...adminEvents
+      .filter(ae => ae.title && !mockEvents.some(me => me.title === ae.title))
+      .map(mapAdminEventToCard),
+  ];
+
+  const filteredEvents = allEvents.filter(event => {
     if (activeFilter === "All Events") return true;
     const tabMapping = {
       "Trainings": "Training",
@@ -145,6 +171,8 @@ const openEventDetails = (event) => {
   };
 
 const handleConfirmJoin = () => {
+    // Sync the registration back to the Admin Portal (increments attendee count)
+    if (onRegister && joiningEvent) onRegister(joiningEvent);
     setConfirmedEvent(joiningEvent);
     setShowIdeasModal(false);
     setShowSuccessModal(true);
@@ -374,7 +402,7 @@ END:VCALENDAR`;
             </div>
             
             <div style={styles.ideasSection}>
-              <h4 style={styles.ideasSectionTitle}>💡 Preparation Tips</h4>
+              <h4 style={styles.ideasSectionTitle}>Preparation Tips</h4>
               <ul style={styles.ideasTipsList}>
                 {getSuggestionsForEvent(joiningEvent.type).tips.map((tip, index) => (
                   <li key={index} style={styles.ideasTipItem}>{tip}</li>
@@ -383,7 +411,7 @@ END:VCALENDAR`;
             </div>
             
             <div style={styles.ideasSection}>
-              <h4 style={styles.ideasSectionTitle}>📅 Related Events</h4>
+              <h4 style={styles.ideasSectionTitle}>Related Events</h4>
               <p style={styles.ideasRelatedText}>
                 Check out our {getSuggestionsForEvent(joiningEvent.type).relatedEvents.join(" and ")} events for more learning opportunities!
               </p>
@@ -394,7 +422,7 @@ END:VCALENDAR`;
                 Cancel
               </button>
               <button type="button" style={styles.ideasConfirmBtn} onClick={handleConfirmJoin}>
-                Confirm Join ✓
+                Confirm Join
               </button>
             </div>
           </div>
@@ -406,7 +434,7 @@ END:VCALENDAR`;
       {showSuccessModal && confirmedEvent && ReactDOM.createPortal(
         <div style={styles.successModalOverlay} onClick={handleCloseSuccess}>
           <div style={styles.successModalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.successCheckmark}>✓</div>
+            <div style={styles.successCheckmark}><Check size={28} color="#16a34a" /></div>
             <h2 style={styles.successTitle}>You're Confirmed!</h2>
             <p style={styles.successSubtitle}>You've successfully joined:</p>
             <div style={styles.successEventCard}>
@@ -415,11 +443,11 @@ END:VCALENDAR`;
               <p style={styles.successEventDate}><FaCalendarAlt /> {confirmedEvent.date} • {confirmedEvent.time}</p>
             </div>
 <p style={styles.successMessage}>
-              📧 Check your email for confirmation details and event updates. We can't wait to see you there!
+              Check your email for confirmation details and event updates. We can't wait to see you there!
             </p>
             <div style={styles.calendarButtonsRow}>
               <button type="button" style={styles.addToCalendarBtn} onClick={() => addToCalendar(confirmedEvent)} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-                📅 Add to Calendar
+                Add to Calendar
               </button>
               <button type="button" style={styles.successButton} onClick={handleCloseSuccess}>
                 Awesome, Thanks!
@@ -491,6 +519,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -503,7 +532,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 800,
+    fontWeight: 300,
     color: "#000",
     margin: "0 auto 16px",
     lineHeight: 1.15,
@@ -521,6 +550,7 @@ const styles = {
     margin: "0 auto 18px",
     boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
   },
   accent: {
     background: "linear-gradient(90deg, #4ade80, #86efac)",

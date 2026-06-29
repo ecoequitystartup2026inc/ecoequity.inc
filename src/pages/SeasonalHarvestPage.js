@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Leaf } from "lucide-react";
 import { FaArrowLeft, FaFilter, FaCalendarAlt, FaSearch, FaLeaf, FaCalendarPlus, FaBell, FaBookmark, FaStore, FaThermometerHalf, FaTint, FaBug, FaSeedling, FaChartLine, FaMapMarkerAlt, FaBoxOpen } from "react-icons/fa";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -354,7 +355,7 @@ export default function SeasonalHarvestPage({ setActiveNav, onNotify, harvests }
         </div>
       ) : (
         <div className="inner-blur-glass" style={styles.emptyState}>
-          <div style={styles.emptyIcon}>🍂</div>
+          <div style={styles.emptyIcon}><Leaf size="1em" color="#ca8a04" /></div>
           <h3 style={styles.emptyTitle}>No Seasonal Harvest Available</h3>
           <p style={styles.emptyDesc}>There are no crops matching your filters for {selectedMonth}. Try selecting a different month or category.</p>
         </div>
@@ -375,13 +376,42 @@ const styles = {
   backBtn: { padding: "8px 16px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", color: "#000", fontSize: "13px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.2px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)", transition: "transform 0.2s ease" },
   backBtnMobile: { width: "34px", height: "34px", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" },
   backBtnHov: { transform: "scale(1.035)" },
-  badge: { display: "inline-flex", alignItems: "center", gap: "7px", padding: "5px 14px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", fontSize: "11px", fontWeight: 600, color: "#15803d", letterSpacing: "0.6px", textTransform: "uppercase", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)" },
+  badge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+    padding: "5px 14px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.6)",
+    border: "1px solid rgba(0,0,0,0.05)",
+    fontSize: "11px",
+    fontWeight: 600,
+    color: "#15803d",
+    letterSpacing: "0.6px",
+    textTransform: "uppercase",
+    marginBottom: "20px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
+  },
   badgeMobile: { padding: "5px 11px", fontSize: "9.5px", maxWidth: "calc(100% - 82px)", justifyContent: "center" },
   badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block" },
-  title: { fontSize: "clamp(32px, 4.5vw, 50px)", fontWeight: 800, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)" },
+  title: { fontSize: "clamp(32px, 4.5vw, 50px)", fontWeight: 300, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)" },
   titleMobile: { fontSize: "clamp(20px, 6.5vw, 28px)", marginBottom: "10px", letterSpacing: "0" },
-  titleUnderline: { width: "118px", height: "4px", background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)", backgroundSize: "200% 100%", margin: "0 auto 18px", boxShadow: "0 0 18px rgba(134,239,172,0.75)", borderRadius: "999px" },
-  accent: { background: "linear-gradient(90deg, #4ade80, #86efac)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" },
+  titleUnderline: {
+    width: "118px",
+    height: "4px",
+    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
+    backgroundSize: "200% 100%",
+    margin: "0 auto 18px",
+    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
+    borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
+  },
+  accent: {
+    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
   body: { color: "#000", marginBottom: "30px", fontSize: "clamp(14px, 1.6vw, 16px)", fontWeight: 400, lineHeight: 1.6, maxWidth: "700px" },
   bodyMobile: { marginBottom: "18px", fontSize: "12px", lineHeight: 1.55, maxWidth: "94%" },
   

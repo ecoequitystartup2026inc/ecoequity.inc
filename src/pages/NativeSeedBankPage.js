@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Wheat, Users, Laptop } from "lucide-react";
 import { FaArrowLeft, FaSeedling, FaLeaf, FaUsers, FaChartBar, FaGlobeAmericas, FaHandshake, FaAward, FaBoxes, FaTruck, FaHandsHelping, FaChartLine, FaFlask } from "react-icons/fa";
 
 const seedBankStats = [
@@ -11,17 +12,17 @@ const preservationPrograms = [
   {
     title: "Heirloom Seed Collection",
     desc: "Identifying, collecting, and cataloging rare and endangered native seed varieties across the Philippines.",
-    icon: "🌾",
+    icon: <Wheat size="1em" color="#d97706" />,
   },
   {
     title: "Community Seed Guardians",
     desc: "Training local farmers and community members to become stewards of native seeds, ensuring their long-term viability.",
-    icon: "🧑‍🌾",
+    icon: <Users size="1em" color="#16a34a" />,
   },
   {
     title: "Digital Seed Registry",
     desc: "A comprehensive online database tracking all preserved seeds, their origins, and genetic information.",
-    icon: "💻",
+    icon: <Laptop size="1em" color="#0284c7" />,
   },
 ];
 
@@ -230,6 +231,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -246,7 +248,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(24px, 3.2vw, 38px)",
-    fontWeight: 800,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 10px",
     fontFamily: "'Poppins', sans-serif",
@@ -260,11 +262,12 @@ const styles = {
   titleUnderline: {
     width: "118px",
     height: "4px",
-    background: "linear-gradient(90deg, rgba(22,163,74,0) 0%, #16a34a 30%, #0284c7 50%, #16a34a 70%, rgba(2,132,199,0) 100%)",
+    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
     backgroundSize: "200% 100%",
-    margin: "0 auto 22px",
-    boxShadow: "0 0 12px rgba(22,163,74,0.4)",
+    margin: "0 auto 18px",
+    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
   },
   titleAccent: {
     background: "linear-gradient(90deg, #15803d, #16a34a)",

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaShoppingCart, FaHeart, FaTimes, FaPlus, FaMinus, FaTrash, FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaCreditCard, FaMoneyBillWave, FaCheckCircle, FaLock, FaSeedling, FaGift, FaBoxOpen, FaClipboardList, FaTag, FaStar } from "react-icons/fa";
+import { Sprout, Heart, Check, Smartphone, ShoppingCart } from "lucide-react";
 import QuickViewModal from "./QuickViewModal";
 
 const categories = [
@@ -13,7 +14,21 @@ const categories = [
   "Gardening Tools",
 ];
 
-function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts, setSavedProducts, setOrders, onTrackOrder, products, promoCodes }) {
+function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts, setSavedProducts, setOrders, onTrackOrder, products, setProducts, promoCodes }) {
+  // Append a customer review to a product and recompute its average rating + count.
+  const handleAddReview = (productId, review) => {
+    if (!setProducts) return;
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (p.id !== productId) return p;
+        const reviews = [...(p.reviews || []), review];
+        const reviewCount = (p.reviewCount || 0) + 1;
+        const totalStars = (p.rating || 0) * (p.reviewCount || 0) + review.rating;
+        const rating = Math.round((totalStars / reviewCount) * 10) / 10;
+        return { ...p, reviews, reviewCount, rating };
+      })
+    );
+  };
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [searchQuery, setSearchQuery] = useState("");
@@ -674,7 +689,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                 <div style={{ ...styles.imageContainer, ...(isMobile ? styles.imageContainerMobile : {}) }}>
                   <div style={styles.imagePlaceholder}>
                      {/* Replace this with actual image tag: <img src={product.image} alt={product.name} /> */}
-                     <span style={{ fontSize: isMobile ? "28px" : "36px" }}>{product.emoji || "🌱"}</span>
+                     <span style={{ fontSize: isMobile ? "28px" : "36px" }}>{product.emoji || <Sprout size="1em" color="#16a34a" />}</span>
                   </div>
                   {product.badge && <span style={{ ...styles.badgeLabel, ...(isMobile ? styles.badgeLabelMobile : {}) }}>{product.badge}</span>}
                   <button 
@@ -688,7 +703,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                     }}
                     title="Save Product"
                   >
-                    {savedProducts.includes(product.id) ? "♥" : "♡"}
+                    {savedProducts.includes(product.id) ? <Heart size="1em" fill="#e11d48" color="#e11d48" /> : <Heart size="1em" color="#94a3b8" />}
                   </button>
                 </div>
                 <div style={{ ...styles.productInfo, ...(isMobile ? styles.productInfoMobile : {}) }}>
@@ -801,7 +816,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                 uniqueWishlistItems.map(item => (
                   <div key={item.id} style={styles.cartItem} className="flex items-center gap-3 bg-white/60 border border-black/5 rounded-2xl p-3">
                     <div style={styles.cartItemImgWrap} className="w-16 h-16 rounded-xl bg-green-600/10 flex items-center justify-center shrink-0">
-                      <span style={{ fontSize: "24px" }}>🌱</span>
+                      <span style={{ fontSize: "24px" }}><Sprout size="1em" color="#16a34a" /></span>
                     </div>
                     <div style={styles.cartItemDetails} className="flex-1 flex flex-col gap-1">
                       <div style={styles.cartItemName} className="text-sm font-bold text-black">{item.name}</div>
@@ -893,7 +908,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                 uniqueCartItems.map(item => (
                   <div key={item.id} style={styles.cartItem} className="flex items-center gap-3 bg-white/60 border border-black/5 rounded-2xl p-3">
                     <div style={styles.cartItemImgWrap} className="w-16 h-16 rounded-xl bg-green-600/10 flex items-center justify-center shrink-0">
-                      <span style={{ fontSize: "24px" }}>🌱</span>
+                      <span style={{ fontSize: "24px" }}><Sprout size="1em" color="#16a34a" /></span>
                     </div>
                     <div style={styles.cartItemDetails} className="flex-1 flex flex-col gap-1">
                       <div style={styles.cartItemName} className="text-sm font-bold text-black">{item.name}</div>
@@ -952,7 +967,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
             <div style={styles.stepperWrap}>
               {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => (
                  <div key={step} style={{...styles.step, flex: idx < 2 ? 1 : "none"}}>
-                   <div style={{...styles.stepDot, ...(idx <= 1 ? styles.stepDotActive : {})}}>{idx < 1 ? '✓' : idx + 1}</div>
+                   <div style={{...styles.stepDot, ...(idx <= 1 ? styles.stepDotActive : {})}}>{idx < 1 ? <Check size={14} /> : idx + 1}</div>
                    <span style={{...styles.stepText, ...(idx <= 1 ? styles.stepTextActive : {})}}>{step}</span>
                    {idx < 2 && (
                      <div style={styles.stepLineTrack}>
@@ -1031,7 +1046,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         <div style={styles.paymentDetailsCard}>
                            <div style={styles.paymentInstructions}>Send payment to GCash Number: <strong>0912 345 6789</strong></div>
                            <div style={styles.qrPlaceholder}>
-                              <span style={{ fontSize: "24px" }}>📱</span>
+                              <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
                               <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                            </div>
                            <InputField label="Reference Number" placeholder="e.g. 1000293812" value={paymentData.gcashRef} onChange={(val) => handlePaymentInputChange("gcashRef", val)} onBlur={() => handleBlur("gcashRef")} error={getError("gcashRef")} />
@@ -1070,7 +1085,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                       <label style={styles.checkboxLabel}>
                         <input type="checkbox" checked={supportSeed} onChange={(e) => setSupportSeed(e.target.checked)} style={styles.checkboxInput} />
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          Add ₱20 to support native seed preservation 🌱
+                          Add ₱20 to support native seed preservation
                           <span 
                             style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
                             onMouseEnter={() => setShowSeedOptionTooltip(true)}
@@ -1090,7 +1105,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                       <label style={styles.checkboxLabel}>
                         <input type="checkbox" checked={ecoPackaging} onChange={(e) => setEcoPackaging(e.target.checked)} style={styles.checkboxInput} />
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          Use eco-friendly packaging 📦
+                          Use eco-friendly packaging
                           <span 
                             style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
                             onMouseEnter={() => setShowEcoPackagingTooltip(true)}
@@ -1120,7 +1135,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                      {uniqueCartItems.map(item => (
                        <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "12px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
                          <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
-                            {item.emoji || "🌱"}
+                            {item.emoji || <Sprout size="1em" color="#16a34a" />}
                          </div>
                          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1.2 }}>{item.name}</span>
@@ -1153,7 +1168,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         placeholder="Promo code (e.g. GREEN10)" 
                         style={{ ...styles.promoInput, color: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#000' }} 
                       />
-                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#15803d' }}>{promoSuccess ? 'Applied ✓' : 'Apply'}</button>
+                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#15803d' }}>{promoSuccess ? 'Applied' : 'Apply'}</button>
                    </div>
 
                    <div style={{ marginTop: "12px", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "8px", flexShrink: 0 }}>
@@ -1226,7 +1241,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         <div style={styles.recGrid}>
                            {recommendations.map(p => (
                               <div key={p.id} style={styles.recCard}>
-                                 <div style={{fontSize: '24px'}}>{p.emoji || "🌱"}</div>
+                                 <div style={{fontSize: '24px'}}>{p.emoji || <Sprout size="1em" color="#16a34a" />}</div>
                                  <div style={{flex: 1}}>
                                    <div style={styles.recName}>{p.name}</div>
                                    <div style={styles.recPrice}>₱{p.price}</div>
@@ -1284,7 +1299,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
             <div style={{ ...styles.stepperWrap, marginBottom: "32px", marginTop: "-8px" }}>
               {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => (
                  <div key={step} style={{...styles.step, flex: idx < 2 ? 1 : "none"}}>
-                   <div style={{...styles.stepDot, ...styles.stepDotActive}}>{idx < 2 ? '✓' : idx + 1}</div>
+                   <div style={{...styles.stepDot, ...styles.stepDotActive}}>{idx < 2 ? <Check size={14} /> : idx + 1}</div>
                    <span style={{...styles.stepText, ...styles.stepTextActive}}>{step}</span>
                    {idx < 2 && (
                      <div style={styles.stepLineTrack}>
@@ -1335,6 +1350,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
           setCartItems={setCartItems}
           setActiveNav={setActiveNav}
           setCheckoutOpen={setCheckoutOpen}
+          onAddReview={handleAddReview}
         />
       )}
     </div>
@@ -1363,7 +1379,7 @@ const FloatingIcon = ({ anim }) => {
     });
   }, [anim]);
 
-  return <div style={style}>{anim.type === 'cart' ? '🛒' : '💚'}</div>;
+  return <div style={style}>{anim.type === 'cart' ? <ShoppingCart size={20} color="#16a34a" /> : <Heart size={20} fill="#16a34a" color="#16a34a" />}</div>;
 };
 
 const InputField = ({ label, placeholder, value, onChange, onBlur, error }) => (
@@ -1463,6 +1479,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -1475,7 +1492,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 auto 16px",
     lineHeight: 1.15,
@@ -1491,6 +1508,7 @@ const styles = {
     margin: "0 auto 18px",
     boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
   },
   accent: {
     background: "linear-gradient(90deg, #4ade80, #86efac)",

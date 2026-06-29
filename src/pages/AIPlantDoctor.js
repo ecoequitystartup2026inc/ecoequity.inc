@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Microscope, BarChart3, Download, Bell } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaUpload, FaRobot, FaLeaf, FaFlask, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaArrowLeft, FaTimes, FaCheck, FaLock, FaCrown, FaStar } from "react-icons/fa";
 
 // Premium features that require subscription
 const PREMIUM_FEATURES = [
-  { id: "advancedDiagnosis", name: "Advanced AI Diagnosis", icon: "🔬", description: "Deep learning analysis with 95%+ accuracy for complex plant diseases" },
-  { id: "cropAnalytics", name: "Crop Analytics", icon: "📊", description: "Predictive growth metrics and yield forecasting" },
-  { id: "downloadableReports", name: "Downloadable Reports", icon: "📥", description: "Export comprehensive PDF health reports" },
-  { id: "smartAlerts", name: "Smart Alerts", icon: "🔔", description: "Real-time notifications for pest outbreaks and weather threats" },
+  { id: "advancedDiagnosis", name: "Advanced AI Diagnosis", icon: <Microscope size="1em" color="#0284c7" />, description: "Deep learning analysis with 95%+ accuracy for complex plant diseases" },
+  { id: "cropAnalytics", name: "Crop Analytics", icon: <BarChart3 size="1em" color="#16a34a" />, description: "Predictive growth metrics and yield forecasting" },
+  { id: "downloadableReports", name: "Downloadable Reports", icon: <Download size="1em" color="#15803d" />, description: "Export comprehensive PDF health reports" },
+  { id: "smartAlerts", name: "Smart Alerts", icon: <Bell size="1em" color="#f59e0b" />, description: "Real-time notifications for pest outbreaks and weather threats" },
 ];
 
 const ANALYSIS_STEPS = [
@@ -17,7 +18,7 @@ const ANALYSIS_STEPS = [
   { id: 4, label: "Generating Health Report...", icon: <FaRobot /> },
 ];
 
-function AIPlantDoctor({ setActiveNav }) {
+function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -111,7 +112,7 @@ function AIPlantDoctor({ setActiveNav }) {
   };
 
   const showResult = () => {
-    setDiagnosisResult({
+    const result = {
       plantName: "Heirloom Tomato",
       condition: "Early Blight (Fungal)",
       confidence: "94.2%",
@@ -122,7 +123,22 @@ function AIPlantDoctor({ setActiveNav }) {
         "Improve air circulation by pruning excess foliage.",
         "Water at the base of the plant only, avoiding the leaves."
       ]
-    });
+    };
+    setDiagnosisResult(result);
+
+    // Sync this scan to the Admin Portal's AI Plant Doctor records
+    if (onScanComplete) {
+      onScanComplete({
+        id: `SCN-${Math.floor(1000 + Math.random() * 9000)}`,
+        plant: result.plantName,
+        disease: "Early Blight",
+        confidence: result.confidence,
+        user: loggedInUser || "Website User",
+        status: "Disease Detected",
+        date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+        recommendation: result.recommendations[0],
+      });
+    }
   };
 
 return (
@@ -414,14 +430,17 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     gap: "7px",
-    padding: "6px 14px",
+    padding: "5px 14px",
     borderRadius: "999px",
-    background: "rgba(22, 163, 74, 0.15)",
-    border: "1px solid rgba(74, 222, 128, 0.3)",
+    background: "rgba(255,255,255,0.6)",
+    border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#4ade80",
+    color: "#15803d",
+    letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
     width: "6px",
@@ -432,7 +451,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(28px, 4vw, 42px)",
-    fontWeight: 800,
+    fontWeight: 300,
     margin: "0 0 12px",
     textAlign: "left",
     letterSpacing: "-0.5px",
@@ -441,6 +460,7 @@ const styles = {
     background: "linear-gradient(90deg, #4ade80, #86efac)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   },
   subtitle: {
     fontSize: "15px",

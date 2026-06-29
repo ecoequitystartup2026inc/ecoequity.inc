@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaLeaf, FaTimes, FaLightbulb, FaRocket, FaCheckCircle, FaTrash, FaMinus, FaPlus, FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaCreditCard, FaMoneyBillWave, FaLock, FaSeedling, FaGift, FaBoxOpen, FaTag, FaHeart, FaShoppingCart } from "react-icons/fa";
+import { Leaf, Cherry, Carrot, Wrench, Sprout, Heart, Check, Smartphone } from "lucide-react";
 
 const starterKitsData = [
   {
@@ -8,7 +9,7 @@ const starterKitsData = [
     title: "Balcony Herb Garden",
     desc: "Perfect for urban spaces. Includes 5 organic herb varieties, premium soil, and eco-pots for your apartment balcony.",
     price: "₱850.00",
-    icon: "🌿",
+    icon: <Leaf size="1em" color="#16a34a" />,
     badge: "Best Seller",
     suggestions: [
       "Use vertical planters to maximize space on your balcony.",
@@ -27,7 +28,7 @@ const starterKitsData = [
     title: "Tomato Success Kit",
     desc: "Everything you need for juicy heirloom tomatoes. Includes seeds, trellis, specialized fertilizer, and pest control.",
     price: "₱920.00",
-    icon: "🍅",
+    icon: <Cherry size="1em" color="#dc2626" />,
     badge: "Beginner Friendly",
     suggestions: [
       "Pinch off 'suckers' (small shoots between the main stem and branches) to direct energy to fruit.",
@@ -46,7 +47,7 @@ const starterKitsData = [
     title: "Vegetable Starter Pack",
     desc: "A robust collection of fast-growing local vegetables tailored for the Philippine climate. High yield guaranteed.",
     price: "₱1,200.00",
-    icon: "🥕",
+    icon: <Carrot size="1em" color="#ea580c" />,
     badge: "High Yield",
     suggestions: [
       "Practice companion planting (e.g., marigolds with your veggies) to naturally deter pests.",
@@ -65,7 +66,7 @@ const starterKitsData = [
     title: "Basic Gardening Tools",
     desc: "Ergonomic, rust-resistant essential hand tools including a trowel, pruner, cultivator, and gardening gloves.",
     price: "₱650.00",
-    icon: "🛠️",
+    icon: <Wrench size="1em" color="#15803d" />,
     badge: "Essential",
     suggestions: [
       "Clean and dry your tools after each use to prevent rust.",
@@ -171,7 +172,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
 
   const uniqueCartItems = Object.keys(cartItemCounts).map((id) => {
     const product = starterKitsData.find((p) => p.id === parseInt(id));
-    if (!product) return { id: parseInt(id), title: `Item #${id}`, price: "₱0.00", icon: "🌱", quantity: cartItemCounts[id], numericPrice: 0 };
+    if (!product) return { id: parseInt(id), title: `Item #${id}`, price: "₱0.00", icon: <Sprout size="1em" color="#16a34a" />, quantity: cartItemCounts[id], numericPrice: 0 };
     const numericPrice = parseFloat(product.price.replace(/[^\d.]/g, ''));
     return { ...product, quantity: cartItemCounts[id], numericPrice };
   });
@@ -508,7 +509,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                 }}
                 title="Save Product"
               >
-                {activeSavedProducts.includes(kit.id) ? "♥" : "♡"}
+                {activeSavedProducts.includes(kit.id) ? <Heart size="1em" fill="#e11d48" color="#e11d48" /> : <Heart size="1em" color="#94a3b8" />}
               </button>
             </div>
             
@@ -676,7 +677,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                 uniqueWishlistItems.map(item => (
                   <div key={item.id} style={styles.cartItem}>
                     <div style={styles.cartItemImgWrap}>
-                      <span style={{ fontSize: "24px" }}>{item.icon || "🌱"}</span>
+                      <span style={{ fontSize: "24px" }}>{item.icon || <Sprout size="1em" color="#16a34a" />}</span>
                     </div>
                     <div style={styles.cartItemDetails}>
                       <div style={styles.cartItemName}>{item.title}</div>
@@ -743,7 +744,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                     className={item.id === lastAddedId ? "highlight-flash" : ""}
                   >
                     <div style={styles.cartItemImgWrap}>
-                      <span style={{ fontSize: "24px" }}>{item.icon || "🌱"}</span>
+                      <span style={{ fontSize: "24px" }}>{item.icon || <Sprout size="1em" color="#16a34a" />}</span>
                     </div>
                     <div style={styles.cartItemDetails}>
                       <div style={styles.cartItemName}>{item.title}</div>
@@ -805,7 +806,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
             <div style={styles.stepperWrap}>
               {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => (
                  <div key={step} style={{...styles.step, flex: idx < 2 ? 1 : "none", ...(idx === 1 ? styles.stepActive : idx === 0 ? styles.stepCompleted : {})}}>
-                   <div style={{...styles.stepDot, ...(idx <= 1 ? styles.stepDotActive : {})}}>{idx < 1 ? '✓' : idx + 1}</div>
+                   <div style={{...styles.stepDot, ...(idx <= 1 ? styles.stepDotActive : {})}}>{idx < 1 ? <Check size={14} /> : idx + 1}</div>
                    <span style={{...styles.stepText, ...(idx <= 1 ? styles.stepTextActive : {})}}>{step}</span>
                    {idx < 2 && <div style={{...styles.stepLine, ...(idx < 1 ? styles.stepLineActive : {})}} />}
                  </div>
@@ -880,7 +881,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                         <div style={styles.paymentDetailsCard}>
                            <div style={styles.paymentInstructions}>Send payment to GCash Number: <strong>0912 345 6789</strong></div>
                            <div style={styles.qrPlaceholder}>
-                              <span style={{ fontSize: "24px" }}>📱</span>
+                              <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
                               <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                            </div>
                            <InputField label="Reference Number" placeholder="e.g. 1000293812" value={paymentData.gcashRef} onChange={(val) => handlePaymentInputChange("gcashRef", val)} onBlur={() => handleBlur("gcashRef")} error={getError("gcashRef")} />
@@ -919,7 +920,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                       <label style={styles.checkboxLabel}>
                         <input type="checkbox" checked={supportSeed} onChange={(e) => setSupportSeed(e.target.checked)} style={styles.checkboxInput} />
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          Add ₱20 to support native seed preservation 🌱
+                          Add ₱20 to support native seed preservation
                           <span 
                             style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
                             onMouseEnter={() => setShowSeedOptionTooltip(true)}
@@ -939,7 +940,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                       <label style={styles.checkboxLabel}>
                         <input type="checkbox" checked={ecoPackaging} onChange={(e) => setEcoPackaging(e.target.checked)} style={styles.checkboxInput} />
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          Use eco-friendly packaging 📦
+                          Use eco-friendly packaging
                           <span 
                             style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
                             onMouseEnter={() => setShowEcoPackagingTooltip(true)}
@@ -969,7 +970,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                      {uniqueCartItems.map(item => (
                        <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "12px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
                          <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
-                            {item.icon || "🌱"}
+                            {item.icon || <Sprout size="1em" color="#16a34a" />}
                          </div>
                          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1.2 }}>{item.title}</span>
@@ -1001,7 +1002,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                         placeholder="Promo code (e.g. GREEN10)" 
                         style={{ ...styles.promoInput, color: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#000' }} 
                       />
-                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#15803d' }}>{promoSuccess ? 'Applied ✓' : 'Apply'}</button>
+                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#15803d' }}>{promoSuccess ? 'Applied' : 'Apply'}</button>
                    </div>
 
                    <div style={{ marginTop: "12px", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "8px", flexShrink: 0 }}>
@@ -1251,6 +1252,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -1263,7 +1265,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 800,
+    fontWeight: 300,
     color: "#000",
     margin: "0 auto 16px",
     lineHeight: 1.15,
@@ -1278,6 +1280,7 @@ const styles = {
     margin: "0 auto 18px",
     boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
   },
   accent: {
     background: "linear-gradient(90deg, #4ade80, #86efac)",

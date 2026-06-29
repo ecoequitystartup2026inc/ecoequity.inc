@@ -139,6 +139,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -151,7 +152,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(28px, 4vw, 44px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 8px",
     lineHeight: 1.15,
@@ -167,7 +168,7 @@ const styles = {
     height: "4px",
     background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
     backgroundSize: "200% 100%",
-    margin: "0 auto 10px",
+    margin: "0 auto 18px",
     boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
     animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import AboutUs from "./pages/AboutUs";
-import OurTeam from "./pages/OurTeam";
 import ProductServices from "./pages/ProductServices";
 import TargetMarket from "./pages/TargetMarket";
 import GetInTouch from "./pages/GetInTouch";
@@ -26,38 +25,40 @@ import LGUPartnershipPage from "./pages/LGUPartnershipPage"; // Import the new L
 import OurImpactPage from "./pages/OurImpactPage"; // Import the new OurImpactPage
 import SurplusExchangePage from "./pages/SurplusExchangePage"; // Corrected path
 import CheckoutPage from "./pages/CheckoutPage"; // Import the CheckoutPage
-import AdminPortal from "./pages/AdminPortal"; // Import the AdminPortal
+import AdminPortal, { mockSubscribers, mockEventsList, mockScansList, mockContentList } from "./pages/AdminPortal"; // Import the AdminPortal + shared seed data
 import SeasonalHarvestPage from "./pages/SeasonalHarvestPage";
+import FarmPlannerPage, { defaultPlannerConfig } from "./pages/FarmPlannerPage";
+import CommunityForumPage, { forumSeedPosts } from "./pages/CommunityForumPage";
 import SupportTicketModal from "./SupportTicketModal";
 
 import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
-import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell } from "react-icons/fa";
-import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound } from "lucide-react";
+import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell, FaFacebookF, FaTwitter, FaDribbble, FaInstagram } from "react-icons/fa";
+import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound, Gift, Truck, Bot, Trees, Cloud, ShoppingCart, Building2, ShieldCheck, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, ArrowDown, Menu, X, Moon } from "lucide-react";
 import { BiCalendarEvent } from "react-icons/bi";
-const navItems = ["Home", "About Us", "Product & Services", "Target Market", "Our Team", "Seasonal Harvest"];
+const navItems = ["Home", "About Us", "Product & Services", "Target Market", "Seasonal Harvest"];
 
 const initialProducts = [
-  { id: 1, name: "Heirloom Tomatoes", category: "Organic Edibles", price: 150, image: "/tomato.png", badge: "Best Seller", stock: "In Stock", emoji: "🍅", description: "Freshly harvested, pesticide-free organic tomatoes, perfect for salads and cooking.", sustainabilityBadge: "Eco-Friendly", rating: 4.8, reviewCount: 124, reviews: [{user: "Maria G.", rating: 5, comment: "Very fresh and juicy!"}, {user: "Jose P.", rating: 4, comment: "Good quality."}] },
-  { id: 2, name: "Basil Grow Kit", category: "Herbs", price: 350, image: "/basil.png", badge: "New", stock: "Low Stock", emoji: "🌿", description: "Everything you need to grow your own aromatic basil at home. Includes seeds, soil, and pot.", sustainabilityBadge: "Sustainable", rating: 4.5, reviewCount: 89, reviews: [{user: "Ana D.", rating: 5, comment: "Sprouted in just a few days. Love it!"}] },
-  { id: 3, name: "Sampaguita Starter", category: "Floriculture", price: 200, image: "/sampaguita.png", stock: "In Stock", emoji: "🌸", description: "Smells wonderful, arrived healthy.", sustainabilityBadge: "Local & Organic", rating: 4.9, reviewCount: 210, reviews: [{user: "Luz V.", rating: 5, comment: "Smells wonderful, arrived healthy."}] },
-  { id: 4, name: "Native Adlai Seeds", category: "Native Seeds", price: 250, image: "/adlai.png", badge: "Organic", stock: "In Stock", emoji: "🌾", description: "High-quality native Adlai seeds, a healthy and sustainable alternative to rice.", sustainabilityBadge: "Local & Organic", rating: 4.7, reviewCount: 56, reviews: [{user: "Mark T.", rating: 4, comment: "Great alternative to rice, high yield."}] },
-  { id: 5, name: "Premium Potting Mix", category: "Soil Mixes", price: 280, image: "/potting_mix.png", stock: "Low Stock", emoji: "🪴", description: "Nutrient-rich organic potting mix, ideal for all types of plants and urban gardens.", sustainabilityBadge: "Recycled Content", rating: 4.6, reviewCount: 340, reviews: [{user: "Rene C.", rating: 5, comment: "My plants are thriving with this mix."}] },
-  { id: 6, name: "Ergonomic Hand Trowel", category: "Gardening Tools", price: 450, image: "/trowel.png", stock: "In Stock", emoji: "⛏️", description: "Sturdy and comfortable to hold.", sustainabilityBadge: "Essential", rating: 4.8, reviewCount: 112, reviews: [{user: "Sam L.", rating: 5, comment: "Sturdy and comfortable to hold."}] },
-  { id: 7, name: "Organic Eggplant", category: "Organic Edibles", price: 120, image: "/eggplant.png", stock: "In Stock", emoji: "🍆", description: "Fresh, but a bit smaller than expected.", sustainabilityBadge: "Eco-Friendly", rating: 4.3, reviewCount: 45, reviews: [{user: "Karen B.", rating: 4, comment: "Fresh, but a bit smaller than expected."}] },
-  { id: 8, name: "Peppermint Seeds", category: "Herbs", price: 90, image: "/mint.png", stock: "In Stock", emoji: "🌱", description: "Grows very fast!", sustainabilityBadge: "Sustainable", rating: 4.5, reviewCount: 78, reviews: [{user: "Leo M.", rating: 5, comment: "Grows very fast!"}] },
-  { id: 9, name: "Compost Booster", category: "Soil Mixes", price: 320, image: "/compost.png", badge: "Eco", stock: "In Stock", emoji: "♻️", description: "Speeds up composting significantly.", sustainabilityBadge: "Eco-Friendly", rating: 4.9, reviewCount: 150, reviews: [{user: "Gina R.", rating: 5, comment: "Speeds up composting significantly."}] },
-  { id: 10, name: "Urban Farming Starter Kit", category: "Starter Kits", price: 1200, image: "/starter_kit.png", badge: "Popular", stock: "In Stock", emoji: "📦", description: "Everything you need to start your urban farm. Includes varied seeds, tools, and premium soil.", sustainabilityBadge: "Eco-Friendly", rating: 4.9, reviewCount: 88, reviews: [{user: "Sarah L.", rating: 5, comment: "Amazing kit to get started!"}] },
+  { id: 1, name: "Heirloom Tomatoes", category: "Organic Edibles", price: 150, image: "/tomato.png", badge: "Best Seller", stock: "In Stock", emoji: <Cherry size="1em" color="#dc2626" />, description: "Freshly harvested, pesticide-free organic tomatoes, perfect for salads and cooking.", sustainabilityBadge: "Eco-Friendly", rating: 4.8, reviewCount: 124, reviews: [{user: "Maria G.", rating: 5, comment: "Very fresh and juicy!"}, {user: "Jose P.", rating: 4, comment: "Good quality."}] },
+  { id: 2, name: "Basil Grow Kit", category: "Herbs", price: 350, image: "/basil.png", badge: "New", stock: "Low Stock", emoji: <Leaf size="1em" color="#16a34a" />, description: "Everything you need to grow your own aromatic basil at home. Includes seeds, soil, and pot.", sustainabilityBadge: "Sustainable", rating: 4.5, reviewCount: 89, reviews: [{user: "Ana D.", rating: 5, comment: "Sprouted in just a few days. Love it!"}] },
+  { id: 3, name: "Sampaguita Starter", category: "Floriculture", price: 200, image: "/sampaguita.png", stock: "In Stock", emoji: <Flower2 size="1em" color="#db2777" />, description: "Smells wonderful, arrived healthy.", sustainabilityBadge: "Local & Organic", rating: 4.9, reviewCount: 210, reviews: [{user: "Luz V.", rating: 5, comment: "Smells wonderful, arrived healthy."}] },
+  { id: 4, name: "Native Adlai Seeds", category: "Native Seeds", price: 250, image: "/adlai.png", badge: "Organic", stock: "In Stock", emoji: <Wheat size="1em" color="#d97706" />, description: "High-quality native Adlai seeds, a healthy and sustainable alternative to rice.", sustainabilityBadge: "Local & Organic", rating: 4.7, reviewCount: 56, reviews: [{user: "Mark T.", rating: 4, comment: "Great alternative to rice, high yield."}] },
+  { id: 5, name: "Premium Potting Mix", category: "Soil Mixes", price: 280, image: "/potting_mix.png", stock: "Low Stock", emoji: <Sprout size="1em" color="#16a34a" />, description: "Nutrient-rich organic potting mix, ideal for all types of plants and urban gardens.", sustainabilityBadge: "Recycled Content", rating: 4.6, reviewCount: 340, reviews: [{user: "Rene C.", rating: 5, comment: "My plants are thriving with this mix."}] },
+  { id: 6, name: "Ergonomic Hand Trowel", category: "Gardening Tools", price: 450, image: "/trowel.png", stock: "In Stock", emoji: <Shovel size="1em" color="#15803d" />, description: "Sturdy and comfortable to hold.", sustainabilityBadge: "Essential", rating: 4.8, reviewCount: 112, reviews: [{user: "Sam L.", rating: 5, comment: "Sturdy and comfortable to hold."}] },
+  { id: 7, name: "Organic Eggplant", category: "Organic Edibles", price: 120, image: "/eggplant.png", stock: "In Stock", emoji: <Salad size="1em" color="#7c3aed" />, description: "Fresh, but a bit smaller than expected.", sustainabilityBadge: "Eco-Friendly", rating: 4.3, reviewCount: 45, reviews: [{user: "Karen B.", rating: 4, comment: "Fresh, but a bit smaller than expected."}] },
+  { id: 8, name: "Peppermint Seeds", category: "Herbs", price: 90, image: "/mint.png", stock: "In Stock", emoji: <Sprout size="1em" color="#16a34a" />, description: "Grows very fast!", sustainabilityBadge: "Sustainable", rating: 4.5, reviewCount: 78, reviews: [{user: "Leo M.", rating: 5, comment: "Grows very fast!"}] },
+  { id: 9, name: "Compost Booster", category: "Soil Mixes", price: 320, image: "/compost.png", badge: "Eco", stock: "In Stock", emoji: <Recycle size="1em" color="#16a34a" />, description: "Speeds up composting significantly.", sustainabilityBadge: "Eco-Friendly", rating: 4.9, reviewCount: 150, reviews: [{user: "Gina R.", rating: 5, comment: "Speeds up composting significantly."}] },
+  { id: 10, name: "Urban Farming Starter Kit", category: "Starter Kits", price: 1200, image: "/starter_kit.png", badge: "Popular", stock: "In Stock", emoji: <Package size="1em" color="#15803d" />, description: "Everything you need to start your urban farm. Includes varied seeds, tools, and premium soil.", sustainabilityBadge: "Eco-Friendly", rating: 4.9, reviewCount: 88, reviews: [{user: "Sarah L.", rating: 5, comment: "Amazing kit to get started!"}] },
 ];
 
 const initialHarvests = [
-  { id: 1, name: "Heirloom Tomatoes", category: "Vegetables", months: ["March", "April", "May", "June"], peak: "May", icon: "🍅", estDate: "May 15", location: "Benguet", region: "Luzon", countdown: "Starts in 12 days", weather: "Sunny ☀️", risk: "Low", demand: "High Demand", priceTrend: "₱120-150/kg", plantingMonth: "January", yield: "High", water: "Medium", soil: "Loamy", temp: "20-28°C", pestRisk: "Medium", suppliers: 5, restaurantMatches: 3, growthProgress: 85 },
-  { id: 2, name: "Sweet Mangoes", category: "Fruits", months: ["March", "April", "May", "June"], peak: "April", icon: "🥭", estDate: "April 20", location: "Guimaras", region: "Visayas", countdown: "Active", weather: "Sunny ☀️", risk: "Low", demand: "High Demand", priceTrend: "₱180-220/kg", plantingMonth: "June", yield: "Medium", water: "Low", soil: "Well-drained", temp: "25-35°C", pestRisk: "High", suppliers: 12, restaurantMatches: 8, growthProgress: 95 },
-  { id: 3, name: "Basil Genovese", category: "Herbs", months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], peak: "June", icon: "🌿", estDate: "Year-round", location: "Urban Farms", region: "All Regions", countdown: "Ongoing", weather: "Partial Sun ⛅", risk: "Low", demand: "Medium Demand", priceTrend: "₱300-400/kg", plantingMonth: "Any", yield: "High", water: "High", soil: "Moist", temp: "20-30°C", pestRisk: "Low", suppliers: 8, restaurantMatches: 15, growthProgress: 60 },
-  { id: 4, name: "Native Adlai", category: "Grains", months: ["October", "November", "December", "January"], peak: "November", icon: "🌾", estDate: "Nov 10", location: "Bukidnon", region: "Mindanao", countdown: "150 days", weather: "Rainy 🌧️", risk: "Medium", demand: "High Demand", priceTrend: "₱250-280/kg", plantingMonth: "May", yield: "Medium", water: "Medium", soil: "Adaptable", temp: "22-30°C", pestRisk: "Low", suppliers: 3, restaurantMatches: 5, growthProgress: 40 },
-  { id: 5, name: "Baguio Strawberries", category: "Fruits", months: ["December", "January", "February", "March", "April"], peak: "February", icon: "🍓", estDate: "Feb 14", location: "La Trinidad", region: "Luzon", countdown: "200 days", weather: "Cool ☁️", risk: "Medium", demand: "High Demand", priceTrend: "₱300-450/kg", plantingMonth: "September", yield: "Medium", water: "High", soil: "Acidic", temp: "15-22°C", pestRisk: "High", suppliers: 2, restaurantMatches: 10, growthProgress: 25 },
-  { id: 6, name: "Organic Eggplant", category: "Vegetables", months: ["June", "July", "August", "September"], peak: "July", icon: "🍆", estDate: "July 05", location: "Pangasinan", region: "Luzon", countdown: "45 days", weather: "Sunny ☀️", risk: "Low", demand: "Medium Demand", priceTrend: "₱80-120/kg", plantingMonth: "March", yield: "High", water: "Medium", soil: "Loamy", temp: "25-32°C", pestRisk: "Medium", suppliers: 6, restaurantMatches: 2, growthProgress: 75 },
-  { id: 7, name: "Sweet Corn", category: "Vegetables", months: ["April", "May", "June", "July"], peak: "May", icon: "🌽", estDate: "May 25", location: "Isabela", region: "Luzon", countdown: "22 days", weather: "Sunny ☀️", risk: "Low", demand: "High Demand", priceTrend: "₱50-80/kg", plantingMonth: "February", yield: "High", water: "High", soil: "Well-drained", temp: "20-30°C", pestRisk: "Medium", suppliers: 10, restaurantMatches: 6, growthProgress: 80 },
-  { id: 8, name: "Watermelon", category: "Fruits", months: ["March", "April", "May"], peak: "April", icon: "🍉", estDate: "April 10", location: "Ilocos", region: "Luzon", countdown: "Active", weather: "Hot ☀️", risk: "Low", demand: "High Demand", priceTrend: "₱40-60/kg", plantingMonth: "January", yield: "High", water: "Low", soil: "Sandy", temp: "25-35°C", pestRisk: "Low", suppliers: 8, restaurantMatches: 4, growthProgress: 100 },
+  { id: 1, name: "Heirloom Tomatoes", category: "Vegetables", months: ["March", "April", "May", "June"], peak: "May", icon: <Cherry size="1em" color="#dc2626" />, estDate: "May 15", location: "Benguet", region: "Luzon", countdown: "Starts in 12 days", weather: "Sunny", risk: "Low", demand: "High Demand", priceTrend: "₱120-150/kg", plantingMonth: "January", yield: "High", water: "Medium", soil: "Loamy", temp: "20-28°C", pestRisk: "Medium", suppliers: 5, restaurantMatches: 3, growthProgress: 85 },
+  { id: 2, name: "Sweet Mangoes", category: "Fruits", months: ["March", "April", "May", "June"], peak: "April", icon: <Citrus size="1em" color="#f59e0b" />, estDate: "April 20", location: "Guimaras", region: "Visayas", countdown: "Active", weather: "Sunny", risk: "Low", demand: "High Demand", priceTrend: "₱180-220/kg", plantingMonth: "June", yield: "Medium", water: "Low", soil: "Well-drained", temp: "25-35°C", pestRisk: "High", suppliers: 12, restaurantMatches: 8, growthProgress: 95 },
+  { id: 3, name: "Basil Genovese", category: "Herbs", months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], peak: "June", icon: <Leaf size="1em" color="#16a34a" />, estDate: "Year-round", location: "Urban Farms", region: "All Regions", countdown: "Ongoing", weather: "Partial Sun", risk: "Low", demand: "Medium Demand", priceTrend: "₱300-400/kg", plantingMonth: "Any", yield: "High", water: "High", soil: "Moist", temp: "20-30°C", pestRisk: "Low", suppliers: 8, restaurantMatches: 15, growthProgress: 60 },
+  { id: 4, name: "Native Adlai", category: "Grains", months: ["October", "November", "December", "January"], peak: "November", icon: <Wheat size="1em" color="#d97706" />, estDate: "Nov 10", location: "Bukidnon", region: "Mindanao", countdown: "150 days", weather: "Rainy", risk: "Medium", demand: "High Demand", priceTrend: "₱250-280/kg", plantingMonth: "May", yield: "Medium", water: "Medium", soil: "Adaptable", temp: "22-30°C", pestRisk: "Low", suppliers: 3, restaurantMatches: 5, growthProgress: 40 },
+  { id: 5, name: "Baguio Strawberries", category: "Fruits", months: ["December", "January", "February", "March", "April"], peak: "February", icon: <Cherry size="1em" color="#e11d48" />, estDate: "Feb 14", location: "La Trinidad", region: "Luzon", countdown: "200 days", weather: "Cool", risk: "Medium", demand: "High Demand", priceTrend: "₱300-450/kg", plantingMonth: "September", yield: "Medium", water: "High", soil: "Acidic", temp: "15-22°C", pestRisk: "High", suppliers: 2, restaurantMatches: 10, growthProgress: 25 },
+  { id: 6, name: "Organic Eggplant", category: "Vegetables", months: ["June", "July", "August", "September"], peak: "July", icon: <Salad size="1em" color="#7c3aed" />, estDate: "July 05", location: "Pangasinan", region: "Luzon", countdown: "45 days", weather: "Sunny", risk: "Low", demand: "Medium Demand", priceTrend: "₱80-120/kg", plantingMonth: "March", yield: "High", water: "Medium", soil: "Loamy", temp: "25-32°C", pestRisk: "Medium", suppliers: 6, restaurantMatches: 2, growthProgress: 75 },
+  { id: 7, name: "Sweet Corn", category: "Vegetables", months: ["April", "May", "June", "July"], peak: "May", icon: <Wheat size="1em" color="#ca8a04" />, estDate: "May 25", location: "Isabela", region: "Luzon", countdown: "22 days", weather: "Sunny", risk: "Low", demand: "High Demand", priceTrend: "₱50-80/kg", plantingMonth: "February", yield: "High", water: "High", soil: "Well-drained", temp: "20-30°C", pestRisk: "Medium", suppliers: 10, restaurantMatches: 6, growthProgress: 80 },
+  { id: 8, name: "Watermelon", category: "Fruits", months: ["March", "April", "May"], peak: "April", icon: <Citrus size="1em" color="#16a34a" />, estDate: "April 10", location: "Ilocos", region: "Luzon", countdown: "Active", weather: "Hot", risk: "Low", demand: "High Demand", priceTrend: "₱40-60/kg", plantingMonth: "January", yield: "High", water: "Low", soil: "Sandy", temp: "25-35°C", pestRisk: "Low", suppliers: 8, restaurantMatches: 4, growthProgress: 100 },
 ];
 
 const initialPromoCodes = [
@@ -78,35 +79,65 @@ const initialOrders = [
 
 const ORDERS_STORAGE_KEY = "verdeversity_orders";
 const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
+const PRODUCTS_STORAGE_KEY = "verdeversity_products";
+const HARVESTS_STORAGE_KEY = "verdeversity_harvests";
+const PROMOCODES_STORAGE_KEY = "verdeversity_promocodes";
+const PLANT_SCANS_STORAGE_KEY = "verdeversity_plant_scans";
+const SUBSCRIBERS_STORAGE_KEY = "verdeversity_subscribers";
+const EVENTS_STORAGE_KEY = "verdeversity_events";
+const CONTENT_STORAGE_KEY = "verdeversity_content";
+const FORUM_POSTS_STORAGE_KEY = "verdeversity_forum_posts";
+const FARM_PLANNER_STORAGE_KEY = "verdeversity_farm_planner";
 
-const getInitialOrders = () => {
+// Generic localStorage-backed initializer: returns the saved array if valid,
+// otherwise falls back to the provided seed data.
+const getStoredArray = (key, fallback) => {
   try {
-    const savedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-    if (!savedOrders) return initialOrders;
-    const parsedOrders = JSON.parse(savedOrders);
-    return Array.isArray(parsedOrders) ? parsedOrders : initialOrders;
+    const saved = localStorage.getItem(key);
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed : fallback;
   } catch (error) {
-    return initialOrders;
+    return fallback;
   }
 };
 
-const getInitialSupportTickets = () => {
+// Same as getStoredArray but for a plain config object (e.g. Farm Planner
+// settings). Shallow-merges over the fallback so newly added default keys
+// survive an older saved blob.
+const getStoredObject = (key, fallback) => {
   try {
-    const savedTickets = localStorage.getItem(SUPPORT_TICKETS_STORAGE_KEY);
-    if (!savedTickets) return [];
-    const parsedTickets = JSON.parse(savedTickets);
-    return Array.isArray(parsedTickets) ? parsedTickets : [];
+    const saved = localStorage.getItem(key);
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? { ...fallback, ...parsed } : fallback;
   } catch (error) {
-    return [];
+    return fallback;
   }
 };
+
+// React elements (a product's `emoji`, a harvest's `icon`) don't survive
+// JSON serialization to localStorage — after a reload they come back as plain
+// objects that are truthy but invalid React children, which crashes rendering
+// ("Objects are not valid as a React child"). Re-attach a real element by
+// matching each saved item to its seed by id, falling back to a default icon.
+const hydrateIcons = (items, seed, field, fallback) =>
+  items.map((it) => {
+    if (React.isValidElement(it[field])) return it;
+    const match = seed.find((s) => s.id === it.id);
+    return { ...it, [field]: match && React.isValidElement(match[field]) ? match[field] : fallback };
+  });
+
+const getInitialOrders = () => getStoredArray(ORDERS_STORAGE_KEY, initialOrders);
+
+const getInitialSupportTickets = () => getStoredArray(SUPPORT_TICKETS_STORAGE_KEY, []);
 
 const ecoTimelineActivities = [
-  { title: "Redeemed Rewards", time: "2 hours ago", points: "-500", icon: "🎁", color: "#e11d48", bg: "rgba(225,29,72,0.1)", glow: "rgba(225,29,72,0.3)" },
-  { title: "Workshop Attendance", time: "Yesterday", points: "+75", icon: "🧑‍🌾", color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
-  { title: "Referral Bonuses", time: "May 25, 2026", points: "+200", icon: "👥", color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
-  { title: "Purchased Organic Seeds", time: "May 24, 2026", points: "-50", icon: "🌱", color: "#e11d48", bg: "rgba(225,29,72,0.1)", glow: "rgba(225,29,72,0.3)" },
-  { title: "Completed 'Intro to Composting' course", time: "May 23, 2026", points: "+150", icon: "🎓", color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
+  { title: "Redeemed Rewards", time: "2 hours ago", points: "-500", icon: <Gift size={15} color="#e11d48" />, color: "#e11d48", bg: "rgba(225,29,72,0.1)", glow: "rgba(225,29,72,0.3)" },
+  { title: "Workshop Attendance", time: "Yesterday", points: "+75", icon: <Users size={15} color="#16a34a" />, color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
+  { title: "Referral Bonuses", time: "May 25, 2026", points: "+200", icon: <Users size={15} color="#16a34a" />, color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
+  { title: "Purchased Organic Seeds", time: "May 24, 2026", points: "-50", icon: <Sprout size={15} color="#e11d48" />, color: "#e11d48", bg: "rgba(225,29,72,0.1)", glow: "rgba(225,29,72,0.3)" },
+  { title: "Completed 'Intro to Composting' course", time: "May 23, 2026", points: "+150", icon: <GraduationCap size={15} color="#16a34a" />, color: "#16a34a", bg: "rgba(34,197,94,0.2)", glow: "rgba(34,197,94,0.4)" },
 ];
 
 const CustomDropdown = ({ options, value, onChange }) => {
@@ -165,7 +196,7 @@ function App() {
   const [hoveredNav, setHoveredNav] = useState(null); // State for navigation buttons
   const [btnHovered, setBtnHovered] = useState(false); // State for 'Get in Touch' button (reverted from previous change)
   const [ghostHovered, setGhostHovered] = useState(false); // State for 'Learn More' button
-  const [exploreHovered, setExploreHovered] = useState(false); // State for 'Explore more' button
+  const [learnSwiping, setLearnSwiping] = useState(false); // Triggers the swipe animation when 'Learn More' is clicked
   const [activeHeroTab, setActiveHeroTab] = useState("crop"); // State for right card tabs
   const [rightCardHovered, setRightCardHovered] = useState(false); // State for the right card
   const [hoveredDataPoint, setHoveredDataPoint] = useState(null); // State for line chart tooltips
@@ -178,6 +209,8 @@ function App() {
   const [hoveredDropdown, setHoveredDropdown] = useState(null); // State for hovering dropdown items
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false); // New state for Product & Services dropdown
   const [hoveredProductDropdown, setHoveredProductDropdown] = useState(null); // New state for Product & Services dropdown items
+  const [isSeasonalDropdownOpen, setIsSeasonalDropdownOpen] = useState(false); // State for Seasonal Harvest dropdown
+  const [hoveredSeasonalDropdown, setHoveredSeasonalDropdown] = useState(null); // State for Seasonal Harvest dropdown items
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [rememberMe, setRememberMe] = useState(false); // State for remember me checkbox
   const [hoveredSocialBtn, setHoveredSocialBtn] = useState(null); // State for social login buttons
@@ -196,6 +229,7 @@ function App() {
   const [hoveredProfileDropdown, setHoveredProfileDropdown] = useState(null); // Profile dropdown hover
   const [hoveredSettingsTab, setHoveredSettingsTab] = useState(null); // State for settings sidebar hover
   const [showSettingsModal, setShowSettingsModal] = useState(false); // State for Settings modal
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true"); // Dark mode toggle
   const [showClearWishlistConfirm, setShowClearWishlistConfirm] = useState(false);
   const [showRewardSuccessModal, setShowRewardSuccessModal] = useState(false); // State for reward redemption success modal
   const [settingsTab, setSettingsTab] = useState("profile"); // State for Settings Modal Tabs
@@ -203,7 +237,7 @@ function App() {
   const [authMessage, setAuthMessage] = useState(null); // State for auth feedback messages (text and type)
   const [formErrorShake, setFormErrorShake] = useState(false); // State for shake error animation
   const [ecoPoints, setEcoPoints] = useState(1250);
-  const [currentTier, setCurrentTier] = useState("Green Grower 🌿");
+  const [currentTier, setCurrentTier] = useState("Green Grower");
   const [progressToNextTier, setProgressToNextTier] = useState(62.5);
   const [redeemedRewards, setRedeemedRewards] = useState([]);
   const [redeemHistory, setRedeemHistory] = useState([
@@ -223,10 +257,10 @@ function App() {
   const ecoPointsDropdownRef = useRef(null);
   const redeemFilterDropdownRef = useRef(null);
   const [badges, setBadges] = useState([
-    { name: "Tree Protector", icon: "🛡️🌲", earned: true },
-    { name: "Urban Farmer", icon: "🏙️🧑‍🌾", earned: true },
-    { name: "Seed Guardian", icon: "🌱✨", earned: false },
-    { name: "Climate Warrior", icon: "⚔️🌎", earned: false }
+    { name: "Tree Protector", icon: <ShieldCheck size={24} color="#15803d" />, earned: true },
+    { name: "Urban Farmer", icon: <Building2 size={24} color="#15803d" />, earned: true },
+    { name: "Seed Guardian", icon: <Sprout size={24} color="#15803d" />, earned: false },
+    { name: "Climate Warrior", icon: <Globe size={24} color="#15803d" />, earned: false }
   ]);
   const [rewardParticles, setRewardParticles] = useState([]);
   const [cartItems, setCartItems] = useState([]); // Shared cart state
@@ -245,16 +279,42 @@ function App() {
   const [orderReviewRating, setOrderReviewRating] = useState(5);
   const [orderReviewText, setOrderReviewText] = useState("");
   const [orderReviewSubmitted, setOrderReviewSubmitted] = useState(false);
-  const [products, setProducts] = useState(initialProducts); // Global product state
-  const [harvests, setHarvests] = useState(initialHarvests); // Global harvests state
-  const [promoCodes, setPromoCodes] = useState(initialPromoCodes); // Global promo codes state
+  const [products, setProducts] = useState(() => hydrateIcons(getStoredArray(PRODUCTS_STORAGE_KEY, initialProducts), initialProducts, "emoji", <Sprout size="1em" color="#16a34a" />)); // Global product state
+  const [harvests, setHarvests] = useState(() => hydrateIcons(getStoredArray(HARVESTS_STORAGE_KEY, initialHarvests), initialHarvests, "icon", <Wheat size="1em" color="#16a34a" />)); // Global harvests state
+  const [promoCodes, setPromoCodes] = useState(() => getStoredArray(PROMOCODES_STORAGE_KEY, initialPromoCodes)); // Global promo codes state
   const [supportTickets, setSupportTickets] = useState(getInitialSupportTickets);
+  // Shared domain data synced between the main website and the Admin Portal
+  const [plantScans, setPlantScans] = useState(() => getStoredArray(PLANT_SCANS_STORAGE_KEY, mockScansList));
+  const [subscribers, setSubscribers] = useState(() => getStoredArray(SUBSCRIBERS_STORAGE_KEY, mockSubscribers));
+  const [events, setEvents] = useState(() => getStoredArray(EVENTS_STORAGE_KEY, mockEventsList));
+  const [contentItems, setContentItems] = useState(() => getStoredArray(CONTENT_STORAGE_KEY, mockContentList));
+  const [forumPosts, setForumPosts] = useState(() => getStoredArray(FORUM_POSTS_STORAGE_KEY, forumSeedPosts));
+  const [farmPlanner, setFarmPlanner] = useState(() => getStoredObject(FARM_PLANNER_STORAGE_KEY, defaultPlannerConfig));
   const [showSupportTicketModal, setShowSupportTicketModal] = useState(false);
   const [supportFabHovered, setSupportFabHovered] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifBadgeAnim, setNotifBadgeAnim] = useState(false);
+
+  // Open a single header menu exclusively: toggles the requested one and force-closes
+  // all the others so dropdowns never stack open at the same time.
+  const toggleMenu = (target) => {
+    setIsNotificationOpen(target === "notification" ? (v) => !v : false);
+    setIsProfileDropdownOpen(target === "profile" ? (v) => !v : false);
+    setIsTargetDropdownOpen(target === "target" ? (v) => !v : false);
+    setIsProductDropdownOpen(target === "product" ? (v) => !v : false);
+    setIsSeasonalDropdownOpen(target === "seasonal" ? (v) => !v : false);
+  };
+
+  // Force exactly one menu open (closes every other one).
+  const openMenu = (target) => {
+    setIsNotificationOpen(target === "notification");
+    setIsProfileDropdownOpen(target === "profile");
+    setIsTargetDropdownOpen(target === "target");
+    setIsProductDropdownOpen(target === "product");
+    setIsSeasonalDropdownOpen(target === "seasonal");
+  };
 
   useEffect(() => {
     const unreadCount = notifications.filter(n => !n.read).length;
@@ -272,6 +332,55 @@ function App() {
   useEffect(() => {
     localStorage.setItem(SUPPORT_TICKETS_STORAGE_KEY, JSON.stringify(supportTickets));
   }, [supportTickets]);
+
+  // Persist shared data so admin edits and website inputs survive refresh/navigation
+  useEffect(() => { localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem(HARVESTS_STORAGE_KEY, JSON.stringify(harvests)); }, [harvests]);
+  useEffect(() => { localStorage.setItem(PROMOCODES_STORAGE_KEY, JSON.stringify(promoCodes)); }, [promoCodes]);
+  useEffect(() => { localStorage.setItem(PLANT_SCANS_STORAGE_KEY, JSON.stringify(plantScans)); }, [plantScans]);
+  useEffect(() => { localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify(subscribers)); }, [subscribers]);
+  useEffect(() => { localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(events)); }, [events]);
+  useEffect(() => { localStorage.setItem(CONTENT_STORAGE_KEY, JSON.stringify(contentItems)); }, [contentItems]);
+  useEffect(() => { localStorage.setItem(FORUM_POSTS_STORAGE_KEY, JSON.stringify(forumPosts)); }, [forumPosts]);
+  useEffect(() => { localStorage.setItem(FARM_PLANNER_STORAGE_KEY, JSON.stringify(farmPlanner)); }, [farmPlanner]);
+
+  // A user-submitted AI Plant Doctor scan flows into the Admin Portal
+  const handleNewPlantScan = (scan) => setPlantScans(prev => [scan, ...prev]);
+
+  // A user subscribing on the website appears in the Admin Portal subscribers list
+  const handleNewSubscriber = (sub) => setSubscribers(prev => [sub, ...prev]);
+
+  // A website event registration syncs the attendee count back to the Admin Portal.
+  // Curated events that don't exist in admin yet are surfaced there on first signup.
+  const handleEventRegister = (websiteEvent) => {
+    if (!websiteEvent || !websiteEvent.title) return;
+    setEvents(prev => {
+      const idx = prev.findIndex(e => e.title === websiteEvent.title);
+      if (idx >= 0) {
+        const ev = prev[idx];
+        const max = Number(ev.maxAttendees) || Infinity;
+        const updated = [...prev];
+        updated[idx] = { ...ev, attendees: Math.min((Number(ev.attendees) || 0) + 1, max) };
+        return updated;
+      }
+      const mappedType = websiteEvent.type === "Community Gathering" ? "Community"
+        : websiteEvent.type === "Training" ? "Workshop"
+        : websiteEvent.type || "Workshop";
+      const newId = `EVT-${String(prev.length + 1).padStart(3, "0")}`;
+      return [{
+        id: newId,
+        title: websiteEvent.title,
+        date: websiteEvent.date || "",
+        time: websiteEvent.time || "",
+        type: mappedType,
+        attendees: 1,
+        maxAttendees: 50,
+        status: "Upcoming",
+        price: websiteEvent.price || "Free",
+        location: websiteEvent.venue || "",
+      }, ...prev];
+    });
+  };
 
   const handleNotify = (cropName) => {
     setNotifications(prev => [
@@ -504,7 +613,7 @@ function App() {
         id: Date.now() + i + 'copy',
         x: rect.left + rect.width / 2,
         y: rect.top + rect.height / 2,
-        emoji: ["📋", "✅", "✨", "💚"][Math.floor(Math.random() * 4)],
+        emoji: [<Sparkles size={16} color="#16a34a" />, <CheckCircle2 size={16} color="#16a34a" />, <Star size={16} color="#22c55e" />, <Leaf size={16} color="#16a34a" />][Math.floor(Math.random() * 4)],
         angle: Math.random() * Math.PI * 2,
         velocity: 30 + Math.random() * 60
       }));
@@ -543,7 +652,7 @@ function App() {
       id: Date.now() + i + 'b',
       x: rect.left + rect.width / 2,
       y: rect.top + rect.height / 2,
-      emoji: ["🌟", "✨", "💫", "👏"][Math.floor(Math.random() * 4)],
+      emoji: [<Star size={16} color="#f59e0b" />, <Sparkles size={16} color="#16a34a" />, <Star size={16} color="#22c55e" />, <Sparkles size={16} color="#0284c7" />][Math.floor(Math.random() * 4)],
       angle: Math.random() * Math.PI * 2,
       velocity: 40 + Math.random() * 80
     }));
@@ -629,27 +738,33 @@ function App() {
     }
   }, []);
 
+  // Apply & persist dark mode theme on the root element
   useEffect(() => {
-    let tier = "Seedling 🌱";
+    document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    let tier = "Seedling";
     let progress = 0;
     
     let base = 0;
     let max = 1000;
 
     if (ecoPoints < 1000) {
-      tier = "Seedling 🌱";
+      tier = "Seedling";
       base = 0;
       max = 1000;
     } else if (ecoPoints < 5000) {
-      tier = "Green Grower 🌿";
+      tier = "Green Grower";
       base = 1000;
       max = 5000;
     } else if (ecoPoints < 10000) {
-      tier = "Eco Guardian 🌳";
+      tier = "Eco Guardian";
       base = 5000;
       max = 10000;
     } else {
-      tier = "Sustainability Hero 🌎";
+      tier = "Sustainability Hero";
       base = 10000;
       max = 10000;
     }
@@ -679,7 +794,6 @@ function App() {
     const handleResize = () => {
       const nextIsMobile = window.innerWidth < 768;
       setIsMobile(nextIsMobile);
-      if (!nextIsMobile) setIsMobileMenuOpen(false);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -690,12 +804,15 @@ function App() {
     setAuthMessage(null);
   }, [activeNav]);
 
+  // Always collapse the navbar into the right-side hamburger panel (all viewport widths)
+  const navCollapsed = true;
+
   const handleNavChange = (navName, options = {}) => {
     setActiveNav(navName);
     if (isMobile && (navName === "Login" || navName === "Sign Up")) {
       setMobileAuthView(options.authView || "landing");
     }
-    if (isMobile) {
+    if (navCollapsed) {
       setIsMobileMenuOpen(false);
       setIsProductDropdownOpen(false);
       setIsTargetDropdownOpen(false);
@@ -738,9 +855,9 @@ function App() {
       ],
       topListTitle: "Top Crops",
       topList: [
-        { name: "Heirloom Tomatoes", progress: "85%", icon: "🍅", color: "#16a34a" },
-        { name: "Basil Genovese", progress: "65%", icon: "🌿", color: "#0284c7" },
-        { name: "Native Adlai", progress: "45%", icon: "🌾", color: "#f59e0b" }
+        { name: "Heirloom Tomatoes", progress: "85%", icon: <Cherry size={16} color="#16a34a" />, color: "#16a34a" },
+        { name: "Basil Genovese", progress: "65%", icon: <Leaf size={16} color="#0284c7" />, color: "#0284c7" },
+        { name: "Native Adlai", progress: "45%", icon: <Wheat size={16} color="#f59e0b" />, color: "#f59e0b" }
       ]
     },
     users: {
@@ -771,9 +888,9 @@ function App() {
       ],
       topListTitle: "Top Demographics",
       topList: [
-        { name: "Urban Farmers", progress: "92%", icon: "👨‍🌾", color: "#0284c7" },
-        { name: "Micro-Vendors", progress: "78%", icon: "🏪", color: "#f59e0b" },
-        { name: "Institutions", progress: "45%", icon: "🏢", color: "#16a34a" }
+        { name: "Urban Farmers", progress: "92%", icon: <Users size={16} color="#0284c7" />, color: "#0284c7" },
+        { name: "Micro-Vendors", progress: "78%", icon: <Store size={16} color="#f59e0b" />, color: "#f59e0b" },
+        { name: "Institutions", progress: "45%", icon: <Building2 size={16} color="#16a34a" />, color: "#16a34a" }
       ]
     },
     harvests: {
@@ -804,9 +921,9 @@ function App() {
       ],
       topListTitle: "Top Harvests",
       topList: [
-        { name: "Cabbage", progress: "95%", icon: "🥬", color: "#f59e0b" },
-        { name: "Carrots", progress: "82%", icon: "🥕", color: "#e11d48" },
-        { name: "Potatoes", progress: "64%", icon: "🥔", color: "#0284c7" }
+        { name: "Cabbage", progress: "95%", icon: <Salad size={16} color="#f59e0b" />, color: "#f59e0b" },
+        { name: "Carrots", progress: "82%", icon: <Carrot size={16} color="#e11d48" />, color: "#e11d48" },
+        { name: "Potatoes", progress: "64%", icon: <Sprout size={16} color="#0284c7" />, color: "#0284c7" }
       ]
     },
     subs: {
@@ -837,9 +954,9 @@ function App() {
       ],
       topListTitle: "Top Plans",
       topList: [
-        { name: "Pro Plan", progress: "88%", icon: "⭐", color: "#0284c7" },
-        { name: "Enterprise", progress: "56%", icon: "🏢", color: "#f59e0b" },
-        { name: "Basic", progress: "34%", icon: "🌱", color: "#16a34a" }
+        { name: "Pro Plan", progress: "88%", icon: <Star size={16} color="#0284c7" />, color: "#0284c7" },
+        { name: "Enterprise", progress: "56%", icon: <Building2 size={16} color="#f59e0b" />, color: "#f59e0b" },
+        { name: "Basic", progress: "34%", icon: <Sprout size={16} color="#16a34a" />, color: "#16a34a" }
       ]
     }
   }[activeHeroTab];
@@ -1011,6 +1128,25 @@ function App() {
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
           }
+          @keyframes bgOrbFloat {
+            0%   { transform: translate(0, 0) scale(1); }
+            33%  { transform: translate(28px, -34px) scale(1.06); }
+            66%  { transform: translate(-22px, 20px) scale(0.96); }
+            100% { transform: translate(0, 0) scale(1); }
+          }
+          .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            pointer-events: none;
+            will-change: transform;
+            z-index: 1;
+          }
+          @keyframes learnSwipeShine {
+            0%   { transform: translateX(-140%) skewX(-18deg); }
+            100% { transform: translateX(320%) skewX(-18deg); }
+          }
         `}
       </style>
       {/* Background Scrim */}
@@ -1019,6 +1155,11 @@ function App() {
         // Ensure the scrim is above the video but below other content
         zIndex: 1,
       }} />
+      <div style={{ ...styles.bgScrimGrain, zIndex: 1 }} />
+
+      {/* Decorative floating orbs — two soft brand-colored blobs for quiet depth */}
+      <span aria-hidden="true" className="bg-orb" style={{ top: "-8%", left: "-6%", width: "clamp(260px, 30vw, 520px)", height: "clamp(260px, 30vw, 520px)", background: "radial-gradient(circle at 30% 30%, rgba(134,239,172,0.7), rgba(34,197,94,0.18))", animation: "bgOrbFloat 30s ease-in-out infinite" }} />
+      <span aria-hidden="true" className="bg-orb" style={{ bottom: "-10%", right: "-6%", width: "clamp(240px, 28vw, 480px)", height: "clamp(240px, 28vw, 480px)", background: "radial-gradient(circle at 70% 70%, rgba(186,230,253,0.65), rgba(56,189,248,0.16))", animation: "bgOrbFloat 38s ease-in-out infinite reverse" }} />
       
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <defs>
@@ -1031,6 +1172,65 @@ function App() {
 
       <div style={{ ...styles.shell, ...(isMobile ? styles.shellMobile : {}) }}>
 
+        {/* ── UNIVERSAL DECORATIVE BACKGROUND (visible on every section) ── */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: -1, pointerEvents: "none", overflow: "hidden" }}>
+          {/* Scattered leaf outlines */}
+          {[
+            { top: "6%", left: "4%", size: 26, rot: -18, op: 0.22 },
+            { top: "9%", left: "26%", size: 18, rot: 26, op: 0.16 },
+            { top: "5%", left: "49%", size: 20, rot: -8, op: 0.18 },
+            { top: "8%", left: "71%", size: 16, rot: 40, op: 0.15 },
+            { top: "11%", left: "92%", size: 24, rot: 12, op: 0.20 },
+            { top: "30%", left: "3%", size: 22, rot: 8, op: 0.20 },
+            { top: "27%", left: "34%", size: 16, rot: 48, op: 0.15 },
+            { top: "33%", left: "61%", size: 20, rot: -30, op: 0.18 },
+            { top: "29%", left: "86%", size: 18, rot: 64, op: 0.16 },
+            { top: "52%", left: "11%", size: 24, rot: -42, op: 0.20 },
+            { top: "55%", left: "41%", size: 18, rot: 20, op: 0.16 },
+            { top: "50%", left: "69%", size: 22, rot: -54, op: 0.18 },
+            { top: "54%", left: "93%", size: 16, rot: -36, op: 0.15 },
+            { top: "74%", left: "7%", size: 20, rot: -22, op: 0.18 },
+            { top: "78%", left: "29%", size: 16, rot: 30, op: 0.15 },
+            { top: "75%", left: "51%", size: 22, rot: -12, op: 0.18 },
+            { top: "79%", left: "73%", size: 18, rot: 44, op: 0.16 },
+            { top: "73%", left: "95%", size: 24, rot: -28, op: 0.20 },
+            { top: "92%", left: "18%", size: 18, rot: 16, op: 0.15 },
+            { top: "94%", left: "58%", size: 20, rot: -20, op: 0.16 },
+            { top: "91%", left: "84%", size: 16, rot: 36, op: 0.15 },
+          ].map((l, i) => (
+            <svg key={`leaf-${i}`} viewBox="0 0 24 24" style={{ position: "absolute", top: l.top, left: l.left, width: l.size, height: l.size, transform: `rotate(${l.rot}deg)` }}>
+              <path d="M5 19 C5 11, 11 5, 19 5 C19 13, 13 19, 5 19 Z" fill="none" stroke={`rgba(22,163,74,${l.op})`} strokeWidth="1.2" />
+              <path d="M7 17 C11 13, 15 9, 18 6" fill="none" stroke={`rgba(22,163,74,${l.op * 0.75})`} strokeWidth="1" />
+            </svg>
+          ))}
+          {/* Scattered geometric shapes — dots, rings & tilted squares */}
+          {[
+            { type: "dot", top: "16%", left: "15%", size: 6, color: "rgba(22,163,74,0.24)" },
+            { type: "dot", top: "20%", left: "62%", size: 5, color: "rgba(56,189,248,0.24)" },
+            { type: "dot", top: "44%", left: "23%", size: 7, color: "rgba(22,163,74,0.18)" },
+            { type: "dot", top: "47%", left: "80%", size: 4, color: "rgba(56,189,248,0.20)" },
+            { type: "dot", top: "70%", left: "45%", size: 6, color: "rgba(22,163,74,0.20)" },
+            { type: "dot", top: "88%", left: "38%", size: 5, color: "rgba(56,189,248,0.20)" },
+            { type: "ring", top: "21%", left: "82%", size: 16, color: "rgba(22,163,74,0.20)" },
+            { type: "ring", top: "66%", left: "18%", size: 22, color: "rgba(56,189,248,0.18)" },
+            { type: "ring", top: "42%", left: "48%", size: 12, color: "rgba(22,163,74,0.16)" },
+            { type: "ring", top: "15%", left: "38%", size: 14, color: "rgba(56,189,248,0.16)" },
+            { type: "ring", top: "85%", left: "68%", size: 18, color: "rgba(22,163,74,0.18)" },
+            { type: "square", top: "40%", left: "72%", size: 14, color: "rgba(22,163,74,0.18)", rot: 24 },
+            { type: "square", top: "62%", left: "60%", size: 12, color: "rgba(56,189,248,0.18)", rot: -18 },
+            { type: "square", top: "24%", left: "7%", size: 10, color: "rgba(22,163,74,0.16)", rot: 40 },
+            { type: "square", top: "82%", left: "10%", size: 12, color: "rgba(56,189,248,0.16)", rot: -30 },
+          ].map((s, i) => (
+            <div key={`shape-${i}`} style={{
+              position: "absolute", top: s.top, left: s.left, width: s.size, height: s.size,
+              borderRadius: s.type === "square" ? "3px" : "50%",
+              background: s.type === "dot" ? s.color : "transparent",
+              border: s.type === "dot" ? "none" : `1.2px solid ${s.color}`,
+              transform: s.type === "square" ? `rotate(${s.rot}deg)` : "none",
+            }} />
+          ))}
+        </div>
+
         {/* ── NAVBAR ── */}
         <nav style={{ ...styles.navbar, ...(isMobile ? styles.navbarMobile : {}) }}>
           <div style={styles.logoWrap}>
@@ -1040,7 +1240,36 @@ function App() {
           {!isAuthPage && activeNav !== "Admin Portal" && (
             <>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto", zIndex: 2000 }}>
-              {isMobile && isLoggedIn && (
+              {isLoggedIn && (
+                <button
+                  type="button"
+                  onClick={() => handleNavChange("Contact")}
+                  onMouseEnter={(e) => { setBtnHovered(true); e.currentTarget.style.transform = "scale(1.04)"; }}
+                  onMouseLeave={(e) => { setBtnHovered(false); e.currentTarget.style.transform = "scale(1)"; }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "9px 20px",
+                    borderRadius: "999px",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+                    color: "#062018",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    fontFamily: "inherit",
+                    letterSpacing: "0.2px",
+                    whiteSpace: "nowrap",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    boxShadow: "0 8px 24px rgba(34,197,94,0.18), inset 0 1px 0 rgba(255,255,255,0.4)",
+                    transition: "transform 0.16s ease",
+                  }}
+                >
+                  Get in Touch
+                </button>
+              )}
+              {navCollapsed && isLoggedIn && (
                 <div style={{ position: "relative" }}>
                   <button
                     type="button"
@@ -1049,14 +1278,9 @@ function App() {
                       marginLeft: 0,
                       ...(isNotificationOpen ? styles.hamburgerButtonActive : {}),
                     }}
-                    onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                    onClick={() => toggleMenu("notification")}
                   >
-                    <FaBell size={18} color={isNotificationOpen ? "#15803d" : "rgba(0,0,0,0.7)"} style={{ animation: notifBadgeAnim ? "shakeIcon 0.5s ease-in-out" : "none" }} />
-                    {notifications.filter(n => !n.read).length > 0 && (
-                      <span className={notifBadgeAnim ? "animate-badgePop" : ""} style={{ position: "absolute", top: "-2px", right: "-2px", background: "#e11d48", color: "#fff", borderRadius: "50%", padding: "2px 5px", fontSize: "9px", fontWeight: "bold", border: "1px solid rgba(255,255,255,0.5)" }}>
-                        {notifications.filter(n => !n.read).length}
-                      </span>
-                    )}
+                    <FaBell size={18} color={isNotificationOpen ? "#15803d" : "#000"} style={{ animation: notifBadgeAnim ? "shakeIcon 0.5s ease-in-out" : "none" }} />
                   </button>
                   {isNotificationOpen && (
                     <div style={{ position: "absolute", top: "100%", right: 0, paddingTop: "8px", zIndex: 100, width: "280px" }}>
@@ -1096,15 +1320,14 @@ function App() {
                 aria-label="Toggle navigation menu"
                 aria-expanded={isMobileMenuOpen}
                 style={{
-                  ...styles.hamburgerButton,
+                  ...styles.menuToggle,
                   marginLeft: 0,
-                  ...(isMobileMenuOpen ? styles.hamburgerButtonActive : {}),
                 }}
                 onClick={() => setIsMobileMenuOpen((open) => !open)}
               >
-                <span style={{ ...styles.hamburgerLine, ...(isMobileMenuOpen ? styles.hamburgerLineTopOpen : {}) }} />
-                <span style={{ ...styles.hamburgerLine, ...(isMobileMenuOpen ? styles.hamburgerLineMiddleOpen : {}) }} />
-                <span style={{ ...styles.hamburgerLine, ...(isMobileMenuOpen ? styles.hamburgerLineBottomOpen : {}) }} />
+                {isMobileMenuOpen
+                  ? <X size={26} color="#000" strokeWidth={2.5} />
+                  : <Menu size={26} color="#000" strokeWidth={2.5} />}
               </button>
             </div>
               {isMobileMenuOpen && (
@@ -1117,10 +1340,9 @@ function App() {
               )}
               <div
                 className={`nav-links-panel ${isMobileMenuOpen ? "mobile-menu-open" : ""}`}
-                style={{ ...styles.navLinks, ...(isMobile ? styles.navLinksMobile : {}), ...(isMobile && !isMobileMenuOpen ? styles.navLinksMobileHidden : {}) }}
+                style={{ ...styles.navLinks, ...(navCollapsed ? styles.navLinksMobile : {}), ...(navCollapsed && !isMobileMenuOpen ? styles.navLinksMobileHidden : {}) }}
               >
                 {navItems
-                  .filter((item) => !isMobile || !["About Us", "Seasonal Harvest"].includes(item))
                   .map((item) => {
                   if (item === "Target Market") {
                     const isTargetMarketActive = activeNav === "Target Market" || activeNav === "Target Market Explore" || activeNav === "Sustainability App Market";
@@ -1136,16 +1358,16 @@ function App() {
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          ...(isMobile ? styles.navDropdownWrapMobile : {}),
+                          ...(navCollapsed ? styles.navDropdownWrapMobile : {}),
                         }}
-                        onMouseEnter={() => !isMobile && setIsTargetDropdownOpen(true)}
-                        onMouseLeave={() => !isMobile && setIsTargetDropdownOpen(false)} // Close dropdown on mouse leave for desktop
+                        onMouseEnter={() => !navCollapsed && setIsTargetDropdownOpen(true)}
+                        onMouseLeave={() => !navCollapsed && setIsTargetDropdownOpen(false)} // Close dropdown on mouse leave for desktop
                       >
                         <button
                           type="button"
                           style={{
                             ...styles.linkBtn,
-                            ...(isMobile ? styles.linkBtnMobile : {}),
+                            ...(navCollapsed ? styles.linkBtnMobile : {}),
                             ...(isTargetMarketActive ? styles.linkBtnActive : {}),
                             ...(hoveredNav === item && !isTargetMarketActive ? styles.linkBtnHover : {}),
                             display: "flex",
@@ -1155,8 +1377,8 @@ function App() {
                           }}
                           onClick={() => {
                             setActiveNav(item);
-                            if (isMobile) { // Toggle dropdown on click for mobile
-                              setIsTargetDropdownOpen(true);
+                            if (navCollapsed) { // Toggle dropdown on click for mobile
+                              openMenu("target");
                             }
                           }}
                           onMouseEnter={() => setHoveredNav(item)}
@@ -1166,7 +1388,7 @@ function App() {
                           <span
                             onClick={(e) => {
                               e.stopPropagation();
-                              setIsTargetDropdownOpen(!isTargetDropdownOpen);
+                              toggleMenu("target");
                             }}
                             style={{
                               display: "flex",
@@ -1201,20 +1423,20 @@ function App() {
 
                         {isTargetDropdownOpen && (
                           <div style={{ 
-                            position: isMobile ? "relative" : "absolute", 
-                            top: isMobile ? "auto" : "100%", 
-                            left: isMobile ? "auto" : "50%", 
-                            transform: isMobile ? "none" : "translateX(-50%)", 
-                            paddingTop: isMobile ? "0px" : "8px", 
+                            position: navCollapsed ? "relative" : "absolute", 
+                            top: navCollapsed ? "auto" : "100%", 
+                            left: navCollapsed ? "auto" : "50%", 
+                            transform: navCollapsed ? "none" : "translateX(-50%)", 
+                            paddingTop: navCollapsed ? "0px" : "8px", 
                             zIndex: 100, 
-                            width: isMobile ? "100%" : "auto" 
+                            width: navCollapsed ? "100%" : "auto" 
                           }}>
-                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(isMobile ? styles.dropdownMenuMobile : {}) }}>
+                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(navCollapsed ? styles.dropdownMenuMobile : {}) }}>
                             <button
                               type="button"
                               style={{
                                 ...styles.dropdownItem,
-                                ...(isMobile ? styles.dropdownItemMobile : {}),
+                                ...(navCollapsed ? styles.dropdownItemMobile : {}),
                                 ...(activeNav === "Target Market" ? styles.dropdownItemActive : {}),
                                 ...(hoveredDropdown === "Overview" && activeNav !== "Target Market" ? styles.dropdownItemHover : {})
                               }}
@@ -1222,7 +1444,7 @@ function App() {
                                 e.stopPropagation();
                                 setActiveNav("Target Market");
                                 setIsTargetDropdownOpen(false);
-                                if (isMobile) setIsMobileMenuOpen(false);
+                                if (navCollapsed) setIsMobileMenuOpen(false);
                               }}
                               onMouseEnter={() => setHoveredDropdown("Overview")}
                               onMouseLeave={() => setHoveredDropdown(null)}
@@ -1233,7 +1455,7 @@ function App() {
                               type="button"
                               style={{
                                 ...styles.dropdownItem,
-                                ...(isMobile ? styles.dropdownItemMobile : {}),
+                                ...(navCollapsed ? styles.dropdownItemMobile : {}),
                                 ...(activeNav === "Target Market Explore" ? styles.dropdownItemActive : {}),
                                 ...(hoveredDropdown === "Distribution Channels and Acquisition Tactics" && activeNav !== "Target Market Explore" ? styles.dropdownItemHover : {})
                               }}
@@ -1241,7 +1463,7 @@ function App() {
                                 e.stopPropagation();
                                 setActiveNav("Target Market Explore");
                                 setIsTargetDropdownOpen(false);
-                                if (isMobile) setIsMobileMenuOpen(false);
+                                if (navCollapsed) setIsMobileMenuOpen(false);
                               }}
                               onMouseEnter={() => setHoveredDropdown("Distribution Channels and Acquisition Tactics")}
                               onMouseLeave={() => setHoveredDropdown(null)}
@@ -1252,7 +1474,7 @@ function App() {
                               type="button"
                               style={{
                                 ...styles.dropdownItem,
-                                ...(isMobile ? styles.dropdownItemMobile : {}),
+                                ...(navCollapsed ? styles.dropdownItemMobile : {}),
                                 ...(activeNav === "Sustainability App Market" ? styles.dropdownItemActive : {}),
                                 ...(hoveredDropdown === "Sustainability" && activeNav !== "Sustainability App Market" ? styles.dropdownItemHover : {})
                               }}
@@ -1260,7 +1482,7 @@ function App() {
                                 e.stopPropagation();
                                 setActiveNav("Sustainability App Market");
                                 setIsTargetDropdownOpen(false);
-                                if (isMobile) setIsMobileMenuOpen(false);
+                                if (navCollapsed) setIsMobileMenuOpen(false);
                               }}
                               onMouseEnter={() => setHoveredDropdown("Sustainability")}
                               onMouseLeave={() => setHoveredDropdown(null)}
@@ -1287,16 +1509,16 @@ function App() {
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          ...(isMobile ? styles.navDropdownWrapMobile : {}),
+                          ...(navCollapsed ? styles.navDropdownWrapMobile : {}),
                         }}
-                        onMouseEnter={() => !isMobile && setIsProductDropdownOpen(true)}
-                        onMouseLeave={() => !isMobile && setIsProductDropdownOpen(false)} // Close dropdown on mouse leave for desktop
+                        onMouseEnter={() => !navCollapsed && setIsProductDropdownOpen(true)}
+                        onMouseLeave={() => !navCollapsed && setIsProductDropdownOpen(false)} // Close dropdown on mouse leave for desktop
                       >
                         <button
                           type="button"
                           style={{
                             ...styles.linkBtn,
-                            ...(isMobile ? styles.linkBtnMobile : {}),
+                            ...(navCollapsed ? styles.linkBtnMobile : {}),
                             ...(isProductServicesActive ? styles.linkBtnActive : {}),
                             ...(hoveredNav === item && !isProductServicesActive ? styles.linkBtnHover : {}),
                             display: "flex",
@@ -1306,8 +1528,8 @@ function App() {
                           }}
                           onClick={() => {
                             setActiveNav(item); // Default to the main Product & Services page
-                            if (isMobile) { // Toggle dropdown on click for mobile
-                              setIsProductDropdownOpen(true);
+                            if (navCollapsed) { // Toggle dropdown on click for mobile
+                              openMenu("product");
                             }
                           }}
                           onMouseEnter={() => setHoveredNav(item)}
@@ -1317,7 +1539,7 @@ function App() {
                           <span
                             onClick={(e) => {
                               e.stopPropagation();
-                              setIsProductDropdownOpen(!isProductDropdownOpen);
+                              toggleMenu("product");
                             }}
                             style={{
                               display: "flex",
@@ -1352,20 +1574,20 @@ function App() {
 
                         {isProductDropdownOpen && (
                           <div style={{ 
-                            position: isMobile ? "relative" : "absolute", 
-                            top: isMobile ? "auto" : "100%", 
-                            left: isMobile ? "auto" : "50%", 
-                            transform: isMobile ? "none" : "translateX(-50%)", 
-                            paddingTop: isMobile ? "0px" : "8px", 
+                            position: navCollapsed ? "relative" : "absolute", 
+                            top: navCollapsed ? "auto" : "100%", 
+                            left: navCollapsed ? "auto" : "50%", 
+                            transform: navCollapsed ? "none" : "translateX(-50%)", 
+                            paddingTop: navCollapsed ? "0px" : "8px", 
                             zIndex: 100, 
-                            width: isMobile ? "100%" : "auto" 
+                            width: navCollapsed ? "100%" : "auto" 
                           }}>
-                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(isMobile ? styles.dropdownMenuMobile : {}) }}>
+                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(navCollapsed ? styles.dropdownMenuMobile : {}) }}>
                               <button
                                 type="button"
                                 style={{
                                   ...styles.dropdownItem,
-                                  ...(isMobile ? styles.dropdownItemMobile : {}),
+                                  ...(navCollapsed ? styles.dropdownItemMobile : {}),
                                   ...(activeNav === "Product & Services" ? styles.dropdownItemActive : {}),
                                   ...(hoveredProductDropdown === "Overview" && activeNav !== "Product & Services" ? styles.dropdownItemHover : {})
                                 }}
@@ -1373,7 +1595,7 @@ function App() {
                                   e.stopPropagation();
                                   setActiveNav("Product & Services");
                                   setIsProductDropdownOpen(false);
-                                  if (isMobile) setIsMobileMenuOpen(false);
+                                  if (navCollapsed) setIsMobileMenuOpen(false);
                                 }}
                                 onMouseEnter={() => setHoveredProductDropdown("Overview")}
                                 onMouseLeave={() => setHoveredProductDropdown(null)}
@@ -1384,7 +1606,7 @@ function App() {
                                 type="button"
                                 style={{
                                   ...styles.dropdownItem,
-                                  ...(isMobile ? styles.dropdownItemMobile : {}),
+                                  ...(navCollapsed ? styles.dropdownItemMobile : {}),
                                   ...(activeNav === "Benefits of the Project" ? styles.dropdownItemActive : {}),
                                   ...(hoveredProductDropdown === "Benefits of the Project" && activeNav !== "Benefits of the Project" ? styles.dropdownItemHover : {})
                                 }}
@@ -1392,12 +1614,163 @@ function App() {
                                   e.stopPropagation();
                                   setActiveNav("Benefits of the Project");
                                   setIsProductDropdownOpen(false);
-                                  if (isMobile) setIsMobileMenuOpen(false);
+                                  if (navCollapsed) setIsMobileMenuOpen(false);
                                 }}
                                 onMouseEnter={() => setHoveredProductDropdown("Benefits of the Project")}
                                 onMouseLeave={() => setHoveredProductDropdown(null)}
                               >
                                 Benefits of the Project
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  } else if (item === "Seasonal Harvest") { // Seasonal Harvest Dropdown
+                    const isSeasonalActive = activeNav === "Seasonal Harvest" || activeNav === "Farm Planner" || activeNav === "Community";
+
+                    let seasonalLabel = item;
+                    if (activeNav === "Farm Planner") seasonalLabel = "Farm Planner";
+                    else if (activeNav === "Community") seasonalLabel = "Community";
+
+                    return (
+                      <div
+                        key={item}
+                        style={{
+                          position: "relative",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          ...(navCollapsed ? styles.navDropdownWrapMobile : {}),
+                        }}
+                        onMouseEnter={() => !navCollapsed && setIsSeasonalDropdownOpen(true)}
+                        onMouseLeave={() => !navCollapsed && setIsSeasonalDropdownOpen(false)}
+                      >
+                        <button
+                          type="button"
+                          style={{
+                            ...styles.linkBtn,
+                            ...(navCollapsed ? styles.linkBtnMobile : {}),
+                            ...(isSeasonalActive ? styles.linkBtnActive : {}),
+                            ...(hoveredNav === item && !isSeasonalActive ? styles.linkBtnHover : {}),
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "2px",
+                            padding: "4px 6px 4px 14px"
+                          }}
+                          onClick={() => {
+                            setActiveNav(item);
+                            if (navCollapsed) {
+                              openMenu("seasonal");
+                            }
+                          }}
+                          onMouseEnter={() => setHoveredNav(item)}
+                          onMouseLeave={() => setHoveredNav(null)}
+                        >
+                          {seasonalLabel}
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleMenu("seasonal");
+                            }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              padding: "6px",
+                              marginLeft: "2px",
+                              borderRadius: "50%",
+                              background: isSeasonalDropdownOpen ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                              cursor: "pointer",
+                              transition: "background 0.2s ease"
+                            }}
+                          >
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{
+                                transform: isSeasonalDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                transition: "transform 0.2s ease"
+                              }}
+                            >
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                          </span>
+                        </button>
+
+                        {isSeasonalDropdownOpen && (
+                          <div style={{
+                            position: navCollapsed ? "relative" : "absolute",
+                            top: navCollapsed ? "auto" : "100%",
+                            left: navCollapsed ? "auto" : "50%",
+                            transform: navCollapsed ? "none" : "translateX(-50%)",
+                            paddingTop: navCollapsed ? "0px" : "8px",
+                            zIndex: 100,
+                            width: navCollapsed ? "100%" : "auto"
+                          }}>
+                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(navCollapsed ? styles.dropdownMenuMobile : {}) }}>
+                              <button
+                                type="button"
+                                style={{
+                                  ...styles.dropdownItem,
+                                  ...(navCollapsed ? styles.dropdownItemMobile : {}),
+                                  ...(activeNav === "Seasonal Harvest" ? styles.dropdownItemActive : {}),
+                                  ...(hoveredSeasonalDropdown === "Seasonal Harvest" && activeNav !== "Seasonal Harvest" ? styles.dropdownItemHover : {})
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveNav("Seasonal Harvest");
+                                  setIsSeasonalDropdownOpen(false);
+                                  if (navCollapsed) setIsMobileMenuOpen(false);
+                                }}
+                                onMouseEnter={() => setHoveredSeasonalDropdown("Seasonal Harvest")}
+                                onMouseLeave={() => setHoveredSeasonalDropdown(null)}
+                              >
+                                Seasonal Harvest
+                              </button>
+                              <button
+                                type="button"
+                                style={{
+                                  ...styles.dropdownItem,
+                                  ...(navCollapsed ? styles.dropdownItemMobile : {}),
+                                  ...(activeNav === "Farm Planner" ? styles.dropdownItemActive : {}),
+                                  ...(hoveredSeasonalDropdown === "Farm Planner" && activeNav !== "Farm Planner" ? styles.dropdownItemHover : {})
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveNav("Farm Planner");
+                                  setIsSeasonalDropdownOpen(false);
+                                  if (navCollapsed) setIsMobileMenuOpen(false);
+                                }}
+                                onMouseEnter={() => setHoveredSeasonalDropdown("Farm Planner")}
+                                onMouseLeave={() => setHoveredSeasonalDropdown(null)}
+                              >
+                                Farm Planner
+                              </button>
+                              <button
+                                type="button"
+                                style={{
+                                  ...styles.dropdownItem,
+                                  ...(navCollapsed ? styles.dropdownItemMobile : {}),
+                                  ...(activeNav === "Community" ? styles.dropdownItemActive : {}),
+                                  ...(hoveredSeasonalDropdown === "Community" && activeNav !== "Community" ? styles.dropdownItemHover : {})
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveNav("Community");
+                                  setIsSeasonalDropdownOpen(false);
+                                  if (navCollapsed) setIsMobileMenuOpen(false);
+                                }}
+                                onMouseEnter={() => setHoveredSeasonalDropdown("Community")}
+                                onMouseLeave={() => setHoveredSeasonalDropdown(null)}
+                              >
+                                Community
                               </button>
                             </div>
                           </div>
@@ -1412,7 +1785,7 @@ function App() {
                       type="button"
                       style={{
                         ...styles.linkBtn,
-                        ...(isMobile ? styles.linkBtnMobile : {}),
+                        ...(navCollapsed ? styles.linkBtnMobile : {}),
                         ...(activeNav === item ? styles.linkBtnActive : {}),
                         ...(hoveredNav === item && activeNav !== item ? styles.linkBtnHover : {}),
                       }}
@@ -1428,10 +1801,10 @@ function App() {
                   {/* Auth Buttons */}
                   {isLoggedIn && (
                     <>
-                      <div style={{ width: isMobile ? "100%" : "1px", height: isMobile ? "1px" : "auto", background: "rgba(0,0,0,0.1)", margin: isMobile ? "4px 0" : "0 4px" }} />
+                      <div style={{ width: navCollapsed ? "100%" : "1px", height: navCollapsed ? "1px" : "auto", background: "rgba(0,0,0,0.1)", margin: navCollapsed ? "4px 0" : "0 4px" }} />
                       
                       {/* Notifications Dropdown */}
-                      {!isMobile && (
+                      {!navCollapsed && (
                         <div
                           style={{
                             position: "relative",
@@ -1466,7 +1839,7 @@ function App() {
                           >
                             <FaBell size={16} style={{ animation: notifBadgeAnim ? "shakeIcon 0.5s ease-in-out" : "none" }} />
                             {notifications.filter(n => !n.read).length > 0 && (
-                              <span className={notifBadgeAnim ? "animate-badgePop" : ""} style={{ position: "absolute", top: "-2px", right: "-2px", background: "#e11d48", color: "#fff", borderRadius: "50%", padding: "2px 5px", fontSize: "9px", fontWeight: "bold", border: "1px solid rgba(255,255,255,0.5)" }}>
+                              <span className={notifBadgeAnim ? "animate-badgePop" : ""} style={{ position: "absolute", top: "-2px", right: "-2px", background: "#e11d48", color: "#fff", borderRadius: "50%", padding: "2px 5px", fontSize: "9px", fontWeight: "bold" }}>
                                 {notifications.filter(n => !n.read).length}
                               </span>
                             )}
@@ -1505,24 +1878,8 @@ function App() {
                         </div>
                       )}
 
-                      {isMobile ? (
-                        <button
-                          type="button"
-                          style={{
-                            ...styles.linkBtn,
-                            ...styles.linkBtnMobile,
-                            ...(hoveredProfileDropdown === "Logout" ? styles.linkBtnHover : {}),
-                          }}
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            handleLogout();
-                          }}
-                          onMouseEnter={() => setHoveredProfileDropdown("Logout")}
-                          onMouseLeave={() => setHoveredProfileDropdown(null)}
-                        >
-                          Logout
-                        </button>
-                      ) : (
+                      {/* Full account dropdown rendered inside the hamburger panel (accordion when collapsed) */}
+                      {false ? null : (
                       <div
                         style={{
                           position: "relative",
@@ -1530,16 +1887,16 @@ function App() {
                           flexDirection: "column",
                           alignItems: "center",
                           order: 1,
-                          ...(isMobile ? styles.navDropdownWrapMobile : {}),
+                          ...(navCollapsed ? styles.navDropdownWrapMobile : {}),
                         }}
-                        onMouseEnter={() => !isMobile && setIsProfileDropdownOpen(true)}
-                        onMouseLeave={() => !isMobile && setIsProfileDropdownOpen(false)}
+                        onMouseEnter={() => !navCollapsed && setIsProfileDropdownOpen(true)}
+                        onMouseLeave={() => !navCollapsed && setIsProfileDropdownOpen(false)}
                       >
                         <button
                           type="button"
                           style={{
                             ...styles.linkBtn,
-                            ...(isMobile ? styles.linkBtnMobile : {}),
+                            ...(navCollapsed ? styles.linkBtnMobile : {}),
                             ...(isProfileDropdownOpen ? styles.linkBtnActive : {}),
                             display: "flex",
                             alignItems: "center",
@@ -1547,7 +1904,7 @@ function App() {
                             padding: "4px 6px 4px 14px"
                           }}
                           onClick={() => {
-                            if (isMobile) setIsProfileDropdownOpen(!isProfileDropdownOpen);
+                            if (navCollapsed) toggleMenu("profile");
                           }}
                         >
                           <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#15803d", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "bold", overflow: "hidden" }}>
@@ -1576,11 +1933,11 @@ function App() {
                         </button>
 
                         {isProfileDropdownOpen && (
-                          <div style={{ position: isMobile ? "relative" : "absolute", top: isMobile ? "auto" : "100%", left: isMobile ? "auto" : "50%", transform: isMobile ? "none" : "translateX(-50%)", paddingTop: isMobile ? "0px" : "8px", zIndex: 100, width: isMobile ? "100%" : "auto" }}>
-                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(isMobile ? styles.dropdownMenuMobile : {}) }}>
+                          <div style={{ position: navCollapsed ? "relative" : "absolute", top: navCollapsed ? "auto" : "100%", left: navCollapsed ? "auto" : "50%", transform: navCollapsed ? "none" : "translateX(-50%)", paddingTop: navCollapsed ? "0px" : "8px", zIndex: 100, width: navCollapsed ? "100%" : "auto" }}>
+                            <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(navCollapsed ? styles.dropdownMenuMobile : {}) }}>
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "My Profile" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "My Profile" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -1595,7 +1952,7 @@ function App() {
                               {isAdmin && (
                                 <button 
                                   type="button" 
-                                  style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Admin Portal" ? styles.dropdownItemHover : {}) }} 
+                                  style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Admin Portal" ? styles.dropdownItemHover : {}) }} 
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setIsProfileDropdownOpen(false);
@@ -1609,7 +1966,7 @@ function App() {
                               )}
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "My Certificate" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "My Certificate" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -1621,11 +1978,11 @@ function App() {
                               >
                                 My Certificate
                               </button>
-	                              {!isMobile && (
+	                              {true && (
 	                                <>
-	                                  <button 
-	                                    type="button" 
-	                                    style={{ ...styles.dropdownItem, ...(hoveredProfileDropdown === "EcoPoints" ? styles.dropdownItemHover : {}) }} 
+	                                  <button
+	                                    type="button"
+	                                    style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "EcoPoints" ? styles.dropdownItemHover : {}) }}
 	                                    onClick={(e) => {
 	                                      e.stopPropagation();
 	                                      setIsProfileDropdownOpen(false);
@@ -1637,9 +1994,9 @@ function App() {
 	                                  >
 	                                    EcoPoints & Rewards
 	                                  </button>
-	                                  <button 
-	                                    type="button" 
-	                                    style={{ ...styles.dropdownItem, ...(hoveredProfileDropdown === "EarnHistory" ? styles.dropdownItemHover : {}) }} 
+	                                  <button
+	                                    type="button"
+	                                    style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "EarnHistory" ? styles.dropdownItemHover : {}) }}
 	                                    onClick={(e) => {
 	                                      e.stopPropagation();
 	                                      setIsProfileDropdownOpen(false);
@@ -1655,7 +2012,7 @@ function App() {
 	                              )}
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Orders" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Orders" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -1669,7 +2026,7 @@ function App() {
                               </button>
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Wishlist" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Wishlist" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -1683,7 +2040,7 @@ function App() {
                               </button>
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Support Tickets" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Support Tickets" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -1697,7 +2054,7 @@ function App() {
                               </button>
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Settings" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Settings" ? styles.dropdownItemHover : {}) }} 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -1711,7 +2068,7 @@ function App() {
                               </button>
                               <button 
                                 type="button" 
-                                style={{ ...styles.dropdownItem, ...(isMobile ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Logout" ? styles.dropdownItemHover : {}) }} 
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Logout" ? styles.dropdownItemHover : {}) }} 
                                 onClick={handleLogout} 
                                 onMouseEnter={() => setHoveredProfileDropdown("Logout")} 
                                 onMouseLeave={() => setHoveredProfileDropdown(null)}
@@ -1732,9 +2089,9 @@ function App() {
 
         {/* ── PAGE CONTENT ── */}
         {activeNav === "Home" && (
-          <div style={{ ...styles.hero, flexDirection: isMobile ? "column" : "row", alignItems: "center", justifyContent: "space-between", gap: "clamp(24px, 4vw, 60px)", maxWidth: "1200px", textAlign: "left", ...(isMobile ? styles.heroMobile : {}) }}>
-            
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: isMobile ? "100%" : "680px" }}>
+          <div style={{ ...styles.hero, flexDirection: "column", alignItems: isMobile ? "center" : "stretch", justifyContent: isMobile ? "space-between" : "center", gap: isMobile ? "clamp(24px, 4vw, 60px)" : "0", maxWidth: isMobile ? "1200px" : "1240px", textAlign: "left", ...(isMobile ? styles.heroMobile : { flex: 1, height: "100%", minHeight: 0, margin: "0 auto", overflow: "hidden" }) }}>
+
+            <div style={{ flex: isMobile ? 1 : "0 0 auto", display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: isMobile ? "100%" : "680px", width: isMobile ? undefined : "100%" }}>
               
               {isMobile && (
                 <div className="inner-blur-glass" style={{ 
@@ -1984,7 +2341,7 @@ function App() {
                             <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.58)" }}>Current Balance</span>
                             <div style={{ fontSize: "28px", fontWeight: 800, color: "#15803d", marginTop: "4px", lineHeight: 1 }}>{ecoPoints.toLocaleString()} <span style={{ fontSize: "13px", fontWeight: 800 }}>pts</span></div>
                           </div>
-                          <div style={{ width: "46px", height: "46px", background: "linear-gradient(135deg, #16a34a, #15803d)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "21px", boxShadow: "0 8px 16px rgba(22, 163, 74, 0.28)" }}>🎁</div>
+                          <div style={{ width: "46px", height: "46px", background: "linear-gradient(135deg, #16a34a, #15803d)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "21px", boxShadow: "0 8px 16px rgba(22, 163, 74, 0.28)" }}><Gift size={21} color="#fff" /></div>
                         </div>
 	                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
 	                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
@@ -2039,10 +2396,10 @@ function App() {
                         <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#062018" }}>Rewards Marketplace</h3>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                           {[
-                            { title: "Free Delivery", points: "500 pts", icon: "🚚" },
-                            { title: "Native Seed Kit", points: "1,200 pts", icon: "🌱" },
-                            { title: "Gardening Set", points: "2,500 pts", icon: "🛠️" },
-                            { title: "AI Premium", points: "3,000 pts", icon: "🤖" },
+                            { title: "Free Delivery", points: "500 pts", icon: <Truck size={24} color="#15803d" /> },
+                            { title: "Native Seed Kit", points: "1,200 pts", icon: <Sprout size={24} color="#15803d" /> },
+                            { title: "Gardening Set", points: "2,500 pts", icon: <Wrench size={24} color="#15803d" /> },
+                            { title: "AI Premium", points: "3,000 pts", icon: <Bot size={24} color="#15803d" /> },
                           ].map((reward) => (
                             <div key={reward.title} style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.62)", border: "1px solid rgba(255,255,255,0.62)", display: "flex", flexDirection: "column", gap: "7px" }}>
                               <span style={{ fontSize: "24px" }}>{reward.icon}</span>
@@ -2096,10 +2453,10 @@ function App() {
                         <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#062018" }}>Community Impact</h3>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                           {[
-                            { label: "Trees Planted", value: "12", icon: "🌲" },
-                            { label: "Farmers Supported", value: "3", icon: "🧑‍🌾" },
-                            { label: "Seeds Preserved", value: "250", icon: "🌾" },
-                            { label: "CO2 Reduced", value: "45kg", icon: "☁️" },
+                            { label: "Trees Planted", value: "12", icon: <Trees size={22} color="#15803d" /> },
+                            { label: "Farmers Supported", value: "3", icon: <Users size={22} color="#15803d" /> },
+                            { label: "Seeds Preserved", value: "250", icon: <Wheat size={22} color="#15803d" /> },
+                            { label: "CO2 Reduced", value: "45kg", icon: <Cloud size={22} color="#15803d" /> },
                           ].map((stat) => (
                             <div key={stat.label} style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.58)", border: "1px solid rgba(255,255,255,0.6)", textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
                               <span style={{ fontSize: "20px" }}>{stat.icon}</span>
@@ -2173,318 +2530,180 @@ function App() {
                 </div>
               )}
 
-              {/* Badge */}
-              {!isMobile && (
-                <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
+              {/* Desktop hero redesign lives below as a full-width sibling */}
+            </div>
+            
+            {/* Desktop Hero — Dribbble-style showcase layout */}
+            {!isMobile && (
+              <div style={{ position: "relative", width: "100%", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", padding: 0, paddingBottom: "clamp(20px, 3vh, 36px)" }}>
+
+                {/* Decorative dotted-grid accent — top-left */}
+                <div aria-hidden="true" style={{
+                  position: "absolute", top: "5%", left: "2%", width: "120px", height: "120px", zIndex: 0, pointerEvents: "none",
+                  backgroundImage: "radial-gradient(rgba(22,163,74,0.22) 1px, transparent 1px)",
+                  backgroundSize: "15px 15px",
+                  WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)",
+                  maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)",
+                }} />
+
+                {/* Decorative dotted-grid accent — bottom-right (balances top-left) */}
+                <div aria-hidden="true" style={{
+                  position: "absolute", bottom: "6%", right: "3%", width: "120px", height: "120px", zIndex: 0, pointerEvents: "none",
+                  backgroundImage: "radial-gradient(rgba(56,189,248,0.20) 1px, transparent 1px)",
+                  backgroundSize: "15px 15px",
+                  WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)",
+                  maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)",
+                }} />
+
+                {/* Faint ghost ring behind the showcase — quiet geometric anchor */}
+                <div aria-hidden="true" style={{
+                  position: "absolute", top: "50%", left: "50%", width: "clamp(360px, 42vw, 620px)", height: "clamp(360px, 42vw, 620px)", transform: "translate(-50%, -42%)", zIndex: 0, pointerEvents: "none",
+                  borderRadius: "50%", border: "1px solid rgba(22,163,74,0.10)",
+                }} />
+
+                {/* Thin diagonal hairlines — echo the angled photo panels */}
+                <div aria-hidden="true" style={{
+                  position: "absolute", top: 0, left: "14%", width: "1px", height: "100%", zIndex: 0, pointerEvents: "none",
+                  background: "linear-gradient(to bottom, transparent, rgba(22,163,74,0.12), transparent)",
+                  transform: "skewX(-9deg)",
+                }} />
+                <div aria-hidden="true" style={{
+                  position: "absolute", top: 0, right: "16%", width: "1px", height: "100%", zIndex: 0, pointerEvents: "none",
+                  background: "linear-gradient(to bottom, transparent, rgba(56,189,248,0.12), transparent)",
+                  transform: "skewX(-9deg)",
+                }} />
+
+                {/* Soft spotlight glow behind the photo showcase — adds focus + depth */}
+                <div aria-hidden="true" style={{
+                  position: "absolute", top: "56%", left: "50%", width: "clamp(420px, 50vw, 760px)", height: "clamp(260px, 30vw, 420px)", transform: "translate(-50%, -50%)", zIndex: 0, pointerEvents: "none",
+                  background: "radial-gradient(ellipse at center, rgba(134,239,172,0.18) 0%, transparent 70%)",
+                  filter: "blur(20px)",
+                }} />
+
+                {/* Concentric ghost ring — pairs with the larger ring for quiet rhythm */}
+                <div aria-hidden="true" style={{
+                  position: "absolute", top: "50%", left: "50%", width: "clamp(240px, 28vw, 420px)", height: "clamp(240px, 28vw, 420px)", transform: "translate(-50%, -42%)", zIndex: 0, pointerEvents: "none",
+                  borderRadius: "50%", border: "1px solid rgba(56,189,248,0.09)",
+                }} />
+
+                {/* Minimal plus marks — subtle technical-blueprint accents */}
+                {[
+                  { top: "12%", right: "10%", color: "rgba(22,163,74,0.28)" },
+                  { bottom: "16%", left: "9%", color: "rgba(56,189,248,0.26)" },
+                ].map((p, i) => (
+                  <div key={i} aria-hidden="true" style={{ position: "absolute", top: p.top, bottom: p.bottom, left: p.left, right: p.right, width: "12px", height: "12px", zIndex: 0, pointerEvents: "none" }}>
+                    <div style={{ position: "absolute", top: "50%", left: 0, width: "100%", height: "1px", background: p.color, transform: "translateY(-50%)" }} />
+                    <div style={{ position: "absolute", left: "50%", top: 0, height: "100%", width: "1px", background: p.color, transform: "translateX(-50%)" }} />
+                  </div>
+                ))}
+
+                {/* Hairline divider — separates the showcase from the stats row */}
+                <div aria-hidden="true" style={{ position: "absolute", bottom: "13%", left: "50%", width: "clamp(120px, 16vw, 240px)", height: "1px", transform: "translateX(-50%)", zIndex: 0, pointerEvents: "none", background: "linear-gradient(to right, transparent, rgba(22,163,74,0.22), rgba(56,189,248,0.18), transparent)" }} />
+
+                {/* Badge */}
+                <div className="inner-blur-glass glass-hover-zoom-sm" style={{ ...styles.badge, alignSelf: "center", marginBottom: "clamp(6px, 1.2vh, 12px)", position: "relative", zIndex: 2 }}>
                   <span style={styles.badgeDot} />
                   <span style={styles.glassContentLayer}>Agricultural Innovation · Philippines</span>
                 </div>
-              )}
 
-              {!isMobile && (
-                <h1 style={styles.title}>
-                  <>
-                    Grow Food.{" "}
-                    <span style={styles.titleAccent}>Build Community.</span>
-                    {"\n"}Earn Sustainably.
-                  </>
+                {/* Heading */}
+                <h1 style={{ position: "relative", zIndex: 2, width: "100%", textAlign: "center", margin: "0 0 2px", fontFamily: "'Poppins', sans-serif", fontWeight: 500, fontSize: "clamp(26px, min(4.6vw, 6vh), 56px)", lineHeight: 1.02, letterSpacing: "-1.5px", color: "#0c241c", whiteSpace: "pre-line" }}>
+                  Grow Food.{" "}
+                  <span style={styles.titleAccent}>Build Community.</span>
+                  {"\n"}Earn Sustainably.
                 </h1>
-              )}
-              {!isMobile && <div style={styles.titleUnderline}></div>}
-              {!isMobile && (
-                <p style={styles.body}>
-                  EcoEquity is a digital-first, high-engagement platform designed to boost
-                  agricultural self-sufficiency in the Philippines — starting at the household
-                  and community level.
+
+                {/* Body text — centered under the heading */}
+                <p style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: "clamp(280px, 44vw, 540px)", margin: "0 auto", textAlign: "center", fontSize: "clamp(11px, 1.5vh, 14px)", lineHeight: 1.65, fontWeight: 500, letterSpacing: "0.3px", color: "rgba(6,32,24,0.6)" }}>
+                  EcoEquity is a digital-first, high-engagement platform designed to boost agricultural self-sufficiency in the Philippines — starting at the household and community level.
                 </p>
-              )}
-              {!isMobile && (
-                <div style={styles.ctaRow}>
+
+                {/* Three-column showcase: side text · image panels · side stats */}
+                <div style={{ position: "relative", zIndex: 2, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "clamp(8px, 1.6vw, 20px)", marginTop: "clamp(4px, 1vh, 10px)" }}>
+
+                  {/* CENTER — angled photo panels */}
+                  <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "clamp(8px, 1vw, 14px)", marginTop: "clamp(12px, 2vh, 24px)" }}>
+                    {[
+                      { src: "/Planting.jpg", h: "min(228px, 29vh)" },
+                      { src: "/farming.jpg", h: "min(292px, 37vh)" },
+                      { src: "/Solar.jpg", h: "min(260px, 33vh)" },
+                      { src: "/Rice.jpg", h: "min(214px, 27vh)" },
+                    ].map((panel, i) => (
+                      <div
+                        key={i}
+                        style={{ width: "clamp(96px, 11vw, 148px)", height: panel.h, transform: "skewX(-9deg)", overflow: "hidden", borderRadius: "12px", boxShadow: "0 18px 40px rgba(6,32,24,0.18)", flexShrink: 0, transition: "transform 0.3s ease" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = "skewX(-9deg) translateY(-8px)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = "skewX(-9deg) translateY(0)"; }}
+                      >
+                        <img src={panel.src} alt="" style={{ width: "calc(100% + 48px)", height: "100%", marginLeft: "-24px", objectFit: "cover", transform: "skewX(9deg) scale(1.18)" }} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* RIGHT — vertical social icons */}
+                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "clamp(10px, 1.7vh, 16px)", flexShrink: 0, marginTop: "clamp(12px, 2vh, 24px)", color: "rgba(6,32,24,0.5)" }}>
+                    <FaFacebookF size={20} style={{ cursor: "pointer" }} />
+                    <FaTwitter size={20} style={{ cursor: "pointer" }} />
+                    <FaDribbble size={20} style={{ cursor: "pointer" }} />
+                    <FaInstagram size={20} style={{ cursor: "pointer" }} />
+                  </div>
+
+                </div>
+
+                {/* CTA row — pushed to the lower section */}
+                <div style={{ ...styles.ctaRow, position: "relative", zIndex: 2, width: "100%", justifyContent: "center", marginTop: "auto", marginBottom: "clamp(2px, 0.5vh, 8px)" }}>
                   <button
                     type="button"
-                    style={{
-                      ...styles.primaryBtn,
-                      ...(btnHovered ? styles.primaryBtnHov : {}),
+                    style={{ ...styles.glassBtn, ...(ghostHovered ? styles.glassBtnHov : {}) }}
+                    onClick={() => {
+                      setLearnSwiping(true);
+                      setTimeout(() => { handleNavChange("Learn More"); setLearnSwiping(false); }, 520);
                     }}
-                    onClick={() => handleNavChange("Contact")}
-                    onMouseEnter={() => setBtnHovered(true)}
-                    onMouseLeave={() => setBtnHovered(false)}
-                  >
-                    <span aria-hidden="true" style={styles.primaryInnerBlur} />
-                    <span style={styles.glassContentLayer}>Get in Touch</span>
-                  </button>
-                  <button
-                    type="button"
-                    style={{
-                      ...styles.glassBtn,
-                      ...(ghostHovered ? styles.glassBtnHov : {}),
-                    }}
-                    onClick={() => handleNavChange("Learn More")}
                     onMouseEnter={() => setGhostHovered(true)}
                     onMouseLeave={() => setGhostHovered(false)}
                   >
                     <span aria-hidden="true" style={styles.glassInnerBlur} />
+                    {/* Swiping shine that sweeps to the right on click */}
+                    {learnSwiping && (
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "55%",
+                          height: "100%",
+                          background: "linear-gradient(90deg, transparent, rgba(34,197,94,0.55), rgba(125,211,252,0.45), transparent)",
+                          zIndex: 1,
+                          pointerEvents: "none",
+                          animation: "learnSwipeShine 0.5s ease-in-out",
+                        }}
+                      />
+                    )}
                     <span style={styles.glassContentLayer}>Learn More</span>
                   </button>
                 </div>
-              )}
-              {!isMobile && (
-                <div style={styles.cardRow}>
+
+                {/* Stats — centered row at the lower section */}
+                <div style={{ position: "relative", zIndex: 2, width: "100%", display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "clamp(24px, 4vw, 48px)", marginTop: "clamp(14px, 2.2vh, 24px)" }}>
                   {[
-                    { icons: [<Leaf key={1} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />, <Sprout key={2} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />, <Sun key={3} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />], heading: "Organic Edibles", text: "Local produce, herbs, organic kits, floriculture, and localized native seeds." },
-                    { icons: [<Stethoscope key={1} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />, <Activity key={2} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />, <HeartPulse key={3} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />], heading: "AI Plant Doctor", text: "24/7 localized care guides tailored to Philippine climate and native crop varieties." },
-                    { icons: [<Users key={1} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />, <Globe key={2} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />, <MessageCircle key={3} size={20} color="url(#appIconGradient)" strokeWidth={2.5} />], heading: "Community Hub", text: "Essential digital tools and localized data supporting both urban and traditional farmers." },
-                  ].map((c) => (
-                    <div
-                      key={c.heading}
-                      style={{
-                        ...styles.card,
-                        ...(hoveredCard === c.heading ? styles.cardHov : {}),
-                      }}
-                      onMouseEnter={() => setHoveredCard(c.heading)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                    > 
-                      <span aria-hidden="true" style={styles.cardInnerBlur} />
-                      <div style={{ display: "flex", gap: "8px", marginBottom: "8px", flexWrap: "wrap", width: "100%", justifyContent: "center" }}>
-                        {c.icons.map((icon, idx) => (
-                          <div key={idx} style={styles.featureIconWrap}>{icon}</div>
-                        ))}
-                      </div>
-                      {c.heading && <h3 style={{ ...styles.cardContentLayer, ...styles.cardHeading }}>{c.heading}</h3>}
-                      {c.text && <p style={{ ...styles.cardContentLayer, ...styles.cardText }}>{c.text}</p>}
+                    { value: "98%", label: "Company Growth" },
+                    { value: "99+", label: "Partners" },
+                    { value: "1000+", label: "Customers" },
+                  ].map((s) => (
+                    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                      <span style={{ fontSize: "clamp(16px, 2.3vh, 24px)", fontWeight: 800, color: "#0c241c", letterSpacing: "-1px", lineHeight: 1 }}>{s.value}</span>
+                      <span style={{ fontSize: "clamp(9px, 1.1vh, 11px)", fontWeight: 600, letterSpacing: "1.1px", textTransform: "uppercase", color: "rgba(6,32,24,0.5)" }}>{s.label}</span>
                     </div>
                   ))}
                 </div>
-              )}
 
-              {/* Horizontal Glass Panel with new stats */}
-              {!isMobile && (
-                <div
-                  style={{
-                    ...styles.statsStrip,
-                    marginTop: '20px',
-                    ...(statsStripHovered ? styles.statsStripHov : {}) }}
-                  onMouseEnter={() => setStatsStripHovered(true)}
-                  onMouseLeave={() => setStatsStripHovered(false)}
-                >
-                  <span aria-hidden="true" style={styles.glassInnerBlur} />
-                  {[
-                    { value: "98%", label: "Company Growth", icon: <TrendingUp color="url(#appIconGradient)" strokeWidth={2.5} /> },
-                    { value: "99+", label: "Partners", icon: <Handshake color="url(#appIconGradient)" strokeWidth={2.5} /> },
-                    { value: "1000+", label: "Customers", icon: <Users color="url(#appIconGradient)" strokeWidth={2.5} /> },
-                  ].map((s, i, arr) => (
-                    <div
-                      key={s.label}
-                      style={{
-                        ...styles.statCell,
-                        ...(i < arr.length - 1 ? styles.statCellDivider : {}),
-                      }}
-                    >
-                      <div style={styles.featureIconWrap}>
-                        {React.cloneElement(s.icon, { size: 20 })}
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                        <span style={styles.statVal}>{s.value}</span>
-                        <span style={styles.statLbl}>{s.label}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            {/* Right Side Rectangle Glass Card - Growth Charts */}
-            {!isMobile && (
-              <div 
-                style={{
-                  ...styles.heroRightCard,
-                  ...(rightCardHovered ? styles.heroRightCardHov : {})
-                }} 
-                className={`inner-blur-glass ${!rightCardHovered ? 'animate-heroRightCardPulseGlow' : ''}`}
-                onMouseEnter={() => setRightCardHovered(true)}
-                onMouseLeave={() => setRightCardHovered(false)}
-              >
-                <span aria-hidden="true" style={styles.cardInnerBlur} />
-                <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", flexDirection: "column", height: "100%" }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
-                    {[
-                      { id: 'crop', label: 'Crop Growth', icon: <Leaf size={14} color="#15803d" />, badgeBg: 'rgba(22,163,74,0.15)', activeBorder: 'rgba(22,163,74,0.3)', activeBg: 'rgba(22,163,74,0.05)', activeColor: '#15803d' },
-                      { id: 'users', label: 'Active Users', icon: <Users size={14} color="#0369a1" />, badgeBg: 'rgba(2,132,199,0.15)', activeBorder: 'rgba(2,132,199,0.3)', activeBg: 'rgba(2,132,199,0.05)', activeColor: '#0369a1' },
-                      { id: 'harvests', label: 'Harvests', icon: <Wheat size={14} color="#b45309" />, badgeBg: 'rgba(245,158,11,0.15)', activeBorder: 'rgba(245,158,11,0.3)', activeBg: 'rgba(245,158,11,0.05)', activeColor: '#b45309' },
-                      { id: 'subs', label: 'Subscribers', icon: <Activity size={14} color="#be123c" />, badgeBg: 'rgba(225,29,72,0.15)', activeBorder: 'rgba(225,29,72,0.3)', activeBg: 'rgba(225,29,72,0.05)', activeColor: '#be123c' },
-                    ].map(tab => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveHeroTab(tab.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'flex-start',
-                          gap: '8px',
-                          padding: '8px 12px',
-                          borderRadius: '12px',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          border: activeHeroTab === tab.id ? `1px solid ${tab.activeBorder}` : '1px solid rgba(0,0,0,0.05)',
-                          background: activeHeroTab === tab.id ? tab.activeBg : 'rgba(255,255,255,0.9)',
-                          color: activeHeroTab === tab.id ? tab.activeColor : 'rgba(0,0,0,0.6)',
-                          boxShadow: activeHeroTab === tab.id ? '0 4px 12px rgba(0,0,0,0.05)' : '0 2px 6px rgba(0,0,0,0.02)',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (activeHeroTab !== tab.id) {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (activeHeroTab !== tab.id) {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.02)';
-                          }
-                        }}
-                      >
-                        <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: tab.badgeBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {tab.icon}
-                        </div>
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Title and SVG Line Chart Glass Card */}
-                  <div style={{ 
-                    flex: 1, 
-                    marginBottom: "16px",
-                      background: "linear-gradient(150deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4))", 
-                      border: "1px solid rgba(0,0,0,0.05)", 
-                      borderRadius: "16px", 
-                      padding: "16px", 
-                      display: "flex", 
-                      flexDirection: "column", 
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(0,0,0,0.02)",
-                      position: "relative"
-                  }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", flexShrink: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: activeTabData.iconBg, border: activeTabData.iconBorder, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "inset 0 1px 1px rgba(255,255,255,0.5)", flexShrink: 0 }}>
-                            {React.cloneElement(activeTabData.icon, { size: 18 })}
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column" }}>
-                            <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 800, color: "#000", letterSpacing: "-0.3px", lineHeight: 1.1 }}>{activeTabData.title}</h3>
-                            <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.5)" }}>{activeTabData.subtitle}</span>
-                          </div>
-                        </div>
-                        <div style={{ padding: "4px 10px", background: activeTabData.statusBg, border: activeTabData.statusBorder, borderRadius: "999px", color: activeTabData.statusColor, fontSize: "10px", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
-                          {activeTabData.statusIcon}
-                          {activeTabData.status}
-                        </div>
-                      </div>
-                      
-                      <div style={{ flex: 1, minHeight: "100px", position: "relative" }}>
-                      <svg viewBox="0 0 300 120" style={{ width: "100%", height: "100%", overflow: "visible" }}>
-                        <defs>
-                          <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={activeTabData.gradientStart} />
-                            <stop offset="100%" stopColor={activeTabData.gradientEnd} />
-                          </linearGradient>
-                        </defs>
-                        <path d="M 0 100 Q 40 90, 80 70 T 160 60 T 240 30 L 300 15 L 300 120 L 0 120 Z" fill="url(#growthGradient)" />
-                        <path d="M 0 100 Q 40 90, 80 70 T 160 60 T 240 30 L 300 15" fill="none" stroke={activeTabData.strokeColor} strokeWidth="4" strokeLinecap="round" />
-                        
-                        {/* Data Points */}
-                        {activeTabData.points.map((point, index) => (
-                          <g key={point.id} 
-                             onMouseEnter={() => setHoveredDataPoint(point)} 
-                             onMouseLeave={() => setHoveredDataPoint(null)}
-                             style={{ cursor: "pointer" }}
-                          >
-                            <text 
-                              x={point.cx} 
-                              y={point.cy - 12} 
-                              fontSize="10" 
-                              fill={activeTabData.strokeColor} 
-                              textAnchor="middle" 
-                              fontWeight="800" 
-                              fontFamily="inherit"
-                              style={{ 
-                                opacity: hoveredDataPoint?.id === point.id ? 0 : 1, 
-                                transition: "opacity 0.2s ease" 
-                              }}
-                            >
-                              {point.value}
-                            </text>
-                            <circle cx={point.cx} cy={point.cy} r="15" fill="transparent" />
-                            <circle 
-                              cx={point.cx} 
-                              cy={point.cy} 
-                              r={hoveredDataPoint?.id === point.id ? 7 : (index === 3 ? 6 : 5)} 
-                              fill={index === 3 ? activeTabData.strokeColor : "#fff"} 
-                              stroke={index === 3 ? "#fff" : activeTabData.strokeColor} 
-                              strokeWidth={hoveredDataPoint?.id === point.id ? 3 : 2.5} 
-                              style={{
-                                transition: "all 0.2s ease",
-                                ...(index === 3 ? { filter: `drop-shadow(0 4px 8px ${activeTabData.gradientStart})` } : {})
-                              }} 
-                            />
-                          </g>
-                        ))}
-  
-                        {/* Tooltip */}
-                        {hoveredDataPoint && (
-                          <g transform={`translate(${hoveredDataPoint.cx}, ${hoveredDataPoint.cy - 12})`} style={{ pointerEvents: "none", transition: "transform 0.1s ease" }}>
-                            <rect x="-35" y="-35" width="70" height="32" rx="6" fill="#062018" style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))" }} />
-                            <polygon points="-5,-4 5,-4 0,2" fill="#062018" />
-                            <text x="0" y="-21" fontSize="9" fill="rgba(255,255,255,0.7)" textAnchor="middle" fontWeight="600" fontFamily="inherit">{hoveredDataPoint.label}</text>
-                            <text x="0" y="-9" fontSize="11" fill="#fff" textAnchor="middle" fontWeight="bold" fontFamily="inherit">{hoveredDataPoint.value}</text>
-                          </g>
-                        )}
-                      </svg>
-                      </div>
-                  </div>
-
-                  {/* Stat Badges with Progress */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginTop: "auto" }}>
-                    {activeTabData.stats.map((badge, idx) => (
-                  <div 
-                    key={idx} 
-                    onMouseEnter={() => setHoveredStatBadge(idx)}
-                    onMouseLeave={() => setHoveredStatBadge(null)}
-                    style={{ 
-                      background: "rgba(255,255,255,0.9)", 
-                      border: "1px solid rgba(0,0,0,0.05)", 
-                      padding: "6px 8px", 
-                      borderRadius: "10px", 
-                      display: "flex", 
-                      flexDirection: "column", 
-                      gap: "2px", 
-                      boxShadow: hoveredStatBadge === idx ? "0 4px 16px rgba(0,0,0,0.06)" : "0 2px 8px rgba(0,0,0,0.02)",
-                      transform: hoveredStatBadge === idx ? "translateY(-2px)" : "translateY(0)",
-                      transition: "all 0.2s ease"
-                    }}
-                  >
-                        <span style={{ fontSize: "9px", color: "rgba(0,0,0,0.5)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>{badge.label}</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          {React.cloneElement(badge.icon, { size: 12 })}
-                          <span style={{ fontSize: "14px", fontWeight: 800, color: "#000", lineHeight: 1 }}>{badge.value}</span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <div style={{ width: "100%", height: "2px", background: "rgba(0,0,0,0.05)", borderRadius: "999px", overflow: "hidden" }}>
-                            <div style={{ width: badge.progress, height: "100%", background: badge.color, borderRadius: "999px", transition: "width 0.5s ease" }} />
-                          </div>
-                          <span style={{ fontSize: "8px", fontWeight: 700, color: badge.color }}>{badge.progress}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
           </div>
         )}
-        {activeNav !== "Admin Portal" && (
+        {activeNav !== "Admin Portal" && !isAuthPage && (
           <div style={{ ...styles.supportActionsCluster, ...(isMobile ? styles.supportActionsClusterMobile : {}) }}>
             <button
               type="button"
@@ -2499,7 +2718,7 @@ function App() {
                 ...(chatHovered ? styles.aiChatFabHover : {}),
               }}
             >
-              <MessageCircle size={isMobile ? 21 : 20} strokeWidth={2.7} />
+              <MessageCircle size={isMobile ? 21 : 20} color="#fff" strokeWidth={2.7} />
             </button>
             <button
               type="button"
@@ -2513,8 +2732,7 @@ function App() {
                 ...(supportFabHovered ? styles.supportTicketFabHover : {}),
               }}
             >
-              <Headset size={isMobile ? 21 : 20} strokeWidth={2.7} />
-              {!isMobile && <span style={styles.supportTicketFabText}>Support Ticket</span>}
+              <Headset size={isMobile ? 21 : 20} color="#fff" strokeWidth={2.7} />
               {supportTickets.filter(ticket => ticket.status === "Open").length > 0 && (
                 <span style={styles.supportTicketBadge}>{supportTickets.filter(ticket => ticket.status === "Open").length}</span>
               )}
@@ -2533,7 +2751,6 @@ function App() {
             {activeNav === "ProductsPage" && <ProductsPage setActiveNav={setActiveNav} setCartItems={setCartItems} products={products} />}
 {activeNav === "ServicesPage" && <ServicesPage setActiveNav={setActiveNav} showAIChat={showAIChat} setShowAIChat={setShowAIChat} />}
             {activeNav === "Target Market" && <TargetMarket />}
-            {activeNav === "Our Team" && <OurTeam />}
             {activeNav === "Contact" && <GetInTouch setActiveNav={setActiveNav} />}
             {activeNav === "Learn More" && <LearnMore setActiveNav={setActiveNav} />}
             {activeNav === "Explore More" && <ExploreMore setActiveNav={setActiveNav} />}
@@ -2541,6 +2758,8 @@ function App() {
             {activeNav === "Sustainability App Market" && <SustainabilityAppMarket />}
             {activeNav === "Benefits of the Project" && <BenefitsOfTheProject />}
             {activeNav === "Seasonal Harvest" && !isMobile && <SeasonalHarvestPage setActiveNav={setActiveNav} onNotify={handleNotify} harvests={harvests} />}
+            {activeNav === "Farm Planner" && <FarmPlannerPage setActiveNav={setActiveNav} harvests={harvests} planner={farmPlanner} />}
+            {activeNav === "Community" && <CommunityForumPage setActiveNav={setActiveNav} loggedInUser={loggedInUser} posts={forumPosts} setPosts={setForumPosts} />}
             {activeNav === "Shop All Products" && (
               <ShopAllProducts 
                 setActiveNav={setActiveNav} 
@@ -2551,15 +2770,16 @@ function App() {
                 setOrders={setOrders}
                 onTrackOrder={handleTrackOrder}
                 products={products}
+                setProducts={setProducts}
                 promoCodes={promoCodes}
               />
             )}
-            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} setSupportTickets={setSupportTickets} />}
-            {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} />}
+            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} setSupportTickets={setSupportTickets} plantScans={plantScans} setPlantScans={setPlantScans} subscribers={subscribers} setSubscribers={setSubscribers} events={events} setEvents={setEvents} content={contentItems} setContent={setContentItems} forumPosts={forumPosts} setForumPosts={setForumPosts} farmPlanner={farmPlanner} setFarmPlanner={setFarmPlanner} />}
+            {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} adminEvents={events} onRegister={handleEventRegister} />}
             {activeNav === "Starter Kits & Toolsets" && <StarterKits setActiveNav={setActiveNav} />}
-            {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} />}
+            {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} onNewSubscriber={handleNewSubscriber} loggedInUser={loggedInUser} loggedInEmail={loggedInEmail} />}
             {activeNav === "Specialist Certification" && <SpecialistCertification setActiveNav={setActiveNav} />}
-            {activeNav === "AIPlantDoctor" && <AIPlantDoctor setActiveNav={setActiveNav} />}
+            {activeNav === "AIPlantDoctor" && <AIPlantDoctor setActiveNav={setActiveNav} onScanComplete={handleNewPlantScan} loggedInUser={loggedInUser} />}
             {activeNav === "ExpertSupportPage" && <ExpertSupportPage setActiveNav={setActiveNav} />} {/* Add routing for ExpertSupportPage */}
             {activeNav === "LGUPartnershipPage" && <LGUPartnershipPage setActiveNav={setActiveNav} />}
             {activeNav === "ImpactTrackingPage" && <ImpactTrackingPage setActiveNav={setActiveNav} />}
@@ -2648,7 +2868,7 @@ function App() {
                   )}
                 </div>
 
-                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : 1, maxWidth: "440px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "30px 22px" : "40px 32px", display: isMobile && mobileAuthView === "landing" ? "none" : "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
+                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : "0 1 380px", maxWidth: "380px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "26px 20px" : "32px 26px", display: isMobile && mobileAuthView === "landing" ? "none" : "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
                   <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -2850,7 +3070,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : 1, maxWidth: "440px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "30px 22px" : "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
+                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : "0 1 380px", maxWidth: "380px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "26px 20px" : "32px 26px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
                   <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -3147,9 +3367,9 @@ function App() {
                     <h2 style={{ margin: "0 0 24px", fontSize: "24px", fontWeight: 800, color: "#000" }}>Earn History</h2>
                     <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: "16px", paddingRight: "8px" }}>
                       {[
-                        { date: "May 27, 2026", action: "Buy Organic Products", points: "+50", icon: "🛒" },
-                        { date: "May 25, 2026", action: "Complete AI Diagnosis", points: "+30", icon: "🤖" },
-                        { date: "May 20, 2026", action: "Invite Friend", points: "+200", icon: "👥" },
+                        { date: "May 27, 2026", action: "Buy Organic Products", points: "+50", icon: <ShoppingCart size={16} color="#15803d" /> },
+                        { date: "May 25, 2026", action: "Complete AI Diagnosis", points: "+30", icon: <Bot size={16} color="#15803d" /> },
+                        { date: "May 20, 2026", action: "Invite Friend", points: "+200", icon: <Users size={15} color="#16a34a" /> },
                       ].map((log, idx) => (
                         <div key={idx} style={{ padding: "16px", borderRadius: "16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -3281,10 +3501,10 @@ function App() {
                             <svg width="100%" height="100%" viewBox="0 0 400 180" preserveAspectRatio="none" style={{ position: "absolute", inset: 0 }}>
                               <path d="M 40 140 Q 200 140 200 90 T 360 40" fill="none" stroke="#38bdf8" strokeWidth="4" strokeDasharray="8 8" style={{ animation: "dashMove 2s linear infinite" }} />
                             </svg>
-                            <div style={{ position: "absolute", top: "140px", left: "10%", transform: "translate(-50%, -50%)", fontSize: "28px", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.2))", zIndex: 5 }}>🏪</div>
-                            <div style={{ position: "absolute", top: "40px", left: "90%", transform: "translate(-50%, -50%)", fontSize: "28px", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.2))", zIndex: 5 }}>📍</div>
+                            <div style={{ position: "absolute", top: "140px", left: "10%", transform: "translate(-50%, -50%)", fontSize: "28px", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.2))", zIndex: 5 }}><Store size={26} color="#0284c7" /></div>
+                            <div style={{ position: "absolute", top: "40px", left: "90%", transform: "translate(-50%, -50%)", fontSize: "28px", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.2))", zIndex: 5 }}><MapPin size={26} color="#e11d48" /></div>
                             <div style={{ position: "absolute", top: "90px", left: "50%", transform: "translate(-50%, -50%)", zIndex: 10 }}>
-                              <div style={{ fontSize: "32px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))", animation: "riderFloat 3s infinite ease-in-out" }}>🛵</div>
+                              <div style={{ fontSize: "32px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))", animation: "riderFloat 3s infinite ease-in-out" }}><Bike size={30} color="#0284c7" /></div>
                             </div>
                             <div style={{ position: "absolute", bottom: "12px", right: "12px", background: "rgba(255,255,255,0.9)", padding: "4px 10px", borderRadius: "8px", fontSize: "11px", fontWeight: 700, color: "#0284c7", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", gap: "6px" }}>
                               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", display: "inline-block" }} className="animate-progressPulse" /> Live Update
@@ -3293,7 +3513,7 @@ function App() {
                           <div style={{ marginBottom: "28px", padding: "20px", background: "rgba(255,255,255,0.9)", borderRadius: "16px", border: "1px solid rgba(14, 165, 233, 0.3)", boxShadow: "0 8px 24px rgba(14, 165, 233, 0.1)" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px", flexWrap: "wrap" }}>
                               <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(14, 165, 233, 0.15)", border: "2px solid #0284c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", flexShrink: 0 }}>
-                                🛵
+                                <Bike size={26} color="#0284c7" />
                               </div>
                               <div style={{ flex: 1, minWidth: "120px" }}>
                                 <div style={{ fontSize: "15px", fontWeight: 800, color: "#000" }}>Rider: Juan Perez</div>
@@ -3356,7 +3576,7 @@ function App() {
                                   boxShadow: isCurrent ? "0 0 0 4px rgba(34, 197, 94, 0.2)" : "none",
                                   transition: "all 0.3s ease"
                                 }}>
-                                  {isCompleted ? <span style={{ color: "#fff", fontWeight: 800 }}>✓</span> : <span style={{ color: "rgba(0,0,0,0.2)", fontWeight: 800 }}>{idx + 1}</span>}
+                                  {isCompleted ? <span style={{ color: "#fff", fontWeight: 800 }}><Check size={12} color="#fff" /></span> : <span style={{ color: "rgba(0,0,0,0.2)", fontWeight: 800 }}>{idx + 1}</span>}
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "column", gap: "4px", paddingTop: "6px", flex: 1 }}>
                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -3395,7 +3615,7 @@ function App() {
                                     id: Date.now() + i + 'rev',
                                     x: rect.left + rect.width / 2,
                                     y: rect.top + rect.height / 2,
-                                    emoji: ["⭐", "✨", "🎉", "💚"][Math.floor(Math.random() * 4)],
+                                    emoji: [<Star size={16} color="#f59e0b" />, <Sparkles size={16} color="#16a34a" />, <PartyPopper size={16} color="#e11d48" />, <Leaf size={16} color="#16a34a" />][Math.floor(Math.random() * 4)],
                                     angle: Math.random() * Math.PI * 2,
                                     velocity: 40 + Math.random() * 80
                                   }));
@@ -3411,7 +3631,7 @@ function App() {
                             </div>
                           ) : (
                             <div style={{ padding: "20px 24px", borderRadius: "16px", background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.2)", display: "flex", alignItems: "center", gap: "16px", animation: "scaleUp 0.3s ease-out" }}>
-                              <div style={{ fontSize: "28px" }}>🎉</div>
+                              <div style={{ fontSize: "28px" }}><PartyPopper size={28} color="#16a34a" /></div>
                               <div style={{ flex: 1 }}>
                                 <h3 style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: 800, color: "#15803d" }}>Review Submitted!</h3>
                                 <div style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
@@ -3473,7 +3693,7 @@ function App() {
                                 <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.6)", fontWeight: 500 }}>Completed on {cert.date}</div>
                               </div>
                               <div style={{ width: "48px", height: "48px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", flexShrink: 0, boxShadow: "0 4px 12px rgba(34,197,94,0.15)" }}>
-                                🎓
+                                <GraduationCap size={26} color="#fff" />
                               </div>
                             </div>
                             <div style={{ display: "flex", gap: "12px", marginTop: "4px", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "16px" }}>
@@ -3565,7 +3785,7 @@ function App() {
                     </div>
                     {successMessage && (
                       <div style={{ padding: "12px 16px", borderRadius: "12px", background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(22, 163, 74, 0.3)", color: "#15803d", fontSize: "14px", fontWeight: 700, marginBottom: "16px", animation: "fadeIn 0.3s ease", display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{fontSize: "16px"}}>✅</span> {successMessage}
+                        <span style={{fontSize: "16px"}}><CheckCircle2 size={16} color="#16a34a" /></span> {successMessage}
                       </div>
                     )}
                     <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: "16px", paddingRight: "8px" }}>
@@ -3576,7 +3796,7 @@ function App() {
                            return (
                              <div key={id} style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.6)", padding: "16px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
                                <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
-                                  🌱
+                                  <Sprout size={26} color="#16a34a" />
                                </div>
                                <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                                  <span style={{ fontSize: "15px", fontWeight: 700, color: "#000", lineHeight: 1.2 }}>{product.name}</span>
@@ -3693,13 +3913,13 @@ function App() {
                               <div style={{ fontSize: "36px", fontWeight: 800, color: "#15803d", marginTop: "4px", lineHeight: 1 }}>{ecoPoints.toLocaleString()} <span style={{ fontSize: "16px", fontWeight: 700 }}>pts</span></div>
                           </div>
                           <div style={{ width: "64px", height: "64px", background: "linear-gradient(135deg, #16a34a, #15803d)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", boxShadow: "0 8px 16px rgba(22, 163, 74, 0.3)" }}>
-                            🎁
+                            <Gift size={30} color="#fff" />
                           </div>
                         </div>
                         
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#15803d" }}>Eco Level: Green Grower 🌿</span>
+                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#15803d" }}>Eco Level: Green Grower</span>
                             <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.6)" }}>1,250 / 2,000 pts to next tier</span>
                           </div>
                           <div style={{ width: "100%", height: "8px", background: "rgba(22, 163, 74, 0.2)", borderRadius: "999px", overflow: "hidden" }}>
@@ -3759,10 +3979,10 @@ function App() {
                           <h3 style={{ margin: "16px 0 4px", fontSize: "18px", fontWeight: 800, color: "#000" }}>REWARDS MARKETPLACE</h3>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
                         {[
-                          { title: "Free Delivery Voucher", points: "500 pts", icon: "🚚", badge: "Eco-Logistics" },
-                          { title: "Native Seed Kit", points: "1,200 pts", icon: "🌱", badge: "Biodiversity" },
-                          { title: "Organic Gardening Set", points: "2,500 pts", icon: "🛠️", badge: "Zero Waste" },
-                          { title: "Premium AI Subscription", points: "3,000 pts", icon: "🤖", badge: "Digital" }
+                          { title: "Free Delivery Voucher", points: "500 pts", icon: <Truck size={24} color="#15803d" />, badge: "Eco-Logistics" },
+                          { title: "Native Seed Kit", points: "1,200 pts", icon: <Sprout size={24} color="#15803d" />, badge: "Biodiversity" },
+                          { title: "Organic Gardening Set", points: "2,500 pts", icon: <Wrench size={24} color="#15803d" />, badge: "Zero Waste" },
+                          { title: "Premium AI Subscription", points: "3,000 pts", icon: <Bot size={24} color="#15803d" />, badge: "Digital" }
                         ].map((reward, idx) => (
                           <div key={idx} style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "16px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
                             <div style={{ height: "120px", borderRadius: "12px", background: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
@@ -3818,10 +4038,10 @@ function App() {
                           <h3 style={{ margin: "16px 0 4px", fontSize: "18px", fontWeight: 800, color: "#000" }}>ECO TIER LEVELS</h3>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
                         {[
-                          { title: "Seedling 🌱", points: "0 - 999 pts", benefits: ["Basic rewards", "Community access"] },
-                          { title: "Green Grower 🌿", points: "1,000 - 4,999 pts", benefits: ["Free delivery", "5% Discounts"], active: true },
-                          { title: "Eco Guardian 🌳", points: "5,000 - 9,999 pts", benefits: ["Exclusive workshops", "10% Discounts"] },
-                          { title: "Sustainability Hero 🌎", points: "10,000+ pts", benefits: ["Bonus EcoPoints", "VIP Support", "15% Discounts"] }
+                          { title: "Seedling", points: "0 - 999 pts", benefits: ["Basic rewards", "Community access"] },
+                          { title: "Green Grower", points: "1,000 - 4,999 pts", benefits: ["Free delivery", "5% Discounts"], active: true },
+                          { title: "Eco Guardian", points: "5,000 - 9,999 pts", benefits: ["Exclusive workshops", "10% Discounts"] },
+                          { title: "Sustainability Hero", points: "10,000+ pts", benefits: ["Bonus EcoPoints", "VIP Support", "15% Discounts"] }
                         ].map((tier, idx) => (
                           <div key={idx} style={{ background: tier.active ? "linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(21, 128, 61, 0.1))" : "rgba(255,255,255,0.6)", border: tier.active ? "1px solid rgba(22, 163, 74, 0.4)" : "1px solid rgba(0,0,0,0.05)", borderRadius: "16px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", position: "relative" }}>
                             {tier.active && <span style={{ position: "absolute", top: "-10px", right: "16px", background: "#15803d", color: "#fff", padding: "4px 8px", borderRadius: "999px", fontSize: "10px", fontWeight: 700 }}>Current Level</span>}
@@ -3844,10 +4064,10 @@ function App() {
                           <div style={{ padding: "24px", borderRadius: "16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", gap: "16px" }}>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "16px" }}>
                           {[
-                            { label: "Trees Planted", value: "12", icon: "🌲" },
-                            { label: "Farmers Supported", value: "3", icon: "🧑‍🌾" },
-                            { label: "Native Seeds Preserved", value: "250", icon: "🌾" },
-                            { label: "CO₂ Reduced", value: "45kg", icon: "☁️" },
+                            { label: "Trees Planted", value: "12", icon: <Trees size={22} color="#15803d" /> },
+                            { label: "Farmers Supported", value: "3", icon: <Users size={22} color="#15803d" /> },
+                            { label: "Native Seeds Preserved", value: "250", icon: <Wheat size={22} color="#15803d" /> },
+                            { label: "CO₂ Reduced", value: "45kg", icon: <Cloud size={22} color="#15803d" /> },
                           ].map((stat, idx) => (
                              <div key={idx} style={{ background: "rgba(22, 163, 74, 0.05)", padding: "16px", borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", textAlign: "center" }}>
                                <span style={{ fontSize: "24px" }}>{stat.icon}</span>
@@ -3857,7 +4077,7 @@ function App() {
                           ))}
                         </div>
                         <div style={{ background: "linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(21, 128, 61, 0.15))", padding: "16px", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", border: "1px solid rgba(22, 163, 74, 0.2)", marginTop: "8px" }}>
-                          <span style={{ fontSize: "14.5px", fontWeight: 700, color: "#15803d", flex: 1 }}>“Your EcoPoints helped support 3 local farmers 🌱”</span>
+                          <span style={{ fontSize: "14.5px", fontWeight: 700, color: "#15803d", flex: 1 }}>“Your EcoPoints helped support 3 local farmers”</span>
                           <button 
                             onClick={() => window.alert("Thanks for sharing your EcoPoints impact!")} 
                             style={{ padding: "8px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", border: "1px solid rgba(255,255,255,0.35)", fontSize: "13px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease" }}
@@ -4103,6 +4323,28 @@ function App() {
                         </label>
                       </div>
                       <div style={{ padding: "24px", borderRadius: "16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                        <h3 style={{ margin: "0 0 16px", fontSize: "16px", fontWeight: 800, color: "#000" }}>Appearance</h3>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            {darkMode ? <Moon size={18} color="#15803d" /> : <Sun size={18} color="#15803d" />}
+                            <div>
+                              <div style={{ fontSize: "14px", fontWeight: 700, color: "#000" }}>Dark Mode</div>
+                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)" }}>Switch between light and dark theme</div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={darkMode}
+                            aria-label="Toggle dark mode"
+                            onClick={() => setDarkMode(d => !d)}
+                            style={{ position: "relative", width: "48px", height: "28px", flexShrink: 0, borderRadius: "999px", border: "none", cursor: "pointer", padding: 0, background: darkMode ? "#16a34a" : "rgba(0,0,0,0.18)", transition: "background 0.25s ease" }}
+                          >
+                            <span style={{ position: "absolute", top: "3px", left: darkMode ? "23px" : "3px", width: "22px", height: "22px", borderRadius: "50%", background: "#fff", boxShadow: "0 2px 6px rgba(0,0,0,0.25)", transition: "left 0.25s ease" }} />
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{ padding: "24px", borderRadius: "16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
                         <h3 style={{ margin: "0 0 16px", fontSize: "16px", fontWeight: 800, color: "#000" }}>Security</h3>
                         <button style={{ padding: "12px 20px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "#fff", color: "#000", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "background 0.2s ease" }}>Change Password</button>
                         <button style={{ padding: "12px 20px", borderRadius: "10px", border: "none", background: "rgba(220, 38, 38, 0.1)", color: "#dc2626", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "background 0.2s ease", marginLeft: "12px" }}>Deactivate Account</button>
@@ -4120,7 +4362,7 @@ function App() {
         {showRewardSuccessModal && (
           <div style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }}>
             <div style={{ background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", padding: "40px", borderRadius: "24px", textAlign: "center", maxWidth: "400px", width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: "1px solid rgba(255,255,255,0.8)" }}>
-              <div style={{ fontSize: "64px", marginBottom: "16px" }}>🎉</div>
+              <div style={{ marginBottom: "16px" }}><PartyPopper size={56} color="#16a34a" /></div>
               <h2 style={{ margin: "0 0 12px", fontSize: "24px", fontWeight: 800, color: "#000" }}>Reward Successfully Redeemed!</h2>
               <p style={{ margin: "0 0 32px", fontSize: "14px", color: "rgba(0,0,0,0.6)" }}>Your EcoPoints have been deducted and your reward is now active.</p>
               <div style={{ display: "flex", gap: "12px" }}>
@@ -4180,7 +4422,7 @@ function App() {
           <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 4000, width: "320px", background: "#fff", borderRadius: "20px", boxShadow: "0 20px 40px rgba(0,0,0,0.2)", border: "1px solid rgba(14, 165, 233, 0.3)", display: "flex", flexDirection: "column", overflow: "hidden", animation: "scaleUp 0.3s ease" }}>
              <div style={{ background: "linear-gradient(135deg, #7dd3fc, #38bdf8)", padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "#082f49" }}>
                <div style={{ fontWeight: 800, fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
-                 <span style={{ fontSize: "18px" }}>🛵</span> Juan Perez
+                 <span style={{ fontSize: "18px" }}><Bike size={18} color="#0284c7" /></span> Juan Perez
                </div>
                <button onClick={() => setShowRiderChat(false)} style={{ background: "rgba(255,255,255,0.3)", border: "none", color: "#082f49", cursor: "pointer", fontSize: "16px", width: "24px", height: "24px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>&times;</button>
              </div>
@@ -4210,6 +4452,7 @@ function App() {
           loggedInUser={loggedInUser}
           userEmail={loggedInEmail || email}
           onSubmit={handleSupportTicketSubmit}
+          isMobile={isMobile}
         />
 
         {rewardParticles.map(p => (
@@ -4222,24 +4465,6 @@ function App() {
             {p.emoji}
           </div>
         ))}
-
-        {activeNav === "Learn More" && !isMobile && (
-          <button
-            type="button"
-            style={{
-              ...styles.glassBtn,
-              ...styles.exploreMoreBtn,
-              ...(isMobile ? styles.exploreMoreBtnMobile : {}),
-              ...(exploreHovered ? styles.glassBtnHov : {}),
-            }}
-            onClick={() => setActiveNav("Explore More")}
-            onMouseEnter={() => setExploreHovered(true)}
-            onMouseLeave={() => setExploreHovered(false)}
-          >
-            <span aria-hidden="true" style={styles.glassInnerBlur} />
-            <span style={styles.glassContentLayer}>Explore more</span>
-          </button>
-        )}
 
         {/* Bottom Mobile Glass Container */}
         {isMobile && !isAuthPage && (
@@ -4340,11 +4565,23 @@ const styles = {
   bgScrim: {
     position: "absolute",
     inset: 0,
+    // Soft, restrained mesh — two gentle corner glows over a clean wash.
     background:
-      "linear-gradient(140deg, #ffffff 0%, #f0fdf4 50%, #dcfce7 100%)",
+      "radial-gradient(55% 50% at 10% 6%, rgba(187,247,208,0.32) 0%, transparent 60%), " +
+      "radial-gradient(55% 50% at 92% 96%, rgba(186,230,253,0.26) 0%, transparent 62%), " +
+      "linear-gradient(150deg, #ffffff 0%, #f7fefb 50%, #f0fdf5 100%)",
     pointerEvents: "none",
     // zIndex is set inline in the component to ensure it's above the video
     // but below the shell content.
+  },
+
+  bgScrimGrain: {
+    position: "absolute",
+    inset: 0,
+    // Subtle vignette only — adds quiet depth without visual noise.
+    background:
+      "radial-gradient(125% 125% at 50% 45%, transparent 68%, rgba(6,32,24,0.04) 100%)",
+    pointerEvents: "none",
   },
 
   shell: {
@@ -4387,6 +4624,7 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    flexWrap: "wrap",
     padding: "10px 16px 10px 14px",
     borderRadius: "999px",
     background: "transparent",
@@ -4503,21 +4741,19 @@ const styles = {
     height: "clamp(34px, 9vw, 40px)",
     marginLeft: "auto",
     borderRadius: "14px",
-    border: "1px solid rgba(0,0,0,0.05)",
-    background: "rgba(255,255,255,0.5)",
+    border: "none",
+    background: "transparent",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     gap: "5px",
     cursor: "pointer",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), 0 4px 12px rgba(0,0,0,0.05)",
-    backdropFilter: "blur(16px) saturate(160%)",
-    WebkitBackdropFilter: "blur(16px) saturate(160%)",
+    boxShadow: "none",
   },
   hamburgerButtonActive: {
-    background: "rgba(134,239,172,0.4)",
-    border: "1px solid rgba(134,239,172,0.5)",
+    background: "transparent",
+    border: "none",
   },
   hamburgerLine: {
     width: "18px",
@@ -4533,6 +4769,37 @@ const styles = {
     opacity: 0,
   },
   hamburgerLineBottomOpen: {
+    transform: "translateY(-7px) rotate(-45deg)",
+  },
+
+  // Two-line hamburger toggle (matches portfolio .menu-toggle): transparent button, thin lines, crosses into an X when open
+  menuToggle: {
+    position: "relative",
+    zIndex: 2000,
+    cursor: "pointer",
+    background: "transparent",
+    border: 0,
+    padding: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  menuToggleLine: {
+    display: "block",
+    width: "24px",
+    height: "2px",
+    borderRadius: "2px",
+    margin: "5px 0",
+    background: "#1f2421",
+    transition: "transform 0.25s ease, opacity 0.2s ease",
+  },
+  menuToggleLineTopOpen: {
+    transform: "translateY(7px) rotate(45deg)",
+  },
+  menuToggleLineMiddleOpen: {
+    opacity: 0,
+  },
+  menuToggleLineBottomOpen: {
     transform: "translateY(-7px) rotate(-45deg)",
   },
 
@@ -4610,7 +4877,7 @@ const styles = {
   supportActionsCluster: {
     position: "fixed",
     right: "28px",
-    bottom: "28px",
+    bottom: "48px",
     zIndex: 2100,
     display: "flex",
     alignItems: "center",
@@ -4618,7 +4885,7 @@ const styles = {
   },
   supportActionsClusterMobile: {
     right: "clamp(20px, 6vw, 28px)",
-    bottom: "calc(clamp(16px, 3dvh, 24px) + 70px)",
+    bottom: "calc(clamp(16px, 3dvh, 24px) + 88px)",
     gap: "8px",
   },
   aiChatFab: {
@@ -4753,9 +5020,9 @@ const styles = {
   },
 
   hero: {
-    width: "calc(100% - 100px)", // Prevents overflow from the left margin
+    width: "100%",
     maxWidth: "820px",
-    margin: "clamp(20px, 5vh, 50px) 0 0 78px",
+    margin: "clamp(20px, 5vh, 50px) auto 0", // Centered horizontally within the content area
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
@@ -4773,7 +5040,7 @@ const styles = {
   },
 
   heroRightCard: {
-    flex: "0 1 540px",
+    flex: "0 1 440px",
     width: "100%",
     background: "linear-gradient(150deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6))",
     border: "1px solid rgba(255,255,255,0.8)",
@@ -4831,14 +5098,14 @@ const styles = {
 
   title: {
     fontSize: "clamp(24px, 3.2vw, 38px)",
-    fontWeight: 800,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 10px",
     fontFamily: "'Poppins', sans-serif",
-    lineHeight: 1.03,
-    letterSpacing: "0",
+    lineHeight: 1.08,
+    letterSpacing: "-0.5px",
     whiteSpace: "pre-line",
-    textShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    textShadow: "none",
     animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both",
   },
 
@@ -4867,21 +5134,21 @@ const styles = {
     marginBottom: "clamp(4px, 0.8dvh, 7px)",
   },
 
-  titleAccent: { 
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+  titleAccent: {
+    background: "linear-gradient(90deg, #16a34a, #0ea5e9)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
   },
 
   body: {
-    color: "#000",
+    color: "rgba(0,0,0,0.7)",
     marginBottom: "30px",
     fontSize: "clamp(14px, 1.6vw, 17px)",
     fontWeight: 400,
-    lineHeight: 1.72,
+    lineHeight: 1.6,
     maxWidth: "640px",
-    textShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    textShadow: "none",
   },
 
   bodyMobile: {
@@ -4900,7 +5167,7 @@ const styles = {
     alignItems: "center",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    marginBottom: "38px",
+    marginBottom: "28px",
   },
 
   ctaRowMobile: {
@@ -5072,22 +5339,6 @@ const styles = {
     transform: "scale(1.035)",
   },
 
-  exploreMoreBtn: {
-    position: "absolute",
-    bottom: "28px",
-    right: "clamp(12px, 3vw, 42px)",
-    zIndex: 10,
-    padding: "10px 24px",
-    fontSize: "13px",
-  },
-
-  exploreMoreBtnMobile: {
-    bottom: "20px",
-    right: "16px",
-    padding: "10px 20px",
-    fontSize: "13px",
-  },
-
   chatWithAiBtnWrap: {
     position: "absolute",
     bottom: "28px",
@@ -5186,7 +5437,7 @@ const styles = {
     gap: "24px",
     flexWrap: "nowrap",
     justifyContent: "flex-start", // Left-aligned content within the strip
-    marginTop: "-10px", // Moved up further
+    marginTop: "0",
     width: "100%",
   },
   cardRowMobile: { // New mobile style for cardRow
@@ -5212,8 +5463,8 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     borderRadius: "16px",
     padding: "10px 12px 12px",
-    flex: "0 1 170px",
-    maxWidth: "190px",
+    flex: "1 1 0",
+    maxWidth: "none",
     height: "auto",
     display: "flex",
     flexDirection: "column",

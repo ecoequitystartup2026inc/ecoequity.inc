@@ -6,6 +6,35 @@
   padding: 0;
 }
 
+/* ── Dark mode: invert the UI for readability, then tint it dark blue ── */
+html[data-theme="dark"] {
+  background: #0a1430;
+}
+
+html[data-theme="dark"] #root {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Re-invert media so images/videos keep their true colors */
+html[data-theme="dark"] #root img,
+html[data-theme="dark"] #root video,
+html[data-theme="dark"] #root iframe,
+html[data-theme="dark"] #root svg image,
+html[data-theme="dark"] #root [data-no-invert] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Dark-blue tint laid over everything (sits above the inverted #root) */
+html[data-theme="dark"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(16, 34, 74, 0.55);
+  mix-blend-mode: color;
+  z-index: 2147483646;
+}
+
 :root {
   --green-50:  #f0fdf4;
   --green-100: #dcfce7;
@@ -42,12 +71,122 @@ body {
   overflow-x: hidden;
 }
 
+/* Hamburger nav: collapse the menu into a right-side panel at ALL viewport widths */
 .mobile-hamburger {
-  display: none !important;
+  display: flex !important;
 }
 
 .mobile-menu-backdrop {
-  display: none;
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 1700;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.nav-links-panel {
+  display: none !important;
+}
+
+/* ── Hamburger menu: clean docked bar that drops in-flow (not floating) ── */
+.nav-links-panel.mobile-menu-open {
+  display: flex !important;
+  position: relative !important;
+  width: 100% !important;
+  flex-basis: 100% !important;
+  max-width: none !important;
+  order: 99 !important;
+  margin-top: 12px !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow:
+    0 10px 30px rgba(6, 32, 24, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  overflow: visible !important;
+  z-index: 1800 !important;
+  animation: menuDock 0.28s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+/* Top-level items sit in a clean row, sized to content */
+.nav-links-panel.mobile-menu-open > div,
+.nav-links-panel.mobile-menu-open > button {
+  width: auto !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+.nav-links-panel.mobile-menu-open > div > button {
+  width: auto !important;
+}
+
+/* Consistent, professional pill styling for every top-level menu item */
+.nav-links-panel.mobile-menu-open > button,
+.nav-links-panel.mobile-menu-open > div > button {
+  min-height: 38px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1px !important;
+  transition: background 0.18s ease, color 0.18s ease !important;
+}
+
+/* Dropdowns float below their item as clean cards instead of pushing the row */
+.nav-links-panel.mobile-menu-open > div > div {
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  padding-top: 10px !important;
+  width: max-content !important;
+  z-index: 60 !important;
+  transform: translateX(-50%) !important;
+  animation: menuDropIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+.nav-links-panel.mobile-menu-open > div > div > .inner-blur-glass {
+  width: max-content !important;
+  min-width: 184px !important;
+  max-width: 264px !important;
+  padding: 6px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid rgba(22, 163, 74, 0.1) !important;
+  box-shadow:
+    0 16px 38px rgba(6, 32, 24, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+@keyframes menuFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes menuBarIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes menuDock {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes menuDropIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 @media (max-width: 768px) {
@@ -70,52 +209,38 @@ body {
     font: inherit;
   }
 
-  .mobile-hamburger {
-    display: flex !important;
-  }
-
-  .mobile-menu-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 1700;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    background: linear-gradient(135deg, rgba(2, 14, 10, 0.52), rgba(4, 28, 22, 0.42));
-    backdrop-filter: blur(12px) saturate(120%);
-    -webkit-backdrop-filter: blur(12px) saturate(120%);
-    cursor: pointer;
-  }
-
-  .nav-links-panel {
-    display: none !important;
-  }
-
   .nav-links-panel.mobile-menu-open {
-    display: flex !important;
-    position: fixed !important;
-    top: clamp(48px, 8dvh, 64px) !important;
-    right: clamp(8px, 3vw, 14px) !important;
-    width: min(250px, calc(100vw - 56px)) !important;
-    max-height: calc(100dvh - 96px) !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 8px !important;
-    padding: 10px !important;
-    border-radius: 24px !important;
-    background: linear-gradient(145deg, rgba(255,255,255,0.20), rgba(255,255,255,0.08)) !important;
-    border: 1px solid rgba(255, 255, 255, 0.26) !important;
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.32) !important;
-    backdrop-filter: blur(26px) saturate(170%) !important;
-    -webkit-backdrop-filter: blur(26px) saturate(170%) !important;
-    overflow-y: auto !important;
-    z-index: 1800 !important;
+    margin-top: 8px !important;
   }
 }
 
 code {
   font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+}
+
+/* ── Consistent input focus states (professional polish + a11y) ──────── */
+input,
+textarea,
+select {
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+  border-color: #16a34a;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* Branded text selection */
+::selection {
+  background: rgba(22, 163, 74, 0.22);
+  color: #064e3b;
 }
 
 ::-webkit-scrollbar {
@@ -180,6 +305,11 @@ code {
 @keyframes titleReveal {
   0%   { opacity: 0; transform: translateY(24px) scale(0.97); filter: blur(6px); }
   100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0px); }
+}
+
+@keyframes shimmerLine {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 /* ── Utility classes ─────────────────────────────────────────── */

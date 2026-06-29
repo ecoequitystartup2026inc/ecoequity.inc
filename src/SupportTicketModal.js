@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes, FaPaperPlane, FaHeadset, FaUser, FaEnvelope, FaTag, FaCommentDots, FaUpload, FaCheckCircle, FaExclamationTriangle, FaFileAlt } from "react-icons/fa";
 
-const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit }) => {
+const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit, isMobile }) => {
   const [formData, setFormData] = useState({
     name: loggedInUser || "",
     email: userEmail || "",
@@ -66,17 +66,17 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
   };
 
   return ReactDOM.createPortal(
-    <div style={modalStyles.overlay} onClick={onClose}>
-      <div style={modalStyles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div style={{ ...modalStyles.overlay, ...(isMobile ? modalStyles.overlayMobile : {}) }}>
+      <div style={{ ...modalStyles.modalContent, ...(isMobile ? modalStyles.modalContentMobile : {}) }} onClick={(e) => e.stopPropagation()}>
         <button style={modalStyles.closeBtn} onClick={onClose}>
           <FaTimes />
         </button>
 
         <div style={modalStyles.header}>
-          <div style={modalStyles.headerIcon}>
-            <FaHeadset size={24} />
+          <div style={modalStyles.headerTitleRow}>
+            <FaHeadset size={18} style={modalStyles.headerIconInline} />
+            <h2 style={modalStyles.title}>Submit a Support Ticket</h2>
           </div>
-          <h2 style={modalStyles.title}>Submit a Support Ticket</h2>
           <p style={modalStyles.subtitle}>
             Please fill out the form below and we'll get back to you as soon as possible.
           </p>
@@ -147,7 +147,7 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide a detailed description of your issue or request"
-              rows="5"
+              rows="4"
               required
               style={modalStyles.textarea}
             />
@@ -199,31 +199,55 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
 const modalStyles = {
   overlay: {
     position: "fixed",
-    inset: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 10000,
-    background: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
+    background: "transparent",
     display: "flex",
+    justifyContent: "flex-end",
     alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
+    padding: "0 80px 0 0",
+    boxSizing: "border-box",
     animation: "fadeIn 0.3s ease",
+    pointerEvents: "none",
+  },
+  overlayMobile: {
+    background: "rgba(0, 0, 0, 0.42)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    padding: 0,
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    pointerEvents: "auto",
   },
   modalContent: {
-    maxWidth: "560px",
-    width: "100%",
-    maxHeight: "90vh",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
-    border: "1px solid rgba(255,255,255,0.8)",
-    borderRadius: "24px",
-    padding: "32px",
+    maxWidth: "360px",
+    width: "min(90vw, 360px)",
+    maxHeight: "72vh",
+    background: "linear-gradient(180deg, #ffffff 0%, #f6f9fb 100%)",
+    border: "1px solid rgba(15,23,42,0.08)",
+    borderRadius: "16px",
+    padding: "26px 24px",
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
+    boxShadow: "0 24px 60px rgba(15,23,42,0.18), 0 2px 6px rgba(15,23,42,0.06)",
     position: "relative",
     animation: "scaleUp 0.3s ease",
     overflowY: "auto",
+    pointerEvents: "auto",
+  },
+  modalContentMobile: {
+    width: "100vw",
+    maxWidth: "100vw",
+    height: "100dvh",
+    maxHeight: "100dvh",
+    margin: 0,
+    borderRadius: 0,
+    border: "none",
+    boxSizing: "border-box",
+    transformOrigin: "top center",
   },
   closeBtn: {
     position: "absolute",
@@ -246,70 +270,71 @@ const modalStyles = {
   header: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
-    marginBottom: "24px",
+    alignItems: "flex-start",
+    textAlign: "left",
+    gap: "6px",
+    marginBottom: "20px",
+    paddingBottom: "16px",
+    borderBottom: "1px solid rgba(15,23,42,0.08)",
   },
-  headerIcon: {
-    width: "64px",
-    height: "64px",
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.2), rgba(125,211,252,0.2))",
+  headerTitleRow: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    gap: "10px",
+  },
+  headerIconInline: {
     color: "#15803d",
-    marginBottom: "12px",
-    boxShadow: "0 8px 24px rgba(34,197,94,0.15)",
+    flexShrink: 0,
   },
   title: {
-    fontSize: "24px",
+    fontSize: "18px",
     fontWeight: 800,
-    color: "#000",
-    margin: "0 0 8px",
+    color: "#0f172a",
+    margin: 0,
+    letterSpacing: "-0.2px",
   },
   subtitle: {
-    fontSize: "14px",
-    color: "rgba(0,0,0,0.6)",
+    fontSize: "13px",
+    color: "#64748b",
     margin: 0,
-    lineHeight: 1.5,
+    lineHeight: 1.45,
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "16px",
+    gap: "12px",
   },
   inputGroup: {
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
+    gap: "6px",
   },
   label: {
-    fontSize: "13px",
-    fontWeight: 700,
-    color: "#000",
+    fontSize: "12.5px",
+    fontWeight: 600,
+    color: "#334155",
     display: "flex",
     alignItems: "center",
     gap: "8px",
   },
   input: {
-    padding: "12px 16px",
-    borderRadius: "12px",
-    border: "1px solid rgba(0,0,0,0.1)",
-    background: "rgba(255,255,255,0.8)",
-    fontSize: "14px",
-    color: "#000",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    border: "1px solid #e2e8f0",
+    background: "#ffffff",
+    fontSize: "13px",
+    color: "#0f172a",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "inherit",
   },
   select: {
-    padding: "12px 16px",
-    borderRadius: "12px",
-    border: "1px solid rgba(0,0,0,0.1)",
-    background: "rgba(255,255,255,0.8)",
-    fontSize: "14px",
-    color: "#000",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    border: "1px solid #e2e8f0",
+    background: "#ffffff",
+    fontSize: "13px",
+    color: "#0f172a",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "inherit",
@@ -319,11 +344,11 @@ const modalStyles = {
     backgroundPosition: "right 12px center",
   },
   textarea: {
-    padding: "12px 16px",
-    borderRadius: "12px",
+    padding: "10px 14px",
+    borderRadius: "10px",
     border: "1px solid rgba(0,0,0,0.1)",
     background: "rgba(255,255,255,0.8)",
-    fontSize: "14px",
+    fontSize: "13px",
     color: "#000",
     outline: "none",
     boxSizing: "border-box",
@@ -343,12 +368,12 @@ const modalStyles = {
     marginLeft: "4px",
   },
   submitBtn: {
-    padding: "14px",
+    padding: "12px",
     borderRadius: "999px",
     background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
     color: "#062018",
-    fontSize: "15px",
+    fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
     boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",

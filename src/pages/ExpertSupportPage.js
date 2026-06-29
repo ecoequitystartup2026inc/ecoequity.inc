@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
+import { Smartphone } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaArrowLeft, FaUserTie, FaStar, FaCheckCircle, FaComments, FaCalendarAlt, FaAward, FaTimes, FaVideo, FaPhone, FaPaperPlane, FaClock, FaCalendarCheck, FaExclamationTriangle, FaQuestionCircle, FaMoneyBillWave, FaCheck, FaInfoCircle, FaPaperclip, FaLightbulb, FaLeaf, FaCreditCard, FaLock } from "react-icons/fa";
 
@@ -989,7 +990,7 @@ const handleKeyDown = (e) => {
                     <div style={modalStyles.paymentDetailsCard}>
                       <div style={modalStyles.paymentInstructions}>Send payment to GCash Number: <strong>0912 345 6789</strong></div>
                       <div style={modalStyles.qrPlaceholder}>
-                        <span style={{ fontSize: "24px" }}>📱</span>
+                        <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
                         <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                       </div>
                       <input type="text" placeholder="Reference Number (e.g. 1000293812)" value={paymentData.gcashRef} onChange={(e) => setPaymentData({...paymentData, gcashRef: e.target.value})} style={modalStyles.input} />
@@ -1020,7 +1021,7 @@ const handleKeyDown = (e) => {
                     <div style={modalStyles.paymentDetailsCard}>
                       <div style={modalStyles.paymentInstructions}>Send payment to Maya Number: <strong>0912 345 6789</strong></div>
                       <div style={modalStyles.qrPlaceholder}>
-                        <span style={{ fontSize: "24px" }}>📱</span>
+                        <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
                         <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                       </div>
                       <input type="text" placeholder="Reference Number (e.g. 1000293812)" value={paymentData.mayaRef} onChange={(e) => setPaymentData({...paymentData, mayaRef: e.target.value})} style={modalStyles.input} />
@@ -1322,6 +1323,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -1334,7 +1336,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 800,
+    fontWeight: 300,
     color: "#000",
     margin: "0 auto 16px",
     lineHeight: 1.15,
@@ -1352,6 +1354,7 @@ const styles = {
     margin: "0 auto 18px",
     boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
   },
   accent: {
     background: "linear-gradient(90deg, #4ade80, #86efac)",

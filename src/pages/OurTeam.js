@@ -149,7 +149,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 16px",
     lineHeight: 1.15,

@@ -66,6 +66,21 @@ function BenefitsOfTheProject() {
           </div>
         ))}
       </div>
+
+      {/* Real project image */}
+      <div
+        className="inner-blur-glass glass-hover-zoom-sm"
+        style={{ ...styles.imageCard, ...(isMobile ? styles.imageCardMobile : {}) }}
+      >
+        <img
+          src="/Planting.jpg"
+          alt="Farmers planting crops as part of the project"
+          style={styles.image}
+        />
+        <span style={styles.imageCaption}>
+          Empowering local farmers and micro-vendors on the ground
+        </span>
+      </div>
     </div>
   );
 }
@@ -108,7 +123,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 16px",
     lineHeight: 1.15,
@@ -197,6 +212,40 @@ const styles = {
   },
   statLblMobile: {
     fontSize: "9px",
+  },
+
+  imageCard: {
+    marginTop: "26px",
+    padding: "10px",
+    borderRadius: "18px",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 12px 30px rgba(0,0,0,0.08)",
+    backdropFilter: "blur(20px) saturate(180%)",
+    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+    width: "100%",
+    maxWidth: "720px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  imageCardMobile: {
+    maxWidth: "100%",
+  },
+  image: {
+    width: "100%",
+    height: "auto",
+    maxHeight: "380px",
+    objectFit: "cover",
+    borderRadius: "12px",
+    display: "block",
+  },
+  imageCaption: {
+    fontSize: "12px",
+    fontWeight: 500,
+    color: "rgba(0,0,0,0.65)",
+    letterSpacing: "0.4px",
+    padding: "10px 6px 4px",
   },
 };
 

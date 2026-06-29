@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Salad, Soup, Sprout, Building2, Cherry, Carrot, Bike } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaArrowLeft, FaMapMarkerAlt, FaWeightHanging, FaDollarSign, FaPlusCircle, FaHandshake, FaTimes, FaChevronDown, FaCheckCircle, FaCalendarAlt, FaChartLine, FaFilter, FaPaperPlane, FaMicrophone, FaImage } from "react-icons/fa";
 
@@ -9,9 +10,9 @@ const mockSurplusListings = [
 ];
 
 const mockRestaurantDemand = [
-  { id: 101, restaurant: "Green Leaf Bistro", verified: true, product: "Organic Romaine Lettuce", quantity: 50, unit: "kg", targetPrice: 150, location: "Makati City", neededDate: "2026-06-05", logo: "🥗", matchScore: 98, urgent: true, status: "Open" },
-  { id: 102, restaurant: "Farm to Table Resto", verified: true, product: "Cherry Tomatoes", quantity: 30, unit: "kg", targetPrice: 120, location: "BGC, Taguig", neededDate: "2026-06-03", logo: "🍲", matchScore: 85, urgent: false, status: "Open" },
-  { id: 103, restaurant: "Vegan Eats", verified: true, product: "Sweet Basil", quantity: 5, unit: "kg", targetPrice: 400, location: "Quezon City", neededDate: "2026-06-02", logo: "🌱", matchScore: 72, urgent: true, status: "Open" },
+  { id: 101, restaurant: "Green Leaf Bistro", verified: true, product: "Organic Romaine Lettuce", quantity: 50, unit: "kg", targetPrice: 150, location: "Makati City", neededDate: "2026-06-05", logo: <Salad size="1em" color="#16a34a" />, matchScore: 98, urgent: true, status: "Open" },
+  { id: 102, restaurant: "Farm to Table Resto", verified: true, product: "Cherry Tomatoes", quantity: 30, unit: "kg", targetPrice: 120, location: "BGC, Taguig", neededDate: "2026-06-03", logo: <Soup size="1em" color="#ea580c" />, matchScore: 85, urgent: false, status: "Open" },
+  { id: 103, restaurant: "Vegan Eats", verified: true, product: "Sweet Basil", quantity: 5, unit: "kg", targetPrice: 400, location: "Quezon City", neededDate: "2026-06-02", logo: <Sprout size="1em" color="#16a34a" />, matchScore: 72, urgent: true, status: "Open" },
 ];
 
 function SurplusExchangePage({ setActiveNav }) {
@@ -461,7 +462,7 @@ function SurplusExchangePage({ setActiveNav }) {
     e.preventDefault();
     setIsSubmittingDemand(true);
     setTimeout(() => {
-      const newItem = { id: Date.now(), ...newDemand, verified: true, logo: "🏢" };
+      const newItem = { id: Date.now(), ...newDemand, verified: true, logo: <Building2 size="1em" color="#0284c7" /> };
       setRestaurantDemands(prev => [newItem, ...prev]);
       setIsSubmittingDemand(false);
       setShowPostDemandModal(false);
@@ -700,7 +701,7 @@ function SurplusExchangePage({ setActiveNav }) {
             </div>
             
             <div style={styles.negotiateProductSummary}>
-              <div style={{...styles.negotiateProductIcon, ...(isMobile ? styles.negotiateProductIconMobile : {})}}>{modalType === 'negotiate' ? '🍅' : '🥕'}</div>
+              <div style={{...styles.negotiateProductIcon, ...(isMobile ? styles.negotiateProductIconMobile : {})}}>{modalType === 'negotiate' ? <Cherry size="1em" color="#dc2626" /> : <Carrot size="1em" color="#ea580c" />}</div>
               <div style={styles.negotiateProductDetails}>
                 <h3 style={styles.negotiateProductTitle}>{selectedItem.product}</h3>
                 <p style={styles.negotiateProductFarmer}>
@@ -986,7 +987,7 @@ function SurplusExchangePage({ setActiveNav }) {
                </div>
                
                <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '16px', border: '1px solid rgba(14, 165, 233, 0.2)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(14, 165, 233, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🛵</div>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(14, 165, 233, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}><Bike size="1em" color="#0284c7" /></div>
                   <div style={{ flex: 1 }}>
                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#000', marginBottom: '2px' }}>Rider: Juan Perez</div>
                      <div style={{ fontSize: '13px', color: '#0284c7', fontWeight: 700 }}>0912 345 6789</div>
@@ -1008,11 +1009,31 @@ const styles = {
   headerRow: { display: "flex", width: "100%", justifyContent: "center", alignItems: 'center', position: 'relative', marginBottom: "20px" },
   backBtnWrap: { position: 'absolute', left: 0 },
   backBtn: { padding: "10px", borderRadius: "12px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", cursor: "pointer" },
-  badge: { display: 'flex', alignItems: 'center', gap: '7px', padding: "6px 14px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", color: "#15803d", fontWeight: 600, fontSize: "11px" },
+  badge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+    padding: "5px 14px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.6)",
+    border: "1px solid rgba(0,0,0,0.05)",
+    fontSize: "11px",
+    fontWeight: 600,
+    color: "#15803d",
+    letterSpacing: "0.6px",
+    textTransform: "uppercase",
+    marginBottom: "20px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
+  },
   badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block" },
-  title: { fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, margin: "10px 0" },
+  title: { fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 300, margin: "10px 0" },
   titleMobile: { fontSize: "clamp(20px, 6vw, 30px)" }, // Smaller title on mobile
-  accent: { color: "#15803d" }, // Kept accent for consistency
+  accent: {
+    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  }, // Kept accent for consistency
   tabContainer: { display: "flex", gap: "10px", marginBottom: "24px", padding: "5px", background: "rgba(255,255,255,0.4)", borderRadius: "999px" },
   tabButton: { padding: "8px 20px", borderRadius: "999px", border: "1px solid transparent", background: "transparent", cursor: "pointer", fontWeight: 600, transition: "all 0.3s ease" },
   tabButtonActive: {

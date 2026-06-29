@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
+import { Check, X, Sparkles, Smartphone } from "lucide-react";
 
 // Core keywords for auto-correction logic
 const CORE_KEYWORDS = [
@@ -29,6 +30,89 @@ const QUICK_PROMPTS = [
   "Diagnose my plant",
   "Recommend organic fertilizers"
 ];
+
+// Sample diagnoses returned by the AI Plant Doctor image scanner.
+// Simulates an on-device vision model trained on Philippine crops.
+const PLANT_SCAN_DIAGNOSES = [
+  {
+    plantName: "Heirloom Tomato",
+    condition: "Early Blight (Fungal)",
+    confidence: "94.2%",
+    severity: "Moderate",
+    recommendations: [
+      "Remove infected lower leaves to prevent spore splash.",
+      "Apply an organic copper-based fungicide every 7–10 days.",
+      "Improve air circulation by pruning excess foliage.",
+      "Water at the base of the plant only, avoiding the leaves.",
+    ],
+  },
+  {
+    plantName: "Rice (Palay)",
+    condition: "Bacterial Leaf Blight",
+    confidence: "91.8%",
+    severity: "High",
+    recommendations: [
+      "Drain the field to reduce standing water that spreads bacteria.",
+      "Avoid excess nitrogen fertilizer, which worsens infection.",
+      "Use certified disease-resistant seed varieties next planting.",
+      "Remove and destroy infected stubble after harvest.",
+    ],
+  },
+  {
+    plantName: "Eggplant (Talong)",
+    condition: "Spider Mite Infestation",
+    confidence: "89.5%",
+    severity: "Moderate",
+    recommendations: [
+      "Spray the underside of leaves with neem oil solution weekly.",
+      "Rinse foliage with a strong jet of water to dislodge mites.",
+      "Introduce predatory mites or ladybugs as natural control.",
+      "Keep humidity up — mites thrive in hot, dry conditions.",
+    ],
+  },
+  {
+    plantName: "Pechay (Bok Choy)",
+    condition: "Nitrogen Deficiency",
+    confidence: "87.3%",
+    severity: "Low",
+    recommendations: [
+      "Side-dress with compost or well-rotted chicken manure.",
+      "Apply a diluted fish emulsion or vermicompost tea.",
+      "Ensure soil pH is between 6.0–7.0 for nutrient uptake.",
+      "Mulch to retain moisture and slow nutrient leaching.",
+    ],
+  },
+  {
+    plantName: "Calamansi",
+    condition: "Healthy — No Disease Detected",
+    confidence: "96.1%",
+    severity: "None",
+    recommendations: [
+      "Your plant looks healthy! Maintain consistent watering.",
+      "Feed with a balanced organic fertilizer monthly.",
+      "Ensure at least 6 hours of direct sunlight daily.",
+      "Inspect weekly for early signs of pests or leaf curl.",
+    ],
+  },
+];
+
+// Formats a diagnosis object into a readable chat message.
+const formatScanResult = (d) => {
+  const lines = [
+    "🔬 Plant Scan Complete",
+    "",
+    `🌱 Plant: ${d.plantName}`,
+    `🦠 Condition: ${d.condition}`,
+    `📊 Confidence: ${d.confidence}`,
+    `⚠️ Severity: ${d.severity}`,
+    "",
+    "✅ Recommended actions:",
+    ...d.recommendations.map((r, i) => `${i + 1}. ${r}`),
+    "",
+    "Want me to explain any step in more detail, or connect you with a human specialist?",
+  ];
+  return lines.join("\n");
+};
 
 /**
  * Calculates the Levenshtein distance between two strings to detect typos.
@@ -540,16 +624,22 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
 
   const handleSendMessage = async (textOverride) => {
     const rawInput = typeof textOverride === 'string' ? textOverride : input;
-    if (rawInput.trim()) {
+    const hasText = rawInput.trim().length > 0;
+    // Allow sending an image on its own (image scan) or with a text caption.
+    if (hasText || selectedImage) {
       if (typeof textOverride !== 'string') {
         setInput("");
       }
-      // Apply fuzzy keyword correction followed by LanguageTool grammar check
-      const fuzzyText = autoCorrect(rawInput);
-      const correctedText = await performSentenceCorrection(fuzzyText);
-      
-      const userMessage = { id: Date.now(), text: correctedText, sender: "user" };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+      let correctedText = "";
+      if (hasText) {
+        // Apply fuzzy keyword correction followed by LanguageTool grammar check
+        const fuzzyText = autoCorrect(rawInput);
+        correctedText = await performSentenceCorrection(fuzzyText);
+
+        const userMessage = { id: Date.now(), text: correctedText, sender: "user" };
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
+      }
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
@@ -557,6 +647,8 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
       setIsTyping(true);
 
       let aiResponseObject = { text: "", nextStep: 'initial' };
+      // Slightly longer delay when scanning an image to simulate analysis.
+      let responseDelay = 1000;
 
       if (selectedImage) {
         const imageUrl = URL.createObjectURL(selectedImage);
@@ -564,11 +656,19 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
         setMessages((prevMessages) => [...prevMessages, imageMessage]);
         setSelectedImage(null); // Clear selected image after sending
 
-        // Simulate AI response to image
-        aiResponseObject.text = currentBot === 'plantDoctor'
-          ? "Thank you for sharing the image! I'm analyzing it now to provide the best possible diagnosis for your plant. What symptoms are you observing?"
-          : "Thank you for the image! I'm reviewing it. How can I help you with this regarding EcoEquity?";
-        aiResponseObject.nextStep = 'initial';
+        if (isLiveAgentChat) {
+          aiResponseObject.text = "Live Agent: Thanks for the photo — I can see it. Let me take a closer look and get back to you.";
+          aiResponseObject.nextStep = 'liveAgentActive';
+        } else if (currentBot === 'plantDoctor') {
+          // Run a simulated AI image scan and return a structured diagnosis.
+          const diagnosis = PLANT_SCAN_DIAGNOSES[Math.floor(Math.random() * PLANT_SCAN_DIAGNOSES.length)];
+          aiResponseObject.text = formatScanResult(diagnosis);
+          aiResponseObject.nextStep = 'initial';
+          responseDelay = 2200; // emulate scanning time
+        } else {
+          aiResponseObject.text = "Thanks for the image! I'm reviewing it. For a full plant scan and diagnosis, switch to the AI Plant Doctor. How else can I help with EcoEquity?";
+          aiResponseObject.nextStep = 'initial';
+        }
       } else {
         if (isLiveAgentChat) {
           // If already in live agent chat, just simulate agent receiving message
@@ -609,7 +709,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
         setMessages((prevMessages) => [...prevMessages, aiResponse]);
         setIsTyping(false);
         setConversationStep(aiResponseObject.nextStep || 'initial'); // Update conversation step
-      }, 1000);
+      }, responseDelay);
     }
   };
 
@@ -730,7 +830,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                 onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(234, 179, 8, 0.4)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(234, 179, 8, 0.2)'; }}
               >
-                <span style={{ fontSize: isMobile ? "12px" : "14px", marginTop: "-1px" }}>✨</span> Upgrade to Pro
+                <span style={{ fontSize: isMobile ? "12px" : "14px", marginTop: "-1px" }}><Sparkles size="1em" color="#eab308" /></span> Upgrade to Pro
               </button>
             ) : !isMobile ? (
               <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: isMobile ? "6px 10px" : "8px 14px", borderRadius: "999px", background: activePlan === 'Enterprise' ? "rgba(14, 165, 233, 0.1)" : "rgba(234, 179, 8, 0.1)", color: activePlan === 'Enterprise' ? "#0284c7" : "#ca8a04", fontSize: isMobile ? "11px" : "12px", fontWeight: 800, border: activePlan === 'Enterprise' ? "1px solid rgba(14, 165, 233, 0.2)" : "1px solid rgba(234, 179, 8, 0.2)", cursor: "default", whiteSpace: "nowrap" }}>
@@ -748,7 +848,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                   style={{ ...aiChatStyles.upgradeProBtn, ...aiChatStyles.upgradeProBtnMobile, width: "100%", justifyContent: "center" }}
                   onClick={() => setShowProModal(true)}
                 >
-                  <span style={{ fontSize: "12px", marginTop: "-1px" }}>✨</span> Upgrade to Pro
+                  <span style={{ fontSize: "12px", marginTop: "-1px" }}><Sparkles size="1em" color="#eab308" /></span> Upgrade to Pro
                 </button>
               )}
               {isMobile && activePlan !== 'Basic' && (
@@ -856,20 +956,39 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
               <line x1="8" y1="23" x2="16" y2="23"></line>
             </svg>
           </button>
-          <button
-            type="button"
-            onClick={() => document.getElementById('imageUploadInput').click()}
-            style={{ ...aiChatStyles.iconButton, ...(isMobile ? aiChatStyles.iconButtonMobile : {}) }}
-            aria-label="Upload image"
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#15803d'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-          </button>
+          {currentBot === 'plantDoctor' ? (
+            <button
+              type="button"
+              onClick={() => document.getElementById('imageUploadInput').click()}
+              style={{ ...aiChatStyles.scanButton, ...(isMobile ? aiChatStyles.scanButtonMobile : {}) }}
+              aria-label="Scan a plant photo"
+              title="Scan a plant photo for instant diagnosis"
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(21,128,61,0.18)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(21,128,61,0.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              {isMobile ? "Scan" : "Scan Plant"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => document.getElementById('imageUploadInput').click()}
+              style={{ ...aiChatStyles.iconButton, ...(isMobile ? aiChatStyles.iconButtonMobile : {}) }}
+              aria-label="Upload image"
+              title="Upload an image"
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#15803d'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </button>
+          )}
           <textarea
             ref={textareaRef}
             className="slim-scroll"
@@ -943,7 +1062,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
             
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(202, 138, 4, 0.1))", marginBottom: "12px" }}>
-                <span style={{ fontSize: "20px" }}>✨</span>
+                <span style={{ fontSize: "20px" }}><Sparkles size="1em" color="#eab308" /></span>
               </div>
               <h2 style={{ margin: "0 0 6px", fontSize: isMobile ? "18px" : "22px", fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>Upgrade to Pro</h2>
               <p style={{ margin: "0 0 16px", fontSize: "13px", color: "rgba(0,0,0,0.6)", maxWidth: "450px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.5 }}>Unlock advanced AI features, 24/7 Plant Doctor access, priority support, and specialized EcoEquity tools.</p>
@@ -957,7 +1076,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
             <div className="slim-scroll" style={{ display: isMobile ? "flex" : "grid", gridTemplateColumns: isMobile ? "none" : "repeat(3, 1fr)", gap: "16px", overflowX: isMobile ? "auto" : "visible", scrollSnapType: isMobile ? "x mandatory" : "none", paddingBottom: isMobile ? "8px" : "0" }}>
               {/* Basic Plan */}
               <div onClick={() => setSelectedPlan('Basic')} style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "16px", borderRadius: "16px", border: selectedPlan === 'Basic' ? "1px solid #16a34a" : "1px solid rgba(0,0,0,0.08)", background: selectedPlan === 'Basic' ? "rgba(22, 163, 74, 0.03)" : "#ffffff", display: "flex", flexDirection: "column", position: "relative", cursor: "pointer", transition: "all 0.2s ease", boxShadow: selectedPlan === 'Basic' ? "0 0 0 3px rgba(22, 163, 74, 0.2), 0 12px 24px rgba(0,0,0,0.08)" : "none" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = selectedPlan === 'Basic' ? "0 0 0 3px rgba(22, 163, 74, 0.2), 0 16px 32px rgba(0,0,0,0.12)" : "0 12px 24px rgba(0,0,0,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = selectedPlan === 'Basic' ? "0 0 0 3px rgba(22, 163, 74, 0.2), 0 12px 24px rgba(0,0,0,0.08)" : "none"; }}>
-                {selectedPlan === 'Basic' && <div style={{ position: "absolute", top: "12px", right: "12px", background: "#16a34a", color: "#ffffff", width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, boxShadow: "0 2px 4px rgba(22, 163, 74, 0.3)", animation: "scaleUp 0.2s ease-out" }}>✓</div>}
+                {selectedPlan === 'Basic' && <div style={{ position: "absolute", top: "12px", right: "12px", background: "#16a34a", color: "#ffffff", width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, boxShadow: "0 2px 4px rgba(22, 163, 74, 0.3)", animation: "scaleUp 0.2s ease-out" }}><Check size="1em" /></div>}
                 <h3 style={{ margin: "0 0 6px", fontSize: "16px", fontWeight: 700, color: "#000" }}>Basic</h3>
                 <p style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.5)", lineHeight: 1.4 }}>For casual gardeners and beginners.</p>
                 <div style={{ fontSize: "28px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
@@ -965,11 +1084,11 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                 </div>
                 <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", marginBottom: "16px", fontWeight: 500 }}>Forever</div>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 16px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "12px" }}>✓</span> General AI Chat</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "12px" }}>✓</span> Community Access</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}>✗</span> 24/7 Plant Doctor</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}>✗</span> Photo Diagnostics</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}>✗</span> Priority Support</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "12px" }}><Check size="1em" /></span> General AI Chat</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "12px" }}><Check size="1em" /></span> Community Access</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}><X size="1em" /></span> 24/7 Plant Doctor</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}><X size="1em" /></span> Photo Diagnostics</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}><X size="1em" /></span> Priority Support</li>
                 </ul>
                 <button disabled style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", fontWeight: 700, fontSize: "13px", cursor: "not-allowed", transition: "all 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", opacity: 0.7 }}>Current Plan</button>
               </div>
@@ -977,7 +1096,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
               {/* Pro Plan */}
               <div onClick={() => setSelectedPlan('Pro')} style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "16px", borderRadius: "16px", border: "2px solid #eab308", background: selectedPlan === 'Pro' ? "linear-gradient(145deg, rgba(234,179,8,0.1), rgba(255,255,255,1))" : "linear-gradient(145deg, rgba(234,179,8,0.05), rgba(255,255,255,1))", display: "flex", flexDirection: "column", position: "relative", cursor: "pointer", transition: "all 0.2s ease", boxShadow: selectedPlan === 'Pro' ? "0 0 0 4px rgba(234, 179, 8, 0.3), 0 12px 24px rgba(234, 179, 8, 0.2)" : "0 8px 16px rgba(234, 179, 8, 0.15)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = selectedPlan === 'Pro' ? "0 0 0 4px rgba(234, 179, 8, 0.3), 0 16px 32px rgba(234, 179, 8, 0.3)" : "0 16px 32px rgba(234, 179, 8, 0.25)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = selectedPlan === 'Pro' ? "0 0 0 4px rgba(234, 179, 8, 0.3), 0 12px 24px rgba(234, 179, 8, 0.2)" : "0 8px 16px rgba(234, 179, 8, 0.15)"; }}>
                 <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #eab308, #ca8a04)", color: "#ffffff", padding: "3px 10px", borderRadius: "999px", fontSize: "10px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 12px rgba(234, 179, 8, 0.3)", animation: "pulseBadge 2s infinite ease-in-out" }}>Most Popular</div>
-                {selectedPlan === 'Pro' && <div style={{ position: "absolute", top: "12px", right: "12px", background: "#ca8a04", color: "#ffffff", width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, boxShadow: "0 2px 4px rgba(202, 138, 4, 0.3)", animation: "scaleUp 0.2s ease-out" }}>✓</div>}
+                {selectedPlan === 'Pro' && <div style={{ position: "absolute", top: "12px", right: "12px", background: "#ca8a04", color: "#ffffff", width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, boxShadow: "0 2px 4px rgba(202, 138, 4, 0.3)", animation: "scaleUp 0.2s ease-out" }}><Check size="1em" /></div>}
                 <h3 style={{ margin: "0 0 6px", fontSize: "16px", fontWeight: 800, color: "#ca8a04" }}>Pro</h3>
                 <p style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.4 }}>For serious growers & urban farmers.</p>
                 <div style={{ fontSize: "28px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
@@ -987,18 +1106,18 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                   per {billingCycle === 'Monthly' ? 'month' : 'year, billed annually'}
                 </div>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 16px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}>✓</span> Unlimited AI Chat</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}>✓</span> 24/7 AI Plant Doctor</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}>✓</span> Advanced Photo Diagnostics</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}>✓</span> Priority Support</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}>✗</span> API Access</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}><Check size="1em" /></span> Unlimited AI Chat</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}><Check size="1em" /></span> 24/7 AI Plant Doctor</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}><Check size="1em" /></span> Advanced Photo Diagnostics</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "12px" }}><Check size="1em" /></span> Priority Support</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}><X size="1em" /></span> API Access</li>
                 </ul>
                 <button onClick={(e) => { e.stopPropagation(); setShowProModal(false); setShowPaymentModal(true); }} style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", fontWeight: 800, fontSize: "13px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Choose Pro</button>
               </div>
 
               {/* Enterprise Plan */}
               <div onClick={() => setSelectedPlan('Enterprise')} style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "16px", borderRadius: "16px", border: selectedPlan === 'Enterprise' ? "1px solid #0ea5e9" : "1px solid rgba(0,0,0,0.08)", background: selectedPlan === 'Enterprise' ? "rgba(14, 165, 233, 0.03)" : "#ffffff", display: "flex", flexDirection: "column", position: "relative", cursor: "pointer", transition: "all 0.2s ease", boxShadow: selectedPlan === 'Enterprise' ? "0 0 0 3px rgba(14, 165, 233, 0.2), 0 12px 24px rgba(0,0,0,0.08)" : "none" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = selectedPlan === 'Enterprise' ? "0 0 0 3px rgba(14, 165, 233, 0.2), 0 16px 32px rgba(0,0,0,0.12)" : "0 12px 24px rgba(0,0,0,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = selectedPlan === 'Enterprise' ? "0 0 0 3px rgba(14, 165, 233, 0.2), 0 12px 24px rgba(0,0,0,0.08)" : "none"; }}>
-                {selectedPlan === 'Enterprise' && <div style={{ position: "absolute", top: "12px", right: "12px", background: "#0ea5e9", color: "#ffffff", width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, boxShadow: "0 2px 4px rgba(14, 165, 233, 0.3)", animation: "scaleUp 0.2s ease-out" }}>✓</div>}
+                {selectedPlan === 'Enterprise' && <div style={{ position: "absolute", top: "12px", right: "12px", background: "#0ea5e9", color: "#ffffff", width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, boxShadow: "0 2px 4px rgba(14, 165, 233, 0.3)", animation: "scaleUp 0.2s ease-out" }}><Check size="1em" /></div>}
                 <h3 style={{ margin: "0 0 6px", fontSize: "16px", fontWeight: 800, color: "#0284c7" }}>Enterprise</h3>
                 <p style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.5)", lineHeight: 1.4 }}>For commercial farms & businesses.</p>
                 <div style={{ fontSize: "28px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
@@ -1008,11 +1127,11 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                   per {billingCycle === 'Monthly' ? 'month' : 'year, billed annually'}
                 </div>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 16px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}>✓</span> Everything in Pro</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}>✓</span> Dedicated Human Agent</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}>✓</span> 24/7 VIP Phone Support</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}>✓</span> Custom API Access</li>
-                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}>✓</span> Team Analytics Dashboard</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}><Check size="1em" /></span> Everything in Pro</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}><Check size="1em" /></span> Dedicated Human Agent</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}><Check size="1em" /></span> 24/7 VIP Phone Support</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}><Check size="1em" /></span> Custom API Access</li>
+                  <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "12px" }}><Check size="1em" /></span> Team Analytics Dashboard</li>
                 </ul>
 <button onClick={(e) => { e.stopPropagation(); setShowProModal(false); setShowPaymentModal(true); }} style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, #38bdf8, #0284c7)", color: "#ffffff", fontWeight: 800, fontSize: "13px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(14,165,233,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Choose Enterprise</button>
               </div>
@@ -1033,7 +1152,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                 <h3 style={{ margin: "0 0 16px", fontSize: "18px", fontWeight: 800, color: "#000" }}>Order Summary</h3>
                 <div style={{ background: "#f8fafc", borderRadius: "16px", padding: "24px", border: "1px solid #e2e8f0" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-                    <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }}>✨</div>
+                    <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }}><Sparkles size="1em" color="#eab308" /></div>
                     <div>
                       <div style={{ fontSize: "16px", fontWeight: 800, color: "#0f172a" }}>{selectedPlan} Plan</div>
                       <div style={{ fontSize: "13px", color: "#64748b", fontWeight: 500 }}>{billingCycle} Billing</div>
@@ -1101,7 +1220,7 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     <div style={{ padding: "16px", background: paymentMethod === 'GCash' ? "#eff6ff" : "#ecfdf5", borderRadius: "12px", border: paymentMethod === 'GCash' ? "1px solid #bfdbfe" : "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: "16px", marginBottom: "4px" }}>
-                      <div style={{ fontSize: "28px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}>📱</div>
+                      <div style={{ fontSize: "28px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}><Smartphone size="1em" /></div>
                       <div>
                         <div style={{ fontSize: "14px", fontWeight: 800, color: paymentMethod === 'GCash' ? "#1d4ed8" : "#047857" }}>Pay with {paymentMethod}</div>
                         <div style={{ fontSize: "12px", color: paymentMethod === 'GCash' ? "#3b82f6" : "#059669", fontWeight: 500, marginTop: "2px" }}>Enter your {paymentMethod} account details below.</div>
@@ -1193,14 +1312,15 @@ const aiChatStyles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: "rgba(0, 0, 0, 0.6)",
-    backdropFilter: "blur(4px)",
+    background: "transparent",
     display: "flex",
-    justifyContent: "center", 
-    alignItems: "center",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    padding: "0 28px 28px",
     zIndex: 9999,
     transition: "opacity 0.3s ease-out",
     boxSizing: "border-box",
+    pointerEvents: "none",
   },
   overlayMobile: {
     background: "rgba(0, 0, 0, 0.42)",
@@ -1212,18 +1332,20 @@ const aiChatStyles = {
   },
   chatContainer: {
     background: "#ffffff",
-    borderRadius: "0px",
-    border: "none",
-    boxShadow: "none",
-    width: "100%",
-    maxWidth: "100%",
-    height: "100%",
+    borderRadius: "20px",
+    border: "1px solid rgba(0,0,0,0.06)",
+    boxShadow: "0 30px 80px rgba(6,32,24,0.28), inset 0 1px 0 rgba(255,255,255,0.8)",
+    width: "min(92vw, 420px)",
+    maxWidth: "420px",
+    height: "min(78vh, 580px)",
+    maxHeight: "78vh",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
     color: "#000",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     transition: "opacity 0.3s ease-out, transform 0.3s ease-out", // Animation transition
+    pointerEvents: "auto",
   },
   chatContainerMobile: {
     width: "100vw",
@@ -1256,11 +1378,12 @@ const aiChatStyles = {
     padding: "7px 10px",
   },
   chatHeader: {
-    padding: "20px 24px",
+    padding: "14px 16px",
     borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: "8px",
     background: "#ffffff",
   },
   chatHeaderMobile: {
@@ -1279,24 +1402,29 @@ headerText: {
   headerActions: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    gap: "6px",
     flexShrink: 0,
   },
   upgradeProBtn: {
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
-    gap: "6px",
-    padding: "8px 14px",
+    justifyContent: "center",
+    gap: "5px",
+    padding: "6px 11px",
     borderRadius: "999px",
     background: "linear-gradient(135deg, #eab308, #ca8a04)",
     color: "#ffffff",
-    fontSize: "12px",
+    fontSize: "11px",
     fontWeight: 800,
+    lineHeight: 1,
     border: "none",
     cursor: "pointer",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
     boxShadow: "0 2px 8px rgba(234, 179, 8, 0.2)",
     whiteSpace: "nowrap",
+    flexShrink: 0,
   },
   upgradeProBtnMobile: {
     padding: "6px 10px",
@@ -1559,6 +1687,29 @@ aiMessage: {
   iconButtonMobile: {
     width: "36px",
     height: "36px",
+  },
+  scanButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "0 14px",
+    height: "40px",
+    width: "auto",
+    borderRadius: "999px",
+    border: "1px solid rgba(21,128,61,0.25)",
+    background: "rgba(21,128,61,0.1)",
+    color: "#15803d",
+    fontSize: "13px",
+    fontWeight: 700,
+    cursor: "pointer",
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    transition: "background 0.2s, transform 0.2s",
+  },
+  scanButtonMobile: {
+    height: "36px",
+    padding: "0 10px",
+    fontSize: "12px",
   },
   uploadedImage: {
     maxWidth: "100%",

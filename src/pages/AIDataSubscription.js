@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaCheckCircle, FaStar, FaRobot, FaTimes, FaCreditCard, FaQrcode, FaChevronDown } from "react-icons/fa";
+import { Check, X, Sparkles, Smartphone, PartyPopper, Handshake } from "lucide-react";
 
-function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
+function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSubscriber, loggedInUser, loggedInEmail }) {
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [isYearly, setIsYearly] = useState(false);
@@ -101,6 +102,26 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
       } else {
         setSubscriptionHistory([{ id: 'SUB-' + Math.floor(Math.random()*10000), plan: 'Pro', status: 'Active', date: new Date().toLocaleDateString(), nextBilling: isYearly ? 'Next Year' : 'Next Month' }, ...subscriptionHistory]);
       }
+
+      // Sync the new subscriber to the Admin Portal
+      if (onNewSubscriber) {
+        const planName = selectedPlanDetails.name === 'Enterprise' ? 'Enterprise'
+          : selectedPlanDetails.name === 'Basic' ? 'Basic' : 'Pro';
+        const aiLimit = planName === 'Basic' ? 10 : planName === 'Pro' ? 100 : 5000;
+        onNewSubscriber({
+          id: 'SUB-' + Math.floor(1000 + Math.random() * 9000),
+          user: formData.name || loggedInUser || 'Website User',
+          email: formData.email || loggedInEmail || '',
+          plan: planName,
+          status: planName === 'Enterprise' ? 'Pending Renewal' : 'Active',
+          renewal: planName === 'Basic' ? 'N/A' : (isYearly ? 'Next Year' : 'Next Month'),
+          payment: formData.paymentMethod || (planName === 'Basic' ? 'Free' : 'Card'),
+          joined: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          aiScans: 0,
+          aiLimit,
+        });
+      }
+
       setIsModalOpen(false);
       setShowPaymentSuccess(true);
     }, 1500);
@@ -330,11 +351,11 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                 </div>
                 <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", marginBottom: "20px", fontWeight: 500 }}>Forever</div>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "14px" }}>✓</span> General AI Chat</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "14px" }}>✓</span> Community Access</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}>✗</span> 24/7 Plant Doctor</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}>✗</span> Photo Diagnostics</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}>✗</span> Priority Support</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "14px" }}><Check size="1em" /></span> General AI Chat</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "14px" }}><Check size="1em" /></span> Community Access</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> 24/7 Plant Doctor</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> Photo Diagnostics</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> Priority Support</li>
                 </ul>
                 <button disabled style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", fontWeight: 700, fontSize: "14px", cursor: "not-allowed", transition: "all 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", opacity: 0.7 }}>Current Plan</button>
               </div>
@@ -351,11 +372,11 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                   per {isYearly ? 'year, billed annually' : 'month'}
                 </div>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}>✓</span> Unlimited AI Chat</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}>✓</span> 24/7 AI Plant Doctor</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}>✓</span> Advanced Photo Diagnostics</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}>✓</span> Priority Support</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}>✗</span> API Access</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> Unlimited AI Chat</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> 24/7 AI Plant Doctor</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> Advanced Photo Diagnostics</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> Priority Support</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> API Access</li>
                 </ul>
                 <button onClick={() => handlePlanClick({name: 'Pro', priceMonthly: '₱499', priceYearly: '₱4,790'})} style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, #facc15, #ca8a04)", color: "#ffffff", fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(202,138,4,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(202,138,4,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(202,138,4,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Subscribe Now</button>
               </div>
@@ -371,11 +392,11 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                   per {isYearly ? 'year, billed annually' : 'month'}
                 </div>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}>✓</span> Everything in Pro</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}>✓</span> Dedicated Human Agent</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}>✓</span> 24/7 VIP Phone Support</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}>✓</span> Custom API Access</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}>✓</span> Team Analytics Dashboard</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Everything in Pro</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Dedicated Human Agent</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> 24/7 VIP Phone Support</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Custom API Access</li>
+                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Team Analytics Dashboard</li>
                 </ul>
                 <button onClick={() => handlePlanClick({name: 'Enterprise', priceMonthly: '₱1,499', priceYearly: '₱14,390'})} style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, #38bdf8, #0284c7)", color: "#ffffff", fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(14,165,233,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Contact Sales</button>
               </div>
@@ -501,7 +522,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                   <h3 style={{ margin: "0 0 16px", fontSize: "18px", fontWeight: 800, color: "#000" }}>Order Summary</h3>
                   <div style={{ background: "#f8fafc", borderRadius: "16px", padding: "24px", border: "1px solid #e2e8f0" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-                      <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, #eab308, #ca8a04)" : "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>✨</div>
+                      <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, #eab308, #ca8a04)" : "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}><Sparkles size="1em" color="#eab308" /></div>
                       <div>
                         <div style={{ fontSize: "16px", fontWeight: 800, color: "#0f172a" }}>{selectedPlanDetails.name} Plan</div>
                         <div style={{ fontSize: "13px", color: "#64748b", fontWeight: 500 }}>{isYearly ? 'Yearly' : 'Monthly'} Billing</div>
@@ -537,15 +558,15 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Full Name</label>
-                      <input type="text" placeholder="Juan Dela Cruz" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} onBlur={() => handleBlur('name')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('name') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('name')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('name'); if (!getError('name')) e.target.style.borderColor = "#e2e8f0"}} />
+                      <input type="text" placeholder="Juan Dela Cruz" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('name') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('name')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('name'); if (!getError('name')) e.target.style.borderColor = "#e2e8f0"}} />
                     </div>
                     <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Email Address</label>
-                      <input type="email" placeholder="juan@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} onBlur={() => handleBlur('email')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('email') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('email')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('email'); if (!getError('email')) e.target.style.borderColor = "#e2e8f0"}} />
+                      <input type="email" placeholder="juan@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('email') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('email')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('email'); if (!getError('email')) e.target.style.borderColor = "#e2e8f0"}} />
                     </div>
                     <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Phone Number</label>
-                      <input type="tel" placeholder="0912 345 6789" required value={formData.phone} onChange={handlePhoneChange} onBlur={() => handleBlur('phone')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('phone') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('phone')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('phone'); if (!getError('phone')) e.target.style.borderColor = "#e2e8f0"}} />
+                      <input type="tel" placeholder="0912 345 6789" required value={formData.phone} onChange={handlePhoneChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('phone') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('phone')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('phone'); if (!getError('phone')) e.target.style.borderColor = "#e2e8f0"}} />
                     </div>
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Organization Type</label>
@@ -576,30 +597,30 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "fadeIn 0.3s ease" }}>
                         <div>
                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Cardholder Name</label>
-                          <input type="text" placeholder="Juan Dela Cruz" value={formData.cardName} onChange={e => setFormData({...formData, cardName: e.target.value})} onBlur={() => handleBlur('cardName')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardName') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardName')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardName'); if (!getError('cardName')) e.target.style.borderColor = "#e2e8f0"}} />
+                          <input type="text" placeholder="Juan Dela Cruz" value={formData.cardName} onChange={e => setFormData({...formData, cardName: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardName') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardName')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardName'); if (!getError('cardName')) e.target.style.borderColor = "#e2e8f0"}} />
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Card Number</label>
                           <div style={{ position: "relative" }}>
-                            <input type="text" placeholder="0000 0000 0000 0000" maxLength="19" value={formData.cardNumber} onChange={handleCardNumberChange} onBlur={() => handleBlur('cardNumber')} style={{ width: "100%", padding: "14px 16px", paddingRight: "40px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardNumber') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardNumber')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardNumber'); if (!getError('cardNumber')) e.target.style.borderColor = "#e2e8f0"}} />
+                            <input type="text" placeholder="0000 0000 0000 0000" maxLength="19" value={formData.cardNumber} onChange={handleCardNumberChange} style={{ width: "100%", padding: "14px 16px", paddingRight: "40px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardNumber') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardNumber')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardNumber'); if (!getError('cardNumber')) e.target.style.borderColor = "#e2e8f0"}} />
                             <svg style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                           </div>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                           <div>
                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Expiry Date</label>
-                            <input type="text" placeholder="MM/YY" maxLength="5" value={formData.cardExpiry} onChange={handleCardExpiryChange} onBlur={() => handleBlur('cardExpiry')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardExpiry') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardExpiry')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardExpiry'); if (!getError('cardExpiry')) e.target.style.borderColor = "#e2e8f0"}} />
+                            <input type="text" placeholder="MM/YY" maxLength="5" value={formData.cardExpiry} onChange={handleCardExpiryChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardExpiry') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardExpiry')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardExpiry'); if (!getError('cardExpiry')) e.target.style.borderColor = "#e2e8f0"}} />
                           </div>
                           <div>
                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>CVC</label>
-                            <input type="text" placeholder="123" maxLength="4" value={formData.cardCvv} onChange={handleCardCvvChange} onBlur={() => handleBlur('cardCvv')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardCvv') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardCvv')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardCvv'); if (!getError('cardCvv')) e.target.style.borderColor = "#e2e8f0"}} />
+                            <input type="text" placeholder="123" maxLength="4" value={formData.cardCvv} onChange={handleCardCvvChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardCvv') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardCvv')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardCvv'); if (!getError('cardCvv')) e.target.style.borderColor = "#e2e8f0"}} />
                           </div>
                         </div>
                       </div>
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "fadeIn 0.3s ease" }}>
                         <div style={{ padding: "16px", background: formData.paymentMethod === 'GCash' ? "#eff6ff" : "#ecfdf5", borderRadius: "12px", border: formData.paymentMethod === 'GCash' ? "1px solid #bfdbfe" : "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: "16px", marginBottom: "4px" }}>
-                          <div style={{ fontSize: "28px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}>📱</div>
+                          <div style={{ fontSize: "28px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}><Smartphone size="1em" /></div>
                           <div>
                             <div style={{ fontSize: "14px", fontWeight: 800, color: formData.paymentMethod === 'GCash' ? "#1d4ed8" : "#047857" }}>Pay with {formData.paymentMethod}</div>
                             <div style={{ fontSize: "12px", color: formData.paymentMethod === 'GCash' ? "#3b82f6" : "#059669", fontWeight: 500, marginTop: "2px" }}>Scan QR code or use the app to pay.</div>
@@ -607,7 +628,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Transaction Ref Number</label>
-                          <input type="text" placeholder="e.g. 1000293812" value={formData.refNumber} onChange={e => setFormData({...formData, refNumber: e.target.value})} onBlur={() => handleBlur('refNumber')} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('refNumber') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('refNumber')) e.target.style.borderColor = formData.paymentMethod === 'GCash' ? "#3b82f6" : "#10b981"}} onBlur={e => {handleBlur('refNumber'); if (!getError('refNumber')) e.target.style.borderColor = "#e2e8f0"}} />
+                          <input type="text" placeholder="e.g. 1000293812" value={formData.refNumber} onChange={e => setFormData({...formData, refNumber: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('refNumber') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('refNumber')) e.target.style.borderColor = formData.paymentMethod === 'GCash' ? "#3b82f6" : "#10b981"}} onBlur={e => {handleBlur('refNumber'); if (!getError('refNumber')) e.target.style.borderColor = "#e2e8f0"}} />
                         </div>
                         <button type="button" onClick={() => window.open(formData.paymentMethod === 'GCash' ? 'https://m.gcash.com' : 'https://maya.ph', '_blank')} style={{ padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.1)', color: '#000', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s ease', marginTop: '4px' }}>Open {formData.paymentMethod} App</button>
                       </div>
@@ -618,7 +639,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                       <div style={{ display: "flex", gap: "8px" }}>
                         <input type="text" placeholder="Enter code" value={formData.promoCode} onChange={e => { setFormData({...formData, promoCode: e.target.value}); setPromoError(false); setPromoSuccess(false); }} style={{ flex: 1, padding: "14px 16px", borderRadius: "12px", border: promoError ? "1px solid #ef4444" : promoSuccess ? "1px solid #16a34a" : "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }} onFocus={e => e.target.style.borderColor = promoError ? "#ef4444" : "#16a34a"} onBlur={e => e.target.style.borderColor = promoError ? "#ef4444" : promoSuccess ? "#16a34a" : "#e2e8f0"} />
                         <button type="button" onClick={handleApplyPromo} style={{ padding: "0 20px", borderRadius: "12px", background: promoError ? "#ef4444" : promoSuccess ? "#16a34a" : "#15803d", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
-                          {promoSuccess ? "Applied ✓" : "Apply"}
+                          {promoSuccess ? "Applied" : "Apply"}
                         </button>
                       </div>
                     </div>
@@ -626,7 +647,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes }) {
                 ) : (
                    <div style={{ padding: "16px", background: "#f1f5f9", borderRadius: "12px", textAlign: "center", color: "#475569", display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center", flex: 1 }}>
                      <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "8px" }}>
-                       {selectedPlanDetails.name === 'Basic' ? '🎉' : '🤝'}
+                       {selectedPlanDetails.name === 'Basic' ? <PartyPopper size={28} color="#16a34a" /> : <Handshake size={28} color="#16a34a" />}
                      </div>
                      <div style={{ fontSize: "14px", fontWeight: 600 }}>
                        {selectedPlanDetails.name === 'Basic' ? 'No payment required for the Basic plan.' : 'Our sales team will contact you for custom Enterprise billing.'}
@@ -791,12 +812,41 @@ const styles = {
   backBtnWrap: { position: "absolute", left: 0, top: "-5px" },
   backBtn: { padding: "8px 16px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", color: "#000", fontSize: "13px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.2px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)", transition: "transform 0.2s ease" },
   backBtnHov: { transform: "scale(1.035)" },
-  badge: { display: "inline-flex", alignItems: "center", gap: "7px", padding: "5px 14px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", fontSize: "11px", fontWeight: 600, color: "#15803d", letterSpacing: "0.6px", textTransform: "uppercase", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)" },
+  badge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+    padding: "5px 14px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.6)",
+    border: "1px solid rgba(0,0,0,0.05)",
+    fontSize: "11px",
+    fontWeight: 600,
+    color: "#15803d",
+    letterSpacing: "0.6px",
+    textTransform: "uppercase",
+    marginBottom: "20px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
+  },
   badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block" },
-  title: { fontSize: "clamp(32px, 4vw, 46px)", fontWeight: 800, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)" },
+  title: { fontSize: "clamp(32px, 4vw, 46px)", fontWeight: 300, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)" },
   titleMobile: { fontSize: "clamp(24px, 7vw, 32px)" },
-  titleUnderline: { width: "118px", height: "4px", background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)", backgroundSize: "200% 100%", margin: "0 auto 18px", boxShadow: "0 0 18px rgba(134,239,172,0.75)", borderRadius: "999px" },
-  accent: { background: "linear-gradient(90deg, #4ade80, #86efac)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" },
+  titleUnderline: {
+    width: "118px",
+    height: "4px",
+    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
+    backgroundSize: "200% 100%",
+    margin: "0 auto 18px",
+    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
+    borderRadius: "999px",
+    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
+  },
+  accent: {
+    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
   body: { color: "#000", marginBottom: "32px", fontSize: "clamp(14px, 1.6vw, 16px)", fontWeight: 400, lineHeight: 1.6, maxWidth: "600px" },
   bodyMobile: { marginBottom: "24px" },
   toggleContainer: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "40px", padding: "10px 20px", borderRadius: "999px", background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)" },

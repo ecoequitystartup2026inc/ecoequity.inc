@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Check, Sprout, Smartphone } from "lucide-react";
 import { FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaArrowLeft, FaCreditCard, FaMoneyBillWave, FaCheckCircle, FaGift, FaTag, FaSeedling, FaStar, FaTimes, FaTrash } from "react-icons/fa";
 
 const getProductStats = (product) => {
@@ -289,7 +290,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
           {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => (
              <div key={step} className={`flex items-center relative ${idx < 2 ? 'flex-1' : 'flex-none'}`}>
                <div className={`w-[28px] h-[28px] rounded-full flex items-center justify-center text-[12px] font-extrabold z-10 border-2 transition-all ${idx <= 1 ? 'bg-gradient-to-br from-green-600 to-green-700 text-white border-transparent shadow-[0_4px_12px_rgba(21,128,61,0.3)]' : 'bg-gray-100 text-gray-400 border-white shadow-sm'}`}>
-                 {idx < 1 ? '✓' : idx + 1}
+                 {idx < 1 ? <Check size={14} /> : idx + 1}
                </div>
                <span className={`absolute top-9 left-[14px] -translate-x-1/2 text-[11px] font-bold whitespace-nowrap ${idx <= 1 ? 'text-green-700' : 'text-gray-400'}`}>
                  {step}
@@ -319,9 +320,11 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                  <InputField label="Phone Number" placeholder="0912 345 6789" value={formData.phone} onChange={(val) => handleInputChange("phone", val)} onBlur={() => handleBlur("phone")} error={getError("phone")} />
                  <InputField label="Email Address" placeholder="juan@example.com" className="md:col-span-2" value={formData.email} onChange={(val) => handleInputChange("email", val)} onBlur={() => handleBlur("email")} error={getError("email")} />
                  <InputField label="Delivery Address" placeholder="123 Main St, Brgy 1" className="md:col-span-2" value={formData.address} onChange={(val) => handleInputChange("address", val)} onBlur={() => handleBlur("address")} error={getError("address")} />
-                 <InputField label="City / Municipality" placeholder="Quezon City" value={formData.city} onChange={(val) => handleInputChange("city", val)} onBlur={() => handleBlur("city")} error={getError("city")} />
-                 <InputField label="Province" placeholder="Metro Manila" value={formData.province} onChange={(val) => handleInputChange("province", val)} onBlur={() => handleBlur("province")} error={getError("province")} />
-                 <InputField label="ZIP / Postal Code" placeholder="1100" value={formData.zip} onChange={(val) => handleInputChange("zip", val)} onBlur={() => handleBlur("zip")} error={getError("zip")} />
+                 <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-5">
+                   <InputField label="City / Municipality" placeholder="Quezon City" className="col-span-2 md:col-span-1" value={formData.city} onChange={(val) => handleInputChange("city", val)} onBlur={() => handleBlur("city")} error={getError("city")} />
+                   <InputField label="Province" placeholder="Metro Manila" value={formData.province} onChange={(val) => handleInputChange("province", val)} onBlur={() => handleBlur("province")} error={getError("province")} />
+                   <InputField label="ZIP / Postal Code" placeholder="1100" value={formData.zip} onChange={(val) => handleInputChange("zip", val)} onBlur={() => handleBlur("zip")} error={getError("zip")} />
+                 </div>
                  <InputField label="Delivery Instructions" placeholder="Leave at the front desk..." className="md:col-span-2" value={formData.instructions} onChange={(val) => handleInputChange("instructions", val)} onBlur={() => handleBlur("instructions")} />
                  <div className="md:col-span-2 flex flex-col gap-1.5 mt-2">
                    <label className="text-[11px] font-extrabold text-gray-600 uppercase tracking-widest ml-1">Delivery Speed</label>
@@ -410,7 +413,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                    return (
                    <div key={item.id} className="flex items-center gap-4 bg-white/70 p-3 rounded-2xl border border-black/5 hover:border-black/10 transition-colors shadow-sm">
                      <div className="w-16 h-16 bg-green-600/10 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                        {item.emoji || "🌱"}
+                        {item.emoji || <Sprout size="1em" color="#16a34a" />}
                      </div>
                      <div className="flex-1 flex flex-col">
                        <span className="font-bold text-sm text-gray-800">{item.name}</span>
@@ -441,7 +444,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                     className={`flex-1 bg-transparent border-none px-3 py-3 text-sm font-medium outline-none ${promoError ? 'text-red-600 placeholder:text-red-300' : promoSuccess ? 'text-green-700' : 'text-gray-800'}`} 
                   />
                   <button onClick={handleApplyPromo} className={`px-5 py-3 text-sm font-bold text-white transition-colors ${promoError ? 'bg-red-500 hover:bg-red-600' : promoSuccess ? 'bg-green-600' : 'bg-green-700 hover:bg-green-800'}`}>
-                    {promoSuccess ? 'Applied ✓' : 'Apply'}
+                    {promoSuccess ? 'Applied' : 'Apply'}
                   </button>
                </div>
 
@@ -610,7 +613,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
               <div className="w-48 h-48 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 border border-gray-200 shadow-inner">
                  <div className="text-center text-gray-400 font-bold text-sm">
                    <div className="w-32 h-32 border-4 border-dashed border-gray-300 mx-auto mb-2 flex items-center justify-center rounded-xl">
-                     <span className="text-3xl">📱</span>
+                     <span className="text-3xl"><Smartphone size={30} color="#15803d" /></span>
                    </div>
                    Mock QR Code
                  </div>

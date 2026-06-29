@@ -88,7 +88,7 @@ const sdgItems = [
   {
     number: "11",
     image: "/1.5.png",
-    bgImage: "/No poverty.jpg", // Update this file name for SDG 11
+    bgImage: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&q=80&w=1000", // Urban city street — SDG 11 Sustainable Cities
     color: "#fd9d24",
     expandedTitle: "Sustainable Cities and Communities",
     expandedContent: [
@@ -109,7 +109,7 @@ const sdgItems = [
   {
     number: "12",
     image: "/6.png",
-    bgImage: "/No poverty.jpg", // Update this file name for SDG 12
+    bgImage: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&q=80&w=1000", // Fresh produce market — SDG 12 Responsible Consumption
     color: "#bf8b2e",
     expandedTitle: "Responsible Consumption and Production",
     expandedContent: [
@@ -151,7 +151,7 @@ const sdgItems = [
   {
     number: "15",
     image: "/8.png",
-    bgImage: "/No poverty.jpg", // Update this file name for SDG 15
+    bgImage: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1000", // Forest / biodiversity — SDG 15 Life on Land
     color: "#279b48",
     expandedTitle: "Life on Land",
     expandedContent: [
@@ -172,7 +172,7 @@ const sdgItems = [
   {
     number: "16",
     image: "/9.png",
-    bgImage: "/No poverty.jpg", // Update this file name for SDG 16
+    bgImage: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=1000", // Handshake / fair trade — SDG 16 Peace, Justice, Strong Institutions
     color: "#00689d",
     expandedTitle: "Peace, Justice, and Strong Institutions",
     expandedContent: [
@@ -193,7 +193,7 @@ const sdgItems = [
   {
     number: "17",
     image: "/10.png",
-    bgImage: "/No poverty.jpg", // Update this file name for SDG 17
+    bgImage: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1000", // Team collaboration / partnerships — SDG 17 Partnerships for the Goals
     color: "#19486a",
     expandedTitle: "Partnerships for the Goals",
     expandedContent: [
@@ -215,6 +215,7 @@ const sdgItems = [
 
 function LearnMore({ setActiveNav }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [exploreHovered, setExploreHovered] = useState(false);
   const [hoveredSdg, setHoveredSdg] = useState(null);
   const [expandedImage, setExpandedImage] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -277,6 +278,22 @@ function LearnMore({ setActiveNav }) {
         Sustainable Development Goals Aligned with <span style={styles.accent}>EcoEquity</span>
       </h1>
       <div style={styles.titleUnderline} />
+
+      {!isMobile && (
+        <button
+          type="button"
+          style={{
+            ...styles.exploreMoreBtn,
+            ...(exploreHovered ? styles.exploreMoreBtnHov : {}),
+          }}
+          onClick={() => setActiveNav && setActiveNav("Explore More")}
+          onMouseEnter={() => setExploreHovered(true)}
+          onMouseLeave={() => setExploreHovered(false)}
+        >
+          <span aria-hidden="true" style={styles.exploreMoreBtnInnerBlur} />
+          <span style={styles.exploreMoreBtnContent}>Explore more</span>
+        </button>
+      )}
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         EcoEquity is a comprehensive platform built to transform agricultural practices and empower local communities. Find out more about our initiatives, our technology, and how you can get involved.
@@ -441,6 +458,7 @@ const styles = {
     color: "#15803d",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
+    marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
@@ -453,7 +471,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(24px, 3.4vw, 40px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 10px",
     lineHeight: 1.12,
@@ -471,7 +489,7 @@ const styles = {
     height: "4px",
     background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
     backgroundSize: "200% 100%",
-    margin: "0 auto 12px",
+    margin: "0 auto 18px",
     boxShadow: "0 0 18px rgba(134,239,172,0.75)",
     borderRadius: "999px",
     animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
@@ -759,6 +777,49 @@ const styles = {
     lineHeight: 1.5,
     margin: 0,
     textAlign: "center",
+  },
+  exploreMoreBtn: {
+    position: "relative",
+    overflow: "hidden",
+    isolation: "isolate",
+    alignSelf: "center",
+    margin: "0 auto 18px",
+    padding: "11px 26px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.5)",
+    border: "1px solid rgba(0,0,0,0.05)",
+    color: "#000",
+    fontSize: "13px",
+    fontWeight: 600,
+    cursor: "pointer",
+    transform: "scale(1)",
+    transformOrigin: "center",
+    willChange: "transform",
+    fontFamily: "inherit",
+    letterSpacing: "0.2px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
+    transition: "transform 0.16s ease",
+    backdropFilter: "blur(18px) saturate(160%)",
+    WebkitBackdropFilter: "blur(18px) saturate(160%)",
+  },
+  exploreMoreBtnHov: {
+    transform: "scale(1.035)",
+  },
+  exploreMoreBtnInnerBlur: {
+    position: "absolute",
+    inset: "0",
+    zIndex: 0,
+    pointerEvents: "none",
+    borderRadius: "inherit",
+    background:
+      "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.8), transparent 45%), " +
+      "linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2))",
+    backdropFilter: "blur(34px) saturate(185%)",
+    WebkitBackdropFilter: "blur(34px) saturate(185%)",
+  },
+  exploreMoreBtnContent: {
+    position: "relative",
+    zIndex: 1,
   },
   backBtn: {
     padding: "8px 16px",

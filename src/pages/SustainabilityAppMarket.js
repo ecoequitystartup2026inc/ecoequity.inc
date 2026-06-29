@@ -178,7 +178,7 @@ const styles = {
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 50px)",
-    fontWeight: 700,
+    fontWeight: 300,
     color: "#000",
     margin: "0 0 16px",
     lineHeight: 1.15,
@@ -207,7 +207,7 @@ const styles = {
   },
   subtitle: {
     fontSize: "clamp(18px, 2.2vw, 24px)",
-    fontWeight: 600,
+    fontWeight: 500,
     color: "#000",
     margin: "24px 0 16px",
     lineHeight: 1.25,
@@ -289,7 +289,7 @@ const styles = {
     borderBottom: "1px solid rgba(0,0,0,0.1)",
     color: "#15803d",
     fontSize: "14px",
-    fontWeight: 700,
+    fontWeight: 500,
     overflowWrap: "break-word",
   },
   thMobile: {
