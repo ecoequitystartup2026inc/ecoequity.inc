@@ -2,8 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaCheckCircle, FaStar, FaRobot, FaTimes, FaCreditCard, FaQrcode, FaChevronDown } from "react-icons/fa";
 import { Check, X, Sparkles, Smartphone, PartyPopper, Handshake } from "lucide-react";
+import { initialSubscriptionPlans } from "../subscriptionPlans";
 
-function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSubscriber, loggedInUser, loggedInEmail }) {
+function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSubscriber, loggedInUser, loggedInEmail, plans = initialSubscriptionPlans }) {
+  // Pricing comes from the Admin Portal → Subscriptions tab; plans the admin marks
+  // as hidden never render here.
+  const visiblePlans = (plans || []).filter(plan => plan.clientVisible !== false);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [isYearly, setIsYearly] = useState(false);
@@ -341,65 +345,51 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
       </div>
 
       {/* Pricing Cards */}
-            <div className="slim-scroll" style={{ display: isMobile ? "flex" : "grid", gridTemplateColumns: isMobile ? "none" : "repeat(3, 1fr)", gap: "16px", overflowX: isMobile ? "auto" : "visible", scrollSnapType: isMobile ? "x mandatory" : "none", paddingBottom: isMobile ? "8px" : "0", width: "100%", maxWidth: "900px", margin: "0 auto 40px" }}>
-              {/* Basic Plan */}
-              <div style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "24px", borderRadius: "20px", border: "1px solid rgba(0,0,0,0.08)", background: "#ffffff", display: "flex", flexDirection: "column", position: "relative", transition: "all 0.2s ease", boxShadow: "0 12px 24px rgba(0,0,0,0.04)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = "0 16px 32px rgba(0,0,0,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = "0 12px 24px rgba(0,0,0,0.04)"; }}>
-                <h3 style={{ margin: "0 0 6px", fontSize: "18px", fontWeight: 700, color: "#000" }}>Basic</h3>
-                <p style={{ margin: "0 0 16px", fontSize: "13px", color: "rgba(0,0,0,0.5)", lineHeight: 1.4 }}>For casual gardeners and beginners.</p>
-                <div style={{ fontSize: "32px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
-                  Free
-                </div>
-                <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", marginBottom: "20px", fontWeight: 500 }}>Forever</div>
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "14px" }}><Check size="1em" /></span> General AI Chat</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#16a34a", fontSize: "14px" }}><Check size="1em" /></span> Community Access</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> 24/7 Plant Doctor</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> Photo Diagnostics</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> Priority Support</li>
-                </ul>
-                <button disabled style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", fontWeight: 700, fontSize: "14px", cursor: "not-allowed", transition: "all 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", opacity: 0.7 }}>Current Plan</button>
-              </div>
-
-              {/* Pro Plan */}
-              <div style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "24px", borderRadius: "20px", border: "2px solid #eab308", background: "linear-gradient(145deg, rgba(234,179,8,0.05), rgba(255,255,255,1))", display: "flex", flexDirection: "column", position: "relative", transition: "all 0.2s ease", boxShadow: "0 8px 16px rgba(234, 179, 8, 0.15)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = "0 16px 32px rgba(234, 179, 8, 0.25)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = "0 8px 16px rgba(234, 179, 8, 0.15)"; }}>
-                <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #eab308, #ca8a04)", color: "#ffffff", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 12px rgba(234, 179, 8, 0.3)", animation: "pulseBadge 2s infinite ease-in-out" }}>Most Popular</div>
-                <h3 style={{ margin: "0 0 6px", fontSize: "18px", fontWeight: 800, color: "#ca8a04" }}>Pro</h3>
-                <p style={{ margin: "0 0 16px", fontSize: "13px", color: "rgba(0,0,0,0.6)", lineHeight: 1.4 }}>For serious growers & urban farmers.</p>
-                <div style={{ fontSize: "32px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
-                  {isYearly ? '₱4,790' : '₱499'}
-                </div>
-                <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", marginBottom: "20px", fontWeight: 500 }}>
-                  per {isYearly ? 'year, billed annually' : 'month'}
-                </div>
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> Unlimited AI Chat</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> 24/7 AI Plant Doctor</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> Advanced Photo Diagnostics</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "#eab308", fontSize: "14px" }}><Check size="1em" /></span> Priority Support</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "14px" }}><X size="1em" /></span> API Access</li>
-                </ul>
-                <button onClick={() => handlePlanClick({name: 'Pro', priceMonthly: '₱499', priceYearly: '₱4,790'})} style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, #facc15, #ca8a04)", color: "#ffffff", fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(202,138,4,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(202,138,4,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(202,138,4,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Subscribe Now</button>
-              </div>
-
-              {/* Enterprise Plan */}
-              <div style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "24px", borderRadius: "20px", border: "1px solid #0ea5e9", background: "rgba(14, 165, 233, 0.02)", display: "flex", flexDirection: "column", position: "relative", transition: "all 0.2s ease", boxShadow: "0 0 0 1px rgba(14, 165, 233, 0.1), 0 12px 24px rgba(0,0,0,0.04)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = "0 0 0 1px rgba(14, 165, 233, 0.1), 0 16px 32px rgba(0,0,0,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = "0 0 0 1px rgba(14, 165, 233, 0.1), 0 12px 24px rgba(0,0,0,0.04)"; }}>
-                <h3 style={{ margin: "0 0 6px", fontSize: "18px", fontWeight: 800, color: "#0284c7" }}>Enterprise</h3>
-                <p style={{ margin: "0 0 16px", fontSize: "13px", color: "rgba(0,0,0,0.5)", lineHeight: 1.4 }}>For commercial farms & businesses.</p>
-                <div style={{ fontSize: "32px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>
-                  {isYearly ? '₱14,390' : '₱1,499'}
-                </div>
-                <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", marginBottom: "20px", fontWeight: 500 }}>
-                  per {isYearly ? 'year, billed annually' : 'month'}
-                </div>
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Everything in Pro</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Dedicated Human Agent</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> 24/7 VIP Phone Support</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Custom API Access</li>
-                  <li style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "#0ea5e9", fontSize: "14px" }}><Check size="1em" /></span> Team Analytics Dashboard</li>
-                </ul>
-                <button onClick={() => handlePlanClick({name: 'Enterprise', priceMonthly: '₱1,499', priceYearly: '₱14,390'})} style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, #38bdf8, #0284c7)", color: "#ffffff", fontWeight: 800, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(14,165,233,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(14,165,233,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Contact Sales</button>
-              </div>
+            <div className="slim-scroll" style={{ display: isMobile ? "flex" : "grid", gridTemplateColumns: isMobile ? "none" : `repeat(${Math.max(visiblePlans.length, 1)}, 1fr)`, gap: "16px", overflowX: isMobile ? "auto" : "visible", scrollSnapType: isMobile ? "x mandatory" : "none", paddingBottom: isMobile ? "8px" : "0", width: "100%", maxWidth: "900px", margin: "0 auto 40px" }}>
+              {visiblePlans.map((plan) => {
+                const price = isYearly ? plan.priceYearly : plan.priceMonthly;
+                const billingNote = isYearly ? plan.billingNoteYearly : plan.billingNoteMonthly;
+                const isFree = plan.billingType === "free";
+                return (
+                  <div
+                    key={plan.id}
+                    style={{ flex: isMobile ? "0 0 85%" : "none", scrollSnapAlign: "center", padding: "24px", borderRadius: "20px", border: plan.badge ? `2px solid ${plan.accentColor}` : `1px solid ${plan.accentColor}40`, background: plan.bg, display: "flex", flexDirection: "column", position: "relative", transition: "all 0.2s ease", boxShadow: "0 12px 24px rgba(0,0,0,0.04)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = "0 16px 32px rgba(0,0,0,0.08)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = "0 12px 24px rgba(0,0,0,0.04)"; }}
+                  >
+                    {plan.badge && (
+                      <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: `linear-gradient(135deg, ${plan.accentColor}, ${plan.color})`, color: "#ffffff", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 12px rgba(0,0,0,0.18)", animation: "pulseBadge 2s infinite ease-in-out", whiteSpace: "nowrap" }}>
+                        {plan.badge}
+                      </div>
+                    )}
+                    <h3 style={{ margin: "0 0 6px", fontSize: "18px", fontWeight: 800, color: plan.color }}>{plan.name}</h3>
+                    <p style={{ margin: "0 0 16px", fontSize: "13px", color: "rgba(0,0,0,0.55)", lineHeight: 1.4 }}>{plan.description}</p>
+                    <div style={{ fontSize: "32px", fontWeight: 800, color: "#000", marginBottom: "6px", letterSpacing: "-1px" }}>{price}</div>
+                    <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", marginBottom: "20px", fontWeight: 500 }}>{billingNote}</div>
+                    <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", flexGrow: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {(plan.features || []).map((feature) => (
+                        <li key={feature} style={{ display: "flex", gap: "10px", fontSize: "13px", alignItems: "center", color: "#000", fontWeight: 500 }}>
+                          <span style={{ color: plan.accentColor, fontSize: "14px" }}><Check size="1em" /></span> {feature}
+                        </li>
+                      ))}
+                      {(plan.excludedFeatures || []).map((feature) => (
+                        <li key={feature} style={{ display: "flex", gap: "10px", fontSize: "13px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}>
+                          <span style={{ fontSize: "14px" }}><X size="1em" /></span> {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      disabled={isFree}
+                      onClick={isFree ? undefined : () => handlePlanClick(plan)}
+                      style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: isFree ? "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))" : `linear-gradient(135deg, ${plan.accentColor}, ${plan.color})`, color: isFree ? "#062018" : "#ffffff", fontWeight: 800, fontSize: "14px", cursor: isFree ? "not-allowed" : "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.48)", opacity: isFree ? 0.7 : 1 }}
+                      onMouseEnter={(e) => { if (!isFree) e.currentTarget.style.transform = 'scale(1.035)'; }}
+                      onMouseLeave={(e) => { if (!isFree) e.currentTarget.style.transform = 'scale(1)'; }}
+                    >
+                      {plan.ctaLabel}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
           <h2 style={styles.comparisonTitle}>Plan Comparison</h2>
@@ -408,18 +398,18 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
               <thead>
                 <tr>
                   <th style={styles.th}>Feature</th>
-                  <th style={styles.th}>Basic</th>
-                  <th style={styles.th}>Pro</th>
-                  <th style={styles.th}>Enterprise</th>
+                  {visiblePlans.map(plan => (
+                    <th key={plan.id} style={styles.th}>{plan.name}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {comparisonFeatures.map((f, i) => (
                   <tr key={i} style={styles.tr}>
                     <td style={styles.td}>{f.feature}</td>
-                    <td style={styles.td}>{f.basic}</td>
-                    <td style={styles.td}>{f.pro}</td>
-                    <td style={styles.td}>{f.enterprise}</td>
+                    {visiblePlans.map(plan => (
+                      <td key={plan.id} style={styles.td}>{f[plan.name.toLowerCase()] ?? "—"}</td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -452,8 +442,8 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                      <td style={styles.td}>{sub.date}</td>
                      <td style={styles.td}>{sub.nextBilling}</td>
                      <td style={styles.td}>
-                       <button style={styles.actionBtn}>Upgrade</button>
-                       <button style={{...styles.actionBtn, color: '#ef4444'}}>Cancel</button>
+                       <button onClick={() => window.alert(`Upgrade options for the ${sub.plan} plan are on the way.`)} style={styles.actionBtn}>Upgrade</button>
+                       <button onClick={() => { if (window.confirm(`Cancel the ${sub.plan} subscription?`)) window.alert("Subscription cancelled."); }} style={{...styles.actionBtn, color: '#ef4444'}}>Cancel</button>
                      </td>
                    </tr>
                  ))}

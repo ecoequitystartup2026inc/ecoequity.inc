@@ -4,11 +4,14 @@ import { Smartphone } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaArrowLeft, FaUserTie, FaStar, FaCheckCircle, FaComments, FaCalendarAlt, FaAward, FaTimes, FaVideo, FaPhone, FaPaperPlane, FaClock, FaCalendarCheck, FaExclamationTriangle, FaQuestionCircle, FaMoneyBillWave, FaCheck, FaInfoCircle, FaPaperclip, FaLightbulb, FaLeaf, FaCreditCard, FaLock } from "react-icons/fa";
 
-const mockAdvisors = [
+// Default specialists shown when the Admin Portal hasn't provided any yet.
+// Photos are intentionally blank for now — admins set a real photo URL per
+// specialist from Admin Portal > Expert Support.
+export const defaultAdvisors = [
   {
     id: 1,
     name: "Dr. Maria Santos",
-    image: "/russell.jpeg", // Placeholder image
+    image: "",
     verified: true,
     rating: 4.9,
     expertise: ["Hydroponics", "Organic Farming", "Pest Management"],
@@ -20,7 +23,7 @@ const mockAdvisors = [
   {
     id: 2,
     name: "Engr. Ana Reyes",
-    image: "/rus3.jpeg", // Placeholder image
+    image: "",
     verified: true,
     rating: 4.7,
     expertise: ["Soil Health", "Crop Rotation", "Farm Management"],
@@ -32,7 +35,7 @@ const mockAdvisors = [
   {
     id: 3,
     name: "Mr. Juan Dela Cruz",
-    image: "/rus4.jpeg", // Placeholder image
+    image: "",
     verified: true,
     rating: 4.8,
     expertise: ["Native Crops", "Seed Saving", "Community Farming"],
@@ -44,7 +47,7 @@ const mockAdvisors = [
   {
     id: 4,
     name: "Atty. Elena Garcia",
-    image: "/rus5.jpeg", // Placeholder image
+    image: "",
     verified: false, // Example of unverified advisor
     rating: 4.5,
     expertise: ["Agricultural Law", "Land Use", "Farm Policy"],
@@ -55,8 +58,31 @@ const mockAdvisors = [
   },
 ];
 
-// Extract unique expertise categories for filtering
-const allExpertise = [...new Set(mockAdvisors.flatMap((advisor) => advisor.expertise))];
+// Circular avatar that shows the specialist's photo when one is set, and a
+// blank placeholder (person icon) otherwise, keeping the same frame styling.
+const AdvisorAvatar = ({ advisor, style }) => {
+  if (advisor?.image) {
+    return <img src={advisor.image} alt={advisor.name} style={style} />;
+  }
+  return (
+    <div
+      aria-label={advisor?.name}
+      style={{
+        ...style,
+        objectFit: undefined,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12))",
+        color: "rgba(0,0,0,0.35)",
+        flexShrink: 0,
+        boxSizing: "border-box",
+      }}
+    >
+      <FaUserTie style={{ fontSize: `calc(${style?.width || "48px"} * 0.45)` }} />
+    </div>
+  );
+};
 
 // Consultation pricing options
 const consultationTypes = [
@@ -161,7 +187,11 @@ const defaultSuggestions = [
   "Sustainable farming tips"
 ];
 
-function ExpertSupportPage({ setActiveNav }) {
+function ExpertSupportPage({ setActiveNav, advisors: advisorsProp }) {
+  // Specialists are managed from the Admin Portal (Expert Support tab);
+  // fall back to the built-in defaults when nothing has been provided.
+  const advisorsList = advisorsProp && advisorsProp.length ? advisorsProp : defaultAdvisors;
+  const allExpertise = [...new Set(advisorsList.flatMap((advisor) => advisor.expertise || []))];
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -219,8 +249,8 @@ useEffect(() => {
 
   // Filter advisors based on selected filter
   const filteredAdvisors = selectedFilter === "All"
-    ? mockAdvisors
-    : mockAdvisors.filter((advisor) => advisor.expertise.includes(selectedFilter));
+    ? advisorsList
+    : advisorsList.filter((advisor) => (advisor.expertise || []).includes(selectedFilter));
 
 const handleBookConsultation = (advisor, defaultType = null, isInstant = false) => {
     setSelectedAdvisor(advisor);
@@ -499,7 +529,7 @@ const handleKeyDown = (e) => {
           {/* Chat Header */}
           <div style={chatModalStyles.header}>
             <div style={chatModalStyles.headerLeft}>
-              <img src={selectedAdvisorForChat.image} alt={selectedAdvisorForChat.name} style={chatModalStyles.headerImg} />
+              <AdvisorAvatar advisor={selectedAdvisorForChat} style={chatModalStyles.headerImg} />
               <div style={chatModalStyles.headerInfo}>
                 <h3 style={chatModalStyles.headerName}>{selectedAdvisorForChat.name}</h3>
                 <span style={chatModalStyles.headerStatus}>
@@ -652,7 +682,7 @@ const handleKeyDown = (e) => {
           {consultationStep === 1 && (
             <div style={modalStyles.stepContent}>
               <div style={modalStyles.advisorHeader}>
-                <img src={selectedAdvisor.image} alt={selectedAdvisor.name} style={modalStyles.advisorImg} />
+                <AdvisorAvatar advisor={selectedAdvisor} style={modalStyles.advisorImg} />
                 <div>
                   <h3 style={modalStyles.advisorName}>{selectedAdvisor.name}</h3>
                   <span style={modalStyles.advisorExpertise}>{selectedAdvisor.expertise.join(", ")}</span>
@@ -1029,7 +1059,7 @@ const handleKeyDown = (e) => {
                   )}
                   {selectedPayment === "bank" && (
                     <div style={modalStyles.paymentDetailsCard}>
-                      <div style={modalStyles.paymentInstructions}>Transfer to BDO Account: <strong>0012 3456 7890</strong><br/>Account Name: <strong>VerdeVersity Inc.</strong></div>
+                      <div style={modalStyles.paymentInstructions}>Transfer to BDO Account: <strong>0012 3456 7890</strong><br/>Account Name: <strong>EcoEquity Inc.</strong></div>
                       <input type="text" placeholder="Bank Name (e.g. BDO / BPI)" value={paymentData.bankName} onChange={(e) => setPaymentData({...paymentData, bankName: e.target.value})} style={modalStyles.input} />
                       <input type="text" placeholder="Your Account Number" value={paymentData.accNumber} onChange={(e) => setPaymentData({...paymentData, accNumber: e.target.value})} style={modalStyles.input} />
                       <input type="text" placeholder="Your Account Name" value={paymentData.accName} onChange={(e) => setPaymentData({...paymentData, accName: e.target.value})} style={modalStyles.input} />
@@ -1070,7 +1100,7 @@ const handleKeyDown = (e) => {
               
               {/* Advisor Card */}
               <div style={modalStyles.advisorConfirmCard}>
-                <img src={selectedAdvisor.image} alt={selectedAdvisor.name} style={modalStyles.advisorConfirmImg} />
+                <AdvisorAvatar advisor={selectedAdvisor} style={modalStyles.advisorConfirmImg} />
                 <div style={{ flex: 1 }}>
                   <h3 style={modalStyles.advisorConfirmName}>{selectedAdvisor.name}</h3>
                   <p style={modalStyles.advisorConfirmType}>{selectedType?.name} • {selectedType?.duration}</p>
@@ -1207,7 +1237,7 @@ return (
           >
             <span aria-hidden="true" style={styles.cardInnerBlur} />
             <div style={styles.profileHeader}>
-              <img src={advisor.image} alt={advisor.name} style={styles.profileImage} />
+              <AdvisorAvatar advisor={advisor} style={styles.profileImage} />
               <div style={styles.nameAndBadge}>
                 <h3 style={styles.advisorName}>{advisor.name}</h3>
                 {advisor.verified && <span style={styles.verifiedBadge}><FaCheckCircle /> Verified</span>}

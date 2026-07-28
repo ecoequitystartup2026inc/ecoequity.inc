@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import ReactDOM from "react-dom";
-import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUser, FaFilter, FaTimes, FaArrowLeft } from "react-icons/fa";
+import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUser, FaFilter, FaTimes, FaArrowLeft, FaSearch, FaUsers, FaTag } from "react-icons/fa";
 
 const mockEvents = [
   {
@@ -10,7 +10,7 @@ const mockEvents = [
     date: "June 15, 2026",
     time: "9:00 AM - 12:00 PM",
     venue: "Baguio City Hall Grounds",
-    speaker: { name: "Dr. Maria Santos", image: "/russell.jpeg" }, // Placeholder image
+    speaker: { name: "Dr. Maria Santos", image: "" }, // Photo intentionally blank — set from Admin Portal
     title: "Urban Hydroponics for Beginners",
     description: "Learn the basics of hydroponic farming for small urban spaces. Hands-on training on setting up a simple system.",
     fullDescription: "This comprehensive workshop covers everything you need to start your own hydroponic garden. From nutrient solutions to plant selection, our expert Dr. Maria Santos will guide you through practical exercises. Ideal for city dwellers looking to grow fresh produce year-round.",
@@ -22,7 +22,7 @@ const mockEvents = [
     date: "July 10, 2026",
     time: "2:00 PM - 3:30 PM",
     venue: "Online (Zoom)",
-    speaker: { name: "Engr. Ana Reyes", image: "/rus3.jpeg" }, // Placeholder image
+    speaker: { name: "Engr. Ana Reyes", image: "" }, // Photo intentionally blank — set from Admin Portal
     title: "Sustainable Pest Management",
     description: "Discover eco-friendly methods to protect your crops from common pests without harmful chemicals.",
     fullDescription: "Join Engr. Ana Reyes for an insightful webinar on integrated pest management strategies. Learn about natural predators, organic sprays, and companion planting techniques to keep your garden healthy and productive. Q&A session included.",
@@ -34,7 +34,7 @@ const mockEvents = [
     date: "August 5, 2026",
     time: "4:00 PM - 6:00 PM",
     venue: "Local Community Garden",
-    speaker: { name: "Mr. Juan Dela Cruz", image: "/rus4.jpeg" }, // Placeholder image
+    speaker: { name: "Mr. Juan Dela Cruz", image: "" }, // Photo intentionally blank — set from Admin Portal
     title: "Seed Exchange & Planting Day",
     description: "Connect with fellow gardeners, exchange heirloom seeds, and participate in a community planting activity.",
     fullDescription: "A wonderful opportunity to meet local gardening enthusiasts, share your favorite seeds, and contribute to our community garden. Mr. Juan Dela Cruz will lead a short session on seed saving and propagation. Refreshments will be served.",
@@ -45,8 +45,8 @@ const mockEvents = [
     type: "Training",
     date: "September 20, 2026",
     time: "10:00 AM - 1:00 PM",
-    venue: "VerdeVersity Training Center",
-    speaker: { name: "Chef Elena Garcia", image: "/rus5.jpeg" }, // Placeholder image
+    venue: "EcoEquity Training Center",
+    speaker: { name: "Chef Elena Garcia", image: "" }, // Photo intentionally blank — set from Admin Portal
     title: "Farm-to-Table Cooking Workshop",
     description: "Learn to cook delicious and healthy meals using freshly harvested organic produce.",
     fullDescription: "Chef Elena Garcia will demonstrate how to transform fresh, seasonal ingredients into culinary masterpieces. This hands-on workshop emphasizes healthy eating and sustainable food practices. All ingredients provided.",
@@ -58,7 +58,7 @@ const mockEvents = [
     date: "October 12, 2026",
     time: "7:00 PM - 8:00 PM",
     venue: "Online (Google Meet)",
-    speaker: { name: "Dr. Alex Lim", image: "/russell.jpeg" }, // Placeholder image
+    speaker: { name: "Dr. Alex Lim", image: "" }, // Photo intentionally blank — set from Admin Portal
     title: "Advanced Soil Health & Composting",
     description: "Deep dive into improving soil fertility and effective composting techniques for sustainable gardening.",
     fullDescription: "Explore the science behind healthy soil with Dr. Alex Lim. This webinar covers advanced composting methods, soil testing, and strategies for long-term soil fertility. Perfect for experienced gardeners looking to optimize their growing conditions.",
@@ -98,6 +98,32 @@ const eventSuggestions = {
   },
 };
 
+// Circular speaker avatar: shows the photo when one is set, otherwise a blank
+// placeholder. Real photos are assigned from the Admin Portal.
+const SpeakerAvatar = ({ speaker, style }) => {
+  if (speaker?.image) {
+    return <img src={speaker.image} alt={speaker.name} style={style} />;
+  }
+  return (
+    <div
+      aria-label={speaker?.name}
+      style={{
+        ...style,
+        objectFit: undefined,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12))",
+        color: "rgba(0,0,0,0.35)",
+        flexShrink: 0,
+        boxSizing: "border-box",
+      }}
+    >
+      <FaUser style={{ fontSize: "16px" }} />
+    </div>
+  );
+};
+
 function EventsAndWorkshopsPage({ setActiveNav, adminEvents = [], onRegister }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [activeFilter, setActiveFilter] = useState("All Events");
@@ -111,6 +137,7 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
   const [joiningEvent, setJoiningEvent] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [confirmedEvent, setConfirmedEvent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -124,7 +151,9 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
     setActiveIndex(Math.round(ratio * (filteredEvents.length - 1)));
   };
 
-  // Map an Admin Portal event record to the website's event-card shape
+  // Map an Admin Portal event record to the website's event-card shape.
+  // Speaker, capacity, price and status all flow through so admin edits
+  // are reflected on the site immediately.
   const mapAdminEventToCard = (ae) => {
     const typeMap = { Workshop: "Training", Community: "Community Gathering", Webinar: "Webinar" };
     return {
@@ -133,31 +162,46 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
       date: ae.date,
       time: ae.time,
       venue: ae.location || "TBA",
-      speaker: { name: "VerdeVersity Team", image: "/russell.jpeg" },
+      speaker: { name: ae.speaker || "EcoEquity Team", image: ae.speakerImage || "" },
       title: ae.title,
-      description: `${ae.type || "Event"}${ae.price ? " • " + ae.price : ""}${ae.location ? " • " + ae.location : ""}`,
-      fullDescription: `Join us for ${ae.title} on ${ae.date}${ae.time ? " at " + ae.time : ""}. ${ae.attendees || 0} of ${ae.maxAttendees || "?"} spots filled.`,
+      description: ae.description || `${ae.type || "Event"}${ae.price ? " • " + ae.price : ""}${ae.location ? " • " + ae.location : ""}`,
+      fullDescription: ae.description || `Join us for ${ae.title} on ${ae.date}${ae.time ? " at " + ae.time : ""}.`,
+      price: ae.price,
+      status: ae.status,
+      attendees: Number(ae.attendees) || 0,
+      maxAttendees: Number(ae.maxAttendees) || 0,
       rsvpLink: "#",
     };
   };
 
-  // Curated events + admin-created events (deduped by title) for a single, synced list
+  // Curated events + admin-created events (deduped by title) for a single,
+  // synced list. Cancelled admin events are hidden from the website.
   const allEvents = [
     ...mockEvents,
     ...adminEvents
-      .filter(ae => ae.title && !mockEvents.some(me => me.title === ae.title))
+      .filter(ae => ae.title && ae.status !== "Cancelled" && !mockEvents.some(me => me.title === ae.title))
       .map(mapAdminEventToCard),
   ];
 
   const filteredEvents = allEvents.filter(event => {
-    if (activeFilter === "All Events") return true;
     const tabMapping = {
       "Trainings": "Training",
       "Webinars": "Webinar",
       "Community Gatherings": "Community Gathering"
     };
-    return event.type === tabMapping[activeFilter];
+    const matchesTab = activeFilter === "All Events" || event.type === tabMapping[activeFilter];
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = !query ||
+      event.title.toLowerCase().includes(query) ||
+      (event.venue || "").toLowerCase().includes(query) ||
+      (event.speaker?.name || "").toLowerCase().includes(query);
+    return matchesTab && matchesSearch;
   });
+
+  const isEventFull = (event) =>
+    event.maxAttendees > 0 && event.attendees >= event.maxAttendees;
+  const spotsLeft = (event) =>
+    event.maxAttendees > 0 ? Math.max(event.maxAttendees - event.attendees, 0) : null;
 
 const openEventDetails = (event) => {
     setSelectedEvent(event);
@@ -166,6 +210,7 @@ const openEventDetails = (event) => {
 
   const handleJoinNowClick = (e, event) => {
     e.stopPropagation();
+    if (isEventFull(event)) return;
     setJoiningEvent(event);
     setShowIdeasModal(true);
   };
@@ -200,15 +245,30 @@ const handleCancelJoin = () => {
       const months = {
         January: "01", February: "02", March: "03", April: "04",
         May: "05", June: "06", July: "07", August: "08",
-        September: "09", October: "10", November: "11", December: "12"
+        September: "09", October: "10", November: "11", December: "12",
+        // Admin Portal events often use abbreviated month names
+        Jan: "01", Feb: "02", Mar: "03", Apr: "04", Jun: "06",
+        Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12"
       };
       const dateParts = dateStr.split(" ");
       const month = months[dateParts[0]];
       const day = dateParts[1].replace(",", "").padStart(2, "0");
       const year = dateParts[2];
       
-      // Parse time - handle both start and end times
-      const timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)\s*-\s*(\d+):(\d+)\s*(AM|PM)/i);
+      // Parse time - handle both start and end times. Admin-created events may
+      // have a single time (e.g. "09:00 AM") instead of a range, so fall back
+      // to a one-hour slot when there's no end time.
+      let timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)\s*-\s*(\d+):(\d+)\s*(AM|PM)/i);
+      if (!timeMatch) {
+        const single = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (single) {
+          const endH = (parseInt(single[1]) % 12) + 1;
+          timeMatch = [null, single[1], single[2], single[3], String(endH), single[2], single[3]];
+        } else {
+          // No parsable time at all: schedule as a 9-10 AM block on the date.
+          timeMatch = [null, "9", "00", "AM", "10", "00", "AM"];
+        }
+      }
       let startHour = parseInt(timeMatch[1]);
       const startMin = timeMatch[2];
       let endHour = parseInt(timeMatch[4]);
@@ -234,9 +294,9 @@ const handleCancelJoin = () => {
     
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//VerdeVersity//Events//EN
+PRODID:-//EcoEquity//Events//EN
 BEGIN:VEVENT
-UID:${Date.now()}@verdeversity
+UID:${Date.now()}@ecoequity
 DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z
 DTSTART:${start}
 DTEND:${end}
@@ -295,6 +355,23 @@ END:VCALENDAR`;
         Join our upcoming farming workshops, seminars, webinars, trainings, and community events to grow your skills and connect with fellow enthusiasts.
       </p>
 
+      {/* Search Bar */}
+      <div className="inner-blur-glass" style={styles.searchBarWrap}>
+        <FaSearch style={{ color: "rgba(0,0,0,0.35)", flexShrink: 0 }} />
+        <input
+          type="text"
+          placeholder="Search events by title, venue, or speaker..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={styles.searchInput}
+        />
+        {searchQuery && (
+          <button type="button" style={styles.searchClearBtn} onClick={() => setSearchQuery("")}>
+            <FaTimes />
+          </button>
+        )}
+      </div>
+
       <div style={{ ...styles.filterTabs, ...(isMobile ? styles.filterTabsMobile : {}) }}>
         {filterTabs.map(tab => (
           <button
@@ -333,7 +410,11 @@ END:VCALENDAR`;
           >
             <span aria-hidden="true" style={styles.eventCardInnerBlur} />
             <div style={styles.eventCardHeader}>
-              <span style={styles.eventTypeBadge}>{event.type}</span>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                <span style={styles.eventTypeBadge}>{event.type}</span>
+                {event.price && <span style={styles.eventPriceBadge}><FaTag /> {event.price}</span>}
+                {isEventFull(event) && <span style={styles.eventFullBadge}>Full</span>}
+              </div>
               <h3 style={styles.eventTitle}>{event.title}</h3>
             </div>
             <div style={styles.eventMeta}>
@@ -342,11 +423,33 @@ END:VCALENDAR`;
               <p style={styles.eventMetaItem}><FaMapMarkerAlt /> {event.venue}</p>
             </div>
             <p style={styles.eventDescription}>{event.description}</p>
+            {event.maxAttendees > 0 && (
+              <div style={styles.capacityWrap}>
+                <div style={styles.capacityLabelRow}>
+                  <span style={styles.capacityLabel}><FaUsers /> {event.attendees} / {event.maxAttendees} joined</span>
+                  <span style={{ ...styles.capacityLabel, color: isEventFull(event) ? "#b45309" : "#15803d" }}>
+                    {isEventFull(event) ? "No spots left" : `${spotsLeft(event)} spots left`}
+                  </span>
+                </div>
+                <div style={styles.capacityBarBg}>
+                  <div style={{ ...styles.capacityBarFill, width: `${Math.min((event.attendees / event.maxAttendees) * 100, 100)}%`, background: isEventFull(event) ? "#eab308" : "linear-gradient(90deg, #4ade80, #16a34a)" }} />
+                </div>
+              </div>
+            )}
             <div style={styles.speakerInfo}>
-              <img src={event.speaker.image} alt={event.speaker.name} style={styles.speakerImage} />
+              <SpeakerAvatar speaker={event.speaker} style={styles.speakerImage} />
               <span style={styles.speakerName}>{event.speaker.name}</span>
             </div>
-<button type="button" style={styles.rsvpButton} onClick={(e) => handleJoinNowClick(e, event)} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Join Now</button>
+<button
+              type="button"
+              style={{ ...styles.rsvpButton, ...(isEventFull(event) ? styles.rsvpButtonDisabled : {}) }}
+              disabled={isEventFull(event)}
+              onClick={(e) => handleJoinNowClick(e, event)}
+              onMouseEnter={(e) => { if (!isEventFull(event)) e.currentTarget.style.transform = 'scale(1.035)'; }}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {isEventFull(event) ? "Event Full" : "Join Now"}
+            </button>
           </div>
         ))}
       </div>
@@ -362,12 +465,32 @@ END:VCALENDAR`;
               <p style={styles.eventMetaItem}><FaMapMarkerAlt /> {selectedEvent.venue}</p>
             </div>
             <p style={styles.modalFullDescription}>{selectedEvent.fullDescription}</p>
+            {selectedEvent.maxAttendees > 0 && (
+              <div style={styles.capacityWrap}>
+                <div style={styles.capacityLabelRow}>
+                  <span style={styles.capacityLabel}><FaUsers /> {selectedEvent.attendees} / {selectedEvent.maxAttendees} joined</span>
+                  <span style={{ ...styles.capacityLabel, color: isEventFull(selectedEvent) ? "#b45309" : "#15803d" }}>
+                    {isEventFull(selectedEvent) ? "No spots left" : `${spotsLeft(selectedEvent)} spots left`}
+                  </span>
+                </div>
+                <div style={styles.capacityBarBg}>
+                  <div style={{ ...styles.capacityBarFill, width: `${Math.min((selectedEvent.attendees / selectedEvent.maxAttendees) * 100, 100)}%`, background: isEventFull(selectedEvent) ? "#eab308" : "linear-gradient(90deg, #4ade80, #16a34a)" }} />
+                </div>
+              </div>
+            )}
             <div style={styles.speakerInfoModal}>
-              <img src={selectedEvent.speaker.image} alt={selectedEvent.speaker.name} style={styles.speakerImage} />
+              <SpeakerAvatar speaker={selectedEvent.speaker} style={styles.speakerImage} />
               <span style={styles.speakerName}>Speaker: {selectedEvent.speaker.name}</span>
             </div>
-<button type="button" style={styles.rsvpButtonModal} onClick={(e) => handleJoinNowClick(e, selectedEvent)} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-              Join Now
+<button
+              type="button"
+              style={{ ...styles.rsvpButtonModal, ...(isEventFull(selectedEvent) ? styles.rsvpButtonDisabled : {}) }}
+              disabled={isEventFull(selectedEvent)}
+              onClick={(e) => handleJoinNowClick(e, selectedEvent)}
+              onMouseEnter={(e) => { if (!isEventFull(selectedEvent)) e.currentTarget.style.transform = 'scale(1.035)'; }}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {isEventFull(selectedEvent) ? "Event Full" : "Join Now"}
             </button>
           </div>
         </div>,
@@ -569,6 +692,42 @@ const styles = {
   bodyMobile: {
     marginBottom: "24px",
   },
+  searchBarWrap: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    width: "100%",
+    maxWidth: "520px",
+    padding: "10px 18px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.6)",
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
+    marginBottom: "20px",
+  },
+  searchInput: {
+    flex: 1,
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    fontSize: "14px",
+    color: "#000",
+    fontFamily: "inherit",
+  },
+  searchClearBtn: {
+    border: "none",
+    background: "rgba(0,0,0,0.06)",
+    borderRadius: "50%",
+    width: "22px",
+    height: "22px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "11px",
+    color: "rgba(0,0,0,0.5)",
+    cursor: "pointer",
+    flexShrink: 0,
+  },
   filterTabs: {
     display: "flex",
     flexWrap: "wrap",
@@ -687,6 +846,70 @@ const styles = {
     textTransform: "uppercase",
     letterSpacing: "0.5px",
     boxShadow: "0 2px 8px rgba(21,128,61,0.2)",
+  },
+  eventPriceBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "5px",
+    background: "rgba(2,132,199,0.1)",
+    color: "#0284c7",
+    padding: "4px 10px",
+    borderRadius: "999px",
+    fontSize: "11px",
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  },
+  eventFullBadge: {
+    background: "rgba(234,179,8,0.15)",
+    color: "#b45309",
+    padding: "4px 10px",
+    borderRadius: "999px",
+    fontSize: "11px",
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  },
+  capacityWrap: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    marginBottom: "12px",
+    position: "relative",
+    zIndex: 1,
+  },
+  capacityLabelRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "8px",
+  },
+  capacityLabel: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "rgba(0,0,0,0.6)",
+  },
+  capacityBarBg: {
+    width: "100%",
+    height: "6px",
+    background: "rgba(0,0,0,0.06)",
+    borderRadius: "999px",
+    overflow: "hidden",
+  },
+  capacityBarFill: {
+    height: "100%",
+    borderRadius: "999px",
+    transition: "width 0.4s ease-out",
+  },
+  rsvpButtonDisabled: {
+    background: "rgba(0,0,0,0.08)",
+    color: "rgba(0,0,0,0.45)",
+    boxShadow: "none",
+    cursor: "not-allowed",
   },
   eventTitle: {
     fontSize: "18px",

@@ -1,20 +1,82 @@
 import React, { useState, useEffect } from "react";
 
+const iconProps = {
+  width: 26,
+  height: 26,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "#15803d",
+  strokeWidth: 1.7,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+// Package — Product
+const PackageIcon = () => (
+  <svg {...iconProps}>
+    <path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" />
+    <path d="M3 8l9 5 9-5" />
+    <path d="M12 13v8" />
+    <path d="M7.5 5.5 16.5 10.5" />
+  </svg>
+);
+
+// Tools — Services
+const ServiceIcon = () => (
+  <svg {...iconProps}>
+    <path d="M14.5 5.5a3.5 3.5 0 0 0-4.9 4.3L4 15.4 6 17.4l5.6-5.6a3.5 3.5 0 0 0 4.3-4.9l-2 2-1.8-.4-.4-1.8 2-2Z" />
+    <path d="M14.5 14.5 19 19" />
+  </svg>
+);
+
+// Community — Sector
+const SectorIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="9" cy="8" r="3" />
+    <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+    <path d="M16 6.5a3 3 0 0 1 0 5.8" />
+    <path d="M17.5 14.5A5.5 5.5 0 0 1 20.5 20" />
+  </svg>
+);
+
 const productServicesCards = [
-  { 
-    heading: "Product", 
-    text: "• Organic Edibles: Local produce, herbs, organic kits. Floriculture, localized seeds.\n\n• AI Data Subscription: Premium 24/7 predictive diagnostics and localized weather alerts. Specialist Certification: Paid access to comprehensive courses.\n\n• Urban Starter Kits & Toolsets: Themed kits (e.g., Balcony Herb Garden, Tomato Success Kit), customized soil mixes, localized seeds, and basic tool sets.",
-    buttonText: "Explore Products"
+  {
+    Icon: PackageIcon,
+    tag: "Goods",
+    heading: "Product",
+    bullets: [
+      { label: "Organic Edibles", desc: "Local produce, herbs, and floriculture grown for Philippine conditions, plus localized seed varieties you can trust to thrive." },
+      { label: "Urban Starter Kits & Toolsets", desc: "Themed kits like the Balcony Herb Garden and Tomato Success Kit — customized soil mixes, localized seeds, and starter tools in one box." },
+      { label: "AI Data Subscription", desc: "Premium 24/7 predictive crop diagnostics and hyper-local weather alerts delivered before problems hit your garden." },
+      { label: "Specialist Certification", desc: "Structured paid courses that take growers from hobbyist to certified urban-farming specialist." },
+    ],
+    buttonText: "Explore Products",
+    nav: "ProductsPage",
   },
-  { 
-    heading: "Services", 
-    text: "• 24/7 AI Plant Doctor, localized care guides tailored to Philippine climate and native crops.\n\n• Real-world event management, allowing users to RSVP to specialist workshops, trainings, and local venue gatherings.\n\n• Dedicated system for commercial farmers to list large-volume oversupply (surplus). Notifies institutional buyers (hotels, processors) for immediate purchase.",
-    buttonText: "Explore Services"
+  {
+    Icon: ServiceIcon,
+    tag: "Platform",
+    heading: "Services",
+    bullets: [
+      { label: "AI Plant Doctor", desc: "24/7 photo-based plant diagnosis with care guides tuned to the Philippine climate and native crops." },
+      { label: "Events & Workshops", desc: "RSVP to specialist workshops, hands-on trainings, and community gatherings hosted at local venues." },
+      { label: "Surplus Exchange", desc: "Commercial farmers list large-volume oversupply; verified institutional buyers — hotels, restaurants, processors — are notified for immediate purchase." },
+      { label: "Community Hub", desc: "A forum for growers to swap advice plus a farm planner to map plots, schedule crops, and track harvests." },
+    ],
+    buttonText: "Explore Services",
+    nav: "ServicesPage",
   },
-  { 
-    heading: "Sector", 
-    text: "• Provides essential digital tools and localized data, supporting both urban farming and traditional farming centers during periods of oversupply.\n\n• Creates supplementary income streams for micro-vendors, directly addressing high unemployment/underemployment rates.\n\n• Offers a platform for standardized LGU urban farming training curricula and facilitates the distribution and tracking of native seed bank programs.",
-    buttonText: "View Our Impact"
+  {
+    Icon: SectorIcon,
+    tag: "Impact",
+    heading: "Sector",
+    bullets: [
+      { label: "Food Security & Waste Reduction", desc: "Digital tools and localized data support both urban farms and traditional farming centers through oversupply periods — keeping harvests in the food system instead of landfills." },
+      { label: "Livelihood Creation", desc: "Supplementary income streams for micro-vendors and home growers, directly addressing high unemployment and underemployment rates." },
+      { label: "LGU & Seed Bank Programs", desc: "Standardized urban-farming training curricula for LGUs, plus distribution and tracking of native seed bank programs nationwide." },
+    ],
+    buttonText: "View Our Impact",
+    nav: "OurImpactPage",
   },
 ];
 
@@ -52,11 +114,7 @@ function ProductServices({ setActiveNav }) {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
           }
-          @keyframes floatPulse {
-            0% { box-shadow: 0 10px 25px rgba(34,197,94,0.3); }
-            50% { box-shadow: 0 10px 35px rgba(34,197,94,0.5), 0 0 0 10px rgba(74,222,128,0.1); }
-            100% { box-shadow: 0 10px 25px rgba(34,197,94,0.3); }
-          }
+          .ps-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
         `}
       </style>
 
@@ -75,15 +133,15 @@ function ProductServices({ setActiveNav }) {
         to help you grow food, build community, and earn sustainably.
       </p>
 
-      <div 
-        style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }} 
+      <div
+        style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }}
         className="hide-scroll"
         onScroll={handleScroll}
       >
         {productServicesCards.map((c) => (
           <div
             key={c.heading}
-            className="inner-blur-glass"
+            className="inner-blur-glass ps-card"
             style={{
               ...styles.card,
               ...(isMobile ? styles.cardMobile : {}),
@@ -92,22 +150,35 @@ function ProductServices({ setActiveNav }) {
             onMouseEnter={() => setHoveredCard(c.heading)}
             onMouseLeave={() => setHoveredCard(null)}
           >
+            <div style={styles.cardAccent} />
+            <div style={styles.cardIconWrap}>
+              <c.Icon />
+            </div>
+            <span style={styles.cardTag}>{c.tag}</span>
             <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>{c.heading}</h3>
-            <p style={{ ...styles.cardText, ...(isMobile ? styles.cardTextMobile : {}) }}>{c.text}</p>
-            <button 
-              type="button" 
+            <div style={styles.cardDivider} />
+
+            <ul style={styles.bulletList}>
+              {c.bullets.map((b) => (
+                <li key={b.label} style={styles.bulletItem}>
+                  <span style={styles.bulletDot} />
+                  <span style={{ ...styles.bulletText, ...(isMobile ? styles.bulletTextMobile : {}) }}>
+                    <strong style={styles.bulletLabel}>{b.label}:</strong> {b.desc}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              type="button"
               style={{
                 ...styles.cardBtn,
-                ...(isMobile ? styles.cardBtnMobile : {})
+                ...(isMobile ? styles.cardBtnMobile : {}),
               }}
-              onClick={() => {
-                if (c.heading === "Product") setActiveNav("ProductsPage");
-                if (c.heading === "Services") setActiveNav("ServicesPage");
-                if (c.heading === "Sector") setActiveNav("OurImpactPage");
-              }}
+              onClick={() => setActiveNav(c.nav)}
             >
               <span aria-hidden="true" style={styles.cardBtnInnerBlur} />
-              <span style={styles.cardBtnContentLayer}>{c.buttonText}</span>
+              <span style={styles.cardBtnContentLayer}>{c.buttonText} →</span>
             </button>
           </div>
         ))}
@@ -213,11 +284,11 @@ const styles = {
   },
   cardRow: {
     display: "flex",
-    gap: "24px",
+    gap: "18px",
     flexWrap: "wrap",
     justifyContent: "center",
-    alignItems: "stretch", // Ensures cards stretch to fill height
-    marginTop: "0", // Adjusted to rely on productIconsRow's marginBottom
+    alignItems: "stretch",
+    marginTop: "16px",
     width: "100%",
   },
   cardRowMobile: {
@@ -225,68 +296,131 @@ const styles = {
     justifyContent: "flex-start",
     overflowX: "auto",
     padding: "10px 40px 30px",
-    gap: "20px",
+    gap: "16px",
     scrollSnapType: "x mandatory",
     scrollPadding: "0 40px",
     WebkitOverflowScrolling: "touch",
     alignItems: "stretch",
   },
   card: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
+    position: "relative",
+    overflow: "hidden",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42))",
     border: "1px solid rgba(0,0,0,0.05)",
-    borderRadius: "16px",
-    padding: "24px",
+    borderRadius: "22px",
+    padding: "26px 24px 24px",
     flex: "1 1 300px",
-    maxWidth: "340px",
+    maxWidth: "350px",
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
     textAlign: "left",
-    gap: "8px",
-    backdropFilter: "blur(20px) saturate(165%)",
-    WebkitBackdropFilter: "blur(20px) saturate(165%)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
+    gap: "9px",
+    backdropFilter: "blur(20px) saturate(180%)",
+    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.06)",
     cursor: "default",
   },
   cardMobile: {
     flex: "0 0 280px",
-    padding: "20px",
+    maxWidth: "none",
+    padding: "24px 20px 20px",
     scrollSnapAlign: "center",
     scrollSnapStop: "always",
   },
-
   cardHov: {
-    transform: "scale(1.025)",
+    transform: "translateY(-6px)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
+  },
+  cardAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "4px",
+    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+  },
+  cardIconWrap: {
+    width: "52px",
+    height: "52px",
+    borderRadius: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
+    border: "1px solid rgba(255,255,255,0.7)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+  },
+  cardTag: {
+    fontSize: "10px",
+    fontWeight: 700,
+    letterSpacing: "0.7px",
+    textTransform: "uppercase",
+    color: "#15803d",
+    background: "rgba(74,222,128,0.14)",
+    padding: "3px 10px",
+    borderRadius: "999px",
   },
   cardHeading: {
-    fontSize: "16px",
+    fontSize: "18px",
     fontWeight: 700,
     color: "#000",
     margin: "0",
-    letterSpacing: "-0.2px",
+    letterSpacing: "-0.3px",
   },
   cardHeadingMobile: {
-    fontSize: "15px",
+    fontSize: "16px",
   },
-  cardText: {
-    fontSize: "14px",
-    color: "rgba(0, 0, 0, 0.8)",
-    lineHeight: 1.5,
-    margin: "0 0 16px", // Added bottom margin for spacing
+  cardDivider: {
+    width: "34px",
+    height: "2px",
+    borderRadius: "999px",
+    background: "rgba(0,0,0,0.08)",
+    margin: "2px 0 4px",
+  },
+  bulletList: {
+    listStyle: "none",
+    padding: 0,
+    margin: "0 0 8px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "11px",
+    width: "100%",
+  },
+  bulletItem: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "10px",
+  },
+  bulletDot: {
+    flex: "0 0 auto",
+    width: "6px",
+    height: "6px",
+    borderRadius: "50%",
+    marginTop: "7px",
+    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+    boxShadow: "0 0 6px rgba(74,222,128,0.5)",
+  },
+  bulletText: {
+    fontSize: "13px",
+    color: "rgba(0, 0, 0, 0.72)",
+    lineHeight: 1.55,
     textAlign: "left",
-    whiteSpace: "pre-line",
   },
-  cardTextMobile: {
+  bulletLabel: {
+    color: "#0f172a",
+    fontWeight: 700,
+  },
+  bulletTextMobile: {
     fontSize: "12px",
-    lineHeight: "1.3", // Kept original line height for mobile
-    marginBottom: "12px", // Added bottom margin for mobile spacing
+    lineHeight: 1.5,
   },
   cardBtn: {
     position: "relative",
     overflow: "hidden",
     isolation: "isolate",
     marginTop: "auto",
-    padding: "8px 18px",
+    padding: "9px 20px",
     borderRadius: "999px",
     border: "1px solid rgba(255,255,255,0.35)",
     background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
@@ -322,13 +456,10 @@ const styles = {
   },
   cardBtnMobile: {
     fontSize: "11px",
-    padding: "6px 14px",
+    padding: "8px 16px",
     width: "100%",
     textAlign: "center",
     marginTop: "12px",
-  },
-  cardBtnHov: {
-    transform: "scale(1.035)",
   },
   indicatorRow: {
     display: "flex",

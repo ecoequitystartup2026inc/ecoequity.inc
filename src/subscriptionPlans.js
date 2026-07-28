@@ -1,4 +1,4 @@
-export const SUBSCRIPTION_PLANS_STORAGE_KEY = "verdeversity_subscription_plans";
+export const SUBSCRIPTION_PLANS_STORAGE_KEY = "ecoequity_subscription_plans";
 
 export const initialSubscriptionPlans = [
   {

@@ -3,12 +3,36 @@ import ReactDOM from "react-dom";
 import { FaLeaf, FaTimes, FaLightbulb, FaRocket, FaCheckCircle, FaTrash, FaMinus, FaPlus, FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaCreditCard, FaMoneyBillWave, FaLock, FaSeedling, FaGift, FaBoxOpen, FaTag, FaHeart, FaShoppingCart } from "react-icons/fa";
 import { Leaf, Cherry, Carrot, Wrench, Sprout, Heart, Check, Smartphone } from "lucide-react";
 
+// Real kit photo that falls back to the icon circle if the image is missing.
+function KitImage({ src, alt, icon }) {
+  const [errored, setErrored] = useState(false);
+  if (!src || errored) {
+    return (
+      <div style={styles.imagePlaceholder}>
+        <span style={{ fontSize: "52px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.15))" }}>
+          {icon}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt || ""}
+      loading="lazy"
+      onError={() => setErrored(true)}
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+    />
+  );
+}
+
 const starterKitsData = [
   {
     id: 1,
     title: "Balcony Herb Garden",
     desc: "Perfect for urban spaces. Includes 5 organic herb varieties, premium soil, and eco-pots for your apartment balcony.",
     price: "₱850.00",
+    image: "/kit_balcony_herb.png",
     icon: <Leaf size="1em" color="#16a34a" />,
     badge: "Best Seller",
     suggestions: [
@@ -28,6 +52,7 @@ const starterKitsData = [
     title: "Tomato Success Kit",
     desc: "Everything you need for juicy heirloom tomatoes. Includes seeds, trellis, specialized fertilizer, and pest control.",
     price: "₱920.00",
+    image: "/kit_tomato.png",
     icon: <Cherry size="1em" color="#dc2626" />,
     badge: "Beginner Friendly",
     suggestions: [
@@ -47,6 +72,7 @@ const starterKitsData = [
     title: "Vegetable Starter Pack",
     desc: "A robust collection of fast-growing local vegetables tailored for the Philippine climate. High yield guaranteed.",
     price: "₱1,200.00",
+    image: "/kit_vegetable.png",
     icon: <Carrot size="1em" color="#ea580c" />,
     badge: "High Yield",
     suggestions: [
@@ -66,6 +92,7 @@ const starterKitsData = [
     title: "Basic Gardening Tools",
     desc: "Ergonomic, rust-resistant essential hand tools including a trowel, pruner, cultivator, and gardening gloves.",
     price: "₱650.00",
+    image: "/kit_tools.png",
     icon: <Wrench size="1em" color="#15803d" />,
     badge: "Essential",
     suggestions: [
@@ -491,11 +518,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
             onMouseLeave={() => setHoveredKit(null)}
           >
             <div style={styles.imageContainer}>
-              <div style={styles.imagePlaceholder}>
-                <span style={{ fontSize: "52px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.15))" }}>
-                  {kit.icon}
-                </span>
-              </div>
+              <KitImage src={kit.image} alt={kit.title} icon={kit.icon} />
               {kit.badge && (
                 <span style={styles.badgeLabel}>
                   <FaLeaf size={10} style={{ marginRight: '4px' }}/> {kit.badge}

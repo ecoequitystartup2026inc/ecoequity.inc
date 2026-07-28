@@ -11,6 +11,16 @@ const PREMIUM_FEATURES = [
   { id: "smartAlerts", name: "Smart Alerts", icon: <Bell size="1em" color="#f59e0b" />, description: "Real-time notifications for pest outbreaks and weather threats" },
 ];
 
+// Used only if the Admin Portal's Disease Library is somehow empty.
+const FALLBACK_DISEASES = [
+  { id: "DIS-FALLBACK", name: "Early Blight (Fungal)", plant: "Heirloom Tomato", crop: "Tomato", severity: "Moderate", confidence: "94.2%", recommendations: [
+    "Remove infected lower leaves to prevent spore splash.",
+    "Apply organic copper-based fungicide every 7-10 days.",
+    "Improve air circulation by pruning excess foliage.",
+    "Water at the base of the plant only, avoiding the leaves.",
+  ] },
+];
+
 const ANALYSIS_STEPS = [
   { id: 1, label: "Scanning Image Structure...", icon: <FaUpload /> },
   { id: 2, label: "Identifying Plant Species...", icon: <FaLeaf /> },
@@ -18,7 +28,7 @@ const ANALYSIS_STEPS = [
   { id: 4, label: "Generating Health Report...", icon: <FaRobot /> },
 ];
 
-function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser }) {
+function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser, plantDiseases = [] }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -112,17 +122,20 @@ function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser }) {
   };
 
   const showResult = () => {
+    // Pull the diagnosis from the admin-managed Disease Library so user-facing
+    // results always reflect the content curated in the Admin Portal.
+    const library = plantDiseases && plantDiseases.length > 0 ? plantDiseases : FALLBACK_DISEASES;
+    const entry = library[Math.floor(Math.random() * library.length)];
+    const recommendations = (entry.recommendations && entry.recommendations.length > 0)
+      ? entry.recommendations
+      : ["Monitor the plant and consult a local agronomist."];
+
     const result = {
-      plantName: "Heirloom Tomato",
-      condition: "Early Blight (Fungal)",
-      confidence: "94.2%",
-      severity: "Moderate",
-      recommendations: [
-        "Remove infected lower leaves to prevent spore splash.",
-        "Apply organic copper-based fungicide every 7-10 days.",
-        "Improve air circulation by pruning excess foliage.",
-        "Water at the base of the plant only, avoiding the leaves."
-      ]
+      plantName: entry.plant || entry.crop || "Detected Plant",
+      condition: entry.name,
+      confidence: entry.confidence || "90%",
+      severity: entry.severity || "Moderate",
+      recommendations,
     };
     setDiagnosisResult(result);
 
@@ -131,12 +144,12 @@ function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser }) {
       onScanComplete({
         id: `SCN-${Math.floor(1000 + Math.random() * 9000)}`,
         plant: result.plantName,
-        disease: "Early Blight",
+        disease: entry.name,
         confidence: result.confidence,
         user: loggedInUser || "Website User",
-        status: "Disease Detected",
+        status: entry.severity === "High" ? "Critical" : "Disease Detected",
         date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
-        recommendation: result.recommendations[0],
+        recommendation: recommendations[0],
       });
     }
   };
@@ -192,7 +205,7 @@ return (
                 <li><FaCheck style={{ color: "#4ade80" }} /> Smart Alerts</li>
               </ul>
             </div>
-            <button style={modalStyles.upgradeBtn}>
+            <button style={modalStyles.upgradeBtn} onClick={() => { closePremiumUnlock(); setActiveNav && setActiveNav("AI Data Subscription"); }}>
               <FaCrown style={{ marginRight: "8px" }} /> Upgrade to Premium
             </button>
             <button style={modalStyles.maybeLaterBtn} onClick={closePremiumUnlock}>

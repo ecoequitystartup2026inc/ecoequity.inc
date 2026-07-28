@@ -1,7 +1,130 @@
 import React, { useState, useEffect } from "react";
 
+const iconProps = {
+  width: 24,
+  height: 24,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "#15803d",
+  strokeWidth: 1.7,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+// Globe — TAM
+const GlobeIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" />
+    <path d="M12 3c2.5 2.4 3.9 5.6 4 9-.1 3.4-1.5 6.6-4 9-2.5-2.4-3.9-5.6-4-9 .1-3.4 1.5-6.6 4-9Z" />
+  </svg>
+);
+
+// Buildings — SAM
+const CityIcon = () => (
+  <svg {...iconProps}>
+    <path d="M3 21h18" />
+    <rect x="4" y="9" width="7" height="12" rx="1" />
+    <rect x="13" y="4" width="7" height="17" rx="1" />
+    <path d="M6.5 12v0M8.5 12v0M6.5 15v0M8.5 15v0M15.5 7v0M17.5 7v0M15.5 11v0M17.5 11v0M15.5 15v0M17.5 15v0" />
+  </svg>
+);
+
+// Target — SOM
+const TargetIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1.4" />
+  </svg>
+);
+
+const tiers = [
+  {
+    id: "TAM",
+    Icon: GlobeIcon,
+    fullName: "Total Available Market",
+    tagline: "The Philippine Opportunity",
+    headline: "₱10T+",
+    headlineLabel: "Addressable consumer spending",
+    width: "100%",
+    description:
+      "The entire market within the Philippines that could potentially use the product, driven by the shift towards self-sufficiency.",
+    items: [
+      {
+        component: "Philippine Consumer Spending",
+        size: "₱10T+ PHP (~$170B USD)",
+        description:
+          "Total annual consumer spending on food, wellness, home goods, and agriculture — the total budget addressable by local organic sustenance.",
+      },
+      {
+        component: "Internet-Connected Population",
+        size: "85M+ users",
+        description:
+          "The population engaging in urban farming, local sustainability, and digital learning — the \"Plantito/Plantita\" movement.",
+      },
+    ],
+  },
+  {
+    id: "SAM",
+    Icon: CityIcon,
+    fullName: "Serviceable Available Market",
+    tagline: "Reach in Major Urban Centers",
+    headline: "₱5B",
+    headlineLabel: "Annual sustainability-app spend",
+    width: "74%",
+    description:
+      "The portion of the TAM our services can realistically reach, constrained by urban density and connectivity.",
+    items: [
+      {
+        component: "Metro Manila & Key Urban Households",
+        size: "15M households",
+        description:
+          "High-density metros (Manila, Cebu, Davao) with disposable income for events, specialized learning, and micro-commerce.",
+      },
+      {
+        component: "Sustainability Active Users",
+        size: "₱5B PHP / year",
+        description:
+          "Users already spending on mobile learning, digital wellness, and home/garden e-commerce — the appetite for digital-first sustainability.",
+      },
+    ],
+  },
+  {
+    id: "SOM",
+    Icon: TargetIcon,
+    fullName: "Serviceable Obtainable Market",
+    tagline: "Our Initial Focus — Year 3 Goals",
+    headline: "150K+",
+    headlineLabel: "Active monthly users",
+    width: "48%",
+    description:
+      "The realistic share we can capture in the first 3 years, focusing on highly engaged early adopters.",
+    items: [
+      {
+        component: "Core Engaged Users",
+        size: "150K+ AMU",
+        description:
+          "Individuals using 24/7 AI guidance, attending RSVP'd events/workshops, and engaging with the Instructor/Specialist Canvas.",
+      },
+      {
+        component: "E-Commerce / Income Generators",
+        size: "3,500+ Vendors",
+        description:
+          "Learners who become micro-entrepreneurs, selling locally grown produce or high-demand florals (Sampaguita, Orchids).",
+      },
+      {
+        component: "Community Impact",
+        size: "500K+ meals / yr",
+        description:
+          "People guided toward self-sufficiency in accessible organic sustenance, lessening reliance on imported or market goods.",
+      },
+    ],
+  },
+];
+
 function SustainabilityAppMarket() {
-  const [hoveredTableIndex, setHoveredTableIndex] = useState(null);
+  const [hoveredTier, setHoveredTier] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -9,83 +132,6 @@ function SustainabilityAppMarket() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const tamData = [
-    {
-      components: "Philippine Consumer Spending",
-      description: "Total annual consumer spending on food,wellness, home goods, and agriculture in the Philippines. This reflects the total budget addressable by local organic sustenance.",
-      estimatedSize: "₱10+ Trillion PHP (Approx. $170 Billion USD)",
-    },
-    {
-      components: "Internet-Connected Population",
-      description: "The total population actively engaging in or interested in urban farming, local sustainability initiatives, and the digital learning space (the \"Plantito/Plantita\"movement).",
-      estimatedSize: "85 Million+ (Total internet users in the Philippines)",
-    },
-  ];
-
-  const samData = [
-    {
-      components: "Metro Manila & Key Urban Households",
-      description: "Households in highly connected, high-density metropolitan areas (Metro Manila, Cebu, Davao) with disposable income for events, specialized learning, and engaging in micro-commerce.",
-      estimatedSize: "15 Million (Urban Households/Targeted User Base)",
-    },
-    {
-      components: "Sustainability Active Users",
-      description: "Users who currently spend on mobile learning, digital wellness, and e-commerce for home/garden supplies. This defines the current appetite for digital-first sustainability solutions..",
-      estimatedSize: "₱5 Billion PHP (Total estimated annual spending on related wellness, education, and eco-friendly apps/services)",
-    },
-  ];
-
-  const somData = [
-    {
-      components: "Core Engaged Users",
-      description: "Individuals actively utilizing the 24/7 AI guidance (for native crops, florals), attending RSVPed events/workshops, and regularly engaging with the Instructor/Specialist Canvas.",
-      estimatedSize: "150,000+ Active Monthly Users (AMU)",
-    },
-    {
-      components: "E-Commerce/Income Generators",
-      description: "Individuals who transition from learners to micro-entrepreneurs using the app to sell their locally grown produce or high-demand florals (e.g., Sampaguita, Orchids)..",
-      estimatedSize: "3,500+ Active Micro-Vendors",
-    },
-    {
-      components: "Community Impact",
-      description: "The total number of people guided toward self-sufficiency in accessible organic sustenance, lessening reliance on imported or market goods.",
-      estimatedSize: "500,000+ Organic Meals Supplemented Annually (based on user reporting)",
-    },
-  ];
-
-  const renderTable = (data, index) => (
-    <div
-      key={index}
-      className="inner-blur-glass"
-      style={{
-        ...styles.tableWrapper,
-        ...(isMobile ? styles.tableWrapperMobile : {}),
-        ...(hoveredTableIndex === index ? styles.tableWrapperHov : {}),
-      }}
-      onMouseEnter={() => setHoveredTableIndex(index)}
-      onMouseLeave={() => setHoveredTableIndex(null)}
-    >
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={{ ...styles.th, ...(isMobile ? styles.thMobile : {}) }}>Components</th>
-            <th style={{ ...styles.th, ...(isMobile ? styles.thMobile : {}) }}>Description</th>
-            <th style={{ ...styles.th, ...(isMobile ? styles.thMobile : {}) }}>Estimated Size (Conceptual)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td style={{ ...styles.td, ...(isMobile ? styles.tdMobile : {}) }}>{row.components}</td>
-              <td style={{ ...styles.td, ...(isMobile ? styles.tdMobile : {}) }}>{row.description}</td>
-              <td style={{ ...styles.td, ...(isMobile ? styles.tdMobile : {}) }}>{row.estimatedSize}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
 
   return (
     <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
@@ -97,37 +143,109 @@ function SustainabilityAppMarket() {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
           }
+          .sam-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
+          .sam-funbar { transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s cubic-bezier(.22,1,.36,1); }
         `}
       </style>
 
       <div className="inner-blur-glass glass-hover-zoom-sm" style={{ ...styles.badge, ...(isMobile ? styles.badgeMobile : {}) }}>
         <span style={styles.badgeDot} />
-        <span>Who We Serve</span>
+        <span>Market Sizing</span>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
-        Sustainability App Market Sizing:  <span style={styles.accent}>TAM, SAM, SOM (Philippines Focus)</span>
+        Sustainability App Market Sizing:{" "}
+        <span style={styles.accent}>TAM, SAM, SOM</span>
       </h1>
       <div style={styles.titleUnderline} />
 
-      <div style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }} className="hide-scroll">
-        <div style={{ ...styles.sectionCard, ...(isMobile ? styles.sectionCardMobile : {}) }}>
-          <h2 style={{ ...styles.subtitle, ...(isMobile ? styles.subtitleMobile : {}) }}>1. TAM (Total Available Market) - The Philippine Opportunity</h2>
-          <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>The entire market within the Philippines that could potentially use the product, driven by the shift towards self-sufficiency.</p>
-          {renderTable(tamData, 0)}
-        </div>
+      <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+        A Philippines-focused view of the opportunity — narrowing from the total
+        market down to the share we realistically capture in our first three years.
+      </p>
 
-        <div style={{ ...styles.sectionCard, ...(isMobile ? styles.sectionCardMobile : {}) }}>
-          <h2 style={{ ...styles.subtitle, ...(isMobile ? styles.subtitleMobile : {}) }}>2. SAM (Serviceable Available Market) - Our Reach in Major Urban Centers</h2>
-          <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>The portion of the TAM that our services can realistically reach, constrained by urban density and connectivity.</p>
-          {renderTable(samData, 1)}
-        </div>
+      {/* Overview panel */}
+      <div
+        className="inner-blur-glass"
+        style={{ ...styles.funnel, ...(isMobile ? styles.funnelMobile : {}) }}
+      >
+        {tiers.map((t, i) => (
+          <React.Fragment key={t.id}>
+            {i > 0 && <div style={styles.funDivider} />}
+            <div
+              className="sam-funbar"
+              style={{
+                ...styles.funBar,
+                ...(hoveredTier === t.id ? styles.funBarHov : {}),
+              }}
+              onMouseEnter={() => setHoveredTier(t.id)}
+              onMouseLeave={() => setHoveredTier(null)}
+            >
+              <span style={styles.funTier}>{t.id}</span>
+              <span style={styles.funValue}>{t.headline}</span>
+              <span style={styles.funLabel}>{t.headlineLabel}</span>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
 
-        <div style={{ ...styles.sectionCard, ...(isMobile ? styles.sectionCardMobile : {}) }}>
-          <h2 style={{ ...styles.subtitle, ...(isMobile ? styles.subtitleMobile : {}) }}>3. SOM (Serviceable Obtainable Market) - Our Initial Focus (Year 3 Goals)</h2>
-          <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>The realistic market share we can capture in the first 3 years of operation, focusing on highly engaged early adopters.</p>
-          {renderTable(somData, 2)}
-        </div>
+      {/* Tier Detail Cards */}
+      <div style={styles.cardCol}>
+        {tiers.map((t) => (
+          <div
+            key={t.id}
+            className="inner-blur-glass sam-card"
+            style={{
+              ...styles.card,
+              ...(isMobile ? styles.cardMobile : {}),
+              ...(hoveredTier === t.id ? styles.cardHov : {}),
+            }}
+            onMouseEnter={() => setHoveredTier(t.id)}
+            onMouseLeave={() => setHoveredTier(null)}
+          >
+            <div style={styles.cardAccent} />
+
+            <div style={{ ...styles.cardHead, ...(isMobile ? styles.cardHeadMobile : {}) }}>
+              <div style={styles.cardIconWrap}>
+                <t.Icon />
+              </div>
+              <div style={styles.cardHeadText}>
+                <span style={styles.cardTag}>{t.id}</span>
+                <h2 style={{ ...styles.cardTitle, ...(isMobile ? styles.cardTitleMobile : {}) }}>
+                  {t.fullName}
+                </h2>
+                <span style={styles.cardTagline}>{t.tagline}</span>
+              </div>
+              <div style={styles.headlinePill}>
+                <span style={styles.headlineValue}>{t.headline}</span>
+                <span style={styles.headlineCaption}>{t.headlineLabel}</span>
+              </div>
+            </div>
+
+            <p style={{ ...styles.cardDesc, ...(isMobile ? styles.cardDescMobile : {}) }}>
+              {t.description}
+            </p>
+
+            <div style={styles.itemList}>
+              {t.items.map((it) => (
+                <div
+                  key={it.component}
+                  style={{ ...styles.item, ...(isMobile ? styles.itemMobile : {}) }}
+                >
+                  <div style={styles.itemMain}>
+                    <span style={styles.itemComponent}>{it.component}</span>
+                    <span style={{ ...styles.itemDesc, ...(isMobile ? styles.itemDescMobile : {}) }}>
+                      {it.description}
+                    </span>
+                  </div>
+                  <div style={styles.itemSizeWrap}>
+                    <span style={styles.itemSize}>{it.size}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -140,7 +258,7 @@ const styles = {
     alignItems: "center",
     textAlign: "center",
     padding: "32px 16px 24px",
-    maxWidth: "820px",
+    maxWidth: "860px",
     margin: "0 auto",
     animation: "fadeInUp 0.75s cubic-bezier(.22,1,.36,1) both",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -177,7 +295,7 @@ const styles = {
     display: "inline-block",
   },
   title: {
-    fontSize: "clamp(32px, 4.5vw, 50px)",
+    fontSize: "clamp(28px, 4.2vw, 46px)",
     fontWeight: 300,
     color: "#000",
     margin: "0 0 16px",
@@ -205,110 +323,268 @@ const styles = {
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
   },
-  subtitle: {
-    fontSize: "clamp(18px, 2.2vw, 24px)",
-    fontWeight: 500,
-    color: "#000",
-    margin: "24px 0 16px",
-    lineHeight: 1.25,
-    letterSpacing: "-0.3px",
-  },
-  subtitleMobile: {
-    fontSize: "16px",
-    margin: "0 0 8px",
-  },
   body: {
     color: "#000",
     fontSize: "clamp(14px, 1.5vw, 16px)",
     fontWeight: 400,
     lineHeight: 1.72,
-    maxWidth: "580px",
-    marginBottom: "14px",
+    maxWidth: "600px",
+    marginBottom: "22px",
   },
   bodyMobile: {
     fontSize: "12.5px",
     lineHeight: "1.5",
-    marginBottom: "10px",
+    marginBottom: "16px",
   },
-  cardRow: {
+
+  /* Overview panel */
+  funnel: {
     display: "flex",
-    flexDirection: "column",
-    width: "100%",
-  },
-  cardRowMobile: {
-    flexDirection: "column",
-    flexWrap: "nowrap",
-    gap: "25px",
-    padding: "10px 0 40px",
+    flexDirection: "row",
     alignItems: "stretch",
+    justifyContent: "center",
+    gap: "4px",
+    width: "100%",
+    maxWidth: "560px",
+    padding: "14px 10px",
+    borderRadius: "18px",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.62), rgba(255,255,255,0.38))",
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 22px rgba(0,0,0,0.06)",
+    backdropFilter: "blur(18px) saturate(180%)",
+    WebkitBackdropFilter: "blur(18px) saturate(180%)",
+    boxSizing: "border-box",
+    marginBottom: "34px",
   },
-  sectionCard: {
+  funnelMobile: {
+    padding: "10px 4px",
+    gap: "2px",
+    marginBottom: "24px",
+  },
+  funDivider: {
+    width: "1px",
+    alignSelf: "stretch",
+    margin: "4px 0",
+    background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0) 100%)",
+  },
+  funBar: {
+    flex: 1,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    width: "100%",
+    justifyContent: "center",
+    gap: "2px",
+    padding: "8px 8px",
+    borderRadius: "12px",
+    cursor: "default",
     boxSizing: "border-box",
-    marginBottom: "40px",
   },
-  sectionCardMobile: {
-    width: "100%",
-    boxSizing: "border-box",
-    marginBottom: "30px",
-    padding: "0",
+  funBarHov: {
+    background: "linear-gradient(135deg, rgba(74,222,128,0.14), rgba(125,211,252,0.14))",
+    transform: "translateY(-2px)",
   },
-  tableWrapper: {
+  funTier: {
+    fontSize: "10px",
+    fontWeight: 800,
+    letterSpacing: "1.2px",
+    color: "#15803d",
+  },
+  funValue: {
+    fontSize: "clamp(17px, 2.4vw, 22px)",
+    fontWeight: 700,
+    letterSpacing: "-0.5px",
+    lineHeight: 1.1,
+    background: "linear-gradient(90deg, #16a34a, #0284c7)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  funLabel: {
+    fontSize: "9.5px",
+    fontWeight: 500,
+    color: "rgba(0,0,0,0.55)",
+    marginTop: "1px",
+    lineHeight: 1.25,
+    textAlign: "center",
+  },
+
+  /* Tier cards */
+  cardCol: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
     width: "100%",
-    marginTop: "24px",
-    background: "rgba(255,255,255,0.6)",
+  },
+  card: {
+    position: "relative",
+    overflow: "hidden",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42))",
     border: "1px solid rgba(0,0,0,0.05)",
-    borderRadius: "20px",
-    padding: "16px",
-    boxSizing: "border-box",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
+    borderRadius: "22px",
+    padding: "24px 26px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.06)",
     backdropFilter: "blur(20px) saturate(180%)",
     WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    overflowX: "auto",
+    textAlign: "left",
+    boxSizing: "border-box",
     cursor: "default",
   },
-  tableWrapperMobile: {
-    padding: "10px",
-    marginTop: "14px",
-    borderRadius: "15px",
+  cardMobile: {
+    padding: "20px 16px",
+    borderRadius: "18px",
   },
-  tableWrapperHov: {
-    transform: "scale(1.025)",
+  cardHov: {
+    transform: "translateY(-5px)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
   },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-    tableLayout: "fixed",
+  cardAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "4px",
+    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
   },
-  th: {
-    padding: "14px 16px",
-    borderBottom: "1px solid rgba(0,0,0,0.1)",
+  cardHead: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    marginBottom: "14px",
+  },
+  cardHeadMobile: {
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+  cardIconWrap: {
+    flex: "0 0 auto",
+    width: "48px",
+    height: "48px",
+    borderRadius: "14px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
+    border: "1px solid rgba(255,255,255,0.7)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+  },
+  cardHeadText: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "3px",
+    flex: 1,
+    minWidth: 0,
+  },
+  cardTag: {
+    fontSize: "10px",
+    fontWeight: 800,
+    letterSpacing: "1.2px",
+    textTransform: "uppercase",
     color: "#15803d",
-    fontSize: "14px",
+  },
+  cardTitle: {
+    fontSize: "18px",
+    fontWeight: 700,
+    color: "#000",
+    margin: 0,
+    letterSpacing: "-0.3px",
+    lineHeight: 1.2,
+  },
+  cardTitleMobile: {
+    fontSize: "16px",
+  },
+  cardTagline: {
+    fontSize: "12px",
     fontWeight: 500,
-    overflowWrap: "break-word",
+    color: "rgba(0,0,0,0.5)",
   },
-  thMobile: {
-    padding: "10px 8px",
-    fontSize: "11px",
+  headlinePill: {
+    flex: "0 0 auto",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    textAlign: "right",
+    maxWidth: "140px",
   },
-  td: {
-    padding: "14px 16px",
-    borderBottom: "1px solid rgba(0,0,0,0.05)",
-    color: "rgba(0,0,0,0.8)",
-    fontSize: "14px",
+  headlineValue: {
+    fontSize: "22px",
+    fontWeight: 700,
+    letterSpacing: "-0.8px",
+    lineHeight: 1.05,
+    background: "linear-gradient(90deg, #16a34a, #0284c7)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  headlineCaption: {
+    fontSize: "10px",
+    fontWeight: 500,
+    color: "rgba(0,0,0,0.5)",
+    lineHeight: 1.3,
+  },
+  cardDesc: {
+    fontSize: "13.5px",
+    color: "rgba(0,0,0,0.68)",
     lineHeight: 1.6,
-    overflowWrap: "break-word",
+    margin: "0 0 16px",
   },
-  tdMobile: {
-    padding: "10px 8px",
-    fontSize: "10.5px",
-    lineHeight: "1.4",
-    overflowWrap: "break-word",
+  cardDescMobile: {
+    fontSize: "12.5px",
+  },
+  itemList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  item: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "16px",
+    padding: "14px 16px",
+    borderRadius: "14px",
+    background: "rgba(255,255,255,0.5)",
+    border: "1px solid rgba(0,0,0,0.04)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
+  },
+  itemMobile: {
+    flexDirection: "column",
+    gap: "8px",
+    padding: "12px 14px",
+  },
+  itemMain: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    flex: 1,
+    minWidth: 0,
+  },
+  itemComponent: {
+    fontSize: "13.5px",
+    fontWeight: 700,
+    color: "#0f172a",
+    letterSpacing: "-0.2px",
+  },
+  itemDesc: {
+    fontSize: "12.5px",
+    color: "rgba(0,0,0,0.62)",
+    lineHeight: 1.55,
+  },
+  itemDescMobile: {
+    fontSize: "12px",
+  },
+  itemSizeWrap: {
+    flex: "0 0 auto",
+  },
+  itemSize: {
+    display: "inline-block",
+    fontSize: "12px",
+    fontWeight: 700,
+    color: "#0369a1",
+    background: "linear-gradient(135deg, rgba(74,222,128,0.16), rgba(125,211,252,0.2))",
+    border: "1px solid rgba(125,211,252,0.4)",
+    padding: "6px 12px",
+    borderRadius: "999px",
+    whiteSpace: "nowrap",
   },
 };
 

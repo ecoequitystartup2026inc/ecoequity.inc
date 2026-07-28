@@ -1,29 +1,58 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Salad, Soup, Sprout, Building2, Cherry, Carrot, Bike } from "lucide-react";
 import ReactDOM from "react-dom";
-import { FaArrowLeft, FaMapMarkerAlt, FaWeightHanging, FaDollarSign, FaPlusCircle, FaHandshake, FaTimes, FaChevronDown, FaCheckCircle, FaCalendarAlt, FaChartLine, FaFilter, FaPaperPlane, FaMicrophone, FaImage } from "react-icons/fa";
+import { FaArrowLeft, FaMapMarkerAlt, FaWeightHanging, FaDollarSign, FaPlusCircle, FaHandshake, FaTimes, FaChevronDown, FaCheckCircle, FaCalendarAlt, FaChartLine, FaFilter, FaPaperPlane, FaMicrophone, FaImage, FaStar, FaRegStar, FaBoxOpen, FaClock } from "react-icons/fa";
 
-const mockSurplusListings = [
-  { id: 1, product: "Organic Tomatoes", quantity: 500, unit: "kg", price: 120, location: "Benguet", farmer: "Green Harvest Farms", status: "Available", description: "Freshly harvested organic tomatoes for bulk delivery." },
-  { id: 2, product: "Native Adlai Grains", quantity: 200, unit: "kg", price: 180, location: "Mindanao", farmer: "Adlai Gold Producers", status: "Available", description: "High-quality sustainable grains." }
-  // Add more mock data if needed for testing different scenarios
+// Seed data shared with the Admin Portal (Surplus Exchange tab). These are
+// plain JSON-safe objects — icons are derived at render time from the
+// category so records survive localStorage round-trips.
+// Demo best-before dates are generated relative to "today" so the seed data
+// always shows a realistic mix of fresh and expiring-soon produce.
+const daysFromNow = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+
+export const defaultSurplusListings = [
+  { id: 1, product: "Organic Tomatoes", quantity: 500, unit: "kg", price: 120, location: "Benguet", farmer: "Green Harvest Farms", status: "Available", category: "Vegetables", description: "Vine-ripened organic tomatoes from our highland greenhouses. Sorted and crated for bulk delivery; ideal for sauces, salads, and daily kitchen prep.", bestBefore: daysFromNow(2) },
+  { id: 2, product: "Native Adlai Grains", quantity: 200, unit: "kg", price: 180, location: "Bukidnon, Mindanao", farmer: "Adlai Gold Producers", status: "Available", category: "Grains", description: "Heirloom adlai grains grown by smallholder cooperatives — a hearty, low-glycemic rice alternative popular with farm-to-table menus.", bestBefore: daysFromNow(120) },
+  { id: 3, product: "Sweet Basil", quantity: 8, unit: "kg", price: 380, location: "Quezon City", farmer: "Herbana Gardens", status: "Available", category: "Herbs", description: "Fragrant sweet basil harvested this morning from our urban rooftop farm. Cold-chain packed in 1kg bags — best moved within the day.", bestBefore: daysFromNow(1) },
+  { id: 4, product: "Fresh Calamansi", quantity: 300, unit: "kg", price: 70, location: "Batangas", farmer: "Citrus Hills Cooperative", status: "Available", category: "Fruits", description: "Juicy calamansi from this week's harvest — perfect for beverages, marinades, and sauces. Volume discounts available for 100kg+ orders.", bestBefore: daysFromNow(5) },
+  { id: 5, product: "Heirloom Red Rice", quantity: 150, unit: "kg", price: 95, location: "Ifugao", farmer: "Cordillera Heritage Farms", status: "Reserved", category: "Grains", description: "Terrace-grown heirloom red rice, sun-dried and milled to order. Currently reserved by an institutional buyer.", bestBefore: daysFromNow(180) },
+  { id: 6, product: "Pechay Baguio", quantity: 90, unit: "kg", price: 60, location: "Benguet", farmer: "Green Harvest Farms", status: "Available", category: "Vegetables", description: "Crisp highland pechay packed in 10kg crates the same day it's pulled — priced to move before the next harvest cycle.", bestBefore: daysFromNow(3) }
 ];
 
-const mockRestaurantDemand = [
-  { id: 101, restaurant: "Green Leaf Bistro", verified: true, product: "Organic Romaine Lettuce", quantity: 50, unit: "kg", targetPrice: 150, location: "Makati City", neededDate: "2026-06-05", logo: <Salad size="1em" color="#16a34a" />, matchScore: 98, urgent: true, status: "Open" },
-  { id: 102, restaurant: "Farm to Table Resto", verified: true, product: "Cherry Tomatoes", quantity: 30, unit: "kg", targetPrice: 120, location: "BGC, Taguig", neededDate: "2026-06-03", logo: <Soup size="1em" color="#ea580c" />, matchScore: 85, urgent: false, status: "Open" },
-  { id: 103, restaurant: "Vegan Eats", verified: true, product: "Sweet Basil", quantity: 5, unit: "kg", targetPrice: 400, location: "Quezon City", neededDate: "2026-06-02", logo: <Sprout size="1em" color="#16a34a" />, matchScore: 72, urgent: true, status: "Open" },
+export const defaultRestaurantDemands = [
+  { id: 101, restaurant: "Green Leaf Bistro", verified: true, product: "Organic Romaine Lettuce", quantity: 50, unit: "kg", targetPrice: 150, location: "Makati City", neededDate: daysFromNow(3), category: "Vegetables", matchScore: 98, urgent: true, status: "Open" },
+  { id: 102, restaurant: "Farm to Table Resto", verified: true, product: "Cherry Tomatoes", quantity: 30, unit: "kg", targetPrice: 120, location: "BGC, Taguig", neededDate: daysFromNow(5), category: "Vegetables", matchScore: 85, urgent: false, status: "Open" },
+  { id: 103, restaurant: "Vegan Eats", verified: true, product: "Sweet Basil", quantity: 5, unit: "kg", targetPrice: 400, location: "Quezon City", neededDate: daysFromNow(2), category: "Herbs", matchScore: 72, urgent: true, status: "Open" },
+  { id: 104, restaurant: "Kape at Bukid Café", verified: true, product: "Adlai Grains", quantity: 60, unit: "kg", targetPrice: 190, location: "Pasig City", neededDate: daysFromNow(10), category: "Grains", matchScore: 88, urgent: false, status: "Open" },
+  { id: 105, restaurant: "Isla Verde Hotel Group", verified: true, product: "Calamansi", quantity: 120, unit: "kg", targetPrice: 90, location: "Makati City", neededDate: daysFromNow(6), category: "Fruits", matchScore: 76, urgent: false, status: "Open" },
 ];
 
-function SurplusExchangePage({ setActiveNav }) {
+export const surplusCategories = ["Vegetables", "Herbs", "Fruits", "Grains", "Other"];
+
+// Category → display icon (kept out of stored data so it stays serializable).
+const getCategoryIcon = (category) => {
+  if (category === "Herbs") return <Sprout size="1em" color="#16a34a" />;
+  if (category === "Fruits") return <Cherry size="1em" color="#dc2626" />;
+  if (category === "Grains") return <Soup size="1em" color="#ea580c" />;
+  if (category === "Vegetables") return <Salad size="1em" color="#16a34a" />;
+  return <Building2 size="1em" color="#0284c7" />;
+};
+
+function SurplusExchangePage({ setActiveNav, listings, setListings, demands, setDemands }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [activeTab, setActiveTab] = useState("listings");
   const [hoveredTab, setHoveredTab] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalType, setModalType] = useState(null); // 'negotiate' or 'offer'
   const [searchQuery, setSearchQuery] = useState("");
-  const [surplusListings, setSurplusListings] = useState(mockSurplusListings);
-  const [restaurantDemands, setRestaurantDemands] = useState(mockRestaurantDemand);
+  // Marketplace data is shared with the Admin Portal via App state; the local
+  // fallback keeps the page working when rendered standalone (e.g. tests).
+  const [localListings, setLocalListings] = useState(defaultSurplusListings);
+  const [localDemands, setLocalDemands] = useState(defaultRestaurantDemands);
+  const surplusListings = listings || localListings;
+  const setSurplusListings = setListings || setLocalListings;
+  const restaurantDemands = demands || localDemands;
+  const setRestaurantDemands = setDemands || setLocalDemands;
   const [showListSurplusModal, setShowListSurplusModal] = useState(false);
   const [showPostDemandModal, setShowPostDemandModal] = useState(false);
   const [negotiationHistory, setNegotiationHistory] = useState([]);
@@ -39,10 +68,10 @@ function SurplusExchangePage({ setActiveNav }) {
   const negotiationInputRef = useRef(null);
 
   const [sortConfig, setSortConfig] = useState({ key: 'product', direction: 'ascending' });
-  const [newSurplus, setNewSurplus] = useState({ product: "", quantity: "", unit: "kg", price: "", location: "", description: "" });
+  const [newSurplus, setNewSurplus] = useState({ product: "", quantity: "", unit: "kg", price: "", location: "", description: "", category: "Vegetables", bestBefore: "" });
   const [isSubmittingSurplus, setIsSubmittingSurplus] = useState(false);
 
-  const [newDemand, setNewDemand] = useState({ product: "", quantity: "", unit: "kg", targetPrice: "", location: "", neededDate: "", restaurant: "My Restaurant" });
+  const [newDemand, setNewDemand] = useState({ product: "", quantity: "", unit: "kg", targetPrice: "", location: "", neededDate: "", restaurant: "My Restaurant", category: "Vegetables" });
   const [isSubmittingDemand, setIsSubmittingDemand] = useState(false);
 
   const [showRestaurantOfferModal, setShowRestaurantOfferModal] = useState(false);
@@ -56,8 +85,29 @@ function SurplusExchangePage({ setActiveNav }) {
   const [locationFilter, setLocationFilter] = useState("All Locations");
   const [urgentOnly, setUrgentOnly] = useState(false);
 
+  const [viewListing, setViewListing] = useState(null);
+  const [listingCategoryFilter, setListingCategoryFilter] = useState("All Categories");
+  const [listingLocationFilter, setListingLocationFilter] = useState("All Locations");
+
+  // Watchlist of saved listing ids, persisted separately from the marketplace
+  // data (plain id array so it stays JSON-safe in localStorage).
+  const [savedIds, setSavedIds] = useState(() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem("ecoequity_surplus_saved"));
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
   useEffect(() => {
-    if (selectedItem || showListSurplusModal || showRestaurantOfferModal || showPostDemandModal || trackingDelivery) {
+    localStorage.setItem("ecoequity_surplus_saved", JSON.stringify(savedIds));
+  }, [savedIds]);
+
+  const toggleSaved = (id) => setSavedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  useEffect(() => {
+    if (selectedItem || showListSurplusModal || showRestaurantOfferModal || showPostDemandModal || trackingDelivery || viewListing) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -65,7 +115,7 @@ function SurplusExchangePage({ setActiveNav }) {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [selectedItem, showListSurplusModal, showRestaurantOfferModal, showPostDemandModal, trackingDelivery]);
+  }, [selectedItem, showListSurplusModal, showRestaurantOfferModal, showPostDemandModal, trackingDelivery, viewListing]);
 
   useEffect(() => {
     // Reset sort config when switching tabs to avoid sorting by a non-existent column
@@ -383,11 +433,95 @@ function SurplusExchangePage({ setActiveNav }) {
       }
   };
 
+  // Days from today until a yyyy-mm-dd date (date-only, so timezones don't
+  // shift the boundary). Null when the listing has no best-before date.
+  const daysUntil = (dateStr) => {
+    if (!dateStr) return null;
+    const target = new Date(`${dateStr}T00:00:00`);
+    if (isNaN(target)) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.round((target - today) / 86400000);
+  };
+
+  const isExpiringSoon = (dateStr) => {
+    const days = daysUntil(dateStr);
+    return days !== null && days >= 0 && days <= 3;
+  };
+
+  // Open demands that look like buyers for a listing: product-name keyword
+  // overlap ranks first, then same-category demands.
+  const getMatchingDemands = (listing) => {
+    const generic = ["organic", "fresh", "native", "sweet", "premium", "local"];
+    const keywords = (s) => s.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !generic.includes(w));
+    const matches = restaurantDemands
+      .filter(d => d.status !== "Closed")
+      .map(d => {
+        const nameMatch = keywords(d.product).some(w => listing.product.toLowerCase().includes(w)) ||
+          keywords(listing.product).some(w => d.product.toLowerCase().includes(w));
+        const categoryMatch = d.category === listing.category;
+        return { demand: d, score: nameMatch ? 2 : categoryMatch ? 1 : 0 };
+      })
+      .filter(m => m.score > 0)
+      .sort((a, b) => b.score - a.score);
+    return matches.map(m => m.demand);
+  };
+
+  const getCategoryAvgPrice = (category) => {
+    const priced = surplusListings.filter(l => l.category === category && Number(l.price) > 0);
+    if (!priced.length) return null;
+    return priced.reduce((sum, l) => sum + Number(l.price), 0) / priced.length;
+  };
+
+  const listingLocations = useMemo(
+    () => ["All Locations", ...new Set(surplusListings.map(l => l.location).filter(Boolean))],
+    [surplusListings]
+  );
+
+  const demandLocations = useMemo(
+    () => ["All Locations", ...new Set(restaurantDemands.map(d => d.location).filter(Boolean))],
+    [restaurantDemands]
+  );
+
+  const demandStats = useMemo(() => {
+    const open = restaurantDemands.filter(d => d.status !== "Closed");
+    const weekAhead = Date.now() + 7 * 86400000;
+    return {
+      totalValue: open.reduce((sum, d) => sum + (Number(d.targetPrice) || 0) * (Number(d.quantity) || 0), 0),
+      buyerCount: new Set(open.map(d => d.restaurant)).size,
+      weekVolume: open
+        .filter(d => d.neededDate && new Date(`${d.neededDate}T00:00:00`) <= weekAhead)
+        .reduce((sum, d) => sum + (Number(d.quantity) || 0), 0),
+    };
+  }, [restaurantDemands]);
+
+  const filteredDemands = useMemo(() => restaurantDemands.filter(req => {
+    if (req.status === "Closed") return false;
+    const matchesSearch = req.product.toLowerCase().includes(searchQuery.toLowerCase()) || req.restaurant.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "All Categories" || req.category === categoryFilter;
+    const matchesLocation = locationFilter === "All Locations" || req.location.includes(locationFilter);
+    const matchesUrgent = urgentOnly ? req.urgent === true : true;
+    return matchesSearch && matchesCategory && matchesLocation && matchesUrgent;
+  }), [restaurantDemands, searchQuery, categoryFilter, locationFilter, urgentOnly]);
+
+  const listingStats = useMemo(() => {
+    const available = surplusListings.filter(l => l.status === "Available" || !l.status);
+    return {
+      activeCount: available.length,
+      marketValue: available.reduce((sum, l) => sum + (Number(l.price) || 0) * (Number(l.quantity) || 0), 0),
+      expiringCount: available.filter(l => isExpiringSoon(l.bestBefore)).length,
+      openDemands: restaurantDemands.filter(d => d.status !== "Closed").length,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [surplusListings, restaurantDemands]);
+
   const sortedListings = useMemo(() => {
     let sortableItems = [...surplusListings];
 
-    // Primary filter: Active vs. Archived
-    if (filter === 'active') {
+    // Primary filter: Active vs. Saved vs. Archived
+    if (filter === 'saved') {
+      sortableItems = sortableItems.filter(item => savedIds.includes(item.id));
+    } else if (filter === 'active') {
       sortableItems = sortableItems.filter(item => {
         const negotiation = negotiations[`negotiate-${item.id}`];
         return !negotiation || negotiation.status !== 'completed';
@@ -397,6 +531,13 @@ function SurplusExchangePage({ setActiveNav }) {
         const negotiation = negotiations[`negotiate-${item.id}`];
         return negotiation && negotiation.status === 'completed';
       });
+    }
+
+    if (listingCategoryFilter !== "All Categories") {
+      sortableItems = sortableItems.filter(item => item.category === listingCategoryFilter);
+    }
+    if (listingLocationFilter !== "All Locations") {
+      sortableItems = sortableItems.filter(item => (item.location || "").includes(listingLocationFilter));
     }
 
     // Secondary filter for 'active' tab
@@ -421,7 +562,7 @@ function SurplusExchangePage({ setActiveNav }) {
       });
     }
     return sortableItems; // Renamed to filteredAndSortedListings for clarity
-  }, [surplusListings, sortConfig, searchQuery]);
+  }, [surplusListings, sortConfig, searchQuery, negotiations, filter, showOngoingOnly, savedIds, listingCategoryFilter, listingLocationFilter]);
 
   const requestSort = (key) => {
     let direction = 'ascending';
@@ -440,13 +581,15 @@ function SurplusExchangePage({ setActiveNav }) {
       const newItem = {
         id: Date.now(),
         ...newSurplus,
+        quantity: Number(newSurplus.quantity) || 0,
+        price: Number(newSurplus.price) || 0,
         farmer: "Your Farm", // Placeholder for logged-in user
         status: "Available"
       };
       setSurplusListings(prev => [newItem, ...prev]);
       setIsSubmittingSurplus(false);
       setShowListSurplusModal(false);
-      setNewSurplus({ product: "", quantity: "", unit: "kg", price: "", location: "", description: "" });
+      setNewSurplus({ product: "", quantity: "", unit: "kg", price: "", location: "", description: "", category: "Vegetables", bestBefore: "" });
     }, 1500);
   };
 
@@ -462,11 +605,20 @@ function SurplusExchangePage({ setActiveNav }) {
     e.preventDefault();
     setIsSubmittingDemand(true);
     setTimeout(() => {
-      const newItem = { id: Date.now(), ...newDemand, verified: true, logo: <Building2 size="1em" color="#0284c7" /> };
+      const newItem = {
+        id: Date.now(),
+        ...newDemand,
+        quantity: Number(newDemand.quantity) || 0,
+        targetPrice: Number(newDemand.targetPrice) || 0,
+        verified: true,
+        matchScore: 70,
+        urgent: false,
+        status: "Open",
+      };
       setRestaurantDemands(prev => [newItem, ...prev]);
       setIsSubmittingDemand(false);
       setShowPostDemandModal(false);
-      setNewDemand({ product: "", quantity: "", unit: "kg", targetPrice: "", location: "", neededDate: "", restaurant: "My Restaurant" });
+      setNewDemand({ product: "", quantity: "", unit: "kg", targetPrice: "", location: "", neededDate: "", restaurant: "My Restaurant", category: "Vegetables" });
     }, 1500);
   };
 
@@ -494,7 +646,11 @@ function SurplusExchangePage({ setActiveNav }) {
         <div className="inner-blur-glass" style={styles.badge}><span style={styles.badgeDot} /><span>B2B Marketplace</span></div>
       </div>
       <h1 style={styles.title}>Surplus <span style={styles.accent}>Exchange Dashboard</span></h1>
-      
+      <p style={styles.subtitle}>
+        Move surplus harvests to verified restaurants and institutional buyers before they go to waste —
+        list your produce, match with open demands, negotiate a fair price, and track delivery in one place.
+      </p>
+
       <div style={styles.tabContainer}>
         <button style={{ ...styles.tabButton, ...(activeTab === "listings" ? styles.tabButtonActive : {}), ...(hoveredTab === "listings" && activeTab !== "listings" ? styles.tabButtonHover : {}) }} onMouseEnter={() => setHoveredTab("listings")} onMouseLeave={() => setHoveredTab(null)} onClick={() => setActiveTab("listings")}>Listings</button>
         <button style={{ ...styles.tabButton, ...(activeTab === "restaurantDemand" ? styles.tabButtonActive : {}), ...(hoveredTab === "restaurantDemand" && activeTab !== "restaurantDemand" ? styles.tabButtonHover : {}) }} onMouseEnter={() => setHoveredTab("restaurantDemand")} onMouseLeave={() => setHoveredTab(null)} onClick={() => setActiveTab("restaurantDemand")}>Establishment Demands</button>
@@ -504,16 +660,18 @@ function SurplusExchangePage({ setActiveNav }) {
       <div style={styles.searchBarContainer}>
         <input
           type="text"
-          placeholder="Search listings..."
+          placeholder={activeTab === 'restaurantDemand' ? "Search demands by product or buyer..." : "Search listings by product..."}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={styles.searchInput}
         />
       </div>
       
+      {activeTab === 'listings' && (
       <div style={styles.filterContainer}>
         <div style={styles.mainFilterGroup}>
           <button onClick={() => setFilter('active')} style={filter === 'active' ? styles.mainFilterActive : styles.mainFilter}>Active</button>
+          <button onClick={() => setFilter('saved')} style={filter === 'saved' ? styles.mainFilterActive : styles.mainFilter}><FaStar size={10} style={{ marginRight: '4px', color: filter === 'saved' ? '#f59e0b' : 'rgba(0,0,0,0.35)' }} />Saved</button>
           <button onClick={() => setFilter('archived')} style={filter === 'archived' ? styles.mainFilterActive : styles.mainFilter}>Archived</button>
         </div>
         {filter === 'active' && (
@@ -528,8 +686,50 @@ function SurplusExchangePage({ setActiveNav }) {
           </label>
         )}
       </div>
+      )}
 
       {activeTab !== 'restaurantDemand' && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+      {/* Market insights computed from live marketplace data */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+        {[
+          { label: 'Active Listings', value: String(listingStats.activeCount), icon: <FaBoxOpen />, color: '#15803d', bg: 'rgba(22, 163, 74, 0.1)' },
+          { label: 'Est. Market Value', value: `₱${listingStats.marketValue.toLocaleString()}`, icon: <FaChartLine />, color: '#0284c7', bg: 'rgba(14, 165, 233, 0.1)' },
+          { label: 'Expiring Soon', value: String(listingStats.expiringCount), icon: <FaClock />, color: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
+          { label: 'Open Buyer Demands', value: String(listingStats.openDemands), icon: <FaHandshake />, color: '#7c3aed', bg: 'rgba(124, 58, 237, 0.1)' },
+        ].map(stat => (
+          <div key={stat.label} className="inner-blur-glass" style={styles.insightCard}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>{stat.icon}</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#000', lineHeight: 1.2 }}>{stat.value}</div>
+              <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.55)', fontWeight: 600 }}>{stat.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Category / location filters for listings */}
+      <div className="inner-blur-glass" style={styles.listingFilterBar}>
+        <span style={{ fontSize: '14px', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '8px' }}><FaFilter /> Filters:</span>
+        <div style={{ width: '180px', zIndex: 100 }}>
+          <CustomDropdown
+            options={["All Categories", ...surplusCategories]}
+            value={listingCategoryFilter}
+            onChange={setListingCategoryFilter}
+          />
+        </div>
+        <div style={{ width: '180px', zIndex: 99 }}>
+          <CustomDropdown
+            options={listingLocations}
+            value={listingLocationFilter}
+            onChange={setListingLocationFilter}
+          />
+        </div>
+        {(listingCategoryFilter !== "All Categories" || listingLocationFilter !== "All Locations") && (
+          <button style={styles.clearFiltersBtn} onClick={() => { setListingCategoryFilter("All Categories"); setListingLocationFilter("All Locations"); }}>Clear filters</button>
+        )}
+      </div>
+
       <div className="inner-blur-glass" style={styles.tableWrapper}>
         {activeTab === 'listings' && (
           <table style={styles.table}>
@@ -538,6 +738,9 @@ function SurplusExchangePage({ setActiveNav }) {
                 <th style={styles.th} onClick={() => requestSort('product')}>Product{getSortIndicator('product')}</th>
                 <th style={styles.th} onClick={() => requestSort('quantity')}>Qty{getSortIndicator('quantity')}</th>
                 {!isMobile && <th style={styles.th} onClick={() => requestSort('price')}>Price{getSortIndicator('price')}</th>}
+                {!isMobile && <th style={styles.th} onClick={() => requestSort('location')}>Location{getSortIndicator('location')}</th>}
+                {!isMobile && <th style={styles.th} onClick={() => requestSort('farmer')}>Farmer{getSortIndicator('farmer')}</th>}
+                <th style={{...styles.th, cursor: 'default'}}>Status</th>
                 <th style={{...styles.th, cursor: 'default'}}>Action</th>
               </tr>
             </thead>
@@ -549,19 +752,78 @@ function SurplusExchangePage({ setActiveNav }) {
                   const isCompleted = negotiationState?.status === 'completed';
                   const isDeclined = negotiationState?.status === 'declined';
                   const hasOngoingNegotiation = negotiationState && !isDeclined && !isCompleted;
+                  const isSoldOut = item.status === 'Sold' || item.status === 'Reserved';
+                  const isSaved = savedIds.includes(item.id);
+                  const expiryDays = daysUntil(item.bestBefore);
+                  const expiringSoon = isExpiringSoon(item.bestBefore);
+                  const matchCount = getMatchingDemands(item).length;
                   return (
                     <tr key={item.id} style={styles.tr}>
-                      <td style={styles.td}>{item.product}</td>
+                      <td style={{...styles.td, fontWeight: 700}}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button
+                            style={styles.starBtn}
+                            title={isSaved ? 'Remove from saved' : 'Save listing'}
+                            aria-label={isSaved ? 'Remove from saved' : 'Save listing'}
+                            onClick={() => toggleSaved(item.id)}
+                          >
+                            {isSaved ? <FaStar color="#f59e0b" /> : <FaRegStar color="rgba(0,0,0,0.3)" />}
+                          </button>
+                          <span
+                            style={styles.productLink}
+                            title="View details"
+                            onClick={() => setViewListing(item)}
+                          >{item.product}</span>
+                        </div>
+                        {(expiringSoon || matchCount > 0) && (
+                          <div style={{ display: 'flex', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
+                            {expiringSoon && (
+                              <span style={styles.expiringBadge}>
+                                <FaClock size={9} /> {expiryDays === 0 ? 'Expires today' : `Expires in ${expiryDays}d`}
+                              </span>
+                            )}
+                            {matchCount > 0 && (
+                              <span style={styles.matchBadge} onClick={() => setViewListing(item)} title="View matching buyer demands">
+                                <FaHandshake size={10} /> {matchCount} buyer match{matchCount > 1 ? 'es' : ''}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
                       <td style={styles.td}>{item.quantity}{item.unit}</td>
-                      {!isMobile && <td style={styles.td}>₱{item.price}</td>}
-                      <td style={styles.td}><button style={{...styles.tableActionBtn, ...(isDeclined ? styles.reopenBtnSmall : {}), ...(isCompleted ? styles.viewArchiveBtn : {})}} onClick={() => openNegotiateModal(item)}>{isCompleted ? 'View Archive' : isDeclined ? 'Re-open' : hasOngoingNegotiation ? 'Continue' : 'Negotiate'}</button>{hasOngoingNegotiation && <span style={styles.ongoingIndicator}>Ongoing</span>}{isDeclined && <span style={styles.declinedIndicator}>Declined</span>}{isCompleted && <span style={styles.completedIndicator}>Completed</span>}</td>
+                      {!isMobile && <td style={{...styles.td, fontWeight: 700, color: '#15803d'}}>₱{item.price}/{item.unit}</td>}
+                      {!isMobile && <td style={styles.td}><span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaMapMarkerAlt color="#15803d" size={11} /> {item.location || '—'}</span></td>}
+                      {!isMobile && <td style={styles.td}>{item.farmer || '—'}</td>}
+                      <td style={styles.td}>
+                        <span style={{
+                          padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 700,
+                          background: item.status === 'Available' ? 'rgba(22,163,74,0.1)' : item.status === 'Reserved' ? 'rgba(234,179,8,0.12)' : 'rgba(220,38,38,0.1)',
+                          color: item.status === 'Available' ? '#15803d' : item.status === 'Reserved' ? '#b45309' : '#dc2626',
+                        }}>{item.status || 'Available'}</span>
+                      </td>
+                      <td style={styles.td}>
+                        {isSoldOut && !negotiationState ? (
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(0,0,0,0.45)' }}>Not available</span>
+                        ) : (
+                          <button style={{...styles.tableActionBtn, ...(isDeclined ? styles.reopenBtnSmall : {}), ...(isCompleted ? styles.viewArchiveBtn : {})}} onClick={() => openNegotiateModal(item)}>{isCompleted ? 'View Archive' : isDeclined ? 'Re-open' : hasOngoingNegotiation ? 'Continue' : 'Negotiate'}</button>
+                        )}
+                        {hasOngoingNegotiation && <span style={styles.ongoingIndicator}>Ongoing</span>}{isDeclined && <span style={styles.declinedIndicator}>Declined</span>}{isCompleted && <span style={styles.completedIndicator}>Completed</span>}
+                      </td>
                     </tr>
                   );
                 })()
               ))}
+              {sortedListings.length === 0 && (
+                <tr>
+                  <td style={{...styles.td, textAlign: 'center', color: 'rgba(0,0,0,0.45)', fontWeight: 600}} colSpan={isMobile ? 4 : 7}>
+                    {filter === 'saved' ? 'No saved listings yet. Tap the star on a listing to watch it.' : 'No listings found. Be the first to list your surplus produce!'}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         )}
+      </div>
       </div>
       )}
 
@@ -571,17 +833,17 @@ function SurplusExchangePage({ setActiveNav }) {
            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               <div className="inner-blur-glass" style={{ ...styles.restaurantCard, padding: '20px', alignItems: 'center', gap: '8px' }}>
                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#15803d' }}><FaChartLine /></div>
-                 <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>₱1.2M</h3>
-                 <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Total Open Demand</span>
+                 <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>₱{demandStats.totalValue.toLocaleString()}</h3>
+                 <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Total Open Demand Value</span>
               </div>
               <div className="inner-blur-glass" style={{ ...styles.restaurantCard, padding: '20px', alignItems: 'center', gap: '8px' }}>
                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#0ea5e9' }}><FaHandshake /></div>
-                 <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>15</h3>
+                 <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>{demandStats.buyerCount}</h3>
                  <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Active Institutional Buyers</span>
               </div>
               <div className="inner-blur-glass" style={{ ...styles.restaurantCard, padding: '20px', alignItems: 'center', gap: '8px' }}>
                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#d97706' }}><FaWeightHanging /></div>
-                 <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>850 kg</h3>
+                 <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>{demandStats.weekVolume.toLocaleString()} kg</h3>
                  <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Volume Needed This Week</span>
               </div>
            </div>
@@ -590,17 +852,17 @@ function SurplusExchangePage({ setActiveNav }) {
            <div className="inner-blur-glass" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))', padding: '16px 24px', borderRadius: '24px', border: '1px solid rgba(34, 197, 94, 0.2)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                <span style={{ fontSize: '15px', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '8px' }}><FaFilter /> Filters:</span>
                <div style={{ width: '180px', zIndex: 100 }}>
-                 <CustomDropdown 
-                    options={["All Categories", "Vegetables", "Herbs"]} 
-                    value={categoryFilter} 
-                    onChange={setCategoryFilter} 
+                 <CustomDropdown
+                    options={["All Categories", ...surplusCategories]}
+                    value={categoryFilter}
+                    onChange={setCategoryFilter}
                  />
                </div>
                <div style={{ width: '180px', zIndex: 99 }}>
-                 <CustomDropdown 
-                    options={["All Locations", "Makati City", "BGC, Taguig", "Quezon City"]} 
-                    value={locationFilter} 
-                    onChange={setLocationFilter} 
+                 <CustomDropdown
+                    options={demandLocations}
+                    value={locationFilter}
+                    onChange={setLocationFilter}
                  />
                </div>
                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#000' }} onClick={(e) => { e.preventDefault(); setUrgentOnly(!urgentOnly); }}>
@@ -611,16 +873,17 @@ function SurplusExchangePage({ setActiveNav }) {
                </label>
            </div>
 
+         {filteredDemands.length === 0 && (
+           <div className="inner-blur-glass" style={{ padding: '40px 24px', borderRadius: '24px', textAlign: 'center', background: 'linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,253,244,0.8))', border: '1px solid rgba(255,255,255,0.8)' }}>
+             <p style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'rgba(0,0,0,0.7)' }}>No open demands match your filters.</p>
+             <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'rgba(0,0,0,0.5)' }}>Try clearing a filter — or post your own demand so nearby farmers know what you need.</p>
+           </div>
+         )}
          <div style={styles.restaurantGrid}>
-          {restaurantDemands.filter(req => {
-            const matchesSearch = req.product.toLowerCase().includes(searchQuery.toLowerCase()) || req.restaurant.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesLocation = locationFilter === "All Locations" || req.location.includes(locationFilter);
-            const matchesUrgent = urgentOnly ? req.urgent === true : true;
-            return matchesSearch && matchesLocation && matchesUrgent;
-          }).map(demand => (
+          {filteredDemands.map(demand => (
             <div key={demand.id} className="inner-blur-glass" style={styles.restaurantCard} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.06)'; }}>
                <div style={styles.restaurantCardHeader}>
-                  <div style={styles.restaurantLogo}>{demand.logo}</div>
+                  <div style={styles.restaurantLogo}>{getCategoryIcon(demand.category)}</div>
                   <div style={{ flex: 1 }}>
                      <div style={styles.restaurantNameWrap}>
                        <h3 style={styles.restaurantName}>{demand.restaurant}</h3>
@@ -845,13 +1108,25 @@ function SurplusExchangePage({ setActiveNav }) {
                   />
                 </div>
               </div>
-              <div style={styles.inputGroup}>
-                <label style={styles.inputLabel}>Price (per unit)</label>
-                <input type="number" style={styles.inputField} value={newSurplus.price} onChange={e => handleNewSurplusChange('price', e.target.value)} required />
+              <div style={{display: 'flex', gap: '12px'}}>
+                <div style={{...styles.inputGroup, flex: 1}}>
+                  <label style={styles.inputLabel}>Price (per unit)</label>
+                  <input type="number" style={styles.inputField} value={newSurplus.price} onChange={e => handleNewSurplusChange('price', e.target.value)} required />
+                </div>
+                <div style={{...styles.inputGroup, flex: 1}}>
+                  <label style={styles.inputLabel}>Category</label>
+                  <CustomDropdown options={surplusCategories} value={newSurplus.category} onChange={(val) => handleNewSurplusChange('category', val)} />
+                </div>
               </div>
-              <div style={styles.inputGroup}>
-                <label style={styles.inputLabel}>Location</label>
-                <input type="text" style={styles.inputField} value={newSurplus.location} onChange={e => handleNewSurplusChange('location', e.target.value)} required />
+              <div style={{display: 'flex', gap: '12px'}}>
+                <div style={{...styles.inputGroup, flex: 1}}>
+                  <label style={styles.inputLabel}>Location</label>
+                  <input type="text" style={styles.inputField} value={newSurplus.location} onChange={e => handleNewSurplusChange('location', e.target.value)} required />
+                </div>
+                <div style={{...styles.inputGroup, flex: 1}}>
+                  <label style={styles.inputLabel}>Best Before (optional)</label>
+                  <input type="date" style={styles.inputField} value={newSurplus.bestBefore} onChange={e => handleNewSurplusChange('bestBefore', e.target.value)} />
+                </div>
               </div>
               <div style={styles.inputGroup}>
                 <label style={styles.inputLabel}>Description</label>
@@ -873,7 +1148,7 @@ function SurplusExchangePage({ setActiveNav }) {
             <h2 style={styles.modalTitle}>Send Offer to {selectedDemand.restaurant}</h2>
             
             <div style={styles.negotiateProductSummary}>
-              <div style={{fontSize: '32px'}}>{selectedDemand.logo}</div>
+              <div style={{fontSize: '32px'}}>{getCategoryIcon(selectedDemand.category)}</div>
               <div>
                 <h3 style={styles.negotiateProductTitle}>{selectedDemand.product}</h3>
                 <p style={styles.negotiateProductFarmer}>Target: ₱{selectedDemand.targetPrice} / {selectedDemand.unit}</p>
@@ -928,9 +1203,15 @@ function SurplusExchangePage({ setActiveNav }) {
                   <CustomDropdown options={["kg", "ton", "pcs", "crates"]} value={newDemand.unit} onChange={(val) => handleNewDemandChange('unit', val)} />
                 </div>
               </div>
-              <div style={styles.inputGroup}>
-                <label style={styles.inputLabel}>Target Price (per unit)</label>
-                <input type="number" style={styles.inputField} value={newDemand.targetPrice} onChange={e => handleNewDemandChange('targetPrice', e.target.value)} required />
+              <div style={{display: 'flex', gap: '12px'}}>
+                <div style={{...styles.inputGroup, flex: 1}}>
+                  <label style={styles.inputLabel}>Target Price (per unit)</label>
+                  <input type="number" style={styles.inputField} value={newDemand.targetPrice} onChange={e => handleNewDemandChange('targetPrice', e.target.value)} required />
+                </div>
+                <div style={{...styles.inputGroup, flex: 1}}>
+                  <label style={styles.inputLabel}>Category</label>
+                  <CustomDropdown options={surplusCategories} value={newDemand.category} onChange={(val) => handleNewDemandChange('category', val)} />
+                </div>
               </div>
               <div style={styles.inputGroup}>
                 <label style={styles.inputLabel}>Delivery Location</label>
@@ -944,6 +1225,117 @@ function SurplusExchangePage({ setActiveNav }) {
             </form>
           </div>
         </div>,
+        document.body
+      )}
+
+      {/* Listing Details Modal */}
+      {viewListing && ReactDOM.createPortal(
+        (() => {
+          const matches = getMatchingDemands(viewListing);
+          const avgPrice = getCategoryAvgPrice(viewListing.category);
+          const priceDiffPct = avgPrice ? Math.round(((Number(viewListing.price) - avgPrice) / avgPrice) * 100) : null;
+          const expiryDays = daysUntil(viewListing.bestBefore);
+          const expiringSoon = isExpiringSoon(viewListing.bestBefore);
+          const isSaved = savedIds.includes(viewListing.id);
+          const isSoldOut = viewListing.status === 'Sold' || viewListing.status === 'Reserved';
+          return (
+            <div style={styles.modalOverlay} onClick={() => setViewListing(null)}>
+              <div className="inner-blur-glass custom-scrollbar" style={{...styles.listSurplusModalContent, ...(isMobile ? styles.listSurplusModalContentMobile : {})}} onClick={e => e.stopPropagation()}>
+                <button style={styles.closeBtn} onClick={() => setViewListing(null)}><FaTimes /></button>
+                <div style={{ ...styles.negotiateProductSummary, marginTop: '8px' }}>
+                  <div style={styles.negotiateProductIcon}>{getCategoryIcon(viewListing.category)}</div>
+                  <div style={styles.negotiateProductDetails}>
+                    <h3 style={styles.negotiateProductTitle}>{viewListing.product}</h3>
+                    <p style={styles.negotiateProductFarmer}>from {viewListing.farmer || '—'}</p>
+                  </div>
+                  <span style={{
+                    padding: '4px 12px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, flexShrink: 0,
+                    background: viewListing.status === 'Reserved' ? 'rgba(234,179,8,0.12)' : viewListing.status === 'Sold' ? 'rgba(220,38,38,0.1)' : 'rgba(22,163,74,0.1)',
+                    color: viewListing.status === 'Reserved' ? '#b45309' : viewListing.status === 'Sold' ? '#dc2626' : '#15803d',
+                  }}>{viewListing.status || 'Available'}</span>
+                </div>
+
+                <div style={styles.detailFactGrid}>
+                  <div style={styles.detailFact}>
+                    <span style={styles.demandLabel}>Quantity</span>
+                    <span style={styles.demandValue}>{viewListing.quantity} {viewListing.unit}</span>
+                  </div>
+                  <div style={styles.detailFact}>
+                    <span style={styles.demandLabel}>Price</span>
+                    <span style={styles.demandValueHighlight}>₱{viewListing.price}/{viewListing.unit}</span>
+                    {priceDiffPct !== null && (
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: priceDiffPct < 0 ? '#15803d' : priceDiffPct > 0 ? '#b45309' : 'rgba(0,0,0,0.5)' }}>
+                        {priceDiffPct === 0 ? 'At category average' : `${Math.abs(priceDiffPct)}% ${priceDiffPct < 0 ? 'below' : 'above'} category average`}
+                      </span>
+                    )}
+                  </div>
+                  <div style={styles.detailFact}>
+                    <span style={styles.demandLabel}>Location</span>
+                    <span style={styles.demandValue}><FaMapMarkerAlt color="#15803d" size={11} /> {viewListing.location || '—'}</span>
+                  </div>
+                  <div style={styles.detailFact}>
+                    <span style={styles.demandLabel}>Best Before</span>
+                    {viewListing.bestBefore ? (
+                      <span style={{ ...styles.demandValue, color: expiringSoon ? '#d97706' : '#000' }}>
+                        {viewListing.bestBefore}
+                        {expiryDays !== null && expiryDays >= 0 && ` (${expiryDays === 0 ? 'today' : `${expiryDays}d left`})`}
+                        {expiryDays !== null && expiryDays < 0 && ' (past date)'}
+                      </span>
+                    ) : (
+                      <span style={{ ...styles.demandValue, color: 'rgba(0,0,0,0.45)' }}>Not specified</span>
+                    )}
+                  </div>
+                </div>
+
+                {viewListing.description && (
+                  <div style={{ margin: '0 0 16px' }}>
+                    <span style={styles.demandLabel}>Description</span>
+                    <p style={{ margin: '6px 0 0', fontSize: '14px', color: 'rgba(0,0,0,0.75)', lineHeight: 1.55 }}>{viewListing.description}</p>
+                  </div>
+                )}
+
+                <div style={{ margin: '0 0 16px' }}>
+                  <span style={styles.demandLabel}>Matching Buyer Demands ({matches.length})</span>
+                  {matches.length === 0 ? (
+                    <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'rgba(0,0,0,0.5)' }}>No open demands match this listing yet. Check back soon.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                      {matches.slice(0, 3).map(demand => (
+                        <div key={demand.id} style={styles.matchDemandRow}>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: '13px', fontWeight: 800, color: '#000', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {demand.restaurant}
+                              {demand.verified && <FaCheckCircle style={styles.verifiedBadge} title="Verified Buyer" />}
+                              {demand.urgent && <span style={{ fontSize: '9px', fontWeight: 800, color: '#dc2626', background: 'rgba(220,38,38,0.1)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase' }}>Urgent</span>}
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', marginTop: '2px' }}>
+                              Needs {demand.quantity}{demand.unit} of {demand.product} at ~₱{demand.targetPrice}/{demand.unit} by {demand.neededDate}
+                            </div>
+                          </div>
+                          <button
+                            style={styles.matchOfferBtn}
+                            onClick={() => { setViewListing(null); openRestaurantNegotiationModal(demand); }}
+                          >Send Offer</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button style={styles.detailSaveBtn} onClick={() => toggleSaved(viewListing.id)}>
+                    {isSaved ? <FaStar color="#f59e0b" /> : <FaRegStar />} {isSaved ? 'Saved' : 'Save'}
+                  </button>
+                  <button
+                    style={{ ...styles.submitBtn, marginTop: 0, flex: 1, padding: '13px', opacity: isSoldOut ? 0.5 : 1, cursor: isSoldOut ? 'not-allowed' : 'pointer' }}
+                    disabled={isSoldOut}
+                    onClick={() => { setViewListing(null); openNegotiateModal(viewListing); }}
+                  >{isSoldOut ? 'Not Available' : 'Negotiate This Listing'}</button>
+                </div>
+              </div>
+            </div>
+          );
+        })(),
         document.body
       )}
 
@@ -1027,6 +1419,7 @@ const styles = {
   },
   badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block" },
   title: { fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 300, margin: "10px 0" },
+  subtitle: { fontSize: "14px", color: "rgba(0,0,0,0.55)", maxWidth: "620px", textAlign: "center", margin: "0 0 24px", lineHeight: 1.6 },
   titleMobile: { fontSize: "clamp(20px, 6vw, 30px)" }, // Smaller title on mobile
   accent: {
     background: "linear-gradient(90deg, #4ade80, #86efac)",
@@ -1177,6 +1570,18 @@ const styles = {
   demandValueHighlight: { fontSize: "16px", fontWeight: 800, color: "#15803d" },
   demandDate: { fontSize: "13px", fontWeight: 700, color: "#0284c7", display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(14, 165, 233, 0.1)", padding: "6px 12px", borderRadius: "8px", width: "fit-content" },
   sendOfferBtnCard: { marginTop: "auto", padding: "14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", border: "1px solid rgba(255,255,255,0.4)", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 8px 24px rgba(34,197,94,0.2)", transition: "all 0.2s ease" },
+  insightCard: { display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", borderRadius: "18px", background: "linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,253,244,0.8))", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)" },
+  listingFilterBar: { display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", padding: "14px 20px", borderRadius: "20px", border: "1px solid rgba(34, 197, 94, 0.2)", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" },
+  clearFiltersBtn: { marginLeft: "auto", padding: "8px 14px", borderRadius: "10px", background: "rgba(220, 38, 38, 0.08)", color: "#dc2626", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer" },
+  starBtn: { background: "transparent", border: "none", padding: "2px", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", flexShrink: 0 },
+  productLink: { cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(21,128,61,0.3)", textUnderlineOffset: "3px" },
+  expiringBadge: { display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 800, color: "#d97706", background: "rgba(245, 158, 11, 0.12)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(245, 158, 11, 0.25)" },
+  matchBadge: { display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 800, color: "#0284c7", background: "rgba(14, 165, 233, 0.1)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(14, 165, 233, 0.25)", cursor: "pointer" },
+  detailFactGrid: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", margin: "0 0 16px" },
+  detailFact: { display: "flex", flexDirection: "column", gap: "4px", background: "rgba(255,255,255,0.6)", padding: "12px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.04)" },
+  matchDemandRow: { display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.65)", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(14, 165, 233, 0.15)" },
+  matchOfferBtn: { flexShrink: 0, padding: "8px 14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", border: "1px solid rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.2)" },
+  detailSaveBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "13px 20px", borderRadius: "999px", background: "rgba(245, 158, 11, 0.1)", color: "#b45309", border: "1px solid rgba(245, 158, 11, 0.25)", fontSize: "13px", fontWeight: 700, cursor: "pointer" },
 };
 
 const CustomDropdown = ({ options, value, onChange, placeholder }) => {

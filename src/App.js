@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
+import { fetchProducts } from "./data/products";
+import { isSupabaseConfigured } from "./supabaseClient";
+import { signIn, signUp, signOut, getCurrentUser, getUserFromSession, onAuthChange, resendConfirmation, consumeAuthErrorFromUrl, LOCAL_GOOGLE_ACCOUNTS, localGoogleUser } from "./data/auth";
 import AboutUs from "./pages/AboutUs";
 import ProductServices from "./pages/ProductServices";
 import TargetMarket from "./pages/TargetMarket";
@@ -14,28 +17,58 @@ import StarterKits from "./pages/StarterKits";
 import ExploreMore from "./pages/ExploreMore";
 import AIDataSubscription from "./pages/AIDataSubscription";
 import TargetMarketExplore from "./pages/TargetMarketExplore";
-import SpecialistCertification from "./pages/SpecialistCertification";
+import SpecialistCertification, { defaultCourses as defaultCertCourses } from "./pages/SpecialistCertification"; // Page + course seed data (managed via Admin Portal)
 import AIChatInterface from "./AIChatInterface";
 import SustainabilityAppMarket from "./pages/SustainabilityAppMarket";
 import AIPlantDoctor from "./pages/AIPlantDoctor";
-import ExpertSupportPage from "./pages/ExpertSupportPage"; // Import the new ExpertSupportPage
+import ExpertSupportPage, { defaultAdvisors } from "./pages/ExpertSupportPage"; // Import the new ExpertSupportPage + specialist seed data
 import ImpactTrackingPage from "./pages/ImpactTrackingPage"; // Import the new ImpactTrackingPage
 import NativeSeedBankPage from "./pages/NativeSeedBankPage"; // Import the new NativeSeedBankPage
 import LGUPartnershipPage from "./pages/LGUPartnershipPage"; // Import the new LGU Partnership Page
 import OurImpactPage from "./pages/OurImpactPage"; // Import the new OurImpactPage
-import SurplusExchangePage from "./pages/SurplusExchangePage"; // Corrected path
+import SurplusExchangePage, { defaultSurplusListings, defaultRestaurantDemands } from "./pages/SurplusExchangePage"; // Corrected path + marketplace seed data
 import CheckoutPage from "./pages/CheckoutPage"; // Import the CheckoutPage
-import AdminPortal, { mockSubscribers, mockEventsList, mockScansList, mockContentList } from "./pages/AdminPortal"; // Import the AdminPortal + shared seed data
+import AdminPortal, { mockSubscribers, mockEventsList, mockScansList, mockContentList, mockDiseaseLibrary, mockDeliveriesList, mockRiders, mockUsers, mockTransactions } from "./pages/AdminPortal"; // Import the AdminPortal + shared seed data
+import { SUBSCRIPTION_PLANS_STORAGE_KEY, initialSubscriptionPlans } from "./subscriptionPlans";
 import SeasonalHarvestPage from "./pages/SeasonalHarvestPage";
 import FarmPlannerPage, { defaultPlannerConfig } from "./pages/FarmPlannerPage";
 import CommunityForumPage, { forumSeedPosts } from "./pages/CommunityForumPage";
 import SupportTicketModal from "./SupportTicketModal";
+import SiteFeedbackWidget from "./SiteFeedbackWidget";
 
 import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
-import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell, FaFacebookF, FaTwitter, FaDribbble, FaInstagram } from "react-icons/fa";
-import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound, Gift, Truck, Bot, Trees, Cloud, ShoppingCart, Building2, ShieldCheck, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, ArrowDown, Menu, X, Moon } from "lucide-react";
+import { FaShoppingCart, FaCalendarAlt, FaUserPlus, FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell, FaFacebookF, FaInstagram } from "react-icons/fa";
+import { FaXTwitter, FaThreads } from "react-icons/fa6";
+import { Leaf, Stethoscope, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, Info, CircleUserRound, Gift, Truck, Bot, Trees, Cloud, ShoppingCart, Building2, ShieldCheck, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, ArrowDown, Menu, X, Moon, Mail, CheckCircle, Scissors, Flame } from "lucide-react";
 import { BiCalendarEvent } from "react-icons/bi";
+
+// Maps an email address to its provider's web inbox, so the "Open Email" button
+// can jump the user straight to where the confirmation email landed.
+const emailInboxUrl = (email) => {
+  const domain = (String(email).split("@")[1] || "").toLowerCase();
+  const map = {
+    "gmail.com": "https://mail.google.com/mail/u/0/#inbox",
+    "googlemail.com": "https://mail.google.com/mail/u/0/#inbox",
+    "yahoo.com": "https://mail.yahoo.com",
+    "outlook.com": "https://outlook.live.com/mail/0/",
+    "hotmail.com": "https://outlook.live.com/mail/0/",
+    "live.com": "https://outlook.live.com/mail/0/",
+    "icloud.com": "https://www.icloud.com/mail",
+    "proton.me": "https://mail.proton.me/u/0/inbox",
+    "protonmail.com": "https://mail.proton.me/u/0/inbox",
+  };
+  return map[domain] || null;
+};
+
 const navItems = ["Home", "About Us", "Product & Services", "Target Market", "Seasonal Harvest"];
+
+const navItemIcons = {
+  "Home": Home,
+  "About Us": Info,
+  "Product & Services": Package,
+  "Target Market": TrendingUp,
+  "Seasonal Harvest": Wheat,
+};
 
 const initialProducts = [
   { id: 1, name: "Heirloom Tomatoes", category: "Organic Edibles", price: 150, image: "/tomato.png", badge: "Best Seller", stock: "In Stock", emoji: <Cherry size="1em" color="#dc2626" />, description: "Freshly harvested, pesticide-free organic tomatoes, perfect for salads and cooking.", sustainabilityBadge: "Eco-Friendly", rating: 4.8, reviewCount: 124, reviews: [{user: "Maria G.", rating: 5, comment: "Very fresh and juicy!"}, {user: "Jose P.", rating: 4, comment: "Good quality."}] },
@@ -48,6 +81,29 @@ const initialProducts = [
   { id: 8, name: "Peppermint Seeds", category: "Herbs", price: 90, image: "/mint.png", stock: "In Stock", emoji: <Sprout size="1em" color="#16a34a" />, description: "Grows very fast!", sustainabilityBadge: "Sustainable", rating: 4.5, reviewCount: 78, reviews: [{user: "Leo M.", rating: 5, comment: "Grows very fast!"}] },
   { id: 9, name: "Compost Booster", category: "Soil Mixes", price: 320, image: "/compost.png", badge: "Eco", stock: "In Stock", emoji: <Recycle size="1em" color="#16a34a" />, description: "Speeds up composting significantly.", sustainabilityBadge: "Eco-Friendly", rating: 4.9, reviewCount: 150, reviews: [{user: "Gina R.", rating: 5, comment: "Speeds up composting significantly."}] },
   { id: 10, name: "Urban Farming Starter Kit", category: "Starter Kits", price: 1200, image: "/starter_kit.png", badge: "Popular", stock: "In Stock", emoji: <Package size="1em" color="#15803d" />, description: "Everything you need to start your urban farm. Includes varied seeds, tools, and premium soil.", sustainabilityBadge: "Eco-Friendly", rating: 4.9, reviewCount: 88, reviews: [{user: "Sarah L.", rating: 5, comment: "Amazing kit to get started!"}] },
+  { id: 11, name: "Calamansi Seedling", category: "Organic Edibles", price: 180, image: "/calamansi.png", badge: "New", stock: "In Stock", emoji: <Citrus size="1em" color="#f59e0b" />, description: "Healthy grafted calamansi seedling, ready to transplant. Bears fruit within 2-3 years.", sustainabilityBadge: "Local & Organic", rating: 4.7, reviewCount: 63, reviews: [{user: "Ramon D.", rating: 5, comment: "Arrived healthy with lots of leaves!"}] },
+  { id: 12, name: "Organic Carrots", category: "Organic Edibles", price: 140, image: "/carrot.png", stock: "In Stock", emoji: <Carrot size="1em" color="#ea580c" />, description: "Sweet, crunchy carrots grown without synthetic pesticides in the Benguet highlands.", sustainabilityBadge: "Eco-Friendly", rating: 4.6, reviewCount: 97, reviews: [{user: "Ella S.", rating: 5, comment: "So sweet and crunchy, kids love them."}] },
+  { id: 13, name: "Lemongrass (Tanglad) Bundle", category: "Herbs", price: 110, image: "/lemongrass.png", stock: "In Stock", emoji: <Leaf size="1em" color="#65a30d" />, description: "Fresh tanglad stalks with roots intact — cook with them or replant in your garden.", sustainabilityBadge: "Local & Organic", rating: 4.8, reviewCount: 132, reviews: [{user: "Nora F.", rating: 5, comment: "Very fragrant, replanted two stalks and they took root."}] },
+  { id: 14, name: "Sunflower Seed Pack", category: "Floriculture", price: 130, image: "/sunflower.png", badge: "New", stock: "In Stock", emoji: <Sun size="1em" color="#f59e0b" />, description: "Giant sunflower variety, easy to grow and pollinator-friendly. About 20 seeds per pack.", sustainabilityBadge: "Sustainable", rating: 4.6, reviewCount: 71, reviews: [{user: "Bea C.", rating: 4, comment: "Most seeds germinated within a week."}] },
+  { id: 15, name: "Heirloom Black Rice Seeds", category: "Native Seeds", price: 300, image: "/black_rice.png", badge: "Organic", stock: "Low Stock", emoji: <Wheat size="1em" color="#7c2d12" />, description: "Traditional pigmented rice seeds from Cordillera farmers, rich in antioxidants.", sustainabilityBadge: "Local & Organic", rating: 4.9, reviewCount: 41, reviews: [{user: "Igor A.", rating: 5, comment: "Rare find, great germination rate."}] },
+  { id: 16, name: "Vermicast Organic Fertilizer", category: "Soil Mixes", price: 260, image: "/vermicast.png", badge: "Eco", stock: "In Stock", emoji: <Recycle size="1em" color="#16a34a" />, description: "Pure worm castings that enrich soil naturally — gentle enough for seedlings.", sustainabilityBadge: "Eco-Friendly", rating: 4.8, reviewCount: 118, reviews: [{user: "Paolo V.", rating: 5, comment: "My seedlings grew noticeably faster."}] },
+  { id: 17, name: "Garden Pruning Shears", category: "Gardening Tools", price: 390, image: "/pruning_shears.png", stock: "In Stock", emoji: <Scissors size="1em" color="#475569" />, description: "Sharp stainless-steel bypass shears with a comfortable non-slip grip and safety lock.", sustainabilityBadge: "Essential", rating: 4.7, reviewCount: 84, reviews: [{user: "Dan R.", rating: 5, comment: "Clean cuts, feels solid in hand."}] },
+  { id: 18, name: "Okra Seeds", category: "Organic Edibles", price: 95, image: "/okra.png", stock: "In Stock", emoji: <Sprout size="1em" color="#16a34a" />, description: "Fast-growing native okra variety that thrives in warm Philippine weather. About 30 seeds per pack.", sustainabilityBadge: "Local & Organic", rating: 4.5, reviewCount: 52, reviews: [{user: "Tess M.", rating: 5, comment: "Sprouted in 5 days, very reliable seeds."}] },
+  { id: 19, name: "Malunggay Seedling", category: "Organic Edibles", price: 150, image: "/malunggay.png", badge: "Best Seller", stock: "In Stock", emoji: <Trees size="1em" color="#15803d" />, description: "Hardy moringa seedling packed with nutrients — a low-maintenance superfood tree for any backyard.", sustainabilityBadge: "Local & Organic", rating: 4.9, reviewCount: 143, reviews: [{user: "Lito B.", rating: 5, comment: "Grew fast, harvesting leaves within months."}] },
+  { id: 20, name: "Oregano Plant", category: "Herbs", price: 160, image: "/oregano.png", stock: "In Stock", emoji: <Leaf size="1em" color="#16a34a" />, description: "Established Filipino oregano in a nursery pot — aromatic, medicinal, and nearly impossible to kill.", sustainabilityBadge: "Sustainable", rating: 4.7, reviewCount: 66, reviews: [{user: "Cely N.", rating: 5, comment: "Thick healthy leaves, arrived well-packed."}] },
+  { id: 21, name: "Gumamela Cutting", category: "Floriculture", price: 170, image: "/gumamela.png", stock: "In Stock", emoji: <Flower2 size="1em" color="#dc2626" />, description: "Rooted hibiscus cutting in classic red — blooms year-round and attracts butterflies.", sustainabilityBadge: "Local & Organic", rating: 4.6, reviewCount: 58, reviews: [{user: "Vina O.", rating: 4, comment: "Rooted well, first bloom after a month."}] },
+  { id: 22, name: "Native Mung Bean Seeds", category: "Native Seeds", price: 120, image: "/mungbean.png", badge: "Organic", stock: "In Stock", emoji: <Sprout size="1em" color="#ca8a04" />, description: "Locally sourced munggo seeds for sprouting or field planting — a natural soil nitrogen fixer.", sustainabilityBadge: "Local & Organic", rating: 4.6, reviewCount: 74, reviews: [{user: "Jun P.", rating: 5, comment: "Great germination, made fresh togue in 4 days."}] },
+  { id: 23, name: "Cocopeat Grow Blocks", category: "Soil Mixes", price: 190, image: "/cocopeat.png", badge: "Eco", stock: "In Stock", emoji: <Recycle size="1em" color="#92400e" />, description: "Compressed coconut coir blocks that expand into a light, water-retaining growing medium.", sustainabilityBadge: "Recycled Content", rating: 4.7, reviewCount: 105, reviews: [{user: "Mika T.", rating: 5, comment: "One block expanded so much, great value."}] },
+  { id: 24, name: "Drip Irrigation Kit", category: "Gardening Tools", price: 650, image: "/drip_kit.png", badge: "New", stock: "Low Stock", emoji: <Droplet size="1em" color="#0ea5e9" />, description: "Water-saving drip kit for up to 20 plants — timers, tubing, and drippers included.", sustainabilityBadge: "Eco-Friendly", rating: 4.8, reviewCount: 39, reviews: [{user: "Arlo G.", rating: 5, comment: "Cut my watering time to zero, plants love it."}] },
+  { id: 25, name: "Herb Garden Starter Kit", category: "Starter Kits", price: 850, image: "/herb_kit.png", badge: "Popular", stock: "In Stock", emoji: <Package size="1em" color="#15803d" />, description: "Grow basil, mint, and oregano from one box — pots, soil discs, seeds, and a care guide included.", sustainabilityBadge: "Sustainable", rating: 4.8, reviewCount: 92, reviews: [{user: "Faye R.", rating: 5, comment: "Perfect gift, everything you need is inside."}] },
+  { id: 26, name: "Pechay Seeds", category: "Organic Edibles", price: 85, image: "/pechay.png", stock: "In Stock", emoji: <Salad size="1em" color="#16a34a" />, description: "Quick-harvest native pechay — ready to eat in just 30 days, perfect for container gardens.", sustainabilityBadge: "Local & Organic", rating: 4.6, reviewCount: 88, reviews: [{user: "Rosa E.", rating: 5, comment: "Harvested in a month, super easy to grow."}] },
+  { id: 27, name: "Sili Labuyo Seedling", category: "Organic Edibles", price: 135, image: "/labuyo.png", badge: "Hot", stock: "In Stock", emoji: <Flame size="1em" color="#dc2626" />, description: "Fiery native bird's eye chili seedling — compact, productive, and thrives in pots.", sustainabilityBadge: "Local & Organic", rating: 4.8, reviewCount: 67, reviews: [{user: "Ben K.", rating: 5, comment: "Loaded with chilis after two months!"}] },
+  { id: 28, name: "Pandan Plant", category: "Herbs", price: 145, image: "/pandan.png", stock: "In Stock", emoji: <Leaf size="1em" color="#15803d" />, description: "Fragrant pandan in a nursery pot — fresh leaves on demand for rice, drinks, and desserts.", sustainabilityBadge: "Local & Organic", rating: 4.7, reviewCount: 79, reviews: [{user: "Ina C.", rating: 5, comment: "So fragrant, my kitchen staple now."}] },
+  { id: 29, name: "Waling-Waling Orchid Seedling", category: "Floriculture", price: 450, image: "/walingwaling.png", badge: "Rare", stock: "Low Stock", emoji: <Flower2 size="1em" color="#7c3aed" />, description: "The queen of Philippine orchids — nursery-propagated seedling with care instructions included.", sustainabilityBadge: "Local & Organic", rating: 4.9, reviewCount: 34, reviews: [{user: "Cora H.", rating: 5, comment: "Healthy roots, a dream to finally own one."}] },
+  { id: 30, name: "Native Ube Tubers", category: "Native Seeds", price: 220, image: "/ube.png", badge: "Organic", stock: "In Stock", emoji: <Sprout size="1em" color="#7c3aed" />, description: "Planting-grade purple yam tubers from local growers — grow your own ube at home.", sustainabilityBadge: "Local & Organic", rating: 4.7, reviewCount: 48, reviews: [{user: "Manny Q.", rating: 5, comment: "Sprouted quickly, excited for harvest."}] },
+  { id: 31, name: "Carbonized Rice Hull", category: "Soil Mixes", price: 150, image: "/rice_hull.png", badge: "Eco", stock: "In Stock", emoji: <Wheat size="1em" color="#57534e" />, description: "Upcycled rice hulls that improve drainage and aeration — a Filipino farming classic.", sustainabilityBadge: "Recycled Content", rating: 4.6, reviewCount: 93, reviews: [{user: "Oscar D.", rating: 5, comment: "My potting mix drains so much better now."}] },
+  { id: 32, name: "Bamboo Garden Stakes (10 pcs)", category: "Gardening Tools", price: 120, image: "/bamboo_stakes.png", stock: "In Stock", emoji: <Trees size="1em" color="#92400e" />, description: "Sturdy locally sourced bamboo stakes for supporting tomatoes, beans, and climbing vines.", sustainabilityBadge: "Sustainable", rating: 4.5, reviewCount: 61, reviews: [{user: "Pia W.", rating: 4, comment: "Strong stakes, good length for tomatoes."}] },
+  { id: 33, name: "Kids Gardening Kit", category: "Starter Kits", price: 950, image: "/kids_kit.png", badge: "New", stock: "In Stock", emoji: <Gift size="1em" color="#db2777" />, description: "Child-friendly tools, fast-sprouting seeds, and activity cards to get little hands growing.", sustainabilityBadge: "Sustainable", rating: 4.9, reviewCount: 45, reviews: [{user: "Joy A.", rating: 5, comment: "My daughter checks her sprouts every morning!"}] },
 ];
 
 const initialHarvests = [
@@ -77,17 +133,61 @@ const initialOrders = [
   { id: "ORD-9820", customer: "Urban Roots", email: "hello@urbanroots.ph", phone: "0977 111 2222", address: "101 Cedar Ln, Cebu City, Cebu 6000", amount: "₱3,200", status: "Pending Approval", date: "May 27, 2026", payment: "Maya", paymentStatus: "Paid", products: "5x Microgreens Kit", rider: "Unassigned", instructions: "", total: 3200.00, items: "5x Microgreens Kit" },
 ];
 
-const ORDERS_STORAGE_KEY = "verdeversity_orders";
-const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
-const PRODUCTS_STORAGE_KEY = "verdeversity_products";
-const HARVESTS_STORAGE_KEY = "verdeversity_harvests";
-const PROMOCODES_STORAGE_KEY = "verdeversity_promocodes";
-const PLANT_SCANS_STORAGE_KEY = "verdeversity_plant_scans";
-const SUBSCRIBERS_STORAGE_KEY = "verdeversity_subscribers";
-const EVENTS_STORAGE_KEY = "verdeversity_events";
-const CONTENT_STORAGE_KEY = "verdeversity_content";
-const FORUM_POSTS_STORAGE_KEY = "verdeversity_forum_posts";
-const FARM_PLANNER_STORAGE_KEY = "verdeversity_farm_planner";
+const ORDERS_STORAGE_KEY = "ecoequity_orders";
+const SUPPORT_TICKETS_STORAGE_KEY = "ecoequity_support_tickets";
+const PRODUCTS_STORAGE_KEY = "ecoequity_products";
+const HARVESTS_STORAGE_KEY = "ecoequity_harvests";
+const PROMOCODES_STORAGE_KEY = "ecoequity_promocodes";
+const PLANT_SCANS_STORAGE_KEY = "ecoequity_plant_scans";
+const PLANT_DISEASES_STORAGE_KEY = "ecoequity_plant_diseases";
+const SUBSCRIBERS_STORAGE_KEY = "ecoequity_subscribers";
+const EVENTS_STORAGE_KEY = "ecoequity_events";
+const CONTENT_STORAGE_KEY = "ecoequity_content";
+const FORUM_POSTS_STORAGE_KEY = "ecoequity_forum_posts";
+const FARM_PLANNER_STORAGE_KEY = "ecoequity_farm_planner";
+const ADMIN_SETTINGS_STORAGE_KEY = "ecoequity_admin_settings";
+const BROADCASTS_STORAGE_KEY = "ecoequity_broadcasts";
+const ADVISORS_STORAGE_KEY = "ecoequity_advisors";
+const SURPLUS_LISTINGS_STORAGE_KEY = "ecoequity_surplus_listings";
+const SURPLUS_DEMANDS_STORAGE_KEY = "ecoequity_surplus_demands";
+const CERT_COURSES_STORAGE_KEY = "ecoequity_cert_courses";
+const SITE_FEEDBACK_STORAGE_KEY = "ecoequity_site_feedback";
+const DELIVERIES_STORAGE_KEY = "ecoequity_deliveries";
+const RIDERS_STORAGE_KEY = "ecoequity_riders";
+const PLATFORM_USERS_STORAGE_KEY = "ecoequity_platform_users";
+const TRANSACTIONS_STORAGE_KEY = "ecoequity_transactions";
+
+// Convert the admin Broadcast Notifications feed into the shape the customer
+// notification bell expects ({ id, title, message, time, read }). Keeps the
+// read flag from any prior copy so refreshes don't re-mark items unread.
+const broadcastsToNotifications = (broadcasts, prev = []) =>
+  (Array.isArray(broadcasts) ? broadcasts : []).map((b) => {
+    const existing = prev.find((n) => n.id === b.id);
+    return {
+      id: b.id,
+      title: b.title,
+      message: b.title ? `${b.title} — ${b.message}` : b.message,
+      time: b.time || "Just now",
+      read: existing ? existing.read : false,
+    };
+  });
+
+// Portal-wide configuration authored from the Admin Portal > Settings module.
+const defaultAdminSettings = {
+  platformName: "EcoEquity",
+  supportEmail: "support@ecoequity.ph",
+  maintenanceMode: false,
+  admins: [
+    { id: "ADM-001", name: "Juan Dela Cruz", role: "Super Admin", twoFactor: true, isYou: true },
+  ],
+  paymongoEnabled: true,
+  paymongoKey: "",
+  aiConfidenceThreshold: 85,
+  activeModel: "Verde-Agri-V2.4 (Optimized for PH Climate)",
+  themeMode: "Light",
+  accentColor: "#16a34a",
+  lastBackup: null,
+};
 
 // Generic localStorage-backed initializer: returns the saved array if valid,
 // otherwise falls back to the provided seed data.
@@ -223,6 +323,12 @@ function App() {
   const [agreeTerms, setAgreeTerms] = useState(false); // Separated terms from rememberMe
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State for logged-in status
   const [isAdmin, setIsAdmin] = useState(false); // State for admin status
+  const [signupModal, setSignupModal] = useState(null); // { email } -> "check your email" modal after signup
+  const [welcomeModal, setWelcomeModal] = useState(false); // shown after the email confirmation link returns
+  const [resendState, setResendState] = useState("idle"); // idle | sending | sent
+  // Local (UI-only) Google chooser: null = closed, else { step: "pick" | "other" | "signing", account }
+  const [googleModal, setGoogleModal] = useState(null);
+  const [googleOtherEmail, setGoogleOtherEmail] = useState("");
   const [loggedInUser, setLoggedInUser] = useState(""); // State for user name
   const [profilePic, setProfilePic] = useState(null); // State for user profile picture
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Profile dropdown
@@ -285,15 +391,34 @@ function App() {
   const [supportTickets, setSupportTickets] = useState(getInitialSupportTickets);
   // Shared domain data synced between the main website and the Admin Portal
   const [plantScans, setPlantScans] = useState(() => getStoredArray(PLANT_SCANS_STORAGE_KEY, mockScansList));
+  const [plantDiseases, setPlantDiseases] = useState(() => getStoredArray(PLANT_DISEASES_STORAGE_KEY, mockDiseaseLibrary));
   const [subscribers, setSubscribers] = useState(() => getStoredArray(SUBSCRIBERS_STORAGE_KEY, mockSubscribers));
   const [events, setEvents] = useState(() => getStoredArray(EVENTS_STORAGE_KEY, mockEventsList));
   const [contentItems, setContentItems] = useState(() => getStoredArray(CONTENT_STORAGE_KEY, mockContentList));
   const [forumPosts, setForumPosts] = useState(() => getStoredArray(FORUM_POSTS_STORAGE_KEY, forumSeedPosts));
   const [farmPlanner, setFarmPlanner] = useState(() => getStoredObject(FARM_PLANNER_STORAGE_KEY, defaultPlannerConfig));
+  const [advisors, setAdvisors] = useState(() => getStoredArray(ADVISORS_STORAGE_KEY, defaultAdvisors));
+  const [surplusListings, setSurplusListings] = useState(() => getStoredArray(SURPLUS_LISTINGS_STORAGE_KEY, defaultSurplusListings));
+  const [surplusDemands, setSurplusDemands] = useState(() => getStoredArray(SURPLUS_DEMANDS_STORAGE_KEY, defaultRestaurantDemands));
+  // Course `icon` fields are React elements, so run the saved copy through
+  // hydrateIcons (see the products/harvests note above) to avoid reload crashes.
+  const [certCourses, setCertCourses] = useState(() => hydrateIcons(getStoredArray(CERT_COURSES_STORAGE_KEY, defaultCertCourses), defaultCertCourses, "icon", <Sprout size="1em" color="#16a34a" />));
+  const [adminSettings, setAdminSettings] = useState(() => getStoredObject(ADMIN_SETTINGS_STORAGE_KEY, defaultAdminSettings));
   const [showSupportTicketModal, setShowSupportTicketModal] = useState(false);
   const [supportFabHovered, setSupportFabHovered] = useState(false);
+  // Site-experience feedback (how the app feels to use) — distinct from product reviews.
+  const [siteFeedback, setSiteFeedback] = useState(() => getStoredArray(SITE_FEEDBACK_STORAGE_KEY, []));
+  // Admin-owned records that the client screens also read (deliveries drive Track Order,
+  // plans drive the AI Data Subscription pricing cards).
+  const [deliveries, setDeliveries] = useState(() => getStoredArray(DELIVERIES_STORAGE_KEY, mockDeliveriesList));
+  const [riders, setRiders] = useState(() => getStoredArray(RIDERS_STORAGE_KEY, mockRiders));
+  const [platformUsers, setPlatformUsers] = useState(() => getStoredArray(PLATFORM_USERS_STORAGE_KEY, mockUsers));
+  const [transactions, setTransactions] = useState(() => getStoredArray(TRANSACTIONS_STORAGE_KEY, mockTransactions));
+  const [subscriptionPlans, setSubscriptionPlans] = useState(() => getStoredArray(SUBSCRIPTION_PLANS_STORAGE_KEY, initialSubscriptionPlans));
+  const [showFeedbackWidget, setShowFeedbackWidget] = useState(false);
+  const [feedbackFabHovered, setFeedbackFabHovered] = useState(false);
 
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => broadcastsToNotifications(getStoredArray(BROADCASTS_STORAGE_KEY, [])));
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifBadgeAnim, setNotifBadgeAnim] = useState(false);
 
@@ -325,6 +450,70 @@ function App() {
     }
   }, [notifications.filter(n => !n.read).length]);
 
+  // Load products from Supabase on mount. Falls back to the existing sample
+  // data if Supabase isn't configured or returns nothing, so the app always
+  // renders something. This is the first entity migrated off React state.
+  useEffect(() => {
+    fetchProducts()
+      .then((rows) => { if (rows && rows.length) setProducts(rows); })
+      .catch((err) => console.error("Failed to load products from Supabase:", err));
+  }, []);
+
+  // Restore an existing Supabase session on load (page refresh + return from the
+  // Google OAuth redirect), and keep app state in sync with login/logout.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+
+    // Returning from the email confirmation link: Supabase appends
+    // #access_token=...&type=signup. Show the welcome modal and clean the URL.
+    const hash = window.location.hash || "";
+    if (hash.includes("type=signup")) {
+      setWelcomeModal(true);
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+
+    // Returning from a *failed* OAuth round trip (provider off, redirect URL not
+    // allowlisted). Surface it on the login screen instead of silently landing
+    // on the app as a logged-out user.
+    const oauthError = consumeAuthErrorFromUrl();
+    if (oauthError) {
+      setAuthMessage({ text: oauthError, type: "error" });
+      setActiveNav("Login");
+    }
+
+    getCurrentUser().then((current) => {
+      if (!active || !current?.user) return;
+      applySession(current);
+    });
+    const sub = onAuthChange((session, event) => {
+      if (!session) { setIsLoggedIn(false); setIsAdmin(false); return; }
+      // Token refreshes fire with a valid session but shouldn't re-run the
+      // navigation side effects in applySession.
+      if (event === "TOKEN_REFRESHED") return;
+      // SIGNED_IN — e.g. returning from the Google OAuth redirect. The initial
+      // getCurrentUser() above can run before Supabase has parsed the session
+      // from the URL, so hydrate from this session to populate name/avatar/email.
+      getUserFromSession(session).then((current) => {
+        if (active && current?.user) applySession(current);
+      });
+    });
+    return () => { active = false; sub?.unsubscribe(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep the customer notification bell in sync with admin broadcasts. Admin
+  // dispatches a storage event when a broadcast is sent (same-tab and across
+  // tabs), so we re-read the feed and merge while preserving read flags.
+  useEffect(() => {
+    const syncBroadcasts = (e) => {
+      if (e && e.key && e.key !== BROADCASTS_STORAGE_KEY) return;
+      setNotifications(prev => broadcastsToNotifications(getStoredArray(BROADCASTS_STORAGE_KEY, []), prev));
+    };
+    window.addEventListener("storage", syncBroadcasts);
+    return () => window.removeEventListener("storage", syncBroadcasts);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
   }, [orders]);
@@ -338,11 +527,23 @@ function App() {
   useEffect(() => { localStorage.setItem(HARVESTS_STORAGE_KEY, JSON.stringify(harvests)); }, [harvests]);
   useEffect(() => { localStorage.setItem(PROMOCODES_STORAGE_KEY, JSON.stringify(promoCodes)); }, [promoCodes]);
   useEffect(() => { localStorage.setItem(PLANT_SCANS_STORAGE_KEY, JSON.stringify(plantScans)); }, [plantScans]);
+  useEffect(() => { localStorage.setItem(PLANT_DISEASES_STORAGE_KEY, JSON.stringify(plantDiseases)); }, [plantDiseases]);
   useEffect(() => { localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify(subscribers)); }, [subscribers]);
   useEffect(() => { localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(events)); }, [events]);
   useEffect(() => { localStorage.setItem(CONTENT_STORAGE_KEY, JSON.stringify(contentItems)); }, [contentItems]);
   useEffect(() => { localStorage.setItem(FORUM_POSTS_STORAGE_KEY, JSON.stringify(forumPosts)); }, [forumPosts]);
   useEffect(() => { localStorage.setItem(FARM_PLANNER_STORAGE_KEY, JSON.stringify(farmPlanner)); }, [farmPlanner]);
+  useEffect(() => { localStorage.setItem(ADVISORS_STORAGE_KEY, JSON.stringify(advisors)); }, [advisors]);
+  useEffect(() => { localStorage.setItem(SURPLUS_LISTINGS_STORAGE_KEY, JSON.stringify(surplusListings)); }, [surplusListings]);
+  useEffect(() => { localStorage.setItem(SURPLUS_DEMANDS_STORAGE_KEY, JSON.stringify(surplusDemands)); }, [surplusDemands]);
+  useEffect(() => { localStorage.setItem(CERT_COURSES_STORAGE_KEY, JSON.stringify(certCourses)); }, [certCourses]);
+  useEffect(() => { localStorage.setItem(ADMIN_SETTINGS_STORAGE_KEY, JSON.stringify(adminSettings)); }, [adminSettings]);
+  useEffect(() => { localStorage.setItem(SITE_FEEDBACK_STORAGE_KEY, JSON.stringify(siteFeedback)); }, [siteFeedback]);
+  useEffect(() => { localStorage.setItem(DELIVERIES_STORAGE_KEY, JSON.stringify(deliveries)); }, [deliveries]);
+  useEffect(() => { localStorage.setItem(RIDERS_STORAGE_KEY, JSON.stringify(riders)); }, [riders]);
+  useEffect(() => { localStorage.setItem(PLATFORM_USERS_STORAGE_KEY, JSON.stringify(platformUsers)); }, [platformUsers]);
+  useEffect(() => { localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions)); }, [transactions]);
+  useEffect(() => { localStorage.setItem(SUBSCRIPTION_PLANS_STORAGE_KEY, JSON.stringify(subscriptionPlans)); }, [subscriptionPlans]);
 
   // A user-submitted AI Plant Doctor scan flows into the Admin Portal
   const handleNewPlantScan = (scan) => setPlantScans(prev => [scan, ...prev]);
@@ -389,7 +590,39 @@ function App() {
     ]);
   };
 
-  const handleLogin = () => {
+  // Apply a logged-in Supabase user/profile to the app's session state.
+  // Takes the whole { user, profile } from getCurrentUser(). Prefers the DB
+  // profile, then falls back to the Google OAuth metadata (avatar_url/picture +
+  // name/full_name + email) so the picture, name, and email all show on first
+  // Google login — even before the profiles row has synced.
+  const applySession = (current, fallbackEmail) => {
+    const profile = current?.profile;
+    const user = current?.user;
+    const meta = user?.user_metadata || {};
+    const email = user?.email || fallbackEmail || meta.email || "";
+    const isAdminUser = Boolean(profile?.is_admin);
+    setIsLoggedIn(true);
+    setIsAdmin(isAdminUser);
+    // A restored session (page reload, Google OAuth return) leaves the app
+    // parked on the auth screen, which hides the whole navbar — move to the
+    // landing page. Explicit login/signup flows navigate right after this
+    // anyway, so the guard keeps this from touching any other page.
+    setActiveNav((prev) =>
+      prev === "Login" || prev === "Sign Up"
+        ? (isAdminUser ? "Admin Portal" : "Home")
+        : prev
+    );
+    setLoggedInUser(
+      profile?.full_name || meta.full_name || meta.name ||
+      (email ? email.split("@")[0] : "User")
+    );
+    setLoggedInEmail(email);
+    const pic = profile?.profile_pic || meta.avatar_url || meta.picture;
+    if (pic) setProfilePic(pic);
+    return isAdminUser;
+  };
+
+  const handleLogin = async () => {
     if (!email || !password) {
       setAuthMessage({ text: "Please enter both email and password.", type: "error" });
       setFormErrorShake(true);
@@ -397,34 +630,38 @@ function App() {
       return;
     }
 
-    if (email.toLowerCase() === "admin@ecoequity.com" && password === "Ecoequity") {
-      setAuthMessage({ text: "Welcome back, Admin!", type: "success" });
+    // Fallback to the original simulated login if Supabase isn't configured.
+    if (!isSupabaseConfigured) {
+      const adminLogin = email.toLowerCase() === "admin@ecoequity.com" && password === "Ecoequity";
+      setAuthMessage({ text: adminLogin ? "Welcome back, Admin!" : `Welcome back! Logged in as ${email}`, type: "success" });
       setTimeout(() => {
         setIsLoggedIn(true);
-        setIsAdmin(true);
-        setLoggedInUser("Admin");
+        setIsAdmin(adminLogin);
+        setLoggedInUser(adminLogin ? "Admin" : email.split("@")[0] || "User");
         setLoggedInEmail(email);
-        handleNavChange("Admin Portal");
-        setEmail("");
-        setPassword("");
-        setAuthMessage(null);
+        handleNavChange(adminLogin ? "Admin Portal" : "Home");
+        setEmail(""); setPassword(""); setAuthMessage(null);
       }, 1500);
       return;
     }
 
-    setAuthMessage({ text: `Welcome back! Logged in as ${email}`, type: "success" });
-    setTimeout(() => {
-      setIsLoggedIn(true);
-      setLoggedInUser(email.split('@')[0] || "User");
-      setLoggedInEmail(email);
-      handleNavChange("Home");
-      setEmail("");
-      setPassword("");
-      setAuthMessage(null);
-    }, 1500);
+    try {
+      setAuthMessage({ text: "Signing in...", type: "success" });
+      await signIn({ email, password });
+      const current = await getCurrentUser();
+      const isAdminUser = applySession(current, email);
+      setAuthMessage({ text: isAdminUser ? "Welcome back, Admin!" : "Welcome back!", type: "success" });
+      handleNavChange(isAdminUser ? "Admin Portal" : "Home");
+      setEmail(""); setPassword("");
+      setTimeout(() => setAuthMessage(null), 1500);
+    } catch (err) {
+      setAuthMessage({ text: err.message || "Invalid email or password.", type: "error" });
+      setFormErrorShake(true);
+      setTimeout(() => setFormErrorShake(false), 400);
+    }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (!fullName || !email || !password) {
       setAuthMessage({ text: "Please fill in all fields.", type: "error" });
       setFormErrorShake(true);
@@ -438,60 +675,90 @@ function App() {
       return;
     }
 
-    // Simulated check for already registered user
-    if (email === "user@example.com") {
-      setAuthMessage({ text: "This email is already registered. Please login instead.", type: "error" });
+    // Fallback to the original simulated signup if Supabase isn't configured.
+    if (!isSupabaseConfigured) {
+      setAuthMessage({ text: `Account created successfully for ${fullName}!`, type: "success" });
+      setTimeout(() => {
+        setIsLoggedIn(true);
+        setLoggedInUser(fullName.split(" ")[0] || "User");
+        setLoggedInEmail(email);
+        handleNavChange("Home");
+        setFullName(""); setEmail(""); setPassword(""); setAgreeTerms(false); setAuthMessage(null);
+      }, 1500);
       return;
     }
 
-    setAuthMessage({ text: `Account created successfully for ${fullName}!`, type: "success" });
-    setTimeout(() => {
-      setIsLoggedIn(true);
-      setLoggedInUser(fullName.split(' ')[0] || "User");
-      setLoggedInEmail(email);
+    try {
+      setAuthMessage({ text: "Creating your account...", type: "success" });
+      const data = await signUp({ email, password, fullName });
+      // If the project requires email confirmation, there's no session yet.
+      // Show the "check your email" modal instead of just a banner.
+      if (!data.session) {
+        setAuthMessage(null);
+        setResendState("idle");
+        setSignupModal({ email });
+        setFullName(""); setPassword(""); setAgreeTerms(false);
+        return;
+      }
+      const current = await getCurrentUser();
+      applySession(current, email);
+      setAuthMessage({ text: `Welcome, ${fullName}!`, type: "success" });
       handleNavChange("Home");
-      setFullName("");
-      setEmail("");
-      setPassword("");
-      setAgreeTerms(false);
-      setAuthMessage(null);
-    }, 1500);
+      setFullName(""); setEmail(""); setPassword(""); setAgreeTerms(false);
+      setTimeout(() => setAuthMessage(null), 1500);
+    } catch (err) {
+      setAuthMessage({ text: err.message || "Could not create account.", type: "error" });
+      setFormErrorShake(true);
+      setTimeout(() => setFormErrorShake(false), 400);
+    }
   };
 
+  // Google "connect" is local/UI-only for now: no Google Cloud Console client,
+  // no Supabase provider, no redirect. Opens an in-app account chooser and logs
+  // the user in from locally built session data (see data/auth.js).
   const handleSocialAuth = (provider) => {
-    let authUrl = "";
-    if (provider === "Google") {
-      authUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=http://localhost:3000&response_type=code&scope=email%20profile";
-    } else if (provider === "Facebook") {
-      authUrl = "https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_FACEBOOK_CLIENT_ID&redirect_uri=http://localhost:3000";
-    } else if (provider === "Apple") {
-      authUrl = "https://appleid.apple.com/auth/authorize?client_id=YOUR_APPLE_CLIENT_ID&redirect_uri=http://localhost:3000&response_type=code&scope=name%20email";
+    if (provider !== "Google") return;
+    setAuthMessage(null);
+    setGoogleOtherEmail("");
+    setGoogleModal({ step: "pick" });
+  };
+
+  // Finish the local Google flow with the chosen/typed account.
+  const handleGoogleAccountPick = (account) => {
+    const current = localGoogleUser(account);
+    setGoogleModal({ step: "signing", account: current });
+    // Short beat so the "signing you in" state is visible, like a real redirect.
+    setTimeout(() => {
+      const isAdminUser = applySession(current, current.email);
+      setGoogleModal(null);
+      setGoogleOtherEmail("");
+      setAuthMessage({ text: `Signed in as ${current.email}`, type: "success" });
+      handleNavChange(isAdminUser ? "Admin Portal" : "Home");
+      setEmail(""); setPassword("");
+      setTimeout(() => setAuthMessage(null), 2000);
+    }, 700);
+  };
+
+  // "Use another account" — any syntactically valid address works locally.
+  const handleGoogleOtherAccount = () => {
+    const address = googleOtherEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
+      // Inline, because the auth banner would sit behind the modal.
+      setGoogleModal({ step: "other", error: "Enter a valid email address to continue." });
+      return;
     }
-    
-    if (authUrl) {
-      const width = 500;
-      const height = 600;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
-      const popup = window.open(authUrl, `${provider} Login`, `width=${width},height=${height},left=${left},top=${top},toolbar=0,scrollbars=1,status=1,resizable=1,location=1,menuBar=0`);
-      
-      if (popup) {
-        // Show the connecting banner immediately on the main form
-        setAuthMessage({ text: `Connecting to ${provider}...`, type: "success" });
-        const checkPopup = setInterval(() => {
-          if (popup.closed) {
-            clearInterval(checkPopup);
-            setAuthMessage({ text: `Successfully connected with ${provider}!`, type: "success" });
-            setTimeout(() => {
-              setIsLoggedIn(true);
-              setLoggedInUser(`${provider} User`);
-              setLoggedInEmail(`${provider.toLowerCase()}user@example.com`);
-              handleNavChange("Home");
-              setAuthMessage(null);
-            }, 1500);
-          }
-        }, 500);
-      }
+    handleGoogleAccountPick({ email: address });
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!signupModal?.email || resendState === "sending") return;
+    try {
+      setResendState("sending");
+      await resendConfirmation(signupModal.email);
+      setResendState("sent");
+    } catch (err) {
+      setResendState("idle");
+      window.alert(err.message || "Could not resend the email. Please try again.");
     }
   };
 
@@ -505,6 +772,7 @@ function App() {
 
   const handleLogout = (e) => {
     if (e) e.stopPropagation();
+    if (isSupabaseConfigured) signOut();
     setIsLoggedIn(false);
     setIsAdmin(false);
     setLoggedInUser("");
@@ -711,6 +979,27 @@ function App() {
     return order.status === orderFilter;
   });
 
+  // The admin's directory record for whoever is signed in — role and account status
+  // are set in Admin Portal → Users and shown back on the user's own profile.
+  const myUserRecord = loggedInEmail
+    ? platformUsers.find(u => (u.email || "").toLowerCase() === loggedInEmail.toLowerCase()) || null
+    : null;
+
+  // Only content the admin has actually published is client-visible. "Component" is
+  // an internal building block, so it stays out of the user's Updates feed.
+  const publishedContent = contentItems.filter(
+    item => item.status === "Published" && item.type !== "Component"
+  );
+
+  // The delivery record the admin manages in the Deliveries tab, matched to the
+  // order the user is currently tracking — plus the assigned rider's profile.
+  const trackedDelivery = selectedOrderForTracking
+    ? deliveries.find(d => d.orderId === selectedOrderForTracking.id) || null
+    : null;
+  const trackedRider = trackedDelivery && trackedDelivery.rider && trackedDelivery.rider !== "Unassigned"
+    ? riders.find(r => r.name === trackedDelivery.rider) || null
+    : null;
+
   useEffect(() => {
     if (showSettingsModal || showRewardSuccessModal || showCancelConfirmModal) {
       document.body.style.overflow = "hidden";
@@ -789,7 +1078,6 @@ function App() {
     }
     link.type = 'image/png';
     link.href = '/Eco.png';
-    document.title = "EcoEquity.Inc";
 
     const handleResize = () => {
       const nextIsMobile = window.innerWidth < 768;
@@ -799,13 +1087,32 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Branding the admin sets in Settings → General drives the tab title and accent.
+  useEffect(() => {
+    document.title = `${adminSettings.platformName || "EcoEquity"}.Inc`;
+  }, [adminSettings.platformName]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--eco-accent", adminSettings.accentColor || "#16a34a");
+  }, [adminSettings.accentColor]);
+
   useEffect(() => {
     // Clear any auth messages when navigating between login and signup
     setAuthMessage(null);
   }, [activeNav]);
 
-  // Always collapse the navbar into the right-side hamburger panel (all viewport widths)
+  // The hamburger button hides/unhides the nav menu at every viewport width;
+  // on wide screens the open menu docks as a right-anchored dropdown card.
   const navCollapsed = true;
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isMobileMenuOpen]);
 
   const handleNavChange = (navName, options = {}) => {
     setActiveNav(navName);
@@ -997,9 +1304,19 @@ function App() {
                   .glow-card {
                     box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05);
                   }
+                  html[data-theme="dark"] .glow-card {
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+                  }
                   @keyframes cardPulseGlow {
                     0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05), 0 0 0px rgba(34, 197, 94, 0); }
                     50% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05), 0 0 25px rgba(22, 163, 74, 0.4); }
+                  }
+                  html[data-theme="dark"] .animate-cardPulseGlow {
+                    animation: cardPulseGlowDark 3.5s infinite ease-in-out;
+                  }
+                  @keyframes cardPulseGlowDark {
+                    0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.05), 0 0 0px rgba(34, 197, 94, 0); }
+                    50% { box-shadow: 0 8px 24px rgba(0,0,0,0.05), 0 0 25px rgba(22, 163, 74, 0.4); }
                   }
                   .animate-cardPulseGlow {
                     animation: cardPulseGlow 3.5s infinite ease-in-out;
@@ -1007,6 +1324,13 @@ function App() {
                   @keyframes heroRightCardPulseGlow {
                     0%, 100% { box-shadow: 0 20px 40px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 0px rgba(34, 197, 94, 0); }
                     50% { box-shadow: 0 20px 40px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 35px rgba(34, 197, 94, 0.4); }
+                  }
+                  html[data-theme="dark"] .animate-heroRightCardPulseGlow {
+                    animation: heroRightCardPulseGlowDark 4s infinite ease-in-out;
+                  }
+                  @keyframes heroRightCardPulseGlowDark {
+                    0%, 100% { box-shadow: 0 20px 40px rgba(0,0,0,0.06), 0 0 0px rgba(34, 197, 94, 0); }
+                    50% { box-shadow: 0 20px 40px rgba(0,0,0,0.06), 0 0 35px rgba(34, 197, 94, 0.4); }
                   }
                   .animate-heroRightCardPulseGlow {
                     animation: heroRightCardPulseGlow 4s infinite ease-in-out;
@@ -1087,6 +1411,10 @@ function App() {
             transform: translate(-50%, -50%);
             animation: orbitSpin 2s linear infinite;
           }
+          html[data-theme="dark"] .orbit-container::before {
+            background: conic-gradient(from 0deg, transparent 100%, transparent 100%);
+            opacity: 0;
+          }
           .orbit-container-mobile {
             position: absolute;
             inset: 0;
@@ -1149,8 +1477,8 @@ function App() {
           }
         `}
       </style>
-      {/* Background Scrim */}
-      <div style={{
+      {/* Background Scrim — `page-bg-scrim` is dark mode's only repaint target */}
+      <div className="page-bg-scrim" style={{
         ...styles.bgScrim,
         // Ensure the scrim is above the video but below other content
         zIndex: 1,
@@ -1231,16 +1559,26 @@ function App() {
           ))}
         </div>
 
+        {/* Maintenance mode is toggled in Admin Portal → Settings; admins keep full access */}
+        {adminSettings.maintenanceMode && !isAdmin && (
+          <div style={{ padding: isMobile ? "10px 16px" : "12px 24px", background: "linear-gradient(135deg, rgba(234,179,8,0.18), rgba(245,158,11,0.12))", border: "1px solid rgba(234,179,8,0.35)", borderRadius: "14px", margin: isMobile ? "0 12px 12px" : "0 24px 16px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "13px", fontWeight: 800, color: "#a16207" }}>Scheduled Maintenance</span>
+            <span style={{ fontSize: "13px", color: "rgba(0,0,0,0.65)", fontWeight: 500 }}>
+              {adminSettings.platformName || "EcoEquity"} is undergoing maintenance. Some features may be temporarily unavailable — thanks for your patience.
+            </span>
+          </div>
+        )}
+
         {/* ── NAVBAR ── */}
         <nav style={{ ...styles.navbar, ...(isMobile ? styles.navbarMobile : {}) }}>
           <div style={styles.logoWrap}>
-            <img src="/Eco.png" alt="EcoEquity Inc Logo" style={{ ...styles.ecoLogo, ...(isMobile ? styles.ecoLogoMobile : {}) }} />
-            <span style={{ ...styles.logoText, ...(isMobile ? styles.logoTextMobile : {}) }}>EcoEquity.Inc</span>
+            <img src="/Eco.png" alt={`${adminSettings.platformName || "EcoEquity"} Inc Logo`} style={{ ...styles.ecoLogo, ...(isMobile ? styles.ecoLogoMobile : {}) }} />
+            <span style={{ ...styles.logoText, ...(isMobile ? styles.logoTextMobile : {}) }}>{adminSettings.platformName || "EcoEquity"}.Inc</span>
           </div> {/* End of logoWrap */}
           {!isAuthPage && activeNav !== "Admin Portal" && (
             <>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto", zIndex: 2000 }}>
-              {isLoggedIn && (
+            <div className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto", zIndex: 2000 }}>
+              {isLoggedIn && !isMobile && (
                 <button
                   type="button"
                   onClick={() => handleNavChange("Contact")}
@@ -1267,6 +1605,19 @@ function App() {
                   }}
                 >
                   Get in Touch
+                </button>
+              )}
+              {navCollapsed && isLoggedIn && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={darkMode}
+                  aria-label="Toggle dark mode"
+                  title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  style={{ ...styles.hamburgerButton, marginLeft: 0 }}
+                  onClick={() => setDarkMode(d => !d)}
+                >
+                  {darkMode ? <Moon size={18} color="#000" /> : <Sun size={18} color="#000" />}
                 </button>
               )}
               {navCollapsed && isLoggedIn && (
@@ -1342,8 +1693,10 @@ function App() {
                 className={`nav-links-panel ${isMobileMenuOpen ? "mobile-menu-open" : ""}`}
                 style={{ ...styles.navLinks, ...(navCollapsed ? styles.navLinksMobile : {}), ...(navCollapsed && !isMobileMenuOpen ? styles.navLinksMobileHidden : {}) }}
               >
+                {navCollapsed && <span className="nav-section-label">Menu</span>}
                 {navItems
                   .map((item) => {
+                  const ItemIcon = navItemIcons[item];
                   if (item === "Target Market") {
                     const isTargetMarketActive = activeNav === "Target Market" || activeNav === "Target Market Explore" || activeNav === "Sustainability App Market";
                     let targetMarketLabel = item;
@@ -1384,6 +1737,7 @@ function App() {
                           onMouseEnter={() => setHoveredNav(item)}
                           onMouseLeave={() => setHoveredNav(null)}
                         >
+                          {ItemIcon && <ItemIcon className="nav-item-icon" size={17} strokeWidth={2} />}
                           {targetMarketLabel}
                           <span
                             onClick={(e) => {
@@ -1535,6 +1889,7 @@ function App() {
                           onMouseEnter={() => setHoveredNav(item)}
                           onMouseLeave={() => setHoveredNav(null)}
                         >
+                          {ItemIcon && <ItemIcon className="nav-item-icon" size={17} strokeWidth={2} />}
                           {productServicesLabel} {/* Display "Benefits of the Project" if active, otherwise "Product & Services" */}
                           <span
                             onClick={(e) => {
@@ -1667,6 +2022,7 @@ function App() {
                           onMouseEnter={() => setHoveredNav(item)}
                           onMouseLeave={() => setHoveredNav(null)}
                         >
+                          {ItemIcon && <ItemIcon className="nav-item-icon" size={17} strokeWidth={2} />}
                           {seasonalLabel}
                           <span
                             onClick={(e) => {
@@ -1793,6 +2149,7 @@ function App() {
                       onMouseEnter={() => setHoveredNav(item)}
                       onMouseLeave={() => setHoveredNav(null)}
                     >
+                      {ItemIcon && <ItemIcon className="nav-item-icon" size={17} strokeWidth={2} />}
                       {item}
                     </button>
                   );
@@ -1802,7 +2159,39 @@ function App() {
                   {isLoggedIn && (
                     <>
                       <div style={{ width: navCollapsed ? "100%" : "1px", height: navCollapsed ? "1px" : "auto", background: "rgba(0,0,0,0.1)", margin: navCollapsed ? "4px 0" : "0 4px" }} />
-                      
+                      {navCollapsed && <span className="nav-section-label">Account</span>}
+
+                      {/* Dark Mode Toggle */}
+                      {!navCollapsed && (
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={darkMode}
+                          aria-label="Toggle dark mode"
+                          title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                          onClick={() => setDarkMode(d => !d)}
+                          style={{
+                            ...styles.linkBtn,
+                            order: 2,
+                            background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+                            border: "1px solid rgba(255,255,255,0.35)",
+                            color: "#062018",
+                            boxShadow: "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 0,
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            marginRight: "8px",
+                            flexShrink: 0
+                          }}
+                        >
+                          {darkMode ? <Moon size={16} /> : <Sun size={16} />}
+                        </button>
+                      )}
+
                       {/* Notifications Dropdown */}
                       {!navCollapsed && (
                         <div
@@ -1818,6 +2207,7 @@ function App() {
                         >
                           <button
                             type="button"
+                            onClick={() => setIsNotificationOpen(o => !o)}
                             style={{
                               ...styles.linkBtn,
                               position: "relative",
@@ -1909,7 +2299,7 @@ function App() {
                         >
                           <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#15803d", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "bold", overflow: "hidden" }}>
                             {profilePic ? (
-                              <img src={profilePic} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              <img src={profilePic} alt="" referrerPolicy="no-referrer" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             ) : (
                               loggedInUser ? loggedInUser.charAt(0).toUpperCase() : "U"
                             )}
@@ -2024,9 +2414,23 @@ function App() {
                               >
                                 Orders
                               </button>
-                              <button 
-                                type="button" 
-                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Wishlist" ? styles.dropdownItemHover : {}) }} 
+                              <button
+                                type="button"
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Updates" ? styles.dropdownItemHover : {}) }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setIsProfileDropdownOpen(false);
+                                  setShowSettingsModal(true);
+                                  setSettingsTab("updates");
+                                }}
+                                onMouseEnter={() => setHoveredProfileDropdown("Updates")}
+                                onMouseLeave={() => setHoveredProfileDropdown(null)}
+                              >
+                                Updates
+                              </button>
+                              <button
+                                type="button"
+                                style={{ ...styles.dropdownItem, ...(navCollapsed ? styles.dropdownItemMobile : {}), ...(hoveredProfileDropdown === "Wishlist" ? styles.dropdownItemHover : {}) }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setIsProfileDropdownOpen(false);
@@ -2117,7 +2521,7 @@ function App() {
                     </div>
                     <div style={styles.mobileWelcomeAvatar}>
                       {profilePic ? (
-                        <img src={profilePic} alt="User Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img src={profilePic} alt="User Avatar" referrerPolicy="no-referrer" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
                         loggedInUser ? loggedInUser.charAt(0).toUpperCase() : "G"
                       )}
@@ -2619,7 +3023,7 @@ function App() {
                 </p>
 
                 {/* Three-column showcase: side text · image panels · side stats */}
-                <div style={{ position: "relative", zIndex: 2, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "clamp(8px, 1.6vw, 20px)", marginTop: "clamp(4px, 1vh, 10px)" }}>
+                <div style={{ position: "relative", zIndex: 2, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "clamp(8px, 1.6vw, 20px)", marginTop: "clamp(4px, 1vh, 10px)" }}>
 
                   {/* CENTER — angled photo panels */}
                   <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "clamp(8px, 1vw, 14px)", marginTop: "clamp(12px, 2vh, 24px)" }}>
@@ -2640,12 +3044,25 @@ function App() {
                     ))}
                   </div>
 
-                  {/* RIGHT — vertical social icons */}
-                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "clamp(10px, 1.7vh, 16px)", flexShrink: 0, marginTop: "clamp(12px, 2vh, 24px)", color: "rgba(6,32,24,0.5)" }}>
-                    <FaFacebookF size={20} style={{ cursor: "pointer" }} />
-                    <FaTwitter size={20} style={{ cursor: "pointer" }} />
-                    <FaDribbble size={20} style={{ cursor: "pointer" }} />
-                    <FaInstagram size={20} style={{ cursor: "pointer" }} />
+                  {/* RIGHT — vertical social rail, anchored to the edge so the panels stay centered */}
+                  <div style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "clamp(8px, 1.4vh, 14px)", zIndex: 3 }}>
+                    {[
+                      { Icon: FaFacebookF, label: "Facebook" },
+                      { Icon: FaXTwitter, label: "X (Twitter)" },
+                      { Icon: FaThreads, label: "Threads" },
+                      { Icon: FaInstagram, label: "Instagram" },
+                    ].map(({ Icon, label }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-label={label}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "38px", height: "38px", border: "none", background: "transparent", color: darkMode ? "#fff" : "#000", cursor: "pointer", transition: "transform 0.2s ease, color 0.2s ease" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.color = "#16a34a"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.color = darkMode ? "#fff" : "#000"; }}
+                      >
+                        <Icon size={20} />
+                      </button>
+                    ))}
                   </div>
 
                 </div>
@@ -2707,9 +3124,24 @@ function App() {
           <div style={{ ...styles.supportActionsCluster, ...(isMobile ? styles.supportActionsClusterMobile : {}) }}>
             <button
               type="button"
+              aria-label="Rate your experience"
+              title="Rate your experience"
+              onClick={() => { setShowFeedbackWidget((v) => !v); setShowAIChat(false); }}
+              onMouseEnter={() => setFeedbackFabHovered(true)}
+              onMouseLeave={() => setFeedbackFabHovered(false)}
+              style={{
+                ...styles.aiChatFab,
+                ...(isMobile ? styles.aiChatFabMobile : {}),
+                ...(feedbackFabHovered ? styles.aiChatFabHover : {}),
+              }}
+            >
+              <Star size={isMobile ? 21 : 20} color="#fff" fill={showFeedbackWidget ? "#fff" : "none"} strokeWidth={2.7} />
+            </button>
+            <button
+              type="button"
               aria-label="Chat with AI"
               title="Chat with AI"
-              onClick={() => setShowAIChat(true)}
+              onClick={() => { setShowAIChat(true); setShowFeedbackWidget(false); }}
               onMouseEnter={() => setChatHovered(true)}
               onMouseLeave={() => setChatHovered(false)}
               style={{
@@ -2748,7 +3180,7 @@ function App() {
           >
             {activeNav === "About Us" && !isMobile && <AboutUs />}
             {activeNav === "Product & Services" && <ProductServices setActiveNav={setActiveNav} />}
-            {activeNav === "ProductsPage" && <ProductsPage setActiveNav={setActiveNav} setCartItems={setCartItems} products={products} />}
+            {activeNav === "ProductsPage" && <ProductsPage setActiveNav={setActiveNav} setCartItems={setCartItems} products={products} setProducts={setProducts} />}
 {activeNav === "ServicesPage" && <ServicesPage setActiveNav={setActiveNav} showAIChat={showAIChat} setShowAIChat={setShowAIChat} />}
             {activeNav === "Target Market" && <TargetMarket />}
             {activeNav === "Contact" && <GetInTouch setActiveNav={setActiveNav} />}
@@ -2774,19 +3206,19 @@ function App() {
                 promoCodes={promoCodes}
               />
             )}
-            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} setSupportTickets={setSupportTickets} plantScans={plantScans} setPlantScans={setPlantScans} subscribers={subscribers} setSubscribers={setSubscribers} events={events} setEvents={setEvents} content={contentItems} setContent={setContentItems} forumPosts={forumPosts} setForumPosts={setForumPosts} farmPlanner={farmPlanner} setFarmPlanner={setFarmPlanner} />}
+            {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} setSupportTickets={setSupportTickets} plantScans={plantScans} setPlantScans={setPlantScans} plantDiseases={plantDiseases} setPlantDiseases={setPlantDiseases} subscribers={subscribers} setSubscribers={setSubscribers} events={events} setEvents={setEvents} content={contentItems} setContent={setContentItems} forumPosts={forumPosts} setForumPosts={setForumPosts} farmPlanner={farmPlanner} setFarmPlanner={setFarmPlanner} advisors={advisors} setAdvisors={setAdvisors} surplusListings={surplusListings} setSurplusListings={setSurplusListings} surplusDemands={surplusDemands} setSurplusDemands={setSurplusDemands} certCourses={certCourses} setCertCourses={setCertCourses} adminSettings={adminSettings} setAdminSettings={setAdminSettings} deliveries={deliveries} setDeliveries={setDeliveries} riders={riders} setRiders={setRiders} platformUsers={platformUsers} setPlatformUsers={setPlatformUsers} transactions={transactions} setTransactions={setTransactions} subscriptionPlans={subscriptionPlans} setSubscriptionPlans={setSubscriptionPlans} />}
             {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} adminEvents={events} onRegister={handleEventRegister} />}
             {activeNav === "Starter Kits & Toolsets" && <StarterKits setActiveNav={setActiveNav} />}
-            {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} onNewSubscriber={handleNewSubscriber} loggedInUser={loggedInUser} loggedInEmail={loggedInEmail} />}
-            {activeNav === "Specialist Certification" && <SpecialistCertification setActiveNav={setActiveNav} />}
-            {activeNav === "AIPlantDoctor" && <AIPlantDoctor setActiveNav={setActiveNav} onScanComplete={handleNewPlantScan} loggedInUser={loggedInUser} />}
-            {activeNav === "ExpertSupportPage" && <ExpertSupportPage setActiveNav={setActiveNav} />} {/* Add routing for ExpertSupportPage */}
+            {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} onNewSubscriber={handleNewSubscriber} loggedInUser={loggedInUser} loggedInEmail={loggedInEmail} plans={subscriptionPlans} />}
+            {activeNav === "Specialist Certification" && <SpecialistCertification setActiveNav={setActiveNav} courses={certCourses} setCourses={setCertCourses} />}
+            {activeNav === "AIPlantDoctor" && <AIPlantDoctor setActiveNav={setActiveNav} onScanComplete={handleNewPlantScan} loggedInUser={loggedInUser} plantDiseases={plantDiseases} />}
+            {activeNav === "ExpertSupportPage" && <ExpertSupportPage setActiveNav={setActiveNav} advisors={advisors} />} {/* Add routing for ExpertSupportPage */}
             {activeNav === "LGUPartnershipPage" && <LGUPartnershipPage setActiveNav={setActiveNav} />}
             {activeNav === "ImpactTrackingPage" && <ImpactTrackingPage setActiveNav={setActiveNav} />}
             {activeNav === "NativeSeedBankPage" && <NativeSeedBankPage setActiveNav={setActiveNav} />}
             {activeNav === "OurImpactPage" && <OurImpactPage setActiveNav={setActiveNav} />}
             {activeNav === "IncomeGenerationPage" && <IncomeGenerationPage setActiveNav={setActiveNav} />}
-            {activeNav === "SurplusExchangePage" && <SurplusExchangePage setActiveNav={setActiveNav} />}
+            {activeNav === "SurplusExchangePage" && <SurplusExchangePage setActiveNav={setActiveNav} listings={surplusListings} setListings={setSurplusListings} demands={surplusDemands} setDemands={setSurplusDemands} />}
             {activeNav === "CheckoutPage" && <CheckoutPage setActiveNav={setActiveNav} cartItems={cartItems} setCartItems={setCartItems} addEcoPoints={addEcoPoints} setOrders={setOrders} onTrackOrder={handleTrackOrder} products={products} setProducts={setProducts} promoCodes={promoCodes} />}
 
             {activeNav === "Login" && (
@@ -2868,15 +3300,15 @@ function App() {
                   )}
                 </div>
 
-                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : "0 1 380px", maxWidth: "380px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "26px 20px" : "32px 26px", display: isMobile && mobileAuthView === "landing" ? "none" : "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : "0 1 380px", maxWidth: "380px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "20px 20px" : "24px 26px", display: isMobile && mobileAuthView === "landing" ? "none" : "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
+                  <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                   </div>
-                  <h2 style={{ ...styles.title, fontSize: "24px", textAlign: "center", marginBottom: "8px" }}>Login to Your Account</h2>
-                  <p style={{ ...styles.body, fontSize: "13px", textAlign: "center", marginBottom: "24px" }}>Your Sustainable Journey Continues</p>
+                  <h2 style={{ ...styles.title, fontSize: "22px", textAlign: "center", marginBottom: "4px" }}>Login to Your Account</h2>
+                  <p style={{ ...styles.body, fontSize: "13px", textAlign: "center", marginBottom: "16px" }}>Your Sustainable Journey Continues</p>
                   
                   {authMessage && (
                     <div style={{ ...styles.authMessage, ...(authMessage.type === "success" ? styles.authMessageSuccess : styles.authMessageError) }}>
@@ -2884,7 +3316,7 @@ function App() {
                     </div>
                   )}
 
-                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
                     {/* Email/Phone Input */}
                     <div style={{ position: "relative", width: "100%" }}>
                       <input 
@@ -2892,7 +3324,7 @@ function App() {
                         placeholder="Email or Phone Number" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
+                        style={{ width: "100%", padding: "11px 16px 11px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
                       />
                       <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2909,7 +3341,7 @@ function App() {
                         placeholder="Password" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        style={{ width: "100%", padding: "14px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
+                        style={{ width: "100%", padding: "11px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
                       />
                       <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -2938,13 +3370,13 @@ function App() {
                     </div>
 
                     {/* Login Button */}
-                    <button onClick={handleLogin} style={{ ...styles.primaryBtn, width: "100%", marginTop: "8px", padding: "14px", fontSize: "15px" }}>
+                    <button onClick={handleLogin} style={{ ...styles.primaryBtn, width: "100%", marginTop: "4px", padding: "12px", fontSize: "15px" }}>
                       <span aria-hidden="true" style={styles.primaryInnerBlur} />
                       <span style={styles.glassContentLayer}>Login</span>
                     </button>
 
                     {/* Divider */}
-                    <div style={{ display: "flex", alignItems: "center", width: "100%", margin: "8px 0" }}>
+                    <div style={{ display: "flex", alignItems: "center", width: "100%", margin: "2px 0" }}>
                       <div style={{ flex: 1, height: "1px", background: "rgba(21, 128, 61, 0.3)" }} />
                       <span style={{ padding: "0 12px", fontSize: "12px", color: "rgba(0,0,0,0.6)", fontWeight: 500 }}>or connect with</span>
                       <div style={{ flex: 1, height: "1px", background: "rgba(21, 128, 61, 0.3)" }} />
@@ -2965,36 +3397,10 @@ function App() {
                           Google
                         </span>
                       </button>
-                      <button 
-                        onClick={() => handleSocialAuth("Facebook")}
-                        type="button"
-                        style={{ ...styles.glassBtn, flex: 1, padding: "10px", display: "flex", alignItems: "center", justifyContent: "center", ...(hoveredSocialBtn === "Facebook" ? styles.glassBtnHov : {}) }}
-                        onMouseEnter={() => setHoveredSocialBtn("Facebook")}
-                        onMouseLeave={() => setHoveredSocialBtn(null)}
-                      >
-                        <span aria-hidden="true" style={styles.glassInnerBlur} />
-                        <span style={{ ...styles.glassContentLayer, display: "flex", alignItems: "center", gap: "8px", fontSize: "13px" }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                          Facebook
-                        </span>
-                      </button>
-                      <button 
-                        onClick={() => handleSocialAuth("Apple")}
-                        type="button"
-                        style={{ ...styles.glassBtn, flex: 1, padding: "10px", display: "flex", alignItems: "center", justifyContent: "center", ...(hoveredSocialBtn === "Apple" ? styles.glassBtnHov : {}) }}
-                        onMouseEnter={() => setHoveredSocialBtn("Apple")}
-                        onMouseLeave={() => setHoveredSocialBtn(null)}
-                      >
-                        <span aria-hidden="true" style={styles.glassInnerBlur} />
-                        <span style={{ ...styles.glassContentLayer, display: "flex", alignItems: "center", gap: "8px", fontSize: "13px" }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="#000000"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.53.68 3.12.68.61 0 1.9-.75 3.47-.64 1.37.05 2.6.53 3.44 1.41-2.95 1.57-2.5 5.56.36 6.8-.75 1.95-1.63 3.65-2.39 4.72zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-                          Apple
-                        </span>
-                      </button>
                     </div>
                     
                     {/* Sign Up Prompt */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "24px", width: "100%", fontSize: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "14px", width: "100%", fontSize: "12px" }}>
                       <span style={{ color: "rgba(0,0,0,0.7)", fontWeight: 500 }}>Don't have an account?</span>
                       <button
                         type="button"
@@ -3070,15 +3476,15 @@ function App() {
                   </div>
                 </div>
 
-                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : "0 1 380px", maxWidth: "380px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "26px 20px" : "32px 26px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <div className={`inner-blur-glass glow-card animate-cardPulseGlow ${formErrorShake ? 'animate-shakeError' : ''}`} style={{ flex: isMobile ? "none" : "0 1 380px", maxWidth: "380px", width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: isMobile ? "20px 20px" : "24px 26px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}>
+                  <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                   </div>
-                  <h2 style={{ ...styles.title, fontSize: "24px", textAlign: "center", marginBottom: "8px" }}>Create an Account</h2>
-                  <p style={{ ...styles.body, fontSize: "13px", textAlign: "center", marginBottom: "24px" }}>Join the EcoEquity Community</p>
+                  <h2 style={{ ...styles.title, fontSize: "22px", textAlign: "center", marginBottom: "4px" }}>Create an Account</h2>
+                  <p style={{ ...styles.body, fontSize: "13px", textAlign: "center", marginBottom: "16px" }}>Join the EcoEquity Community</p>
                   
                   {authMessage && (
                     <div style={{ ...styles.authMessage, ...(authMessage.type === "success" ? styles.authMessageSuccess : styles.authMessageError) }}>
@@ -3086,7 +3492,7 @@ function App() {
                     </div>
                   )}
 
-                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
                     {/* Full Name Input */}
                     <div style={{ position: "relative", width: "100%" }}>
                       <input 
@@ -3094,7 +3500,7 @@ function App() {
                         placeholder="Full Name" 
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
+                        style={{ width: "100%", padding: "11px 16px 11px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
                       />
                       <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -3111,7 +3517,7 @@ function App() {
                         placeholder="Email or Phone Number" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={{ width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
+                        style={{ width: "100%", padding: "11px 16px 11px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
                       />
                       <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -3128,7 +3534,7 @@ function App() {
                         placeholder="Password" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        style={{ width: "100%", padding: "14px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
+                        style={{ width: "100%", padding: "11px 44px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "14px", color: "#000", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} 
                       />
                       <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center" }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -3156,13 +3562,13 @@ function App() {
                     </div>
 
                     {/* Sign Up Button */}
-                    <button onClick={handleSignUp} style={{ ...styles.primaryBtn, width: "100%", marginTop: "8px", padding: "14px", fontSize: "15px" }}>
+                    <button onClick={handleSignUp} style={{ ...styles.primaryBtn, width: "100%", marginTop: "4px", padding: "12px", fontSize: "15px" }}>
                       <span aria-hidden="true" style={styles.primaryInnerBlur} />
                       <span style={styles.glassContentLayer}>Sign Up</span>
                     </button>
 
                     {/* Login Prompt */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "24px", width: "100%", fontSize: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "14px", width: "100%", fontSize: "12px" }}>
                       <span style={{ color: "rgba(0,0,0,0.7)", fontWeight: 500 }}>Already have an account?</span>
                       <button
                         type="button"
@@ -3202,7 +3608,7 @@ function App() {
                     >
                       <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyItems: "center", border: "2px solid #15803d", overflow: "hidden" }}>
                         {profilePic ? (
-                          <img src={profilePic} alt="User Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src={profilePic} alt="User Avatar" referrerPolicy="no-referrer" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         ) : (
                           <span style={{ fontSize: "24px", fontWeight: 800, color: "#15803d", margin: "auto" }}>
                             {loggedInUser ? loggedInUser.charAt(0).toUpperCase() : "U"}
@@ -3216,7 +3622,7 @@ function App() {
                     </div>
                     <div style={{ overflow: "hidden" }}>
                       <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#000", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{loggedInUser || "User"}</h3>
-                      <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.6)", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{email || "hello@verdeversity.com"}</p>
+                      <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.6)", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{loggedInEmail || "hello@ecoequity.com"}</p>
                     </div>
                   </div>
                 )}
@@ -3266,7 +3672,15 @@ function App() {
                   >
                     Order History
                   </button>
-                  <button 
+                  <button
+                    onClick={() => setSettingsTab("updates")}
+                    onMouseEnter={() => setHoveredSettingsTab("updates")}
+                    onMouseLeave={() => setHoveredSettingsTab(null)}
+                    style={{ padding: "12px 16px", borderRadius: "12px", border: settingsTab === "updates" ? "1px solid rgba(134,239,172,0.4)" : "1px solid transparent", background: settingsTab === "updates" ? "linear-gradient(135deg, rgba(134,239,172,0.25), rgba(125,211,252,0.25))" : hoveredSettingsTab === "updates" ? "linear-gradient(135deg, rgba(134,239,172,0.12), rgba(125,211,252,0.12))" : "transparent", color: settingsTab === "updates" || hoveredSettingsTab === "updates" ? "#064e3b" : "rgba(0,0,0,0.7)", fontSize: "14px", fontWeight: settingsTab === "updates" ? 700 : 600, textAlign: "left", cursor: "pointer", transition: "all 0.3s ease", whiteSpace: "nowrap", boxShadow: settingsTab === "updates" ? "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)" : hoveredSettingsTab === "updates" ? "0 4px 12px rgba(34,197,94,0.08)" : "none", backdropFilter: settingsTab === "updates" ? "blur(12px) saturate(180%)" : "none", WebkitBackdropFilter: settingsTab === "updates" ? "blur(12px) saturate(180%)" : "none" }}
+                  >
+                    Updates
+                  </button>
+                  <button
                     onClick={() => setSettingsTab("wishlist")}
                     onMouseEnter={() => setHoveredSettingsTab("wishlist")}
                     onMouseLeave={() => setHoveredSettingsTab(null)}
@@ -3306,7 +3720,7 @@ function App() {
                         >
                           <div style={{ width: "86px", height: "86px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #15803d", overflow: "hidden", boxShadow: "0 12px 26px rgba(22,163,74,0.16)" }}>
                             {profilePic ? (
-                              <img src={profilePic} alt="User Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              <img src={profilePic} alt="User Avatar" referrerPolicy="no-referrer" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             ) : (
                               <span style={{ fontSize: "32px", fontWeight: 800, color: "#15803d" }}>
                                 {loggedInUser ? loggedInUser.charAt(0).toUpperCase() : "U"}
@@ -3320,7 +3734,7 @@ function App() {
                         </div>
                         <div style={{ maxWidth: "100%", overflow: "hidden" }}>
                           <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 850, color: "#000", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{loggedInUser || "User"}</h3>
-                          <p style={{ margin: "3px 0 0", fontSize: "12px", color: "rgba(0,0,0,0.58)", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{email || "hello@verdeversity.com"}</p>
+                          <p style={{ margin: "3px 0 0", fontSize: "12px", color: "rgba(0,0,0,0.58)", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{loggedInEmail || "hello@ecoequity.com"}</p>
                         </div>
                       </div>
                     )}
@@ -3328,6 +3742,22 @@ function App() {
                       <h2 style={{ margin: isMobile ? "0 0 6px" : "0 0 8px", fontSize: "24px", fontWeight: 800, color: "#000" }}>My Profile</h2>
                       <p style={{ margin: "0", fontSize: "13px", color: "rgba(0,0,0,0.5)" }}>Update your personal information and delivery details.</p>
                     </div>
+
+                    {/* Account record as maintained by the team in the Admin Portal */}
+                    {myUserRecord && (
+                      <div style={{ padding: "18px", borderRadius: "16px", background: "rgba(255,255,255,0.65)", border: "1px solid rgba(0,0,0,0.05)", display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3, 1fr)", gap: "14px", width: "100%", boxSizing: "border-box" }}>
+                        {[
+                          { label: "Member ID", value: myUserRecord.id },
+                          { label: "Account Type", value: myUserRecord.role },
+                          { label: "Account Status", value: myUserRecord.status },
+                        ].map(row => (
+                          <div key={row.label} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                            <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)", textTransform: "uppercase", letterSpacing: "0.4px" }}>{row.label}</span>
+                            <span style={{ fontSize: "14px", fontWeight: 800, color: row.label === "Account Status" && row.value === "Suspended" ? "#dc2626" : "rgba(0,0,0,0.82)" }}>{row.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "20px", width: "100%" }}>
                       <div style={{ position: "relative", width: "100%" }}>
@@ -3342,7 +3772,7 @@ function App() {
                       
                       <div style={{ position: "relative", width: "100%", gridColumn: isMobile ? "auto" : "1 / -1" }}>
                         <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "6px", textTransform: "uppercase" }}>Email Address</label>
-                        <input type="email" placeholder="Email" value={email || "hello@verdeversity.com"} readOnly style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(0,0,0,0.02)", fontSize: "14px", color: "rgba(0,0,0,0.5)", outline: "none", boxSizing: "border-box", cursor: "not-allowed" }} />
+                        <input type="email" placeholder="Email" value={loggedInEmail || "hello@ecoequity.com"} readOnly style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(0,0,0,0.02)", fontSize: "14px", color: "rgba(0,0,0,0.5)", outline: "none", boxSizing: "border-box", cursor: "not-allowed" }} />
                       </div>
                     </div>
 
@@ -3480,6 +3910,11 @@ function App() {
                             {selectedOrderForTracking.status}
                           </span>
                           
+                          <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 600, textAlign: "right" }}>PAYMENT</span>
+                          <span style={{ fontSize: "14px", fontWeight: 700, color: selectedOrderForTracking.paymentStatus === "Paid" ? "#15803d" : "rgba(0,0,0,0.8)" }}>
+                            {[selectedOrderForTracking.payment, selectedOrderForTracking.paymentStatus].filter(Boolean).join(" • ") || "Pending confirmation"}
+                          </span>
+
                           <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 600, textAlign: "right" }}>TOTAL</span>
                           <span style={{ fontSize: "16px", fontWeight: 800, color: "#15803d" }}>₱{selectedOrderForTracking.total.toFixed(2)}</span>
                         </div>
@@ -3489,6 +3924,38 @@ function App() {
                           <span style={{ fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.8)", lineHeight: 1.5 }}>{selectedOrderForTracking.items}</span>
                         </div>
                       </div>
+
+                      {/* Dispatch record — mirrors what the admin sets in the Deliveries tab */}
+                      {trackedDelivery && (
+                        <div style={{ padding: "24px", borderRadius: "16px", background: "rgba(255,255,255,0.8)", border: "1px solid rgba(14, 165, 233, 0.2)", boxShadow: "0 8px 24px rgba(0,0,0,0.04)" }}>
+                          <h3 style={{ margin: "0 0 16px", fontSize: "16px", fontWeight: 800, color: "#000" }}>Delivery Details</h3>
+                          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: "14px" }}>
+                            {[
+                              { label: "Tracking No.", value: trackedDelivery.id },
+                              { label: "Delivery Status", value: trackedDelivery.status },
+                              { label: "Rider", value: trackedDelivery.rider && trackedDelivery.rider !== "Unassigned" ? trackedDelivery.rider : "Being assigned" },
+                              { label: "Rider Update", value: trackedDelivery.riderStatus || "Awaiting rider update" },
+                              { label: "ETA", value: trackedDelivery.eta && trackedDelivery.eta !== "N/A" ? trackedDelivery.eta : "To be confirmed" },
+                              { label: "Vehicle", value: trackedRider?.vehicle || trackedDelivery.type || "Standard" },
+                              { label: "Distance", value: trackedDelivery.distance || "TBD" },
+                              { label: "Rider Contact", value: trackedRider?.phone || "Available once assigned" },
+                              { label: "Delivery Address", value: trackedDelivery.address || selectedOrderForTracking.address || "As provided at checkout" },
+                              { label: "Payment", value: [trackedDelivery.payment, trackedDelivery.paymentStatus].filter(Boolean).join(" • ") || "As provided at checkout" },
+                            ].map(row => (
+                              <div key={row.label} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                                <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)", textTransform: "uppercase", letterSpacing: "0.4px" }}>{row.label}</span>
+                                <span style={{ fontSize: "14px", fontWeight: 700, color: "rgba(0,0,0,0.82)" }}>{row.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                          {trackedDelivery.instructions && trackedDelivery.instructions !== "N/A" && (
+                            <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                              <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)", textTransform: "uppercase", letterSpacing: "0.4px" }}>Delivery Instructions</span>
+                              <p style={{ margin: "4px 0 0", fontSize: "13px", color: "rgba(0,0,0,0.7)", lineHeight: 1.5 }}>{trackedDelivery.instructions}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Tracking Timeline */}
                       <div style={{ padding: "24px", borderRadius: "16px", background: "linear-gradient(150deg, rgba(255,255,255,0.8), rgba(240,253,244,0.6))", border: "1px solid rgba(34, 197, 94, 0.2)", boxShadow: "0 8px 24px rgba(0,0,0,0.04)" }}>
@@ -3516,8 +3983,12 @@ function App() {
                                 <Bike size={26} color="#0284c7" />
                               </div>
                               <div style={{ flex: 1, minWidth: "120px" }}>
-                                <div style={{ fontSize: "15px", fontWeight: 800, color: "#000" }}>Rider: Juan Perez</div>
-                                <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}>Honda Click • Plate: ABC-1234</div>
+                                <div style={{ fontSize: "15px", fontWeight: 800, color: "#000" }}>
+                                  Rider: {trackedDelivery?.rider && trackedDelivery.rider !== "Unassigned" ? trackedDelivery.rider : "Being assigned"}
+                                </div>
+                                <div style={{ fontSize: "13px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}>
+                                  {[trackedRider?.vehicle || trackedDelivery?.type, trackedRider?.phone, trackedRider?.area].filter(Boolean).join(" • ") || "Vehicle details pending"}
+                                </div>
                               </div>
                               <button onClick={() => setShowRiderChat(true)} style={{ padding: "8px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(125,211,252,0.95), rgba(56,189,248,0.95))", border: "1px solid rgba(255,255,255,0.4)", color: "#082f49", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 4px 12px rgba(14, 165, 233, 0.2)" }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                                 Contact Rider
@@ -3527,8 +3998,8 @@ function App() {
                               <div className="animate-progressPulse" style={{ width: "65%", height: "100%", background: "linear-gradient(90deg, #38bdf8, #0284c7)", borderRadius: "999px", boxShadow: "0 0 10px rgba(14,165,233,0.5)" }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontSize: "12px", fontWeight: 700, color: "#0284c7" }}>
-                              <span>On the way</span>
-                              <span>Arriving in ~15 mins</span>
+                              <span>{trackedDelivery?.riderStatus || trackedDelivery?.status || "On the way"}</span>
+                              <span>{trackedDelivery?.eta && trackedDelivery.eta !== "N/A" ? `Arriving in ~${trackedDelivery.eta}` : "ETA being confirmed"}</span>
                             </div>
                           </div>
                           </>
@@ -4223,12 +4694,50 @@ function App() {
                   </div>
                 )}
 
+                {/* Updates — everything the admin publishes in Content Management */}
+                {settingsTab === "updates" && (
+                  <div className="w-full h-full flex-1" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+                    <div style={{ marginBottom: "24px" }}>
+                      <h2 style={{ margin: "0 0 6px", fontSize: "24px", fontWeight: 800, color: "#000" }}>Updates</h2>
+                      <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>Announcements, articles and guides published by the {adminSettings.platformName || "EcoEquity"} team.</p>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: "12px", paddingRight: "8px" }}>
+                      {publishedContent.length > 0 ? (
+                        publishedContent.map((item) => (
+                          <div key={item.id} style={{ padding: "18px", borderRadius: "18px", background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 8px 22px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                              <span style={{ padding: "4px 10px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d", fontSize: "11px", fontWeight: 800 }}>{item.type}</span>
+                              <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.45)" }}>{item.date}</span>
+                            </div>
+                            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 850, color: "#000", lineHeight: 1.3 }}>{item.title}</h3>
+                            {item.body && (
+                              <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.65)", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{item.body}</p>
+                            )}
+                            <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.45)" }}>by {item.author}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ padding: "34px 22px", borderRadius: "18px", background: "rgba(255,255,255,0.62)", border: "1px dashed rgba(0,0,0,0.12)", textAlign: "center" }}>
+                          <h3 style={{ margin: "0 0 6px", fontSize: "17px", fontWeight: 850, color: "#000" }}>No updates yet</h3>
+                          <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>New announcements and guides will appear here as soon as they are published.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {settingsTab === "support" && (
                   <div className="w-full h-full flex-1" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
                       <div>
                         <h2 style={{ margin: "0 0 6px", fontSize: "24px", fontWeight: 800, color: "#000" }}>Support Tickets</h2>
-                        <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>Track submitted issues, questions, and requests in one place.</p>
+                        <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>
+                          Track submitted issues, questions, and requests in one place. You can also reach us at{" "}
+                          <a href={`mailto:${adminSettings.supportEmail || "support@ecoequity.ph"}`} style={{ color: "#15803d", fontWeight: 700 }}>
+                            {adminSettings.supportEmail || "support@ecoequity.ph"}
+                          </a>.
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -4272,8 +4781,28 @@ function App() {
                                 <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 700, color: "#15803d" }}>{ticket.category}</div>
                               </div>
                             </div>
+                            {/* Replies the admin adds in the Admin Portal show up here */}
+                            {(ticket.replies || []).length > 0 && (
+                              <div style={{ paddingTop: "12px", borderTop: "1px solid rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", gap: "10px" }}>
+                                <div style={{ fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                                  Support Replies ({ticket.replies.length})
+                                </div>
+                                {ticket.replies.map((reply, idx) => (
+                                  <div key={idx} style={{ padding: "12px 14px", borderRadius: "14px", background: "rgba(22,163,74,0.07)", border: "1px solid rgba(22,163,74,0.15)" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
+                                      <span style={{ fontSize: "12px", fontWeight: 800, color: "#15803d" }}>{reply.sender || "Admin"}</span>
+                                      <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.45)" }}>{reply.time}</span>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: "13px", color: "rgba(0,0,0,0.75)", lineHeight: 1.5 }}>{reply.message}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", paddingTop: "10px", borderTop: "1px solid rgba(0,0,0,0.06)", flexWrap: "wrap" }}>
                               <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>Attachment: {ticket.attachmentName}</span>
+                              {ticket.assignee && (
+                                <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>Assigned to: {ticket.assignee}</span>
+                              )}
                               <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>Last update: {ticket.lastUpdate}</span>
                             </div>
                           </div>
@@ -4323,31 +4852,9 @@ function App() {
                         </label>
                       </div>
                       <div style={{ padding: "24px", borderRadius: "16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
-                        <h3 style={{ margin: "0 0 16px", fontSize: "16px", fontWeight: 800, color: "#000" }}>Appearance</h3>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            {darkMode ? <Moon size={18} color="#15803d" /> : <Sun size={18} color="#15803d" />}
-                            <div>
-                              <div style={{ fontSize: "14px", fontWeight: 700, color: "#000" }}>Dark Mode</div>
-                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)" }}>Switch between light and dark theme</div>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            role="switch"
-                            aria-checked={darkMode}
-                            aria-label="Toggle dark mode"
-                            onClick={() => setDarkMode(d => !d)}
-                            style={{ position: "relative", width: "48px", height: "28px", flexShrink: 0, borderRadius: "999px", border: "none", cursor: "pointer", padding: 0, background: darkMode ? "#16a34a" : "rgba(0,0,0,0.18)", transition: "background 0.25s ease" }}
-                          >
-                            <span style={{ position: "absolute", top: "3px", left: darkMode ? "23px" : "3px", width: "22px", height: "22px", borderRadius: "50%", background: "#fff", boxShadow: "0 2px 6px rgba(0,0,0,0.25)", transition: "left 0.25s ease" }} />
-                          </button>
-                        </div>
-                      </div>
-                      <div style={{ padding: "24px", borderRadius: "16px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
                         <h3 style={{ margin: "0 0 16px", fontSize: "16px", fontWeight: 800, color: "#000" }}>Security</h3>
-                        <button style={{ padding: "12px 20px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "#fff", color: "#000", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "background 0.2s ease" }}>Change Password</button>
-                        <button style={{ padding: "12px 20px", borderRadius: "10px", border: "none", background: "rgba(220, 38, 38, 0.1)", color: "#dc2626", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "background 0.2s ease", marginLeft: "12px" }}>Deactivate Account</button>
+                        <button onClick={() => window.alert("A password reset link has been sent to your email.")} style={{ padding: "12px 20px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "#fff", color: "#000", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "background 0.2s ease" }}>Change Password</button>
+                        <button onClick={() => { if (window.confirm("Are you sure you want to deactivate your account? This action cannot be undone.")) window.alert("Your account deactivation request has been submitted."); }} style={{ padding: "12px 20px", borderRadius: "10px", border: "none", background: "rgba(220, 38, 38, 0.1)", color: "#dc2626", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "background 0.2s ease", marginLeft: "12px" }}>Deactivate Account</button>
                       </div>
                     </div>
                   </div>
@@ -4446,6 +4953,15 @@ function App() {
           <AIChatInterface onClose={() => setShowAIChat(false)} isMobile={isMobile} />
         )}
 
+        <SiteFeedbackWidget
+          isOpen={showFeedbackWidget}
+          onClose={() => setShowFeedbackWidget(false)}
+          isMobile={isMobile}
+          currentPage={activeNav}
+          userName={loggedInUser}
+          onSubmit={(entry) => { setSiteFeedback((prev) => [entry, ...prev]); addEcoPoints(10, "Experience Feedback"); }}
+        />
+
         <SupportTicketModal
           isOpen={showSupportTicketModal}
           onClose={() => setShowSupportTicketModal(false)}
@@ -4529,6 +5045,179 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* ── Local Google account chooser (UI-only, no OAuth) ─────────── */}
+        {googleModal && (
+          <div
+            onClick={() => { if (googleModal.step !== "signing") { setGoogleModal(null); setGoogleOtherEmail(""); } }}
+            style={{ position: "fixed", inset: 0, zIndex: 100001, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.25s ease" }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: "100%", maxWidth: "410px", background: "#fff", borderRadius: "20px", padding: "28px 24px 18px", boxShadow: "0 24px 60px rgba(0,0,0,0.28)", animation: "scaleUp 0.25s ease", fontFamily: "'Inter', Roboto, Arial, sans-serif" }}
+            >
+              {/* Header */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "10px", marginBottom: "18px" }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                <h2 style={{ margin: 0, fontSize: "19px", fontWeight: 600, color: "#202124" }}>
+                  {googleModal.step === "signing" ? "Signing you in…" : googleModal.step === "other" ? "Use another account" : "Choose an account"}
+                </h2>
+                <p style={{ margin: 0, fontSize: "13px", color: "#5f6368" }}>
+                  {googleModal.step === "signing"
+                    ? googleModal.account?.email
+                    : "to continue to EcoEquity"}
+                </p>
+              </div>
+
+              {/* Signing-in state */}
+              {googleModal.step === "signing" && (
+                <div style={{ display: "flex", justifyContent: "center", padding: "18px 0 26px" }}>
+                  <span style={{ width: "30px", height: "30px", borderRadius: "50%", border: "3px solid rgba(66,133,244,0.2)", borderTopColor: "#4285F4", animation: "spin 0.8s linear infinite", display: "block" }} />
+                </div>
+              )}
+
+              {/* Account list */}
+              {googleModal.step === "pick" && (
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  {LOCAL_GOOGLE_ACCOUNTS.map((acc) => (
+                    <button
+                      key={acc.email}
+                      type="button"
+                      onClick={() => handleGoogleAccountPick(acc)}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#f1f3f4"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                      style={{ display: "flex", alignItems: "center", gap: "14px", width: "100%", padding: "12px 10px", border: "none", borderTop: "1px solid #e8eaed", background: "transparent", cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "background 0.15s ease" }}
+                    >
+                      <span style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, background: acc.color }}>
+                        <img src={localGoogleUser(acc).avatarUrl} alt="" style={{ width: "100%", height: "100%", display: "block" }} />
+                      </span>
+                      <span style={{ minWidth: 0 }}>
+                        <span style={{ display: "block", fontSize: "14px", fontWeight: 600, color: "#202124" }}>{acc.name}</span>
+                        <span style={{ display: "block", fontSize: "13px", color: "#5f6368", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{acc.email}</span>
+                      </span>
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setGoogleModal({ step: "other" })}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#f1f3f4"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    style={{ display: "flex", alignItems: "center", gap: "14px", width: "100%", padding: "12px 10px", border: "none", borderTop: "1px solid #e8eaed", borderBottom: "1px solid #e8eaed", background: "transparent", cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "background 0.15s ease" }}
+                  >
+                    <span style={{ width: "36px", height: "36px", borderRadius: "50%", flexShrink: 0, background: "#f1f3f4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <CircleUserRound size={20} color="#5f6368" />
+                    </span>
+                    <span style={{ fontSize: "14px", fontWeight: 600, color: "#202124" }}>Use another account</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Type any address */}
+              {googleModal.step === "other" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "4px 0 6px" }}>
+                  <input
+                    type="email"
+                    autoFocus
+                    value={googleOtherEmail}
+                    onChange={(e) => setGoogleOtherEmail(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleGoogleOtherAccount(); }}
+                    placeholder="Email address"
+                    style={{ width: "100%", padding: "13px 14px", fontSize: "14px", borderRadius: "8px", border: `1px solid ${googleModal.error ? "#d93025" : "#dadce0"}`, outline: "none", color: "#202124", boxSizing: "border-box", fontFamily: "inherit" }}
+                  />
+                  {googleModal.error && (
+                    <span style={{ fontSize: "12px", color: "#d93025", marginTop: "-6px" }}>{googleModal.error}</span>
+                  )}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setGoogleModal({ step: "pick" })}
+                      style={{ background: "transparent", border: "none", color: "#1a73e8", fontSize: "13px", fontWeight: 600, cursor: "pointer", padding: "8px 4px", fontFamily: "inherit" }}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleGoogleOtherAccount}
+                      style={{ background: "#1a73e8", border: "none", color: "#fff", fontSize: "14px", fontWeight: 600, borderRadius: "20px", padding: "10px 24px", cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Footer — make it clear this is a local stand-in */}
+              <p style={{ margin: "14px 0 0", fontSize: "11px", lineHeight: 1.5, color: "#80868b", textAlign: "center" }}>
+                Demo sign-in — runs entirely in this browser. No Google account is contacted and nothing is saved to a server.
+              </p>
+              {googleModal.step !== "signing" && (
+                <button
+                  type="button"
+                  onClick={() => { setGoogleModal(null); setGoogleOtherEmail(""); }}
+                  style={{ width: "100%", marginTop: "6px", padding: "10px", fontSize: "13px", fontWeight: 600, border: "none", background: "transparent", color: "#5f6368", cursor: "pointer", fontFamily: "inherit" }}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Post-signup "Check your email" modal ─────────────────────── */}
+        {signupModal && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 100000, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.25s ease" }}>
+            <div style={{ width: "100%", maxWidth: "420px", background: "linear-gradient(145deg, rgba(255,255,255,0.98), rgba(240,253,244,0.96))", borderRadius: "24px", padding: "32px 28px", boxShadow: "0 24px 60px rgba(0,0,0,0.25)", textAlign: "center", animation: "scaleUp 0.3s ease" }}>
+              <div style={{ width: "72px", height: "72px", margin: "0 auto 18px", borderRadius: "50%", background: "rgba(34,197,94,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Mail size={34} color="#16a34a" />
+              </div>
+              <h2 style={{ margin: "0 0 8px", fontSize: "21px", fontWeight: 700, color: "#14532d" }}>Account created!</h2>
+              <p style={{ margin: "0 0 4px", fontSize: "14px", color: "rgba(0,0,0,0.65)", lineHeight: 1.5 }}>
+                We sent a confirmation link to
+              </p>
+              <p style={{ margin: "0 0 18px", fontSize: "15px", fontWeight: 600, color: "#16a34a", wordBreak: "break-all" }}>{signupModal.email}</p>
+              <p style={{ margin: "0 0 22px", fontSize: "13px", color: "rgba(0,0,0,0.5)", lineHeight: 1.5 }}>
+                Click the link in that email to confirm your account, then log in. Don't forget to check your spam folder.
+              </p>
+              {emailInboxUrl(signupModal.email) ? (
+                <a href={emailInboxUrl(signupModal.email)} target="_blank" rel="noopener noreferrer"
+                  style={{ ...styles.primaryBtn, display: "block", width: "100%", padding: "14px", fontSize: "15px", textDecoration: "none", boxSizing: "border-box", marginBottom: "10px" }}>
+                  Open Email
+                </a>
+              ) : null}
+              <button
+                onClick={handleResendConfirmation}
+                disabled={resendState !== "idle"}
+                style={{ width: "100%", padding: "12px", fontSize: "14px", fontWeight: 600, borderRadius: "12px", border: "1px solid rgba(22,163,74,0.4)", background: "transparent", color: resendState === "sent" ? "#16a34a" : "#15803d", cursor: resendState === "idle" ? "pointer" : "default", marginBottom: "10px" }}>
+                {resendState === "sending" ? "Sending…" : resendState === "sent" ? "✓ Email re-sent" : "Resend email"}
+              </button>
+              <button
+                onClick={() => { setSignupModal(null); handleNavChange("Login"); }}
+                style={{ width: "100%", padding: "10px", fontSize: "13px", fontWeight: 600, border: "none", background: "transparent", color: "rgba(0,0,0,0.55)", cursor: "pointer" }}>
+                Back to login
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Post-confirmation welcome modal (returned from email link) ─── */}
+        {welcomeModal && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 100000, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.25s ease" }}>
+            <div style={{ width: "100%", maxWidth: "420px", background: "linear-gradient(145deg, rgba(255,255,255,0.98), rgba(240,253,244,0.96))", borderRadius: "24px", padding: "34px 28px", boxShadow: "0 24px 60px rgba(0,0,0,0.25)", textAlign: "center", animation: "scaleUp 0.3s ease" }}>
+              <div style={{ width: "76px", height: "76px", margin: "0 auto 18px", borderRadius: "50%", background: "rgba(34,197,94,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <CheckCircle size={40} color="#16a34a" />
+              </div>
+              <h2 style={{ margin: "0 0 10px", fontSize: "22px", fontWeight: 700, color: "#14532d" }}>Email confirmed! 🎉</h2>
+              <p style={{ margin: "0 0 24px", fontSize: "14px", color: "rgba(0,0,0,0.65)", lineHeight: 1.5 }}>
+                Welcome to EcoEquity{loggedInUser ? `, ${loggedInUser}` : ""}! Your account is verified and ready to go.
+              </p>
+              <button
+                onClick={() => { setWelcomeModal(false); handleNavChange(isLoggedIn ? "Home" : "Login"); }}
+                style={{ ...styles.primaryBtn, width: "100%", padding: "14px", fontSize: "15px" }}>
+                {isLoggedIn ? "Start exploring" : "Continue to login"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -4585,13 +5274,9 @@ const styles = {
   },
 
   shell: {
-    background:
-      "linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3))",
-    border: "1px solid rgba(255,255,255,0.8)",
-    boxShadow:
-      "0 20px 60px rgba(0,0,0,0.05), " +
-      "inset 0 1px 0 rgba(255,255,255,0.8), " +
-      "inset 0 -1px 0 rgba(255,255,255,0.3)",
+    background: "transparent",
+    border: "none",
+    boxShadow: "none",
     maxWidth: "1400px",
     width: "100%",
     height: "calc(100vh - 40px)",
@@ -4604,8 +5289,6 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-    backdropFilter: "blur(24px) saturate(155%)",
-    WebkitBackdropFilter: "blur(24px) saturate(155%)",
   },
 
   shellMobile: {
@@ -4638,10 +5321,11 @@ const styles = {
   navbarMobile: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: "clamp(6px, 2vw, 10px)",
     borderRadius: "20px",
     padding: "0 2px clamp(4px, 1dvh, 7px)",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     width: "100%",
     maxWidth: "100%",
     boxSizing: "border-box",

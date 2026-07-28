@@ -3,7 +3,11 @@ import { Sprout, Microscope, Package, Bug } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaUserTie, FaClock, FaStar, FaPlayCircle, FaTimes, FaCheckCircle, FaChevronDown, FaCreditCard, FaQrcode } from "react-icons/fa";
 
-const coursesData = [
+// Default certification courses shown when the Admin Portal hasn't provided
+// any yet. Courses (title, instructor, price, photo, ...) are managed from
+// Admin Portal > Specialist Certification. Each course carries a real photo;
+// the icon is only a fallback when a course has no photo set.
+export const defaultCourses = [
   {
     id: 1,
     title: "Urban Hydroponics Masterclass",
@@ -13,6 +17,7 @@ const coursesData = [
     lessons: 12,
     price: "₱1,500",
     icon: <Sprout size="1em" color="#16a34a" />,
+    image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?auto=format&fit=crop&q=80&w=800",
     badge: "Best Seller",
     rating: 4.9,
     progress: 0,
@@ -26,6 +31,7 @@ const coursesData = [
     lessons: 18,
     price: "₱2,200",
     icon: <Microscope size="1em" color="#0284c7" />,
+    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&q=80&w=800",
     badge: "Advanced",
     rating: 4.8,
     progress: 0,
@@ -39,6 +45,7 @@ const coursesData = [
     lessons: 8,
     price: "₱1,200",
     icon: <Package size="1em" color="#15803d" />,
+    image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=800",
     badge: "B2B Focus",
     rating: 4.7,
     progress: 0,
@@ -52,17 +59,22 @@ const coursesData = [
     lessons: 10,
     price: "₱1,400",
     icon: <Bug size="1em" color="#dc2626" />,
+    image: "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?auto=format&fit=crop&q=80&w=800",
     badge: "Essential",
     rating: 4.9,
     progress: 0,
   }
 ];
 
-function SpecialistCertification({ setActiveNav, onCertificateUnlock }) {
+function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: coursesProp, setCourses: setCoursesProp }) {
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [hoveredCourse, setHoveredCourse] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [courses, setCourses] = useState(coursesData);
+  // Courses come from App.js (managed via Admin Portal > Specialist
+  // Certification); the local state is only a fallback for standalone use.
+  const [localCourses, setLocalCourses] = useState(defaultCourses);
+  const courses = coursesProp || localCourses;
+  const setCourses = setCoursesProp || setLocalCourses;
   const [selectedEnrollCourse, setSelectedEnrollCourse] = useState(null);
   const [isViewingOnly, setIsViewingOnly] = useState(false);
   const [activeCourse, setActiveCourse] = useState(null);
@@ -252,11 +264,15 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock }) {
             onMouseLeave={() => setHoveredCourse(null)}
           >
             <div style={styles.imageContainer}>
-              <div style={styles.imagePlaceholder}>
-                <span style={{ fontSize: "52px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.15))" }}>
-                  {course.icon}
-                </span>
-              </div>
+              {course.image ? (
+                <img src={course.image} alt={course.title} style={styles.courseImage} />
+              ) : (
+                <div style={styles.imagePlaceholder}>
+                  <span style={{ fontSize: "52px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.15))" }}>
+                    {course.icon || <Sprout size="1em" color="#16a34a" />}
+                  </span>
+                </div>
+              )}
               {course.badge && (
                 <span style={styles.badgeLabel}>
                   {course.badge}
@@ -350,7 +366,13 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock }) {
             <h2 style={styles.modalTitle}>{isViewingOnly ? 'Course Details' : 'Enroll in Certification'}</h2>
             
             <div style={styles.courseSummaryCard}>
-              <div style={styles.courseSummaryIcon}>{selectedEnrollCourse.icon}</div>
+              <div style={styles.courseSummaryIcon}>
+                {selectedEnrollCourse.image ? (
+                  <img src={selectedEnrollCourse.image} alt={selectedEnrollCourse.title} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "12px" }} />
+                ) : (
+                  selectedEnrollCourse.icon || <Sprout size="1em" color="#16a34a" />
+                )}
+              </div>
               <div style={styles.courseSummaryInfo}>
                 <h3 style={styles.courseSummaryTitle}>{selectedEnrollCourse.title}</h3>
                 <p style={styles.courseSummaryDesc}>Instructor: {selectedEnrollCourse.instructor}</p>
@@ -506,12 +528,12 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock }) {
             </button>
             
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px", paddingRight: "30px" }}>
-              <span style={{ fontSize: "28px" }}>{activeCourse.icon}</span>
+              <span style={{ fontSize: "28px" }}>{activeCourse.icon || <Sprout size="1em" color="#16a34a" />}</span>
               <h2 style={{ ...styles.modalTitle, margin: 0 }}>{activeCourse.title}</h2>
             </div>
-            
+
             <div style={{ width: "100%", aspectRatio: "16/9", background: "#000", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px", position: "relative", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}>
-               <div style={{ position: "absolute", inset: 0, background: "url('https://images.unsplash.com/photo-1530836369250-ef71a3f5e4bb?auto=format&fit=crop&q=80&w=1000') center/cover", opacity: 0.5 }} />
+               <div style={{ position: "absolute", inset: 0, background: `url('${activeCourse.image || "https://images.unsplash.com/photo-1530836369250-ef71a3f5e4bb?auto=format&fit=crop&q=80&w=1000"}') center/cover`, opacity: 0.5 }} />
                <FaPlayCircle size={64} color="rgba(255,255,255,0.9)" style={{ cursor: "pointer", position: "relative", zIndex: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.3))", transition: "transform 0.2s ease" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} />
             </div>
 
@@ -622,7 +644,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock }) {
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "rgba(0,0,0,0.8)", borderTop: "1px solid rgba(0,0,0,0.3)", paddingTop: "5px" }}>Date: {new Date().toLocaleDateString()}</p>
                 </div>
                 <div style={{ textAlign: "center" }}>
-                  <p style={{ fontSize: "16px", fontWeight: 600, color: "rgba(0,0,0,0.8)", borderTop: "1px solid rgba(0,0,0,0.3)", paddingTop: "5px" }}>VerdeVersity</p>
+                  <p style={{ fontSize: "16px", fontWeight: 600, color: "rgba(0,0,0,0.8)", borderTop: "1px solid rgba(0,0,0,0.3)", paddingTop: "5px" }}>EcoEquity</p>
                 </div>
               </div>
             </div>
@@ -766,6 +788,9 @@ const styles = {
   },
   imagePlaceholder: {
     width: "80px", height: "80px", borderRadius: "50%", background: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+  },
+  courseImage: {
+    position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
   },
   badgeLabel: {
     position: "absolute", top: "16px", left: "16px", background: "linear-gradient(135deg, #22c55e, #15803d)", color: "#fff", padding: "6px 14px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 10px rgba(21,128,61,0.3)",

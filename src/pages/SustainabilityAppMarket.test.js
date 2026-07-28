@@ -6,58 +6,67 @@ describe("SustainabilityAppMarket Component", () => {
   it("renders the component heading and badge", () => {
     render(<SustainabilityAppMarket />);
 
-    expect(screen.getByText("Who We Serve")).toBeInTheDocument();
+    expect(screen.getByText("Market Sizing")).toBeInTheDocument();
     expect(screen.getByText(/Sustainability App Market Sizing/i)).toBeInTheDocument();
-    expect(screen.getByText(/TAM, SAM, SOM \(Philippines Focus\)/i)).toBeInTheDocument();
+    expect(screen.getByText("TAM, SAM, SOM")).toBeInTheDocument();
+    expect(
+      screen.getByText(/A Philippines-focused view of the opportunity/i)
+    ).toBeInTheDocument();
   });
 
-  it("renders the market sizing sections and their descriptions", () => {
+  it("renders the market sizing tiers and their descriptions", () => {
     render(<SustainabilityAppMarket />);
 
-    expect(screen.getByText("1. TAM (Total Available Market) - The Philippine Opportunity")).toBeInTheDocument();
-    expect(screen.getByText("2. SAM (Serviceable Available Market) - Our Reach in Major Urban Centers")).toBeInTheDocument();
-    expect(screen.getByText("3. SOM (Serviceable Obtainable Market) - Our Initial Focus (Year 3 Goals)")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Total Available Market" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Serviceable Available Market" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Serviceable Obtainable Market" })).toBeInTheDocument();
 
-    expect(screen.getByText(/The entire market within the Philippines that could potentially use the product/)).toBeInTheDocument();
-    expect(screen.getByText(/The portion of the TAM that our services can realistically reach/)).toBeInTheDocument();
-    expect(screen.getByText(/The realistic market share we can capture in the first 3 years of operation/)).toBeInTheDocument();
+    expect(screen.getByText("The Philippine Opportunity")).toBeInTheDocument();
+    expect(screen.getByText("Reach in Major Urban Centers")).toBeInTheDocument();
+    expect(screen.getByText("Our Initial Focus — Year 3 Goals")).toBeInTheDocument();
+
+    expect(
+      screen.getByText(/The entire market within the Philippines that could potentially use the product/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/The portion of the TAM our services can realistically reach/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/The realistic share we can capture in the first 3 years/)
+    ).toBeInTheDocument();
   });
 
-  it("renders the tables with correct headers and some data", () => {
+  it("renders the funnel overview and the per-tier line items", () => {
     render(<SustainabilityAppMarket />);
 
-    const tableHeaders = screen.getAllByRole("columnheader");
-    expect(tableHeaders[0]).toHaveTextContent("Components");
-    expect(tableHeaders[1]).toHaveTextContent("Description");
-    expect(tableHeaders[2]).toHaveTextContent("Estimated Size (Conceptual)");
+    // Each tier headline shows twice: once in the funnel bar, once in the card pill.
+    expect(screen.getAllByText("₱10T+")).toHaveLength(2);
+    expect(screen.getAllByText("₱5B")).toHaveLength(2);
+    expect(screen.getAllByText("150K+")).toHaveLength(2);
 
     expect(screen.getByText("Philippine Consumer Spending")).toBeInTheDocument();
-    expect(screen.getByText("₱10+ Trillion PHP (Approx. $170 Billion USD)")).toBeInTheDocument();
-    expect(screen.getByText("150,000+ Active Monthly Users (AMU)")).toBeInTheDocument();
+    expect(screen.getByText("₱10T+ PHP (~$170B USD)")).toBeInTheDocument();
+    expect(screen.getByText("Core Engaged Users")).toBeInTheDocument();
+    expect(screen.getByText("150K+ AMU")).toBeInTheDocument();
   });
 
-  it("applies hover effect to the table wrapper on mouse enter and removes it on mouse leave", () => {
-    render(<SustainabilityAppMarket />);
+  it("applies the hover lift to a tier card on mouse enter and removes it on mouse leave", () => {
+    const { container } = render(<SustainabilityAppMarket />);
 
-    const tableWrappers = screen.getAllByRole("table").map(table => table.closest("div"));
+    const cards = container.querySelectorAll(".sam-card");
+    expect(cards).toHaveLength(3);
 
-    tableWrappers.forEach((tableWrapper, index) => {
-      expect(tableWrapper).not.toHaveStyle("transform: translateY(-6px) scale(1.03)");
-      expect(tableWrapper).not.toHaveStyle("background: rgba(255,255,255,0.18)");
-      expect(tableWrapper).not.toHaveStyle("border: 1px solid rgba(255,255,255,0.30)");
-      expect(tableWrapper).not.toHaveStyle("box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.35), 0 20px 48px rgba(0,0,0,0.30), 0 0 0 0.5px rgba(255,255,255,0.14)");
+    cards.forEach((card) => {
+      expect(card).not.toHaveStyle("transform: translateY(-5px)");
 
-      fireEvent.mouseEnter(tableWrapper);
-      expect(tableWrapper).toHaveStyle("transform: translateY(-6px) scale(1.03)");
-      expect(tableWrapper).toHaveStyle("background: rgba(255,255,255,0.18)");
-      expect(tableWrapper).toHaveStyle("border: 1px solid rgba(255,255,255,0.30)");
-      expect(tableWrapper).toHaveStyle("box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.35), 0 20px 48px rgba(0,0,0,0.30), 0 0 0 0.5px rgba(255,255,255,0.14)");
+      fireEvent.mouseEnter(card);
+      expect(card).toHaveStyle("transform: translateY(-5px)");
+      expect(card.style.boxShadow).toBe(
+        "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)"
+      );
 
-      fireEvent.mouseLeave(tableWrapper);
-      expect(tableWrapper).not.toHaveStyle("transform: translateY(-6px) scale(1.03)");
-      expect(tableWrapper).not.toHaveStyle("background: rgba(255,255,255,0.18)");
-      expect(tableWrapper).not.toHaveStyle("border: 1px solid rgba(255,255,255,0.30)");
-      expect(tableWrapper).not.toHaveStyle("box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.35), 0 20px 48px rgba(0,0,0,0.30), 0 0 0 0.5px rgba(255,255,255,0.14)");
+      fireEvent.mouseLeave(card);
+      expect(card).not.toHaveStyle("transform: translateY(-5px)");
     });
   });
 });

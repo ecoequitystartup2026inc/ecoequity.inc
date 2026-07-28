@@ -2,6 +2,23 @@ import React, { useState, useEffect, useRef } from "react";
 import { Check, Sprout, Smartphone } from "lucide-react";
 import { FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaArrowLeft, FaCreditCard, FaMoneyBillWave, FaCheckCircle, FaGift, FaTag, FaSeedling, FaStar, FaTimes, FaTrash } from "react-icons/fa";
 
+// Real product photo with an emoji/icon fallback if the image is missing or fails.
+function ProductThumb({ src, alt, emoji }) {
+  const [errored, setErrored] = useState(false);
+  if (!src || errored) {
+    return <>{emoji || <Sprout size="1em" color="#16a34a" />}</>;
+  }
+  return (
+    <img
+      src={src}
+      alt={alt || ""}
+      loading="lazy"
+      onError={() => setErrored(true)}
+      className="w-full h-full object-cover block"
+    />
+  );
+}
+
 const getProductStats = (product) => {
   const baseRating = product.rating || 0;
   const baseCount = product.reviewCount || 0;
@@ -110,7 +127,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem("verdeversity_reviews");
+    const saved = localStorage.getItem("ecoequity_reviews");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -412,8 +429,8 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                    const stats = getProductStats(item);
                    return (
                    <div key={item.id} className="flex items-center gap-4 bg-white/70 p-3 rounded-2xl border border-black/5 hover:border-black/10 transition-colors shadow-sm">
-                     <div className="w-16 h-16 bg-green-600/10 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                        {item.emoji || <Sprout size="1em" color="#16a34a" />}
+                     <div className="w-16 h-16 bg-green-600/10 rounded-xl overflow-hidden flex items-center justify-center text-2xl shrink-0">
+                        <ProductThumb src={item.image} alt={item.name} emoji={item.emoji} />
                      </div>
                      <div className="flex-1 flex flex-col">
                        <span className="font-bold text-sm text-gray-800">{item.name}</span>
@@ -677,7 +694,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                                       const productReviews = prev[productToReview.id] || [];
                                       const updatedProductReviews = productReviews.filter(r => r !== rev && !(r.user === rev.user && r.comment === rev.comment && r.rating === rev.rating));
                                       const updated = { ...prev, [productToReview.id]: updatedProductReviews };
-                                      localStorage.setItem("verdeversity_reviews", JSON.stringify(updated));
+                                      localStorage.setItem("ecoequity_reviews", JSON.stringify(updated));
                                       return updated;
                                     });
                                   }
@@ -725,7 +742,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                       productToReview.rating = (currentTotalScore + newReviewRating) / productToReview.reviewCount;
                       setLocalReviews(prev => {
                         const updated = { ...prev, [productToReview.id]: [newReview, ...(prev[productToReview.id] || [])] };
-                        localStorage.setItem("verdeversity_reviews", JSON.stringify(updated));
+                        localStorage.setItem("ecoequity_reviews", JSON.stringify(updated));
                         return updated;
                       });
                       setNewReviewText(""); 

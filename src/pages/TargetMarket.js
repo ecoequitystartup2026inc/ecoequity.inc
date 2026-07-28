@@ -1,9 +1,72 @@
 import React, { useState, useEffect } from "react";
 
+const iconProps = {
+  width: 26,
+  height: 26,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "#15803d",
+  strokeWidth: 1.7,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+// Sprout — Urban Novice
+const SproutIcon = () => (
+  <svg {...iconProps}>
+    <path d="M12 21v-8" />
+    <path d="M12 13c0-3.3-2.7-6-6-6 0 3.3 2.7 6 6 6Z" />
+    <path d="M12 11c0-2.8 2.2-5 5-5 0 2.8-2.2 5-5 5Z" />
+  </svg>
+);
+
+// Storefront — Micro-Vendor
+const StoreIcon = () => (
+  <svg {...iconProps}>
+    <path d="M4 9h16l-1-4H5L4 9Z" />
+    <path d="M4 9v0a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0" />
+    <path d="M5 9v10h14V9" />
+    <path d="M10 19v-5h4v5" />
+  </svg>
+);
+
+// Building — Institutional Buyer
+const BuildingIcon = () => (
+  <svg {...iconProps}>
+    <rect x="4" y="3" width="16" height="18" rx="1.5" />
+    <path d="M8 7h2M14 7h2M8 11h2M14 11h2M8 15h2M14 15h2" />
+    <path d="M10 21v-3h4v3" />
+  </svg>
+);
+
 const targetMarketCards = [
-  { heading: "Urban Novice", text: "AI-Guided Success: Market the 24/7 AI Plant Doctor as the indispensable tool for overcoming planting failure,leading to initial app download." },
-  { heading: "Micro-Vendor", text: "Livelihood Creation: Market the Local Marketplace as the zero-friction platform to instantly monetize garden excess and florals.." },
-  { heading: "Institutional Buyer (B2B)", text: "Cost & Supply Chain Efficiency:Market the B2B Surplus Module as the exclusive source for high-volume, below-market surplus produce (e.g., Baguio vegetables)." },
+  {
+    Icon: SproutIcon,
+    tag: "B2C · Learner",
+    heading: "Urban Novice",
+    product: "24/7 AI Plant Doctor",
+    text: "AI-Guided Success: positioned as the indispensable tool for overcoming planting failure, driving the initial app download.",
+  },
+  {
+    Icon: StoreIcon,
+    tag: "B2C · Seller",
+    heading: "Micro-Vendor",
+    product: "Local Marketplace",
+    text: "Livelihood Creation: a zero-friction platform to instantly monetize garden excess and florals.",
+  },
+  {
+    Icon: BuildingIcon,
+    tag: "B2B · Buyer",
+    heading: "Institutional Buyer",
+    product: "B2B Surplus Module",
+    text: "Cost & Supply-Chain Efficiency: the exclusive source for high-volume, below-market surplus produce (e.g. Baguio vegetables).",
+  },
+];
+
+const goalStats = [
+  { value: "150K+", label: "Active Monthly Users" },
+  { value: "3,500+", label: "Active Micro-Vendors" },
+  { value: "₱63M", label: "Annual Commerce Fees" },
 ];
 
 function TargetMarket() {
@@ -40,6 +103,7 @@ function TargetMarket() {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
           }
+          .tm-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
         `}
       </style>
 
@@ -59,15 +123,15 @@ function TargetMarket() {
         practices.
       </p>
 
-      <div 
-        style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }} 
+      <div
+        style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }}
         className="hide-scroll"
         onScroll={handleScroll}
       >
         {targetMarketCards.map((c) => (
           <div
             key={c.heading}
-            className="inner-blur-glass"
+            className="inner-blur-glass tm-card"
             style={{
               ...styles.card,
               ...(isMobile ? styles.cardMobile : {}),
@@ -76,7 +140,16 @@ function TargetMarket() {
             onMouseEnter={() => setHoveredCard(c.heading)}
             onMouseLeave={() => setHoveredCard(null)}
           >
-            <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>{c.heading}</h3>
+            <div style={styles.cardAccent} />
+            <div style={styles.cardIconWrap}>
+              <c.Icon />
+            </div>
+            <span style={styles.cardTag}>{c.tag}</span>
+            <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>
+              {c.heading}
+            </h3>
+            <span style={styles.cardProduct}>{c.product}</span>
+            <div style={styles.cardDivider} />
             <p style={{ ...styles.cardText, ...(isMobile ? styles.cardTextMobile : {}) }}>{c.text}</p>
           </div>
         ))}
@@ -97,13 +170,31 @@ function TargetMarket() {
         </div>
       )}
 
-      <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}), marginTop: isMobile ? "12px" : "14px" }}>
-        To achieve 150,000+ Active Monthly Users, onboard 3,500+ Active Micro-
-        Vendors generating ₱63M in annual commerce fees, and successfully
-        integrate the B2B network to mitigate critical food waste, thus
-        validating EcoEquity as the Philippines' scalable solution for food
-        security and livelihood.
-      </p>
+      {/* Goal Callout */}
+      <div
+        className="inner-blur-glass"
+        style={{ ...styles.goalCard, ...(isMobile ? styles.goalCardMobile : {}) }}
+      >
+        <span style={styles.goalLabel}>Our Goal</span>
+        <div style={{ ...styles.statRow, ...(isMobile ? styles.statRowMobile : {}) }}>
+          {goalStats.map((s, i) => (
+            <React.Fragment key={s.label}>
+              <div style={styles.stat}>
+                <span style={styles.statValue}>{s.value}</span>
+                <span style={styles.statLabel}>{s.label}</span>
+              </div>
+              {i < goalStats.length - 1 && (
+                <div style={{ ...styles.statSep, ...(isMobile ? styles.statSepMobile : {}) }} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        <p style={{ ...styles.goalText, ...(isMobile ? styles.goalTextMobile : {}) }}>
+          Integrate the B2B network to mitigate critical food waste — validating
+          EcoEquity as the Philippines' scalable solution for food security and
+          livelihood.
+        </p>
+      </div>
     </div>
   );
 }
@@ -115,7 +206,7 @@ const styles = {
     alignItems: "center",
     textAlign: "center",
     padding: "10px 16px 20px",
-    maxWidth: "820px",
+    maxWidth: "900px",
     margin: "0 auto",
     animation: "fadeInUp 0.75s cubic-bezier(.22,1,.36,1) both",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -191,10 +282,11 @@ const styles = {
   },
   cardRow: {
     display: "flex",
-    gap: "14px",
+    gap: "18px",
     flexWrap: "wrap",
     justifyContent: "center",
-    marginTop: "12px",
+    alignItems: "stretch",
+    marginTop: "16px",
     width: "100%",
   },
   cardRowMobile: {
@@ -211,17 +303,19 @@ const styles = {
     marginTop: "12px",
   },
   card: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
+    position: "relative",
+    overflow: "hidden",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42))",
     border: "1px solid rgba(0,0,0,0.05)",
-    borderRadius: "20px",
-    padding: "24px 20px",
-    flex: "1 1 160px",
-    maxWidth: "200px",
+    borderRadius: "22px",
+    padding: "26px 22px 24px",
+    flex: "1 1 220px",
+    maxWidth: "250px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "8px",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
+    gap: "9px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.06)",
     backdropFilter: "blur(20px) saturate(180%)",
     WebkitBackdropFilter: "blur(20px) saturate(180%)",
     cursor: "default",
@@ -229,26 +323,70 @@ const styles = {
   cardMobile: {
     flex: "0 0 240px",
     maxWidth: "none",
-    padding: "20px 16px",
+    padding: "24px 18px 20px",
     scrollSnapAlign: "center",
     scrollSnapStop: "always",
   },
   cardHov: {
-    transform: "scale(1.025)",
+    transform: "translateY(-6px)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
+  },
+  cardAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "4px",
+    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+  },
+  cardIconWrap: {
+    width: "52px",
+    height: "52px",
+    borderRadius: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
+    border: "1px solid rgba(255,255,255,0.7)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+    marginBottom: "2px",
+  },
+  cardTag: {
+    fontSize: "10px",
+    fontWeight: 700,
+    letterSpacing: "0.7px",
+    textTransform: "uppercase",
+    color: "#15803d",
+    background: "rgba(74,222,128,0.14)",
+    padding: "3px 10px",
+    borderRadius: "999px",
   },
   cardHeading: {
-    fontSize: "14px",
+    fontSize: "17px",
     fontWeight: 700,
     color: "#000",
     margin: 0,
-    letterSpacing: "-0.2px",
+    letterSpacing: "-0.3px",
   },
   cardHeadingMobile: {
-    fontSize: "14px",
+    fontSize: "16px",
+  },
+  cardProduct: {
+    fontSize: "12px",
+    fontWeight: 600,
+    color: "#0284c7",
+    letterSpacing: "-0.1px",
+  },
+  cardDivider: {
+    width: "34px",
+    height: "2px",
+    borderRadius: "999px",
+    background: "rgba(0,0,0,0.08)",
+    margin: "4px 0 2px",
   },
   cardText: {
     fontSize: "13px",
-    color: "rgba(0, 0, 0, 0.8)",
+    color: "rgba(0, 0, 0, 0.72)",
     lineHeight: 1.6,
     margin: 0,
   },
@@ -273,6 +411,91 @@ const styles = {
     background: "#4ade80",
     transform: "scale(1.25)",
     boxShadow: "0 0 10px rgba(74, 222, 128, 0.4)",
+  },
+  goalCard: {
+    position: "relative",
+    marginTop: "26px",
+    width: "100%",
+    maxWidth: "660px",
+    borderRadius: "24px",
+    padding: "26px 28px",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 10px 30px rgba(0,0,0,0.06)",
+    backdropFilter: "blur(20px) saturate(180%)",
+    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+    boxSizing: "border-box",
+  },
+  goalCardMobile: {
+    padding: "22px 18px",
+    marginTop: "18px",
+  },
+  goalLabel: {
+    display: "inline-block",
+    fontSize: "11px",
+    fontWeight: 700,
+    letterSpacing: "0.8px",
+    textTransform: "uppercase",
+    color: "#15803d",
+    marginBottom: "16px",
+  },
+  statRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    marginBottom: "18px",
+  },
+  statRowMobile: {
+    flexDirection: "column",
+    gap: "14px",
+  },
+  stat: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "4px",
+    flex: 1,
+  },
+  statValue: {
+    fontSize: "clamp(24px, 3.4vw, 32px)",
+    fontWeight: 700,
+    letterSpacing: "-1px",
+    background: "linear-gradient(90deg, #16a34a, #0284c7)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+    lineHeight: 1.1,
+  },
+  statLabel: {
+    fontSize: "11px",
+    fontWeight: 600,
+    color: "rgba(0,0,0,0.55)",
+    letterSpacing: "0.2px",
+  },
+  statSep: {
+    width: "1px",
+    alignSelf: "stretch",
+    background: "rgba(0,0,0,0.1)",
+    margin: "4px 0",
+  },
+  statSepMobile: {
+    width: "40px",
+    height: "1px",
+    alignSelf: "center",
+  },
+  goalText: {
+    fontSize: "clamp(13px, 1.4vw, 15px)",
+    color: "rgba(0,0,0,0.72)",
+    lineHeight: 1.7,
+    margin: 0,
+    maxWidth: "540px",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  goalTextMobile: {
+    fontSize: "12.5px",
+    lineHeight: 1.6,
   },
 };
 

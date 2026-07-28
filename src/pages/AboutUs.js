@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { GraduationCap, Handshake, ShoppingCart } from "lucide-react";
 
 const team = [
   { name: "Name Surname", role: "Founder & Lead" },
@@ -9,17 +10,17 @@ const team = [
 
 const highlights = [
   {
-    icon: "🎓",
+    Icon: GraduationCap,
     heading: "AI-Guided Education",
     text: "Personalized growing instruction tailored to each household's space, climate, and crops.",
   },
   {
-    icon: "🤝",
+    Icon: Handshake,
     heading: "Community Hub",
     text: "Real-world learning and connection between urban and traditional Filipino farmers.",
   },
   {
-    icon: "🛒",
+    Icon: ShoppingCart,
     heading: "Micro-Commerce Engine",
     text: "A simple marketplace for users to sell local produce and earn supplementary income.",
   },
@@ -129,7 +130,9 @@ function AboutUs() {
               onMouseEnter={() => setHoveredCard(i)}
               onMouseLeave={() => setHoveredCard(null)}
             >
-              <span style={styles.featureIcon}>{h.icon}</span>
+              <span style={styles.featureIcon}>
+                <h.Icon size={22} strokeWidth={1.8} aria-hidden="true" />
+              </span>
               <h3 style={styles.featureHeading}>{h.heading}</h3>
               <p style={styles.featureText}>{h.text}</p>
             </div>
@@ -191,7 +194,7 @@ function AboutUs() {
         <h2 style={{ ...styles.subtitle, textAlign: "center", alignSelf: "center" }}>
           Meet the <span style={styles.accent}>Team</span>
         </h2>
-        <p style={{ ...styles.body, textAlign: "center", maxWidth: "560px", margin: "0 auto 8px" }}>
+        <p style={{ ...styles.body, textAlignLast: "center", maxWidth: "560px", margin: "0 auto 8px" }}>
           EcoEquity is built by a passionate team dedicated to transforming
           agriculture in the Philippines through innovation and community-driven
           solutions.
@@ -319,6 +322,8 @@ const styles = {
     fontWeight: 400,
     lineHeight: 1.72,
     marginBottom: "20px",
+    textAlign: "justify",
+    hyphens: "auto",
   },
   featureRow: {
     display: "flex",
@@ -346,8 +351,17 @@ const styles = {
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 16px 32px rgba(0,0,0,0.10)",
   },
   featureIcon: {
-    fontSize: "26px",
-    lineHeight: 1,
+    width: "42px",
+    height: "42px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "12px",
+    color: "#15803d",
+    background: "linear-gradient(150deg, rgba(134,239,172,0.45), rgba(125,211,252,0.3))",
+    border: "1px solid rgba(74,222,128,0.22)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
+    marginBottom: "2px",
   },
   featureHeading: {
     fontSize: "15px",

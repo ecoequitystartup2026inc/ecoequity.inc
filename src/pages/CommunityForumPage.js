@@ -70,11 +70,14 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
 
   const authorName = loggedInUser && loggedInUser.trim() ? loggedInUser : "Guest Farmer";
 
-  // Grow the details textarea to fit its content.
+  // Grow the details textarea to fit its content, up to a cap — past that it
+  // scrolls instead of pushing the Post button off-screen.
   const autoGrow = (el) => {
     if (!el) return;
+    const MAX = 260;
     el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
+    el.style.height = `${Math.min(el.scrollHeight, MAX)}px`;
+    el.style.overflowY = el.scrollHeight > MAX ? "auto" : "hidden";
   };
 
   // When the composer opens, reveal it and focus the title field.
@@ -154,6 +157,20 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
             opacity: 0;
             animation: forumFadeUp 0.8s cubic-bezier(.22,1,.36,1) 0.15s forwards;
           }
+          .forum-field {
+            text-align: left;
+            line-height: 1.5;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+          }
+          .forum-field::placeholder {
+            color: rgba(15,23,42,0.42);
+            opacity: 1;
+          }
+          .forum-field:focus {
+            border-color: rgba(22,163,74,0.55);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(22,163,74,0.14);
+          }
           .forum-accent {
             background: linear-gradient(90deg, #15803d, #16a34a, #0284c7, #16a34a, #15803d);
             background-size: 200% auto;
@@ -215,17 +232,22 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
         <div ref={composeRef} className="inner-blur-glass" style={styles.composeCard}>
           <input
             ref={titleRef}
+            className="forum-field"
             style={styles.input}
             placeholder="Title — what do you want to ask or share?"
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); bodyRef.current?.focus(); } }}
           />
           <textarea
             ref={bodyRef}
-            style={{ ...styles.input, minHeight: "90px", resize: "none", overflow: "hidden", fontFamily: "inherit" }}
+            className="forum-field"
+            rows={4}
+            style={styles.textarea}
             placeholder="Add details so others can help…"
             value={draft.body}
             onChange={(e) => { setDraft({ ...draft, body: e.target.value }); autoGrow(e.target); }}
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handlePost(); }}
           />
           <div style={styles.composeFooter}>
             <select style={styles.select} value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })}>
@@ -284,6 +306,7 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
             {replyOpen === post.id && (
               <div style={styles.replyComposer}>
                 <input
+                  className="forum-field"
                   style={{ ...styles.input, marginBottom: 0 }}
                   placeholder="Write a reply…"
                   value={replyText}
@@ -348,14 +371,19 @@ const styles = {
   catChip: { display: "inline-flex", alignItems: "center", gap: "5px", padding: "6px 12px", borderRadius: "999px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.06)", color: "#334155", fontSize: "12.5px", fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease" },
   catChipActive: { background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", borderColor: "transparent", boxShadow: "0 6px 16px rgba(22,163,74,0.3)" },
   newPostBtn: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.4)", color: "#062018", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.2)", whiteSpace: "nowrap" },
-  composeCard: { width: "100%", borderRadius: "18px", padding: "16px", marginBottom: "18px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.06)", boxSizing: "border-box" },
-  input: { width: "100%", padding: "11px 13px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.9)", fontSize: "14px", color: "#0f172a", marginBottom: "10px", boxSizing: "border-box", outline: "none" },
+  // flexShrink 0 is load-bearing: `wrap` is a column flex container and
+  // .inner-blur-glass sets overflow:hidden, which zeroes this item's automatic
+  // minimum size — without it the card is squashed to ~34px and clips the
+  // title field and Post button instead of letting the page scroll.
+  composeCard: { width: "100%", flexShrink: 0, borderRadius: "18px", padding: "16px", marginBottom: "18px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.06)", boxSizing: "border-box", textAlign: "left" },
+  input: { width: "100%", padding: "11px 13px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.9)", fontSize: "14px", color: "#0f172a", marginBottom: "10px", boxSizing: "border-box", outline: "none", fontFamily: "inherit", textAlign: "left" },
+  textarea: { width: "100%", padding: "11px 13px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.9)", fontSize: "14px", color: "#0f172a", marginBottom: "10px", boxSizing: "border-box", outline: "none", fontFamily: "inherit", textAlign: "left", minHeight: "96px", maxHeight: "260px", resize: "none", overflowY: "hidden", display: "block" },
   composeFooter: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap" },
   select: { padding: "9px 12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.9)", fontSize: "13px", fontWeight: 600, color: "#334155", cursor: "pointer" },
   postBtn: { padding: "9px 18px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", border: "none", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(22,163,74,0.25)" },
-  feed: { display: "flex", flexDirection: "column", gap: "16px", width: "100%" },
+  feed: { display: "flex", flexDirection: "column", gap: "16px", width: "100%", flexShrink: 0 },
   emptyText: { fontSize: "14px", color: "rgba(0,0,0,0.55)", padding: "20px" },
-  postCard: { borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)", textAlign: "left", boxSizing: "border-box" },
+  postCard: { flexShrink: 0, borderRadius: "18px", padding: "18px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)", textAlign: "left", boxSizing: "border-box" },
   postCardOfficial: { border: "1px solid rgba(22,163,74,0.45)", background: "linear-gradient(180deg, rgba(220,252,231,0.65), rgba(255,255,255,0.6))", boxShadow: "0 10px 28px rgba(22,163,74,0.12)" },
   pinnedBadge: { display: "inline-block", fontSize: "10.5px", fontWeight: 800, color: "#15803d", letterSpacing: "0.4px", marginBottom: "8px" },
   postHead: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" },

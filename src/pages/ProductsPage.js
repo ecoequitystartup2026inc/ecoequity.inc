@@ -3,11 +3,45 @@ import { Sprout } from "lucide-react";
 import { FaStore, FaTools, FaHeadset, FaGraduationCap, FaArrowLeft } from "react-icons/fa";
 import QuickViewModal from "./QuickViewModal";
 
-function ProductsPage({ setActiveNav, setCartItems, products }) {
+// Real product photo with an emoji/icon fallback if the image is missing or fails.
+function ProductThumb({ src, alt, emoji }) {
+  const [errored, setErrored] = useState(false);
+  if (!src || errored) {
+    return <span style={{ fontSize: "48px" }}>{emoji || <Sprout size="1em" color="#16a34a" />}</span>;
+  }
+  return (
+    <img
+      src={src}
+      alt={alt || ""}
+      loading="lazy"
+      onError={() => setErrored(true)}
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+    />
+  );
+}
+
+function ProductsPage({ setActiveNav, setCartItems, products, setProducts }) {
+  // Append a customer review to a product and recompute its average rating + count.
+  const handleAddReview = (productId, review) => {
+    if (!setProducts) return;
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (p.id !== productId) return p;
+        const reviews = [...(p.reviews || []), review];
+        const reviewCount = (p.reviewCount || 0) + 1;
+        const totalStars = (p.rating || 0) * (p.reviewCount || 0) + review.rating;
+        const rating = Math.round((totalStars / reviewCount) * 10) / 10;
+        return { ...p, reviews, reviewCount, rating };
+      })
+    );
+  };
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [hoveredItem, setHoveredItem] = useState(null); // Renamed from hoveredProduct to avoid confusion with product cards
   const [isHoveredBack, setIsHoveredBack] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  // This section is a preview — show only the first 4 products in the grid;
+  // the full catalog lives in Shop All Products.
+  const featuredProducts = products.slice(0, 4);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -152,7 +186,7 @@ function ProductsPage({ setActiveNav, setCartItems, products }) {
 
         <div className="hide-scroll" style={{ ...styles.rightColumn, ...(isMobile ? styles.rightColumnMobile : {}), paddingTop: 0 }}>
           <div style={{ ...styles.productGrid, ...(isMobile ? styles.productGridMobile : {}) }}>
-            {products.map((product, index) => (
+            {featuredProducts.map((product, index) => (
               <div
                 key={product.name}
                 className="inner-blur-glass"
@@ -168,7 +202,7 @@ function ProductsPage({ setActiveNav, setCartItems, products }) {
               >
                 <span aria-hidden="true" style={styles.productCardInnerBlur} />
                 <div style={styles.productImageContainer}>
-                  <span style={{ fontSize: "48px" }}>{product.emoji || <Sprout size="1em" color="#16a34a" />}</span>
+                  <ProductThumb src={product.image} alt={product.name} emoji={product.emoji} />
                   <span style={styles.sustainabilityBadge}>{product.sustainabilityBadge}</span>
                 </div>
                 <h3 style={styles.productName}>{product.name}</h3>
@@ -208,7 +242,7 @@ function ProductsPage({ setActiveNav, setCartItems, products }) {
           {/* Scroll Indicator Dots - Mobile Only */}
           {isMobile && (
             <div style={styles.indicatorRow}>
-              {products.map((_, i) => (
+              {featuredProducts.map((_, i) => (
                 <div
                   key={i}
                   style={{
@@ -232,6 +266,7 @@ function ProductsPage({ setActiveNav, setCartItems, products }) {
           isMobile={isMobile}
           setCartItems={setCartItems}
           setActiveNav={setActiveNav}
+          onAddReview={setProducts ? handleAddReview : undefined}
         />
       )}
     </div>
@@ -512,9 +547,10 @@ const styles = {
   productGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)", // Forces a strict 2-column grid
-    gap: "16px",
+    gap: "12px",
     width: "100%", // Keep width as 100%
-    marginTop: "50px", 
+    maxWidth: "460px",
+    margin: "50px auto 0",
   },
   productGridMobile: {
     gridTemplateColumns: "repeat(2, 1fr)", // Forces 2 columns on mobile as well
@@ -527,12 +563,12 @@ const styles = {
     background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
     border: "1px solid rgba(0,0,0,0.05)",
     borderRadius: "14px",
-    padding: "12px",
+    padding: "10px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    gap: "8px",
+    gap: "6px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
     backdropFilter: "blur(20px) saturate(165%)",
     WebkitBackdropFilter: "blur(20px) saturate(165%)",
@@ -558,8 +594,8 @@ const styles = {
   productImageContainer: {
     position: "relative",
     width: "100%",
-    height: "120px",
-    marginBottom: "8px",
+    height: "88px",
+    marginBottom: "4px",
     borderRadius: "10px",
     overflow: "hidden",
     backgroundColor: "rgba(0,0,0,0.03)",
@@ -585,16 +621,20 @@ const styles = {
     zIndex: 1,
   },
   productName: {
-    fontSize: "16px",
+    fontSize: "13.5px",
     fontWeight: 700,
     color: "#000",
     margin: "0",
   },
   productDescription: {
-    fontSize: "12px",
+    fontSize: "11px",
     color: "rgba(0,0,0,0.7)",
     margin: "0",
     flexGrow: 1,
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
   },
   productDescriptionMobile: {
     fontSize: "10px",
@@ -603,11 +643,11 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     width: "100%",
-    marginTop: "8px",
-    marginBottom: "8px",
+    marginTop: "4px",
+    marginBottom: "4px",
   },
   productPrice: {
-    fontSize: "14px",
+    fontSize: "13px",
     fontWeight: 700,
     color: "#15803d",
   },
@@ -623,7 +663,7 @@ const styles = {
   },
   addToCartBtn: {
     flex: 1,
-    padding: "6px 10px",
+    padding: "5px 8px",
     borderRadius: "999px",
     background: "rgba(21, 128, 61, 0.1)",    border: "1px solid #15803d",    color: "#15803d",    fontSize: "11px",
     fontWeight: 600,
@@ -635,7 +675,7 @@ const styles = {
   },
   viewProductBtn: {
     flex: 1,
-    padding: "6px 10px",
+    padding: "5px 8px",
     borderRadius: "999px",
     background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
     border: "1px solid rgba(255,255,255,0.35)",

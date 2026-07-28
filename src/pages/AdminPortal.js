@@ -4,8 +4,9 @@ import {
   Truck, CreditCard, Repeat, CalendarDays, Stethoscope, 
   BarChart2, FileText, Settings, LogOut, 
   Search, Bell, TrendingUp, TrendingDown, CheckCircle, XCircle, Edit2, Save, X, Image, AlertCircle, Trash2, Eye, Clock, MapPin, Phone, Package, Filter, Navigation, UserCheck, MessageSquare, Route, Leaf, RefreshCcw, Download, Zap, Crown, Activity, Tag, Ticket, Video, Scan, Target, Bug, Thermometer, PieChart, Globe, Lightbulb, Megaphone, Wand2, Layout, Plus, Play, Database, Wheat, Send, ChevronsLeft, ChevronsRight
-  , Sprout, Cherry, PartyPopper, Star
+  , Sprout, Cherry, PartyPopper, Star, GraduationCap
 } from "lucide-react";
+import { createProduct, updateProduct, deleteProduct } from "../data/products";
 
 const mockStats = [
   { label: "Total Users", value: "15,243", trend: "+12%", up: true, icon: <Users size={16} color="#15803d" /> },
@@ -16,8 +17,8 @@ const mockStats = [
   { label: "AI Diagnoses", value: "12,845", trend: "+22%", up: true, icon: <Stethoscope size={16} color="#0369a1" /> },
 ];
 
-const ORDERS_STORAGE_KEY = "verdeversity_orders";
-const SUPPORT_TICKETS_STORAGE_KEY = "verdeversity_support_tickets";
+const ORDERS_STORAGE_KEY = "ecoequity_orders";
+const SUPPORT_TICKETS_STORAGE_KEY = "ecoequity_support_tickets";
 
 const mockTopProducts = [
   { name: "Heirloom Tomatoes", sales: "1,240", rev: "₱186K", stock: "In Stock", emoji: <Cherry size="1em" color="#dc2626" /> },
@@ -31,7 +32,7 @@ const mockVerifications = [
   { name: "Green Valley Co.", location: "Davao", date: "1 day ago", type: "Commercial" },
 ];
 
-const mockUsers = [
+export const mockUsers = [
   { id: "USR-001", name: "Maria Clara", email: "maria@example.com", role: "Customer", lastLogin: "10 mins ago", status: "Online" },
   { id: "USR-002", name: "Juan Dela Cruz", email: "juan@example.com", role: "Farmer", lastLogin: "1 hour ago", status: "Offline" },
   { id: "USR-003", name: "Healthy Eats Cafe", email: "contact@healthyeats.com", role: "B2B Buyer", lastLogin: "2 hours ago", status: "Offline" },
@@ -55,7 +56,7 @@ const mockDeliveryStats = [
   { label: "Avg Time", value: "35m", trend: "-5m", up: true, icon: <Clock size={16} color="#0d9488" /> },
 ];
 
-const mockDeliveriesList = [
+export const mockDeliveriesList = [
   { id: "TRK-001", orderId: "ORD-9823", customer: "Maria Clara", rider: "Mike T.", status: "Out for Delivery", eta: "10 mins", type: "Eco-Bike", distance: "2.5 km" },
   { id: "TRK-002", orderId: "ORD-9822", customer: "Juan Dela Cruz", rider: "Sarah L.", status: "In Transit", eta: "25 mins", type: "EV-Van", distance: "5.1 km" },
   { id: "TRK-003", orderId: "ORD-9821", customer: "Healthy Eats", rider: "Unassigned", status: "Pending Pickup", eta: "N/A", type: "Standard", distance: "1.2 km" },
@@ -63,10 +64,26 @@ const mockDeliveriesList = [
   { id: "TRK-005", orderId: "ORD-9819", customer: "Green Valley", rider: "Alex R.", status: "Delayed", eta: "45 mins", type: "EV-Van", distance: "8.4 km" },
 ];
 
-const mockRiders = [
-  { name: "Mike T.", status: "On Delivery", rating: 4.9, deliveries: 1245 },
-  { name: "Sarah L.", status: "Available", rating: 4.8, deliveries: 890 },
-  { name: "John D.", status: "Offline", rating: 4.7, deliveries: 654 },
+export const mockRiders = [
+  { id: "RDR-001", name: "Mike T.", status: "On Delivery", rating: 4.9, deliveries: 1245, phone: "0917 555 0101", area: "Baguio City", vehicle: "Eco-Bike", currentOrder: "ORD-9823" },
+  { id: "RDR-002", name: "Sarah L.", status: "Available", rating: 4.8, deliveries: 890, phone: "0917 555 0102", area: "La Trinidad", vehicle: "EV-Van", currentOrder: null },
+  { id: "RDR-003", name: "John D.", status: "Offline", rating: 4.7, deliveries: 654, phone: "0917 555 0103", area: "Itogon", vehicle: "Eco-Bike", currentOrder: null },
+];
+
+const RIDER_STATUS_OPTIONS = [
+  { value: "Available", label: "Available" },
+  { value: "On Delivery", label: "On Delivery" },
+  { value: "Offline", label: "Offline" },
+];
+
+const riderStatusColor = (status) => status === "Available" ? "#16a34a" : status === "On Delivery" ? "#f59e0b" : "#94a3b8";
+
+const BROADCASTS_STORAGE_KEY = "ecoequity_broadcasts";
+
+const mockBroadcasts = [
+  { id: "BC-1003", title: "Fresh Harvest Just Landed", message: "New heirloom tomatoes and basil kits are now in stock. Order before noon for same-day eco-delivery.", audience: "All", type: "Announcement", channel: "Push", time: "2 hrs ago", reach: 15243 },
+  { id: "BC-1002", title: "Weekend Pro Discount", message: "Pro subscribers get 15% off all grow kits this weekend. Use code GROW15.", audience: "Pro", type: "Promo", channel: "Email", time: "Yesterday", reach: 2480 },
+  { id: "BC-1001", title: "Scheduled Maintenance", message: "The Farm Planner will be briefly offline tonight from 11PM–12AM for upgrades.", audience: "All", type: "Alert", channel: "In-App", time: "2 days ago", reach: 15243 },
 ];
 
 const riderNotificationStatuses = [
@@ -237,6 +254,11 @@ const AdminEcoDropdown = ({ value, options, onChange, placeholder, compact = fal
   );
 };
 
+const StaticEcoDropdown = ({ options, compact = false, align = "left" }) => {
+  const [value, setValue] = useState(options[0]?.value);
+  return <AdminEcoDropdown value={value} options={options} onChange={setValue} compact={compact} align={align} />;
+};
+
 const mockPaymentStats = [
   { label: "Total Revenue", value: "₱124,500", trend: "+18%", up: true, icon: <CreditCard size={16} color="#15803d" /> },
   { label: "Successful", value: "98", trend: "+5%", up: true, icon: <CheckCircle size={16} color="#0284c7" /> },
@@ -244,7 +266,7 @@ const mockPaymentStats = [
   { label: "Refunds", value: "3", trend: "+1%", up: false, icon: <RefreshCcw size={16} color="#dc2626" /> },
 ];
 
-const mockTransactions = [
+export const mockTransactions = [
   { id: "TXN-001", orderId: "ORD-9823", customer: "Maria Clara", method: "GCash", amount: "₱1,250", status: "Paid", date: "May 28, 2026, 10:30 AM", refNo: "8291038471" },
   { id: "TXN-002", orderId: "ORD-9822", customer: "Juan Dela Cruz", method: "Cash on Delivery", amount: "₱850", status: "Pending", date: "May 28, 2026, 11:15 AM", refNo: "N/A" },
   { id: "TXN-003", orderId: "ORD-9821", customer: "Healthy Eats", method: "Credit Card", amount: "₱5,400", status: "Paid", date: "May 27, 2026, 2:45 PM", refNo: "CH-992817" },
@@ -257,12 +279,6 @@ const mockSubscriptionStats = [
   { label: "Monthly Revenue", value: "₱58,400", trend: "+8%", up: true, icon: <CreditCard size={16} color="#15803d" /> },
   { label: "Renewal Rate", value: "82%", trend: "+5%", up: true, icon: <Repeat size={16} color="#8b5cf6" /> },
   { label: "Active Pro Users", value: "148", trend: "+15%", up: true, icon: <Crown size={16} color="#f59e0b" /> },
-];
-
-const mockPlans = [
-  { name: "Basic", price: "Free", users: "850", revenue: "₱0", features: ["Limited AI Scans", "Community Access", "Marketplace Buying"], color: "#64748b", bg: "rgba(100,116,139,0.05)" },
-  { name: "Pro", price: "₱499/mo", users: "345", revenue: "₱172K", features: ["Unlimited AI Doctor", "Advanced Analytics", "Priority Support"], color: "#f59e0b", bg: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05))" },
-  { name: "Enterprise", price: "Custom", users: "50", revenue: "₱450K", features: ["LGU Dashboard", "API Integration", "Team Accounts"], color: "#0ea5e9", bg: "linear-gradient(135deg, rgba(14,165,233,0.1), rgba(14,165,233,0.05))" },
 ];
 
 export const mockSubscribers = [
@@ -328,18 +344,11 @@ const subscriberScheduleOptions = [
   { value: "later", label: "Schedule for Later" },
 ];
 
-const mockEventStats = [
-  { label: "Total Events", value: "48", trend: "+4", up: true, icon: <CalendarDays size={16} color="#0284c7" /> },
-  { label: "Total Attendees", value: "8,420", trend: "+12%", up: true, icon: <Users size={16} color="#15803d" /> },
-  { label: "Upcoming Workshops", value: "12", trend: "+2", up: true, icon: <Ticket size={16} color="#f59e0b" /> },
-  { label: "Event Revenue", value: "₱145K", trend: "+18%", up: true, icon: <CreditCard size={16} color="#8b5cf6" /> },
-];
-
 export const mockEventsList = [
   { id: "EVT-001", title: "Urban Hydroponics Masterclass", date: "Jun 15, 2026", time: "09:00 AM", type: "Workshop", attendees: 45, maxAttendees: 50, status: "Upcoming", price: "₱1,200", location: "Baguio City Hall" },
   { id: "EVT-002", title: "Sustainable Pest Management", date: "Jul 10, 2026", time: "02:00 PM", type: "Webinar", attendees: 120, maxAttendees: 500, status: "Upcoming", price: "Free", location: "Online (Zoom)" },
   { id: "EVT-003", title: "Seed Exchange & Planting Day", date: "Aug 05, 2026", time: "04:00 PM", type: "Community", attendees: 85, maxAttendees: 100, status: "Upcoming", price: "Free", location: "Local Garden" },
-  { id: "EVT-004", title: "Farm-to-Table Cooking", date: "May 20, 2026", time: "10:00 AM", type: "Workshop", attendees: 30, maxAttendees: 30, status: "Completed", price: "₱2,500", location: "VerdeVersity Center" },
+  { id: "EVT-004", title: "Farm-to-Table Cooking", date: "May 20, 2026", time: "10:00 AM", type: "Workshop", attendees: 30, maxAttendees: 30, status: "Completed", price: "₱2,500", location: "EcoEquity Center" },
   { id: "EVT-005", title: "Advanced Soil Health", date: "May 10, 2026", time: "07:00 PM", type: "Webinar", attendees: 250, maxAttendees: 300, status: "Completed", price: "Free", location: "Online" },
 ];
 
@@ -358,11 +367,30 @@ export const mockScansList = [
   { id: "SCN-8817", plant: "Eggplant", disease: "Downy Mildew", confidence: "91%", user: "Healthy Eats", status: "Resolved", date: "May 26, 2026", recommendation: "Previous treatment successful. Monitor for 7 more days." },
 ];
 
-const mockDiseaseDatabase = [
-  { name: "Early Blight", crop: "Tomato, Potato", severity: "High" },
-  { name: "Downy Mildew", crop: "Eggplant, Cucumber", severity: "Medium" },
-  { name: "Anthracnose", crop: "Mango, Papaya", severity: "High" },
-  { name: "Powdery Mildew", crop: "Squash, Melon", severity: "Medium" },
+// Disease Library — authored here in the Admin Portal and consumed by the
+// user-facing AI Plant Doctor so every diagnosis is drawn from admin content.
+export const mockDiseaseLibrary = [
+  { id: "DIS-001", name: "Early Blight (Fungal)", plant: "Tomato", crop: "Tomato, Potato", severity: "High", confidence: "94%", recommendations: [
+    "Remove infected lower leaves to prevent spore splash.",
+    "Apply organic copper-based fungicide every 7-10 days.",
+    "Improve air circulation by pruning excess foliage.",
+    "Water at the base of the plant only, avoiding the leaves.",
+  ] },
+  { id: "DIS-002", name: "Downy Mildew", plant: "Eggplant", crop: "Eggplant, Cucumber", severity: "Medium", confidence: "91%", recommendations: [
+    "Avoid overhead watering to keep foliage dry.",
+    "Apply a potassium bicarbonate spray on affected areas.",
+    "Increase spacing between plants for better airflow.",
+  ] },
+  { id: "DIS-003", name: "Anthracnose", plant: "Mango", crop: "Mango, Papaya", severity: "High", confidence: "87%", recommendations: [
+    "Prune infected branches and dispose of them away from crops.",
+    "Apply organic fungicide during dry weather windows.",
+    "Harvest fruit promptly to reduce infection spread.",
+  ] },
+  { id: "DIS-004", name: "Powdery Mildew", plant: "Squash", crop: "Squash, Melon", severity: "Medium", confidence: "89%", recommendations: [
+    "Spray a diluted neem oil solution weekly.",
+    "Remove and destroy heavily infected leaves.",
+    "Plant in full sun to discourage fungal growth.",
+  ] },
 ];
 
 const mockAnalyticsStats = [
@@ -439,11 +467,23 @@ export default function AdminPortal({
   orders, setOrders,
   supportTickets = [], setSupportTickets,
   plantScans = mockScansList, setPlantScans = () => {},
+  plantDiseases = mockDiseaseLibrary, setPlantDiseases = () => {},
   subscribers = mockSubscribers, setSubscribers = () => {},
   events = mockEventsList, setEvents = () => {},
   content = mockContentList, setContent = () => {},
   forumPosts = [], setForumPosts = () => {},
   farmPlanner = {}, setFarmPlanner = () => {},
+  advisors = [], setAdvisors = () => {},
+  surplusListings = [], setSurplusListings = () => {},
+  surplusDemands = [], setSurplusDemands = () => {},
+  certCourses = [], setCertCourses = () => {},
+  adminSettings = {}, setAdminSettings = () => {},
+  // Lifted to App.js so admin edits persist and reach the user-facing screens.
+  deliveries = mockDeliveriesList, setDeliveries = () => {},
+  riders: ridersProp = mockRiders, setRiders: setRidersProp = () => {},
+  platformUsers = mockUsers, setPlatformUsers = () => {},
+  transactions = mockTransactions, setTransactions = () => {},
+  subscriptionPlans = [], setSubscriptionPlans = () => {},
 }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -507,11 +547,214 @@ export default function AdminPortal({
     });
     setToastMessage("Farm Planner settings saved");
   };
-  
+
+  // --- Expert Support admin (manage the specialists shown on the website) ---
+  // Expertise is edited as a comma-separated string and stored as an array.
+  const emptyAdvisorDraft = { name: "", image: "", expertiseText: "", rating: "4.5", availability: "Available", availableDays: "", availableTime: "", bio: "", verified: true, isNew: true };
+  const [advisorSearchTerm, setAdvisorSearchTerm] = useState("");
+  const [editingAdvisor, setEditingAdvisor] = useState(null);
+  const advisorAvailabilityOptions = [
+    { value: "Available", label: "Available" },
+    { value: "Not Available", label: "Not Available" },
+  ];
+  const filteredAdvisorsList = (advisors || []).filter((a) => {
+    const q = advisorSearchTerm.trim().toLowerCase();
+    return !q || a.name.toLowerCase().includes(q) || (a.expertise || []).join(" ").toLowerCase().includes(q);
+  });
+  const handleEditAdvisor = (advisor) =>
+    setEditingAdvisor({ ...advisor, expertiseText: (advisor.expertise || []).join(", "), rating: String(advisor.rating ?? "4.5"), isNew: false });
+  const handleSaveAdvisor = () => {
+    if (!editingAdvisor.name || !editingAdvisor.name.trim()) {
+      setToastMessage("Please provide the specialist's name.");
+      return;
+    }
+    const record = {
+      id: editingAdvisor.isNew ? Date.now() : editingAdvisor.id,
+      name: editingAdvisor.name.trim(),
+      image: (editingAdvisor.image || "").trim(),
+      verified: !!editingAdvisor.verified,
+      rating: Math.min(Math.max(parseFloat(editingAdvisor.rating) || 0, 0), 5),
+      expertise: (editingAdvisor.expertiseText || "").split(",").map((s) => s.trim()).filter(Boolean),
+      availability: editingAdvisor.availability || "Available",
+      availableDays: editingAdvisor.availableDays || "",
+      availableTime: editingAdvisor.availableTime || "",
+      bio: editingAdvisor.bio || "",
+    };
+    if (record.expertise.length === 0) record.expertise = ["General Farming"];
+    setAdvisors((prev) => editingAdvisor.isNew ? [record, ...prev] : prev.map((a) => (a.id === record.id ? record : a)));
+    setEditingAdvisor(null);
+    setToastMessage(editingAdvisor.isNew ? "Specialist added to Expert Support." : "Specialist details updated.");
+  };
+  const handleDeleteAdvisor = (id) => {
+    setAdvisors((prev) => prev.filter((a) => a.id !== id));
+    setToastMessage("Specialist removed from Expert Support.");
+  };
+  const handleToggleAdvisorAvailability = (id) =>
+    setAdvisors((prev) => prev.map((a) => (a.id === id ? { ...a, availability: a.availability === "Available" ? "Not Available" : "Available" } : a)));
+  const handleToggleAdvisorVerified = (id) =>
+    setAdvisors((prev) => prev.map((a) => (a.id === id ? { ...a, verified: !a.verified } : a)));
+
+  // --- Surplus Exchange admin (moderate the B2B marketplace) ---
+  const [surplusSearchTerm, setSurplusSearchTerm] = useState("");
+  const listingStatusOptions = [
+    { value: "Available", label: "Available" },
+    { value: "Reserved", label: "Reserved" },
+    { value: "Sold", label: "Sold" },
+  ];
+  const filteredSurplusListings = (surplusListings || []).filter((l) => {
+    const q = surplusSearchTerm.trim().toLowerCase();
+    return !q || (l.product || "").toLowerCase().includes(q) || (l.farmer || "").toLowerCase().includes(q) || (l.location || "").toLowerCase().includes(q);
+  });
+  const filteredSurplusDemands = (surplusDemands || []).filter((d) => {
+    const q = surplusSearchTerm.trim().toLowerCase();
+    return !q || (d.product || "").toLowerCase().includes(q) || (d.restaurant || "").toLowerCase().includes(q) || (d.location || "").toLowerCase().includes(q);
+  });
+  const handleSetListingStatus = (id, status) => {
+    setSurplusListings((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
+    setToastMessage(`Listing marked as ${status}.`);
+  };
+  const handleDeleteListing = (id) => {
+    setSurplusListings((prev) => prev.filter((l) => l.id !== id));
+    setToastMessage("Surplus listing removed.");
+  };
+  const handleToggleDemandStatus = (id) => {
+    setSurplusDemands((prev) => prev.map((d) => (d.id === id ? { ...d, status: d.status === "Closed" ? "Open" : "Closed" } : d)));
+  };
+  const handleToggleDemandUrgent = (id) =>
+    setSurplusDemands((prev) => prev.map((d) => (d.id === id ? { ...d, urgent: !d.urgent } : d)));
+  const handleDeleteDemand = (id) => {
+    setSurplusDemands((prev) => prev.filter((d) => d.id !== id));
+    setToastMessage("Demand post removed.");
+  };
+
+  // --- Specialist Certification admin (manage the courses shown on the website) ---
+  // `lessons`/`rating` are edited as strings and parsed on save; enrollment
+  // progress and the JSX icon are carried over from the existing record.
+  const emptyCourseDraft = { title: "", desc: "", instructor: "", duration: "4 Weeks", lessons: "10", price: "", image: "", badge: "", rating: "4.8", isNew: true };
+  const [courseSearchTerm, setCourseSearchTerm] = useState("");
+  const [editingCourse, setEditingCourse] = useState(null);
+  const filteredCoursesList = (certCourses || []).filter((c) => {
+    const q = courseSearchTerm.trim().toLowerCase();
+    return !q || (c.title || "").toLowerCase().includes(q) || (c.instructor || "").toLowerCase().includes(q) || (c.badge || "").toLowerCase().includes(q);
+  });
+  const handleEditCourse = (course) =>
+    setEditingCourse({ ...course, lessons: String(course.lessons ?? "10"), rating: String(course.rating ?? "4.8"), isNew: false });
+  const handleSaveCourse = () => {
+    if (!editingCourse.title || !editingCourse.title.trim()) {
+      setToastMessage("Please provide the course title.");
+      return;
+    }
+    const record = {
+      ...editingCourse,
+      id: editingCourse.isNew ? Date.now() : editingCourse.id,
+      title: editingCourse.title.trim(),
+      desc: editingCourse.desc || "",
+      instructor: (editingCourse.instructor || "").trim() || "To be announced",
+      duration: (editingCourse.duration || "").trim() || "4 Weeks",
+      lessons: Math.max(parseInt(editingCourse.lessons, 10) || 1, 1),
+      price: (editingCourse.price || "").trim() || "₱0",
+      image: (editingCourse.image || "").trim(),
+      badge: (editingCourse.badge || "").trim(),
+      rating: Math.min(Math.max(parseFloat(editingCourse.rating) || 0, 0), 5),
+      progress: editingCourse.isNew ? 0 : (editingCourse.progress ?? 0),
+    };
+    delete record.isNew;
+    setCertCourses((prev) => (editingCourse.isNew ? [record, ...prev] : prev.map((c) => (c.id === record.id ? record : c))));
+    setEditingCourse(null);
+    setToastMessage(editingCourse.isNew ? "Course added to Specialist Certification." : "Course details updated.");
+  };
+  const handleDeleteCourse = (id) => {
+    setCertCourses((prev) => prev.filter((c) => c.id !== id));
+    setToastMessage("Course removed from Specialist Certification.");
+  };
+
+  // --- Settings module (portal-wide configuration) ---
+  const settingsDefaults = {
+    platformName: "EcoEquity",
+    supportEmail: "support@ecoequity.ph",
+    maintenanceMode: false,
+    admins: [{ id: "ADM-001", name: "Juan Dela Cruz", role: "Super Admin", twoFactor: true, isYou: true }],
+    paymongoEnabled: true,
+    paymongoKey: "",
+    aiConfidenceThreshold: 85,
+    activeModel: "Verde-Agri-V2.4 (Optimized for PH Climate)",
+    themeMode: "Light",
+    accentColor: "#16a34a",
+    lastBackup: null,
+  };
+  // Editable draft seeded from the persisted settings; committed on "Save Changes".
+  const [settingsDraft, setSettingsDraft] = useState(() => ({
+    ...settingsDefaults,
+    ...adminSettings,
+    admins: (adminSettings.admins || settingsDefaults.admins).map((a) => ({ ...a })),
+  }));
+  const updateSetting = (field, value) => setSettingsDraft((prev) => ({ ...prev, [field]: value }));
+  const [editingAdmin, setEditingAdmin] = useState(null); // { id?, name, role, twoFactor }
+  const adminRoleOptions = [
+    { value: "Super Admin", label: "Super Admin" },
+    { value: "Admin", label: "Admin" },
+    { value: "Editor", label: "Editor" },
+    { value: "Support Agent", label: "Support Agent" },
+  ];
+  const handleSaveAdmin = () => {
+    if (!editingAdmin || !editingAdmin.name.trim()) return;
+    setSettingsDraft((prev) => {
+      const exists = prev.admins.some((a) => a.id === editingAdmin.id);
+      const admins = exists
+        ? prev.admins.map((a) => (a.id === editingAdmin.id ? { ...a, ...editingAdmin, name: editingAdmin.name.trim() } : a))
+        : [...prev.admins, { ...editingAdmin, id: `ADM-${Date.now()}`, name: editingAdmin.name.trim() }];
+      return { ...prev, admins };
+    });
+    setEditingAdmin(null);
+  };
+  const handleRemoveAdmin = (id) =>
+    setSettingsDraft((prev) => ({ ...prev, admins: prev.admins.filter((a) => a.id !== id) }));
+  const handleSaveSettings = () => {
+    setAdminSettings({ ...settingsDraft });
+    setToastMessage("Settings saved");
+  };
+  const handleBackupNow = () => {
+    const stamp = new Date().toISOString();
+    setSettingsDraft((prev) => ({ ...prev, lastBackup: stamp }));
+    setAdminSettings((prev) => ({ ...prev, lastBackup: stamp }));
+    setToastMessage("Manual backup completed");
+  };
+  const handleExportData = () => {
+    const payload = { products, harvests, orders, supportTickets, subscribers, events, content, settings: settingsDraft };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ecoequity-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setToastMessage("System data exported");
+  };
+
   const [editingProduct, setEditingProduct] = useState(null);
   const [productCategoryFilter, setProductCategoryFilter] = useState("All");
   const [productSearchTerm, setProductSearchTerm] = useState("");
   const [toastMessage, setToastMessage] = useState(null);
+  // Auto-dismiss toast notifications so they don't linger on screen forever.
+  useEffect(() => {
+    if (!toastMessage) return;
+    const t = setTimeout(() => setToastMessage(null), 3000);
+    return () => clearTimeout(t);
+  }, [toastMessage]);
+  // Trigger a real client-side CSV download from an array of row objects.
+  const downloadCSV = (filename, rows) => {
+    if (!rows || rows.length === 0) { setToastMessage("No data available to export."); return; }
+    const headers = Object.keys(rows[0]);
+    const esc = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+    const csv = [headers.join(","), ...rows.map((r) => headers.map((h) => esc(r[h])).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setToastMessage(`Exported ${rows.length} row(s) to ${filename}`);
+  };
   const [productToDelete, setProductToDelete] = useState(null);
 
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -526,7 +769,9 @@ export default function AdminPortal({
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const [deliverySearchTerm, setDeliverySearchTerm] = useState("");
   const [deliveryStatusFilter, setDeliveryStatusFilter] = useState("All");
-  const [deliveriesList, setDeliveriesList] = useState(mockDeliveriesList);
+  // Deliveries live in App.js: the user's Track Order view reads the same list.
+  const deliveriesList = deliveries;
+  const setDeliveriesList = setDeliveries;
   const [editableDelivery, setEditableDelivery] = useState(null);
   const [editingDeliveryId, setEditingDeliveryId] = useState(null);
   const [newDeliveryStatus, setNewDeliveryStatus] = useState("");
@@ -555,6 +800,9 @@ export default function AdminPortal({
   });
   const [subSearchTerm, setSubSearchTerm] = useState("");
   const [subPlanFilter, setSubPlanFilter] = useState("All");
+  // Plan editing — feature lists are edited as newline-separated text, then split on save.
+  const [editingPlanId, setEditingPlanId] = useState(null);
+  const [planDraft, setPlanDraft] = useState({ description: "", priceMonthly: "", priceYearly: "", badge: "", features: "", excludedFeatures: "", clientVisible: true });
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventSearchTerm, setEventSearchTerm] = useState("");
@@ -568,8 +816,30 @@ export default function AdminPortal({
   const [scanSearchTerm, setScanSearchTerm] = useState("");
   const [scanStatusFilter, setScanStatusFilter] = useState("All");
 
+  // --- Disease Library admin (authors what the user-facing AI Plant Doctor diagnoses) ---
+  const [diseaseForm, setDiseaseForm] = useState({ name: "", plant: "", severity: "Medium", confidence: "90%", recommendation: "" });
+  const handleAddDisease = () => {
+    if (!diseaseForm.name.trim() || !diseaseForm.plant.trim()) return;
+    const newDisease = {
+      id: `DIS-${String(Date.now()).slice(-6)}`,
+      name: diseaseForm.name.trim(),
+      plant: diseaseForm.plant.trim(),
+      crop: diseaseForm.plant.trim(),
+      severity: diseaseForm.severity,
+      confidence: /%$/.test(diseaseForm.confidence.trim()) ? diseaseForm.confidence.trim() : `${diseaseForm.confidence.trim() || "90"}%`,
+      recommendations: diseaseForm.recommendation.split("\n").map(r => r.trim()).filter(Boolean),
+    };
+    if (newDisease.recommendations.length === 0) newDisease.recommendations = ["Monitor the plant and consult a local agronomist."];
+    setPlantDiseases([newDisease, ...plantDiseases]);
+    setDiseaseForm({ name: "", plant: "", severity: "Medium", confidence: "90%", recommendation: "" });
+  };
+  const handleDeleteDisease = (id) => setPlantDiseases(plantDiseases.filter(d => d.id !== id));
+
   const [contentSearchTerm, setContentSearchTerm] = useState("");
   const [contentTypeFilter, setContentTypeFilter] = useState("All");
+  const [editingContent, setEditingContent] = useState(null);
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [userDraft, setUserDraft] = useState({ name: "", role: "Customer", status: "Offline" });
   const [aiPrompt, setAiPrompt] = useState("");
 
   const [editingHarvest, setEditingHarvest] = useState(null);
@@ -592,7 +862,94 @@ export default function AdminPortal({
     { id: 3, title: "Payment Failed", message: "Transaction TXN-005 failed.", time: "2 hrs ago", type: "error", unread: false },
   ]);
   const unreadCount = adminNotifications.filter(n => n.unread).length;
-  const [sendNotifForm, setSendNotifForm] = useState({ title: "", message: "", audience: "All", type: "Announcement" });
+  const [sendNotifForm, setSendNotifForm] = useState({ title: "", message: "", audience: "All", type: "Announcement", channel: "Push" });
+  const [broadcasts, setBroadcasts] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(BROADCASTS_STORAGE_KEY));
+      if (Array.isArray(stored) && stored.length) return stored;
+    } catch (e) { /* ignore */ }
+    return mockBroadcasts;
+  });
+
+  const riders = ridersProp;
+  const setRiders = setRidersProp;
+  const [showAllRiders, setShowAllRiders] = useState(false);
+  const [selectedRider, setSelectedRider] = useState(null);
+  const [editableRider, setEditableRider] = useState(null);
+  const [riderMessageText, setRiderMessageText] = useState("");
+
+  const audienceReach = { All: 15243, Basic: 9120, Pro: 2480, Enterprise: 640 };
+
+  const handleSendBroadcast = () => {
+    if (!sendNotifForm.title.trim() || !sendNotifForm.message.trim()) {
+      setToastMessage("Please provide a notification title and message.");
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+    const reach = audienceReach[sendNotifForm.audience] || 0;
+    const newBroadcast = {
+      id: `BC-${Date.now()}`,
+      title: sendNotifForm.title.trim(),
+      message: sendNotifForm.message.trim(),
+      audience: sendNotifForm.audience,
+      type: sendNotifForm.type,
+      channel: sendNotifForm.channel,
+      time: "Just now",
+      reach,
+    };
+    const updated = [newBroadcast, ...broadcasts];
+    setBroadcasts(updated);
+    try {
+      localStorage.setItem(BROADCASTS_STORAGE_KEY, JSON.stringify(updated));
+      // Notify any open customer website tabs so the broadcast reaches the user bell.
+      window.dispatchEvent(new StorageEvent("storage", { key: BROADCASTS_STORAGE_KEY, newValue: JSON.stringify(updated) }));
+    } catch (e) { /* ignore */ }
+    setSendNotifForm({ title: "", message: "", audience: "All", type: "Announcement", channel: "Push" });
+    setToastMessage(`Broadcast sent to ${reach.toLocaleString()} ${newBroadcast.audience} user(s) via ${newBroadcast.channel}.`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleDeleteBroadcast = (id) => {
+    const updated = broadcasts.filter(b => b.id !== id);
+    setBroadcasts(updated);
+    try { localStorage.setItem(BROADCASTS_STORAGE_KEY, JSON.stringify(updated)); } catch (e) { /* ignore */ }
+    setToastMessage("Broadcast removed from history.");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleUpdateRiderStatus = (riderId, status) => {
+    setRiders(prev => prev.map(r => r.id === riderId ? { ...r, status, currentOrder: status === "On Delivery" ? r.currentOrder : null } : r));
+    setSelectedRider(prev => prev && prev.id === riderId ? { ...prev, status } : prev);
+  };
+
+  const handleSaveRider = () => {
+    if (!editableRider || !editableRider.name || !editableRider.name.trim()) {
+      setToastMessage("Please provide a rider name.");
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+    setRiders(prev => {
+      const exists = prev.some(r => r.id === editableRider.id);
+      return exists ? prev.map(r => r.id === editableRider.id ? { ...editableRider } : r) : [...prev, { ...editableRider }];
+    });
+    setToastMessage(editableRider.isNew ? "New rider added to the fleet." : "Rider details updated.");
+    setTimeout(() => setToastMessage(null), 3000);
+    setEditableRider(null);
+  };
+
+  const handleRemoveRider = (riderId) => {
+    setRiders(prev => prev.filter(r => r.id !== riderId));
+    setSelectedRider(prev => prev && prev.id === riderId ? null : prev);
+    setToastMessage("Rider removed from the fleet.");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleSendRiderMessage = () => {
+    if (!riderMessageText.trim()) return;
+    setToastMessage(`Message sent to ${selectedRider?.name}.`);
+    setRiderMessageText("");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   const notifRef = useRef(null);
   const [simulatedRiderDelivery, setSimulatedRiderDelivery] = useState(null);
@@ -601,21 +958,32 @@ export default function AdminPortal({
     setEditingProduct({ ...product });
   };
 
-  const handleSaveProduct = () => {
+  const handleSaveProduct = async () => {
     if (!editingProduct.name || !editingProduct.name.trim() || !editingProduct.price || editingProduct.price <= 0) {
       setToastMessage("Please provide a valid product name and a price greater than 0 before saving.");
       setTimeout(() => setToastMessage(null), 3000);
       return;
     }
 
-    if (editingProduct.isNew) {
-      const productToSave = { ...editingProduct };
-      delete productToSave.isNew;
-      setProducts([productToSave, ...products]);
-    } else {
-      setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p));
+    try {
+      if (editingProduct.isNew) {
+        const productToSave = { ...editingProduct };
+        delete productToSave.isNew;
+        // Persist to Supabase so the new product survives reloads and is visible
+        // to every visitor of the main website. Returns null when Supabase isn't
+        // configured, in which case we keep the local-state-only behavior.
+        const saved = await createProduct(productToSave);
+        setProducts([saved || productToSave, ...products]);
+      } else {
+        const saved = await updateProduct(editingProduct.id, editingProduct);
+        setProducts(products.map(p => p.id === editingProduct.id ? (saved || editingProduct) : p));
+      }
+      setEditingProduct(null);
+    } catch (err) {
+      console.error("Failed to save product to Supabase:", err);
+      setToastMessage("Could not save the product. Please try again.");
+      setTimeout(() => setToastMessage(null), 3000);
     }
-    setEditingProduct(null);
   };
 
   const handleManageOrder = (order) => {
@@ -628,10 +996,18 @@ export default function AdminPortal({
     setProductToDelete(id);
   };
 
-  const confirmDeleteProduct = () => {
-    setProducts(products.filter(p => p.id !== productToDelete));
-    setProductToDelete(null);
-    setToastMessage("Product deleted.");
+  const confirmDeleteProduct = async () => {
+    try {
+      // Remove from Supabase too, so the deletion is reflected on the main
+      // website and persists across reloads (no-op when Supabase isn't configured).
+      await deleteProduct(productToDelete);
+      setProducts(products.filter(p => p.id !== productToDelete));
+      setProductToDelete(null);
+      setToastMessage("Product deleted.");
+    } catch (err) {
+      console.error("Failed to delete product from Supabase:", err);
+      setToastMessage("Could not delete the product. Please try again.");
+    }
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -642,11 +1018,65 @@ export default function AdminPortal({
       title: type === "Announcement" ? "New Announcement" : "Untitled Article",
       type,
       status,
+      body: "",
       date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
       author: "Admin",
     };
     setContent([newItem, ...content]);
-    setToastMessage(`${type} created and saved.`);
+    // Open it straight away — a Published item with no body shows up empty for users.
+    setEditingContent(newItem);
+    setToastMessage(`${type} created. Add the details clients will read.`);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Verifying a payment writes back to the order (and its delivery record), so the
+  // customer sees "Paid" in their order tracking.
+  const handleVerifyPayment = (txn) => {
+    const linkedOrder = (orders || []).find(order => order.id === txn.orderId);
+    if (linkedOrder) {
+      setOrders((orders || []).map(order => (
+        order.id === txn.orderId ? { ...order, paymentStatus: "Paid" } : order
+      )));
+      setDeliveriesList(prev => prev.map(d => (
+        d.orderId === txn.orderId ? { ...d, paymentStatus: "Paid" } : d
+      )));
+    } else {
+      setTransactions((transactions || []).map(t => (
+        t.id === txn.id ? { ...t, status: "Paid" } : t
+      )));
+    }
+    setSelectedPaymentTxn(prev => (prev && prev.id === txn.id ? { ...prev, status: "Paid" } : prev));
+    setToastMessage(`Payment ${txn.id} verified.`);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUserId(user.id);
+    setUserDraft({ name: user.name || "", role: user.role || "Customer", status: user.status || "Offline" });
+  };
+
+  const handleSaveUser = () => {
+    setPlatformUsers((platformUsers || []).map(user => (
+      user.id === editingUserId ? { ...user, ...userDraft } : user
+    )));
+    setEditingUserId(null);
+    setToastMessage("User updated — the change shows on their profile.");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleSaveContent = () => {
+    if (!editingContent) return;
+    const updated = {
+      ...editingContent,
+      date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+    };
+    setContent((content || []).map(item => (item.id === updated.id ? updated : item)));
+    setEditingContent(null);
+    setToastMessage(
+      updated.status === "Published"
+        ? "Published — clients can now read this in their Updates tab."
+        : "Content saved as " + updated.status + "."
+    );
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -781,6 +1211,40 @@ export default function AdminPortal({
     setSelectedSupportTicket(prev => (
       prev && prev.id === ticketId ? { ...prev, ...updates, lastUpdate: updatedAt } : prev
     ));
+  };
+
+  const handleEditPlan = (plan) => {
+    setEditingPlanId(plan.id);
+    setPlanDraft({
+      description: plan.description || "",
+      priceMonthly: plan.priceMonthly || "",
+      priceYearly: plan.priceYearly || "",
+      badge: plan.badge || "",
+      features: (plan.features || []).join("\n"),
+      excludedFeatures: (plan.excludedFeatures || []).join("\n"),
+      clientVisible: plan.clientVisible !== false,
+    });
+  };
+
+  const handleSavePlan = () => {
+    const toList = (text) => text.split("\n").map(line => line.trim()).filter(Boolean);
+    setSubscriptionPlans((subscriptionPlans || []).map(plan => (
+      plan.id === editingPlanId
+        ? {
+            ...plan,
+            description: planDraft.description,
+            priceMonthly: planDraft.priceMonthly,
+            priceYearly: planDraft.priceYearly,
+            badge: planDraft.badge,
+            features: toList(planDraft.features),
+            excludedFeatures: toList(planDraft.excludedFeatures),
+            clientVisible: planDraft.clientVisible,
+          }
+        : plan
+    )));
+    setEditingPlanId(null);
+    setToastMessage("Plan updated — clients now see the new details.");
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const handleSendSupportReply = () => {
@@ -1013,6 +1477,9 @@ export default function AdminPortal({
       status: "Upcoming",
       price: "Free",
       location: "",
+      speaker: "",
+      speakerImage: "",
+      description: "",
       isNew: true
     };
     setEditableEvent(newEvent);
@@ -1164,6 +1631,7 @@ export default function AdminPortal({
         { name: "Orders", icon: ShoppingCart },
         { name: "Payments", icon: CreditCard },
         { name: "Subscriptions", icon: Repeat },
+        { name: "Surplus Exchange", icon: Package },
       ],
     },
     {
@@ -1181,6 +1649,8 @@ export default function AdminPortal({
         { name: "Users", icon: Users },
         { name: "Farmers Verification", icon: ShieldCheck },
         { name: "Events & Workshops", icon: CalendarDays },
+        { name: "Expert Support", icon: UserCheck },
+        { name: "Specialist Certification", icon: GraduationCap },
         { name: "AI Plant Doctor", icon: Stethoscope },
         { name: "Community Forum", icon: MessageSquare },
         { name: "Farm Planner", icon: Thermometer },
@@ -1211,6 +1681,9 @@ export default function AdminPortal({
     "Users": "Browse and manage platform accounts",
     "Farmers Verification": "Review and verify farmer applications",
     "Events & Workshops": "Schedule and manage community events",
+    "Expert Support": "Manage the specialists shown on the website",
+    "Specialist Certification": "Manage certification courses, pricing and photos",
+    "Surplus Exchange": "Moderate B2B surplus listings and demands",
     "AI Plant Doctor": "Review plant disease scan submissions",
     "Community Forum": "Moderate posts and publish official content",
     "Farm Planner": "Manage weather outlook and planting advisories",
@@ -1229,6 +1702,9 @@ export default function AdminPortal({
     "Support Tickets": { value: supportSearchTerm, setValue: setSupportSearchTerm, placeholder: "Search tickets..." },
     "Seasonal Harvests": { value: harvestSearchTerm, setValue: setHarvestSearchTerm, placeholder: "Search harvests..." },
     "Events & Workshops": { value: eventSearchTerm, setValue: setEventSearchTerm, placeholder: "Search events..." },
+    "Expert Support": { value: advisorSearchTerm, setValue: setAdvisorSearchTerm, placeholder: "Search specialists..." },
+    "Specialist Certification": { value: courseSearchTerm, setValue: setCourseSearchTerm, placeholder: "Search courses..." },
+    "Surplus Exchange": { value: surplusSearchTerm, setValue: setSurplusSearchTerm, placeholder: "Search listings & demands..." },
     "AI Plant Doctor": { value: scanSearchTerm, setValue: setScanSearchTerm, placeholder: "Search scans..." },
     "Content Management": { value: contentSearchTerm, setValue: setContentSearchTerm, placeholder: "Search content..." },
   };
@@ -1289,7 +1765,24 @@ export default function AdminPortal({
     return matchesSearch && matchesStatus;
   });
 
-  const filteredTransactionsList = mockTransactions.filter(txn => {
+  // Every real order is a payment record, so the Payments tab reflects live checkouts
+  // rather than a frozen list. Seeded transactions with no matching order are kept.
+  const orderTransactions = (orders || []).map(order => ({
+    id: `TXN-${order.id}`,
+    orderId: order.id,
+    customer: order.customer,
+    method: order.payment || "Cash on Delivery",
+    amount: typeof order.total === "number" ? `₱${order.total.toFixed(2)}` : (order.total || "₱0.00"),
+    status: order.paymentStatus || "Pending",
+    date: order.date,
+    refNo: order.refNo || "N/A",
+  }));
+  const combinedTransactions = [
+    ...orderTransactions,
+    ...(transactions || []).filter(txn => !(orders || []).some(order => order.id === txn.orderId)),
+  ];
+
+  const filteredTransactionsList = combinedTransactions.filter(txn => {
     const matchesSearch = txn.id.toLowerCase().includes(paymentSearchTerm.toLowerCase()) || 
                           txn.customer.toLowerCase().includes(paymentSearchTerm.toLowerCase());
     const matchesStatus = paymentStatusFilter === "All" || txn.status === paymentStatusFilter;
@@ -1304,11 +1797,24 @@ export default function AdminPortal({
   });
 
   const filteredEventsList = eventsList.filter(ev => {
-    const matchesSearch = ev.title.toLowerCase().includes(eventSearchTerm.toLowerCase()) || 
+    const matchesSearch = ev.title.toLowerCase().includes(eventSearchTerm.toLowerCase()) ||
                           ev.id.toLowerCase().includes(eventSearchTerm.toLowerCase());
     const matchesType = eventTypeFilter === "All" || ev.type === eventTypeFilter;
     return matchesSearch && matchesType;
   });
+
+  // Live event stats computed from the shared events list (replaces static mocks)
+  const upcomingEventsCount = eventsList.filter(ev => ev.status === "Upcoming").length;
+  const totalEventAttendees = eventsList.reduce((sum, ev) => sum + (Number(ev.attendees) || 0), 0);
+  const totalEventCapacity = eventsList.reduce((sum, ev) => sum + (Number(ev.maxAttendees) || 0), 0);
+  const eventFillRate = totalEventCapacity > 0 ? Math.round((totalEventAttendees / totalEventCapacity) * 100) : 0;
+  const eventStatsLive = [
+    { label: "Total Events", value: String(eventsList.length), trend: `${upcomingEventsCount} upcoming`, up: true, icon: <CalendarDays size={16} color="#0284c7" /> },
+    { label: "Total Attendees", value: totalEventAttendees.toLocaleString(), trend: "registered", up: true, icon: <Users size={16} color="#15803d" /> },
+    { label: "Upcoming Workshops", value: String(eventsList.filter(ev => ev.type === "Workshop" && ev.status === "Upcoming").length), trend: "scheduled", up: true, icon: <Ticket size={16} color="#f59e0b" /> },
+    { label: "Seats Filled", value: `${eventFillRate}%`, trend: "avg fill rate", up: eventFillRate >= 50, icon: <PieChart size={16} color="#8b5cf6" /> },
+  ];
+  const upcomingScheduleEvents = eventsList.filter(ev => ev.status === "Upcoming").slice(0, 3);
 
   const filteredScansList = plantScans.filter(scan => {
     const matchesSearch = scan.plant.toLowerCase().includes(scanSearchTerm.toLowerCase()) || 
@@ -1506,17 +2012,8 @@ export default function AdminPortal({
                  {isEditingOrderDetails ? (
                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                      <input type="text" value={editableOrderDetails.amount || `₱${editableOrderDetails.total?.toFixed(2)}`} onChange={e => setEditableOrderDetails({...editableOrderDetails, amount: e.target.value})} style={styles.editInput} placeholder="Amount (e.g. ₱2,100)" />
-                     <select value={editableOrderDetails.payment} onChange={e => setEditableOrderDetails({...editableOrderDetails, payment: e.target.value})} style={styles.editInput}>
-                       <option value="Credit Card">Credit Card</option>
-                       <option value="GCash">GCash</option>
-                       <option value="Maya">Maya</option>
-                       <option value="Bank Transfer">Bank Transfer</option>
-                       <option value="Cash on Delivery">Cash on Delivery</option>
-                     </select>
-                     <select value={editableOrderDetails.paymentStatus} onChange={e => setEditableOrderDetails({...editableOrderDetails, paymentStatus: e.target.value})} style={styles.editInput}>
-                       <option value="Paid">Paid</option>
-                       <option value="Pending">Pending</option>
-                     </select>
+                     <AdminEcoDropdown value={editableOrderDetails.payment} options={[{ value: "Credit Card", label: "Credit Card" }, { value: "GCash", label: "GCash" }, { value: "Maya", label: "Maya" }, { value: "Bank Transfer", label: "Bank Transfer" }, { value: "Cash on Delivery", label: "Cash on Delivery" }]} onChange={value => setEditableOrderDetails({...editableOrderDetails, payment: value})} />
+                     <AdminEcoDropdown value={editableOrderDetails.paymentStatus} options={[{ value: "Paid", label: "Paid" }, { value: "Pending", label: "Pending" }]} onChange={value => setEditableOrderDetails({...editableOrderDetails, paymentStatus: value})} />
                      <textarea value={editableOrderDetails.products || editableOrderDetails.items} onChange={e => setEditableOrderDetails({...editableOrderDetails, products: e.target.value})} style={{...styles.editInput, resize: "vertical"}} placeholder="Products" rows={3} />
                    </div>
                  ) : (
@@ -1576,18 +2073,11 @@ export default function AdminPortal({
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
                  <div>
                    <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Assign Rider</label>
-                   <select value={editableDelivery.rider} onChange={(e) => setEditableDelivery({...editableDelivery, rider: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle }}>
-                     <option value="Unassigned">Unassigned</option>
-                     {mockRiders.map(r => <option key={r.name} value={r.name}>{r.name}</option>)}
-                   </select>
+                   <AdminEcoDropdown value={editableDelivery.rider} options={[{ value: "Unassigned", label: "Unassigned" }, ...riders.map(r => ({ value: r.name, label: r.name }))]} onChange={value => setEditableDelivery({...editableDelivery, rider: value})} />
                  </div>
                  <div>
                    <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Rider Status</label>
-                   <select value={editableDelivery.riderStatus || "Preparing Order"} onChange={(e) => setEditableDelivery({...editableDelivery, riderStatus: e.target.value})} style={{ ...styles.editInput, ...ecoGlassInputStyle }}>
-                     {riderNotificationStatuses.map(status => (
-                       <option key={status} value={status}>{status}</option>
-                     ))}
-                   </select>
+                   <AdminEcoDropdown value={editableDelivery.riderStatus || "Preparing Order"} options={riderNotificationStatuses.map(status => ({ value: status, label: status }))} onChange={value => setEditableDelivery({...editableDelivery, riderStatus: value})} />
                  </div>
                  <div style={{ gridColumn: "1 / -1" }}>
                    <label style={{ fontSize: "11px", fontWeight: 800, color: "rgba(6,32,24,0.62)", display: "block", marginBottom: "6px" }}>Estimated Time of Arrival (ETA)</label>
@@ -1742,6 +2232,119 @@ export default function AdminPortal({
           </div>
         </div>
       )}
+      {selectedRider && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 10001, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease", padding: "20px" }} onClick={() => setSelectedRider(null)}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "28px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "100%", maxWidth: "440px", position: "relative", color: "#000", maxHeight: "90vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedRider(null)} style={{ position: "absolute", top: "20px", right: "20px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#000" }}><X size={16} /></button>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "20px" }}>
+              <div style={{ position: "relative" }}>
+                <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #e2e8f0, #cbd5e1)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "20px", color: "#475569" }}>{selectedRider.name.charAt(0)}</div>
+                <div style={{ position: "absolute", bottom: "0", right: "0", width: "13px", height: "13px", borderRadius: "50%", background: riderStatusColor(selectedRider.status), border: "2px solid #fff" }} />
+              </div>
+              <div>
+                <div style={{ fontSize: "18px", fontWeight: 800 }}>{selectedRider.name}</div>
+                <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>{selectedRider.id} • <Star size={11} fill="#f59e0b" color="#f59e0b" style={{ verticalAlign: "middle" }} /> {selectedRider.rating}</div>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "18px" }}>
+              <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "12px", padding: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 800, textTransform: "uppercase" }}>Phone</div>
+                <div style={{ fontSize: "13px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}><Phone size={13} color="#0ea5e9" /> {selectedRider.phone}</div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "12px", padding: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 800, textTransform: "uppercase" }}>Area</div>
+                <div style={{ fontSize: "13px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}><MapPin size={13} color="#16a34a" /> {selectedRider.area}</div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "12px", padding: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 800, textTransform: "uppercase" }}>Vehicle</div>
+                <div style={{ fontSize: "13px", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}><Truck size={13} color="#8b5cf6" /> {selectedRider.vehicle}</div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: "12px", padding: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 800, textTransform: "uppercase" }}>Total Trips</div>
+                <div style={{ fontSize: "13px", fontWeight: 700, marginTop: "4px" }}>{selectedRider.deliveries.toLocaleString()}</div>
+              </div>
+            </div>
+
+            {selectedRider.currentOrder && (
+              <div style={{ background: "rgba(245,158,11,0.1)", borderRadius: "12px", padding: "12px", marginBottom: "18px", display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid rgba(245,158,11,0.2)" }}>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "#b45309" }}>Currently delivering</span>
+                <span style={{ fontSize: "12px", fontWeight: 800, color: "#b45309" }}>{selectedRider.currentOrder}</span>
+              </div>
+            )}
+
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 800, textTransform: "uppercase", marginBottom: "8px" }}>Update Status</div>
+              <AdminEcoDropdown value={selectedRider.status} options={RIDER_STATUS_OPTIONS} onChange={value => handleUpdateRiderStatus(selectedRider.id, value)} />
+            </div>
+
+            <div>
+              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 800, textTransform: "uppercase", marginBottom: "8px" }}>Send Message</div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <input value={riderMessageText} onChange={e => setRiderMessageText(e.target.value)} onKeyDown={e => { if (e.key === "Enter") handleSendRiderMessage(); }} placeholder={`Message ${selectedRider.name}...`} style={{ flex: 1, minWidth: 0, padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", color: "#000", outline: "none", fontSize: "12px", fontFamily: "inherit" }} />
+                <button onClick={handleSendRiderMessage} disabled={!riderMessageText.trim()} style={{ width: "42px", height: "42px", borderRadius: "12px", background: riderMessageText.trim() ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : "rgba(0,0,0,0.05)", color: riderMessageText.trim() ? "#fff" : "rgba(0,0,0,0.35)", border: "none", cursor: riderMessageText.trim() ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Send size={16} /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showAllRiders && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 10001, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease", padding: "20px" }} onClick={() => { setShowAllRiders(false); setEditableRider(null); }}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "28px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "100%", maxWidth: "640px", position: "relative", color: "#000", maxHeight: "90vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}><UserCheck color="#15803d" size={22} /> Rider Fleet Management</h2>
+              <button onClick={() => { setShowAllRiders(false); setEditableRider(null); }} style={{ background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#000" }}><X size={16} /></button>
+            </div>
+
+            <div style={{ display: "flex", gap: "8px", marginBottom: "16px", fontSize: "12px", fontWeight: 700, flexWrap: "wrap" }}>
+              <span style={{ padding: "5px 12px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d" }}>{riders.filter(r => r.status === "Available").length} Available</span>
+              <span style={{ padding: "5px 12px", borderRadius: "999px", background: "rgba(245,158,11,0.12)", color: "#b45309" }}>{riders.filter(r => r.status === "On Delivery").length} On Delivery</span>
+              <span style={{ padding: "5px 12px", borderRadius: "999px", background: "rgba(148,163,184,0.18)", color: "#475569" }}>{riders.filter(r => r.status === "Offline").length} Offline</span>
+            </div>
+
+            {editableRider ? (
+              <div style={{ background: "rgba(255,255,255,0.65)", borderRadius: "16px", padding: "18px", border: "1px solid rgba(0,0,0,0.06)", marginBottom: "16px" }}>
+                <div style={{ fontSize: "14px", fontWeight: 800, marginBottom: "12px" }}>{editableRider.isNew ? "Add New Rider" : `Edit ${editableRider.name}`}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "10px" }}>
+                  <input value={editableRider.name} onChange={e => setEditableRider({ ...editableRider, name: e.target.value })} placeholder="Full name" style={{ ...styles.editInput, background: "rgba(255,255,255,0.8)" }} />
+                  <input value={editableRider.phone} onChange={e => setEditableRider({ ...editableRider, phone: e.target.value })} placeholder="Phone" style={{ ...styles.editInput, background: "rgba(255,255,255,0.8)" }} />
+                  <input value={editableRider.area} onChange={e => setEditableRider({ ...editableRider, area: e.target.value })} placeholder="Service area" style={{ ...styles.editInput, background: "rgba(255,255,255,0.8)" }} />
+                  <input value={editableRider.vehicle} onChange={e => setEditableRider({ ...editableRider, vehicle: e.target.value })} placeholder="Vehicle" style={{ ...styles.editInput, background: "rgba(255,255,255,0.8)" }} />
+                </div>
+                <div style={{ marginBottom: "12px" }}>
+                  <AdminEcoDropdown value={editableRider.status} options={RIDER_STATUS_OPTIONS} onChange={value => setEditableRider({ ...editableRider, status: value })} />
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button onClick={handleSaveRider} style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}><Save size={14} /> Save Rider</button>
+                  <button onClick={() => setEditableRider(null)} style={{ padding: "10px 16px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}>Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setEditableRider({ id: `RDR-${Date.now()}`, name: "", status: "Available", rating: 5.0, deliveries: 0, phone: "", area: "", vehicle: "Eco-Bike", currentOrder: null, isNew: true })} style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "1px dashed rgba(22,163,74,0.4)", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "16px" }}><Plus size={16} /> Add New Rider</button>
+            )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {riders.map((rider) => (
+                <div key={rider.id} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "rgba(255,255,255,0.55)", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.05)", flexWrap: "wrap" }}>
+                  <div style={{ position: "relative", flexShrink: 0 }}>
+                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg, #e2e8f0, #cbd5e1)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", color: "#475569" }}>{rider.name.charAt(0)}</div>
+                    <div style={{ position: "absolute", bottom: "-2px", right: "-2px", width: "11px", height: "11px", borderRadius: "50%", background: riderStatusColor(rider.status), border: "2px solid #fff" }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: "120px" }}>
+                    <div style={{ fontSize: "13px", fontWeight: 700 }}>{rider.name}</div>
+                    <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>{rider.area} • {rider.vehicle} • {rider.deliveries.toLocaleString()} trips</div>
+                  </div>
+                  <div style={{ width: "130px", flexShrink: 0 }}>
+                    <AdminEcoDropdown compact value={rider.status} options={RIDER_STATUS_OPTIONS} onChange={value => handleUpdateRiderStatus(rider.id, value)} />
+                  </div>
+                  <button onClick={() => setEditableRider({ ...rider })} title="Edit rider" style={{ background: "rgba(14,165,233,0.1)", border: "none", color: "#0ea5e9", width: "30px", height: "30px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}><Edit2 size={14} /></button>
+                  <button onClick={() => handleRemoveRider(rider.id)} title="Remove rider" style={{ background: "rgba(220,38,38,0.08)", border: "none", color: "#dc2626", width: "30px", height: "30px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}><Trash2 size={14} /></button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {selectedPaymentTxn && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn 0.3s ease" }} onClick={() => setSelectedPaymentTxn(null)}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "90%", maxWidth: "450px", position: "relative" }} onClick={e => e.stopPropagation()}>
@@ -1778,12 +2381,12 @@ export default function AdminPortal({
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginBottom: "20px" }}>
-              <button style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><CheckCircle size={16} /> Verify</button>
-              <button style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", borderRadius: "12px", background: "rgba(107,114,128,0.1)", color: "#4b5563", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Download size={16} /> Receipt</button>
+              <button onClick={() => handleVerifyPayment(selectedPaymentTxn)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><CheckCircle size={16} /> Verify</button>
+              <button onClick={() => downloadCSV(`receipt-${selectedPaymentTxn.id}.csv`, [selectedPaymentTxn])} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", borderRadius: "12px", background: "rgba(107,114,128,0.1)", color: "#4b5563", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Download size={16} /> Receipt</button>
             </div>
 
             {selectedPaymentTxn.status === "Paid" && (
-              <button style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "rgba(220,38,38,0.1)", color: "#dc2626", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", marginBottom: "16px" }}>Refund Payment</button>
+              <button onClick={() => setToastMessage(`Refund initiated for ${selectedPaymentTxn.id} (${selectedPaymentTxn.amount})`)} style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "rgba(220,38,38,0.1)", color: "#dc2626", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", marginBottom: "16px" }}>Refund Payment</button>
             )}
 
             <button onClick={() => setSelectedPaymentTxn(null)} style={{ width: "100%", padding: "14px", borderRadius: "16px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>Close</button>
@@ -1797,11 +2400,7 @@ export default function AdminPortal({
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
               <input type="text" placeholder="Promo Code (e.g. SUMMER20)" value={editingPromo.code} onChange={e => setEditingPromo({...editingPromo, code: e.target.value.toUpperCase().replace(/\s+/g, '')})} style={styles.editInput} />
               <input type="text" placeholder="Description" value={editingPromo.desc} onChange={e => setEditingPromo({...editingPromo, desc: e.target.value})} style={styles.editInput} />
-              <select value={editingPromo.type} onChange={e => setEditingPromo({...editingPromo, type: e.target.value})} style={styles.editInput}>
-                <option value="percent">Percentage Discount (%)</option>
-                <option value="fixed">Fixed Amount Discount (₱)</option>
-                <option value="shipping">Free Shipping</option>
-              </select>
+              <AdminEcoDropdown value={editingPromo.type} options={[{ value: "percent", label: "Percentage Discount (%)" }, { value: "fixed", label: "Fixed Amount Discount (₱)" }, { value: "shipping", label: "Free Shipping" }]} onChange={value => setEditingPromo({...editingPromo, type: value})} />
               {editingPromo.type !== "shipping" && (
                 <input type="number" placeholder="Discount Value" value={editingPromo.value || ""} onChange={e => setEditingPromo({...editingPromo, value: parseFloat(e.target.value) || 0})} style={styles.editInput} />
               )}
@@ -1920,7 +2519,7 @@ export default function AdminPortal({
                 <Save size={13} style={{ position: "relative", zIndex: 1, flexShrink: 0 }} />
                 <span style={{ position: "relative", zIndex: 1 }}>Save Subscription</span>
               </button>
-              <button style={{ minWidth: 0, padding: "8px 9px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "1px solid rgba(22,163,74,0.18)", fontWeight: 800, fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", boxShadow: "0 10px 22px rgba(22,163,74,0.08)", whiteSpace: "nowrap" }}><CreditCard size={13} style={{ flexShrink: 0 }}/> Manage Billing</button>
+              <button onClick={() => setToastMessage(`Billing portal opened for ${selectedSubscriber?.user || "subscriber"}`)} style={{ minWidth: 0, padding: "8px 9px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "1px solid rgba(22,163,74,0.18)", fontWeight: 800, fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", boxShadow: "0 10px 22px rgba(22,163,74,0.08)", whiteSpace: "nowrap" }}><CreditCard size={13} style={{ flexShrink: 0 }}/> Manage Billing</button>
               <button onClick={handleDispatchSubscriberCampaign} style={{ ...ecoPrimaryButtonStyle, minWidth: 0, padding: "8px 9px", borderRadius: "999px", fontWeight: 800, fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", fontFamily: "inherit", whiteSpace: "nowrap" }}>
                 <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
                 <Send size={13} style={{ position: "relative", zIndex: 1, flexShrink: 0 }} />
@@ -1937,21 +2536,12 @@ export default function AdminPortal({
             
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
               {isEditingEvent ? (
-                <select value={editableEvent.type} onChange={e => setEditableEvent({...editableEvent, type: e.target.value})} style={styles.editInput}>
-                  <option value="Workshop">Workshop</option>
-                  <option value="Webinar">Webinar</option>
-                  <option value="Community">Community</option>
-                </select>
+                <AdminEcoDropdown value={editableEvent.type} options={[{ value: "Workshop", label: "Workshop" }, { value: "Webinar", label: "Webinar" }, { value: "Community", label: "Community" }]} onChange={value => setEditableEvent({...editableEvent, type: value})} />
               ) : (
                 <span style={{ padding: "4px 10px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, background: selectedEvent.type === "Workshop" ? "rgba(139,92,246,0.1)" : selectedEvent.type === "Webinar" ? "rgba(2,132,199,0.1)" : "rgba(22,163,74,0.1)", color: selectedEvent.type === "Workshop" ? "#8b5cf6" : selectedEvent.type === "Webinar" ? "#0284c7" : "#16a34a", textTransform: "uppercase", letterSpacing: "0.5px" }}>{selectedEvent.type}</span>
               )}
               {isEditingEvent ? (
-                <select value={editableEvent.status} onChange={e => setEditableEvent({...editableEvent, status: e.target.value})} style={styles.editInput}>
-                  <option value="Upcoming">Upcoming</option>
-                  <option value="Ongoing">Ongoing</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+                <AdminEcoDropdown value={editableEvent.status} options={[{ value: "Upcoming", label: "Upcoming" }, { value: "Ongoing", label: "Ongoing" }, { value: "Completed", label: "Completed" }, { value: "Cancelled", label: "Cancelled" }]} onChange={value => setEditableEvent({...editableEvent, status: value})} />
               ) : (
                 <span style={{ padding: "4px 10px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, ...getEventStatusStyle(selectedEvent.status) }}>{selectedEvent.status}</span>
               )}
@@ -1969,6 +2559,7 @@ export default function AdminPortal({
                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", fontSize: "13px", fontWeight: 600 }}><CalendarDays size={14} color="#15803d" /> {isEditingEvent ? <input type="text" value={editableEvent.date} onChange={e => setEditableEvent({...editableEvent, date: e.target.value})} style={styles.editInput} placeholder="Date (e.g. Jun 15, 2026)" /> : selectedEvent.date}</div>
                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", fontSize: "13px", fontWeight: 600 }}><Clock size={14} color="#15803d" /> {isEditingEvent ? <input type="text" value={editableEvent.time} onChange={e => setEditableEvent({...editableEvent, time: e.target.value})} style={styles.editInput} placeholder="Time (e.g. 09:00 AM)" /> : selectedEvent.time}</div>
                  <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "13px", fontWeight: 600, lineHeight: 1.4 }}><MapPin size={14} color="#15803d" style={{ flexShrink: 0, marginTop: "2px" }} /> {isEditingEvent ? <input type="text" value={editableEvent.location} onChange={e => setEditableEvent({...editableEvent, location: e.target.value})} style={styles.editInput} placeholder="Location" /> : selectedEvent.location}</div>
+                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px", fontSize: "13px", fontWeight: 600 }}><UserCheck size={14} color="#15803d" /> {isEditingEvent ? <input type="text" value={editableEvent.speaker || ""} onChange={e => setEditableEvent({...editableEvent, speaker: e.target.value})} style={styles.editInput} placeholder="Speaker name" /> : (selectedEvent.speaker || "EcoEquity Team")}</div>
                </div>
                <div style={{ background: "rgba(255,255,255,0.6)", padding: "16px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
                  <h4 style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Event Info</h4>
@@ -1982,6 +2573,18 @@ export default function AdminPortal({
                </div>
             </div>
 
+            {/* Speaker photo + description flow to the website event cards */}
+            {isEditingEvent ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
+                <input type="text" value={editableEvent.speakerImage || ""} onChange={e => setEditableEvent({...editableEvent, speakerImage: e.target.value})} style={styles.editInput} placeholder="Speaker photo URL (leave blank for placeholder)" />
+                <textarea value={editableEvent.description || ""} onChange={e => setEditableEvent({...editableEvent, description: e.target.value})} style={{ ...styles.editInput, height: "70px", resize: "none", fontFamily: "inherit" }} placeholder="Event description shown on the website..." />
+              </div>
+            ) : (
+              selectedEvent.description ? (
+                <p style={{ margin: "0 0 20px", fontSize: "13px", color: "rgba(0,0,0,0.65)", lineHeight: 1.5, background: "rgba(255,255,255,0.6)", padding: "12px 16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>{selectedEvent.description}</p>
+              ) : null
+            )}
+
             <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
               {isEditingEvent ? (
                 <>
@@ -1990,7 +2593,7 @@ export default function AdminPortal({
                 </>
               ) : (
                 <>
-                  <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
+                  <button onClick={() => setToastMessage(`Attendee list opened for "${selectedEvent?.title || selectedEvent?.name || "event"}"`)} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#16a34a", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
                   <button onClick={() => { setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
                 </>
               )}
@@ -2036,12 +2639,77 @@ export default function AdminPortal({
             </div>
 
             <div style={{ display: "flex", gap: "12px" }}>
-              <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(139,92,246,0.1)", color: "#8b5cf6", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={16}/> Download Report</button>
-              <button style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}><MessageSquare size={16}/> Consult Expert</button>
+              <button onClick={() => downloadCSV(`scan-report-${selectedScan.id}.csv`, [selectedScan])} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(139,92,246,0.1)", color: "#8b5cf6", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={16}/> Download Report</button>
+              <button onClick={() => setToastMessage(`Expert consultation requested for scan ${selectedScan.id}`)} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}><MessageSquare size={16}/> Consult Expert</button>
             </div>
           </div>
         </div>
       )}
+      {/* Content editor — Published items appear in the client's Updates tab */}
+      {editingContent && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", animation: "fadeIn 0.3s ease" }} onClick={() => setEditingContent(null)}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "30px", borderRadius: "26px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 24px 70px rgba(15,23,42,0.2)", width: "min(720px, 100%)", maxHeight: "calc(100vh - 48px)", overflowY: "auto", position: "relative" }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setEditingContent(null)} style={{ position: "absolute", top: "18px", right: "18px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "34px", height: "34px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={16} /></button>
+
+            <h2 style={{ margin: "0 0 6px", fontSize: "22px", fontWeight: 850, color: "#000", paddingRight: "36px" }}>Edit Content</h2>
+            <p style={{ margin: "0 0 22px", fontSize: "13px", color: "rgba(0,0,0,0.55)" }}>
+              Set the status to <strong>Published</strong> and clients will see this in the Updates tab of their dashboard.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.6)" }}>
+                TITLE
+                <input value={editingContent.title} onChange={(e) => setEditingContent({ ...editingContent, title: e.target.value })} style={ecoGlassInputStyle} />
+              </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.6)" }}>
+                  TYPE
+                  <AdminEcoDropdown
+                    value={editingContent.type}
+                    options={[{ value: "Article", label: "Article" }, { value: "Page", label: "Page" }, { value: "Announcement", label: "Announcement" }, { value: "Tutorial", label: "Tutorial" }, { value: "Component", label: "Component" }]}
+                    onChange={(value) => setEditingContent({ ...editingContent, type: value })}
+                  />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.6)" }}>
+                  STATUS
+                  <AdminEcoDropdown
+                    value={editingContent.status}
+                    options={[{ value: "Published", label: "Published" }, { value: "Draft", label: "Draft" }, { value: "Scheduled", label: "Scheduled" }]}
+                    onChange={(value) => setEditingContent({ ...editingContent, status: value })}
+                  />
+                </label>
+              </div>
+
+              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.6)" }}>
+                BODY
+                <textarea
+                  value={editingContent.body || ""}
+                  onChange={(e) => setEditingContent({ ...editingContent, body: e.target.value })}
+                  rows={8}
+                  placeholder="Write what clients will read…"
+                  style={{ ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit", lineHeight: 1.5 }}
+                />
+              </label>
+
+              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.6)" }}>
+                AUTHOR
+                <input value={editingContent.author || ""} onChange={(e) => setEditingContent({ ...editingContent, author: e.target.value })} style={ecoGlassInputStyle} />
+              </label>
+
+              <div style={{ display: "flex", gap: "12px", marginTop: "6px" }}>
+                <button onClick={handleSaveContent} style={{ ...ecoPrimaryButtonStyle, flex: 1 }}>
+                  <span style={ecoPrimaryInnerStyle}>Save Content</span>
+                </button>
+                <button onClick={() => setEditingContent(null)} style={{ flex: 1, padding: "12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "13px", fontWeight: 700, cursor: "pointer" }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selectedSupportTicket && (
         <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", animation: "fadeIn 0.3s ease" }} onClick={() => setSelectedSupportTicket(null)}>
           <div style={{ background: "linear-gradient(145deg, #ffffff, #f0fdf4)", padding: "30px", borderRadius: "26px", border: "1px solid rgba(22, 163, 74, 0.2)", boxShadow: "0 24px 70px rgba(15,23,42,0.2)", width: "min(820px, 100%)", maxHeight: "calc(100vh - 48px)", overflowY: "auto", position: "relative" }} onClick={e => e.stopPropagation()}>
@@ -2383,7 +3051,7 @@ export default function AdminPortal({
               <div className="inner-blur-glass" style={{ ...styles.chartCard, gridColumn: "span 2" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                   <h3 style={styles.cardHeading}>Recent Orders</h3>
-                  <button style={styles.textBtn}>View All</button>
+                  <button onClick={() => setToastMessage("Showing all recent activity")} style={styles.textBtn}>View All</button>
                 </div>
                 <div style={{ overflowX: "auto" }}>
                   <table style={styles.table}>
@@ -2480,8 +3148,8 @@ export default function AdminPortal({
                         <span style={{ fontSize: "10px", color: "rgba(0,0,0,0.4)" }}>{ver.date}</span>
                       </div>
                       <div style={{ display: "flex", gap: "6px" }}>
-                        <button style={{ flex: 1, padding: "4px", borderRadius: "6px", background: "#16a34a", color: "#fff", border: "none", fontSize: "11px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}><CheckCircle size={12} /> Approve</button>
-                        <button style={{ flex: 1, padding: "4px", borderRadius: "6px", background: "rgba(220,38,38,0.1)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)", fontSize: "11px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}><XCircle size={12} /> Reject</button>
+                        <button onClick={() => setToastMessage(`${ver.name} approved`)} style={{ flex: 1, padding: "4px", borderRadius: "6px", background: "#16a34a", color: "#fff", border: "none", fontSize: "11px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}><CheckCircle size={12} /> Approve</button>
+                        <button onClick={() => setToastMessage(`${ver.name} rejected`)} style={{ flex: 1, padding: "4px", borderRadius: "6px", background: "rgba(220,38,38,0.1)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)", fontSize: "11px", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}><XCircle size={12} /> Reject</button>
                       </div>
                     </div>
                   ))}
@@ -2590,9 +3258,7 @@ export default function AdminPortal({
                           <input type="number" value={editingProduct.stockQuantity || 0} onChange={(e) => setEditingProduct({...editingProduct, stockQuantity: parseInt(e.target.value) || 0})} style={styles.editInput} placeholder="Qty" />
                         </td>
                         <td style={styles.td}>
-                          <select value={editingProduct.stock} onChange={(e) => setEditingProduct({...editingProduct, stock: e.target.value})} style={styles.editInput}>
-                            <option value="In Stock">In Stock</option><option value="Low Stock">Low Stock</option><option value="Out of Stock">Out of Stock</option>
-                          </select>
+                          <AdminEcoDropdown value={editingProduct.stock} options={[{ value: "In Stock", label: "In Stock" }, { value: "Low Stock", label: "Low Stock" }, { value: "Out of Stock", label: "Out of Stock" }]} onChange={value => setEditingProduct({...editingProduct, stock: value})} />
                         </td>
                         <td style={styles.td}>
                           <div style={{ display: "flex", gap: "8px" }}>
@@ -2670,9 +3336,7 @@ export default function AdminPortal({
                         </td>
                         <td style={styles.td}>
                           {editingProduct?.id === product.id && !editingProduct.isNew ? (
-                            <select value={editingProduct.stock} onChange={(e) => setEditingProduct({...editingProduct, stock: e.target.value})} style={styles.editInput}>
-                              <option value="In Stock">In Stock</option><option value="Low Stock">Low Stock</option><option value="Out of Stock">Out of Stock</option>
-                            </select>
+                            <AdminEcoDropdown value={editingProduct.stock} options={[{ value: "In Stock", label: "In Stock" }, { value: "Low Stock", label: "Low Stock" }, { value: "Out of Stock", label: "Out of Stock" }]} onChange={value => setEditingProduct({...editingProduct, stock: value})} />
                           ) : (
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, background: product.stock === "In Stock" ? "rgba(22,163,74,0.1)" : product.stock === "Low Stock" ? "rgba(245,158,11,0.1)" : "rgba(220,38,38,0.1)", color: product.stock === "In Stock" ? "#16a34a" : product.stock === "Low Stock" ? "#f59e0b" : "#dc2626" }}>{product.stock}</span>
                           )}
@@ -2713,28 +3377,68 @@ export default function AdminPortal({
                       <th style={styles.th}>Role</th>
                       <th style={styles.th}>Last Login</th>
                       <th style={styles.th}>Status</th>
+                      <th style={styles.th}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mockUsers.map((user) => (
+                    {(platformUsers || []).map((user) => {
+                      const isEditing = editingUserId === user.id;
+                      return (
                       <tr key={user.id} style={styles.tr}>
                         <td style={{ ...styles.td, fontWeight: 700 }}>{user.id}</td>
                         <td style={styles.td}>
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "linear-gradient(135deg, #16a34a, #0284c7)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: "bold" }}>
-                              {user.name.charAt(0)}
+                            <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "linear-gradient(135deg, #16a34a, #0284c7)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: "bold", flexShrink: 0 }}>
+                              {(user.name || "?").charAt(0)}
                             </div>
-                            <span style={{ fontWeight: 600 }}>{user.name}</span>
+                            {isEditing ? (
+                              <input value={userDraft.name} onChange={(e) => setUserDraft({ ...userDraft, name: e.target.value })} style={{ ...ecoGlassInputStyle, padding: "6px 10px", fontSize: "12px", width: "140px" }} />
+                            ) : (
+                              <span style={{ fontWeight: 600 }}>{user.name}</span>
+                            )}
                           </div>
                         </td>
                         <td style={styles.td}>{user.email}</td>
-                        <td style={styles.td}>{user.role}</td>
+                        <td style={styles.td}>
+                          {isEditing ? (
+                            <div style={{ width: "140px" }}>
+                              <AdminEcoDropdown
+                                value={userDraft.role}
+                                options={[{ value: "Customer", label: "Customer" }, { value: "Farmer", label: "Farmer" }, { value: "B2B Buyer", label: "B2B Buyer" }, { value: "Specialist", label: "Specialist" }]}
+                                onChange={(value) => setUserDraft({ ...userDraft, role: value })}
+                                compact
+                              />
+                            </div>
+                          ) : user.role}
+                        </td>
                         <td style={{ ...styles.td, color: "rgba(0,0,0,0.5)", fontSize: "11px" }}>{user.lastLogin}</td>
                         <td style={styles.td}>
-                          <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, background: user.status === "Online" ? "rgba(22,163,74,0.1)" : "rgba(107,114,128,0.1)", color: user.status === "Online" ? "#16a34a" : "#6b7280" }}>{user.status}</span>
+                          {isEditing ? (
+                            <div style={{ width: "120px" }}>
+                              <AdminEcoDropdown
+                                value={userDraft.status}
+                                options={[{ value: "Online", label: "Online" }, { value: "Offline", label: "Offline" }, { value: "Suspended", label: "Suspended" }]}
+                                onChange={(value) => setUserDraft({ ...userDraft, status: value })}
+                                compact
+                              />
+                            </div>
+                          ) : (
+                            <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, background: user.status === "Online" ? "rgba(22,163,74,0.1)" : user.status === "Suspended" ? "rgba(220,38,38,0.1)" : "rgba(107,114,128,0.1)", color: user.status === "Online" ? "#16a34a" : user.status === "Suspended" ? "#dc2626" : "#6b7280" }}>{user.status}</span>
+                          )}
+                        </td>
+                        <td style={styles.td}>
+                          {isEditing ? (
+                            <div style={{ display: "flex", gap: "6px" }}>
+                              <button onClick={handleSaveUser} style={{ ...styles.actionBtn, color: "#15803d", background: "rgba(22,163,74,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Save</button>
+                              <button onClick={() => setEditingUserId(null)} style={{ ...styles.actionBtn, color: "#6b7280", background: "rgba(107,114,128,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Cancel</button>
+                            </div>
+                          ) : (
+                            <button onClick={() => handleEditUser(user)} style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}><Edit2 size={12} style={{ marginRight: "4px" }} /> Edit</button>
+                          )}
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -2827,11 +3531,7 @@ export default function AdminPortal({
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                     <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                    <select value={orderStatusFilter} onChange={(e) => setOrderStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
-                      <option value="All">All Statuses</option>
-                      <option value="Pending Approval">Pending Approval</option>
-                        <option value="Disapproved">Disapproved</option>
-                    </select>
+                    <div style={{ width: "160px" }}><AdminEcoDropdown value={orderStatusFilter} options={[{ value: "All", label: "All Statuses" }, { value: "Pending Approval", label: "Pending Approval" }, { value: "Disapproved", label: "Disapproved" }]} onChange={setOrderStatusFilter} compact align="right" /></div>
                   </div>
                 </div>
               </div>
@@ -2875,11 +3575,7 @@ export default function AdminPortal({
                           </td>
                         <td style={styles.td}>
                           {editingOrderId === order.id ? (
-                            <select value={newOrderStatus} onChange={(e) => setNewOrderStatus(e.target.value)} style={styles.editInput}>
-                              <option value="Pending Approval">Pending Approval</option>
-                              <option value="Approved">Approved</option>
-                              <option value="Disapproved">Disapproved</option>
-                            </select>
+                            <AdminEcoDropdown value={newOrderStatus} options={[{ value: "Pending Approval", label: "Pending Approval" }, { value: "Approved", label: "Approved" }, { value: "Disapproved", label: "Disapproved" }]} onChange={setNewOrderStatus} />
                           ) : (
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getStatusStyle(order.status) }}>{order.status}</span>
                           )}
@@ -2925,8 +3621,8 @@ export default function AdminPortal({
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
-              {/* Left Column - Delivery Table */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              {/* Delivery Queue - expanded full width */}
               <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
                   <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Delivery Queue</h3>
@@ -2952,15 +3648,7 @@ export default function AdminPortal({
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                      <select value={deliveryStatusFilter} onChange={(e) => setDeliveryStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
-                        <option value="All">All Statuses</option>
-                        <option value="Pending Pickup">Pending Pickup</option>
-                        <option value="Packed">Packed</option>
-                        <option value="In Transit">In Transit</option>
-                        <option value="Out for Delivery">Out for Delivery</option>
-                        <option value="Delayed">Delayed</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
+                      <div style={{ width: "170px" }}><AdminEcoDropdown value={deliveryStatusFilter} options={[{ value: "All", label: "All Statuses" }, { value: "Pending Pickup", label: "Pending Pickup" }, { value: "Packed", label: "Packed" }, { value: "In Transit", label: "In Transit" }, { value: "Out for Delivery", label: "Out for Delivery" }, { value: "Delayed", label: "Delayed" }, { value: "Cancelled", label: "Cancelled" }]} onChange={setDeliveryStatusFilter} compact align="right" /></div>
                     </div>
                   </div>
                 </div>
@@ -2991,15 +3679,7 @@ export default function AdminPortal({
                           </td>
                           <td style={styles.td}>
                             {editingDeliveryId === delivery.id ? (
-                              <select value={newDeliveryStatus} onChange={(e) => setNewDeliveryStatus(e.target.value)} style={styles.editInput}>
-                                <option value="Pending Pickup">Pending Pickup</option>
-                                <option value="Packed">Packed</option>
-                                <option value="In Transit">In Transit</option>
-                                <option value="Out for Delivery">Out for Delivery</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Delayed">Delayed</option>
-                                <option value="Cancelled">Cancelled</option>
-                              </select>
+                              <AdminEcoDropdown value={newDeliveryStatus} options={[{ value: "Pending Pickup", label: "Pending Pickup" }, { value: "Packed", label: "Packed" }, { value: "In Transit", label: "In Transit" }, { value: "Out for Delivery", label: "Out for Delivery" }, { value: "Delivered", label: "Delivered" }, { value: "Delayed", label: "Delayed" }, { value: "Cancelled", label: "Cancelled" }]} onChange={setNewDeliveryStatus} />
                             ) : (
                               <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getStatusStyle(delivery.status) }}>{delivery.status}</span>
                             )}
@@ -3029,8 +3709,8 @@ export default function AdminPortal({
                 </div>
               </div>
 
-              {/* Right Column - Map & Riders */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              {/* Lower Section - Live Tracking, Chat & Riders */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", alignItems: "start" }}>
                 {/* Live Tracking Map Preview */}
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: 0, overflow: "hidden", position: "relative", height: "220px", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9" }}>
                   <svg width="100%" height="100%" viewBox="0 0 400 220" preserveAspectRatio="none">
@@ -3054,26 +3734,34 @@ export default function AdminPortal({
 
                 {/* Rider Management */}
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                     <h3 style={{ ...styles.cardHeading, fontSize: "16px" }}>Active Riders</h3>
-                    <button style={styles.textBtn}>View All</button>
+                    <button style={styles.textBtn} onClick={() => setShowAllRiders(true)}>View All</button>
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", marginBottom: "14px", fontSize: "11px", fontWeight: 700 }}>
+                    <span style={{ padding: "3px 9px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d" }}>{riders.filter(r => r.status === "Available").length} Available</span>
+                    <span style={{ padding: "3px 9px", borderRadius: "999px", background: "rgba(245,158,11,0.12)", color: "#b45309" }}>{riders.filter(r => r.status === "On Delivery").length} On Delivery</span>
+                    <span style={{ padding: "3px 9px", borderRadius: "999px", background: "rgba(148,163,184,0.18)", color: "#475569" }}>{riders.filter(r => r.status === "Offline").length} Offline</span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    {mockRiders.map((rider, idx) => (
-                      <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px", background: "rgba(255,255,255,0.5)", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                    {riders.length === 0 && (
+                      <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", textAlign: "center", padding: "16px 0", fontWeight: 600 }}>No riders in the fleet yet.</div>
+                    )}
+                    {riders.map((rider) => (
+                      <div key={rider.id} onClick={() => { setSelectedRider(rider); setRiderMessageText(""); }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px", background: "rgba(255,255,255,0.5)", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)", cursor: "pointer" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                           <div style={{ position: "relative" }}>
                             <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(135deg, #e2e8f0, #cbd5e1)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", color: "#475569" }}>
                               {rider.name.charAt(0)}
                             </div>
-                            <div style={{ position: "absolute", bottom: "-2px", right: "-2px", width: "10px", height: "10px", borderRadius: "50%", background: rider.status === "Available" ? "#16a34a" : rider.status === "On Delivery" ? "#f59e0b" : "#94a3b8", border: "2px solid #fff" }} />
+                            <div style={{ position: "absolute", bottom: "-2px", right: "-2px", width: "10px", height: "10px", borderRadius: "50%", background: riderStatusColor(rider.status), border: "2px solid #fff" }} />
                           </div>
                           <div>
                             <div style={{ fontSize: "13px", fontWeight: 700, color: "#000" }}>{rider.name}</div>
-                            <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}><Star size={11} fill="#f59e0b" color="#f59e0b" style={{ verticalAlign: "middle" }} /> {rider.rating} • {rider.deliveries} trips</div>
+                            <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}><Star size={11} fill="#f59e0b" color="#f59e0b" style={{ verticalAlign: "middle" }} /> {rider.rating} • {rider.deliveries} trips • {rider.area}</div>
                           </div>
                         </div>
-                        <button style={{ background: "rgba(14,165,233,0.1)", border: "none", color: "#0ea5e9", width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                        <button onClick={(e) => { e.stopPropagation(); setSelectedRider(rider); setRiderMessageText(""); }} style={{ background: "rgba(14,165,233,0.1)", border: "none", color: "#0ea5e9", width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
                           <MessageSquare size={14} />
                         </button>
                       </div>
@@ -3099,39 +3787,57 @@ export default function AdminPortal({
                   </div>
                 </div>
 
-                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", marginTop: "24px" }}>
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                     <Megaphone size={18} color="#0ea5e9" />
                     <h3 style={{ ...styles.cardHeading, fontSize: "16px", color: "#0ea5e9" }}>Broadcast Notifications</h3>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                      <select value={sendNotifForm.audience} onChange={e => setSendNotifForm({...sendNotifForm, audience: e.target.value})} style={{ ...styles.editInput, background: "rgba(255,255,255,0.6)" }}>
-                        <option value="All">All Users</option>
-                        <option value="Basic">Basic Plan Users</option>
-                        <option value="Pro">Pro Plan Users</option>
-                        <option value="Enterprise">Enterprise Users</option>
-                      </select>
-                      <select value={sendNotifForm.type} onChange={e => setSendNotifForm({...sendNotifForm, type: e.target.value})} style={{ ...styles.editInput, background: "rgba(255,255,255,0.6)" }}>
-                        <option value="Announcement">Feature Announcement</option>
-                        <option value="Promo">Promo / Discount</option>
-                        <option value="Alert">Maintenance Alert</option>
-                        <option value="Reminder">Subscription Reminder</option>
-                      </select>
+                      <AdminEcoDropdown value={sendNotifForm.audience} options={[{ value: "All", label: "All Users" }, { value: "Basic", label: "Basic Plan Users" }, { value: "Pro", label: "Pro Plan Users" }, { value: "Enterprise", label: "Enterprise Users" }]} onChange={value => setSendNotifForm({...sendNotifForm, audience: value})} />
+                      <AdminEcoDropdown value={sendNotifForm.type} options={[{ value: "Announcement", label: "Feature Announcement" }, { value: "Promo", label: "Promo / Discount" }, { value: "Alert", label: "Maintenance Alert" }, { value: "Reminder", label: "Subscription Reminder" }]} onChange={value => setSendNotifForm({...sendNotifForm, type: value})} />
                     </div>
+                    <AdminEcoDropdown value={sendNotifForm.channel} options={[{ value: "Push", label: "Push Notification" }, { value: "Email", label: "Email" }, { value: "SMS", label: "SMS" }, { value: "In-App", label: "In-App Banner" }]} onChange={value => setSendNotifForm({...sendNotifForm, channel: value})} />
                     <input type="text" placeholder="Notification Title" value={sendNotifForm.title} onChange={e => setSendNotifForm({...sendNotifForm, title: e.target.value})} style={{ ...styles.editInput, background: "rgba(255,255,255,0.6)" }} />
                     <textarea placeholder="Type your message here..." value={sendNotifForm.message} onChange={e => setSendNotifForm({...sendNotifForm, message: e.target.value})} style={{ ...styles.editInput, background: "rgba(255,255,255,0.6)", height: "80px", resize: "none", fontFamily: "inherit" }} />
-                    <button 
-                      onClick={() => {
-                        if(!sendNotifForm.title || !sendNotifForm.message) { setToastMessage("Please fill all fields"); setTimeout(()=>setToastMessage(null), 3000); return; }
-                        setToastMessage(`Broadcast sent to ${sendNotifForm.audience} users.`);
-                        setSendNotifForm({ title: "", message: "", audience: "All", type: "Announcement" });
-                        setTimeout(() => setToastMessage(null), 3000);
-                      }}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.55)" }}>
+                      <span>Estimated reach</span>
+                      <span style={{ color: "#0284c7" }}>{(audienceReach[sendNotifForm.audience] || 0).toLocaleString()} users • {sendNotifForm.channel}</span>
+                    </div>
+                    <button
+                      onClick={handleSendBroadcast}
                       style={{ padding: "12px", borderRadius: "10px", background: "linear-gradient(135deg, #0ea5e9, #0284c7)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 4px 12px rgba(2,132,199,0.3)" }}
                     >
                       <Send size={14} /> Send Broadcast
                     </button>
+
+                    {broadcasts.length > 0 && (
+                      <div style={{ marginTop: "4px", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "12px" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+                          <span style={{ fontSize: "12px", fontWeight: 800, color: "rgba(0,0,0,0.6)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Recent Broadcasts</span>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)" }}>{broadcasts.length} sent</span>
+                        </div>
+                        <div className="custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "220px", overflowY: "auto" }}>
+                          {broadcasts.map((b) => (
+                            <div key={b.id} style={{ padding: "10px 12px", background: "rgba(255,255,255,0.55)", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" }}>
+                                <div style={{ fontSize: "13px", fontWeight: 700, color: "#000" }}>{b.title}</div>
+                                <button onClick={() => handleDeleteBroadcast(b.id)} title="Remove from history" style={{ background: "rgba(220,38,38,0.08)", border: "none", color: "#dc2626", width: "24px", height: "24px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", margin: "4px 0 8px", lineHeight: 1.4 }}>{b.message}</div>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+                                <span style={{ fontSize: "10px", fontWeight: 800, padding: "2px 8px", borderRadius: "999px", background: "rgba(14,165,233,0.1)", color: "#0284c7" }}>{b.type}</span>
+                                <span style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px", background: "rgba(22,163,74,0.1)", color: "#15803d" }}>{b.audience}</span>
+                                <span style={{ fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px", background: "rgba(148,163,184,0.18)", color: "#475569" }}>{b.channel}</span>
+                                <span style={{ fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.4)", marginLeft: "auto" }}>{(b.reach || 0).toLocaleString()} reach • {b.time}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -3386,13 +4092,7 @@ export default function AdminPortal({
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                      <select value={paymentStatusFilter} onChange={(e) => setPaymentStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
-                        <option value="All">All Statuses</option>
-                        <option value="Paid">Paid</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Failed">Failed</option>
-                        <option value="Refunded">Refunded</option>
-                      </select>
+                      <div style={{ width: "150px" }}><AdminEcoDropdown value={paymentStatusFilter} options={[{ value: "All", label: "All Statuses" }, { value: "Paid", label: "Paid" }, { value: "Pending", label: "Pending" }, { value: "Failed", label: "Failed" }, { value: "Refunded", label: "Refunded" }]} onChange={setPaymentStatusFilter} compact align="right" /></div>
                     </div>
                   </div>
                 </div>
@@ -3438,10 +4138,10 @@ export default function AdminPortal({
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
                   <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Financial Reports</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}>
+                    <button onClick={() => downloadCSV("financial-report.csv", orders)} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}>
                       <FileText size={16} /> Export CSV Report
                     </button>
-                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}>
+                    <button onClick={() => setToastMessage("Preparing invoices PDF for download…")} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}>
                       <Download size={16} /> Download Invoices (PDF)
                     </button>
                   </div>
@@ -3504,27 +4204,102 @@ export default function AdminPortal({
               ))}
             </div>
 
-            {/* Plans Management Cards */}
+            {/* Plans Management Cards — edits here render on the client AI Data Subscription page */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px", marginBottom: "8px" }}>
-              {mockPlans.map(plan => (
-                <div key={plan.name} className="inner-blur-glass" style={{ ...styles.chartCard, background: plan.bg, padding: "20px", border: `1px solid ${plan.color}30` }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              {(subscriptionPlans || []).map(plan => {
+                const isEditing = editingPlanId === plan.id;
+                return (
+                <div key={plan.id} className="inner-blur-glass" style={{ ...styles.chartCard, background: plan.bg, padding: "20px", border: `1px solid ${plan.color}30` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
                     <h3 style={{ fontSize: "18px", fontWeight: 800, color: plan.color, margin: 0 }}>{plan.name}</h3>
-                    <span style={{ fontSize: "14px", fontWeight: 800, color: "#000" }}>{plan.price}</span>
+                    {isEditing ? (
+                      <input
+                        value={planDraft.priceMonthly}
+                        onChange={(e) => setPlanDraft({ ...planDraft, priceMonthly: e.target.value })}
+                        style={{ ...ecoGlassInputStyle, width: "90px", padding: "6px 10px", fontSize: "13px", textAlign: "right" }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: "14px", fontWeight: 800, color: "#000" }}>{plan.priceMonthly}</span>
+                    )}
                   </div>
-                  <div style={{ margin: "16px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    {plan.features.map(f => (
-                      <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "rgba(0,0,0,0.7)", fontWeight: 500 }}>
-                        <CheckCircle size={14} color={plan.color} /> {f}
+
+                  {isEditing ? (
+                    <div style={{ margin: "14px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <input
+                        value={planDraft.description}
+                        onChange={(e) => setPlanDraft({ ...planDraft, description: e.target.value })}
+                        placeholder="Short description shown to clients"
+                        style={{ ...ecoGlassInputStyle, fontSize: "12px" }}
+                      />
+                      <input
+                        value={planDraft.priceYearly}
+                        onChange={(e) => setPlanDraft({ ...planDraft, priceYearly: e.target.value })}
+                        placeholder="Yearly price"
+                        style={{ ...ecoGlassInputStyle, fontSize: "12px" }}
+                      />
+                      <input
+                        value={planDraft.badge}
+                        onChange={(e) => setPlanDraft({ ...planDraft, badge: e.target.value })}
+                        placeholder="Badge (e.g. Most Popular)"
+                        style={{ ...ecoGlassInputStyle, fontSize: "12px" }}
+                      />
+                      <textarea
+                        value={planDraft.features}
+                        onChange={(e) => setPlanDraft({ ...planDraft, features: e.target.value })}
+                        placeholder="Included features, one per line"
+                        rows={4}
+                        style={{ ...ecoGlassInputStyle, fontSize: "12px", resize: "vertical", fontFamily: "inherit" }}
+                      />
+                      <textarea
+                        value={planDraft.excludedFeatures}
+                        onChange={(e) => setPlanDraft({ ...planDraft, excludedFeatures: e.target.value })}
+                        placeholder="Excluded features, one per line"
+                        rows={2}
+                        style={{ ...ecoGlassInputStyle, fontSize: "12px", resize: "vertical", fontFamily: "inherit" }}
+                      />
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.65)" }}>
+                        <input
+                          type="checkbox"
+                          checked={planDraft.clientVisible}
+                          onChange={(e) => setPlanDraft({ ...planDraft, clientVisible: e.target.checked })}
+                        />
+                        Visible to clients
+                      </label>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button onClick={handleSavePlan} style={{ ...ecoPrimaryButtonStyle, flex: 1, padding: "9px 12px", fontSize: "12px" }}>
+                          <span style={ecoPrimaryInnerStyle}>Save</span>
+                        </button>
+                        <button onClick={() => setEditingPlanId(null)} style={{ flex: 1, padding: "9px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}>
+                          Cancel
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                  <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px" }}>
-                    <div><strong style={{ fontSize: "15px", color: "#000" }}>{plan.users}</strong> <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>Users</span></div>
-                    <div style={{ color: "#15803d", fontWeight: 800 }}>{plan.revenue} MRR</div>
-                  </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ margin: "16px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {(plan.features || []).map(f => (
+                          <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "rgba(0,0,0,0.7)", fontWeight: 500 }}>
+                            <CheckCircle size={14} color={plan.color} /> {f}
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px" }}>
+                        <div><strong style={{ fontSize: "15px", color: "#000" }}>{plan.users}</strong> <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>Users</span></div>
+                        <div style={{ color: "#15803d", fontWeight: 800 }}>{plan.revenue} MRR</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "12px" }}>
+                        <button onClick={() => handleEditPlan(plan)} style={{ ...ecoPrimaryButtonStyle, flex: 1, padding: "9px 12px", fontSize: "12px" }}>
+                          <span style={ecoPrimaryInnerStyle}>Edit Plan</span>
+                        </button>
+                        <span style={{ padding: "5px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, background: plan.clientVisible ? "rgba(22,163,74,0.1)" : "rgba(107,114,128,0.12)", color: plan.clientVisible ? "#15803d" : "#6b7280" }}>
+                          {plan.clientVisible ? "Live" : "Hidden"}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
-              ))}
+              );
+              })}
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
@@ -3633,9 +4408,9 @@ export default function AdminPortal({
           </div>
         ) : activeTab === "Events & Workshops" ? (
           <div style={styles.dashboardContainer}>
-            {/* Events Stats Grid */}
+            {/* Events Stats Grid — live values from the shared events list */}
             <div style={styles.statsGrid}>
-              {mockEventStats.map((stat, idx) => (
+              {eventStatsLive.map((stat, idx) => (
                 <div key={idx} className="inner-blur-glass" style={styles.statCard}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                     <div style={styles.statIconWrap}>{stat.icon}</div>
@@ -3662,12 +4437,7 @@ export default function AdminPortal({
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                      <select value={eventTypeFilter} onChange={(e) => setEventTypeFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
-                        <option value="All">All Types</option>
-                        <option value="Workshop">Workshop</option>
-                        <option value="Webinar">Webinar</option>
-                        <option value="Community">Community</option>
-                      </select>
+                      <div style={{ width: "150px" }}><AdminEcoDropdown value={eventTypeFilter} options={[{ value: "All", label: "All Types" }, { value: "Workshop", label: "Workshop" }, { value: "Webinar", label: "Webinar" }, { value: "Community", label: "Community" }]} onChange={setEventTypeFilter} compact align="right" /></div>
                     </div>
                   </div>
                 </div>
@@ -3735,30 +4505,33 @@ export default function AdminPortal({
                   </div>
                 </div>
 
-                {/* Mini Calendar Mock */}
+                {/* Upcoming Schedule — derived from the shared events list */}
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
                   <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Upcoming Schedule</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", color: "#15803d", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
-                        <span style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase" }}>Jun</span>
-                        <span style={{ fontSize: "16px", fontWeight: 800 }}>15</span>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "13px", fontWeight: 700, color: "#000" }}>Urban Hydroponics</div>
-                        <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>09:00 AM • Baguio City Hall</div>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
-                        <span style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase" }}>Jul</span>
-                        <span style={{ fontSize: "16px", fontWeight: 800 }}>10</span>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "13px", fontWeight: 700, color: "#000" }}>Sustainable Pest Mgt.</div>
-                        <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>02:00 PM • Online (Zoom)</div>
-                      </div>
-                    </div>
+                    {upcomingScheduleEvents.length === 0 && (
+                      <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>No upcoming events scheduled.</div>
+                    )}
+                    {upcomingScheduleEvents.map((ev, idx) => {
+                      const dateParts = (ev.date || "").replace(",", "").split(" ");
+                      const month = (dateParts[0] || "").slice(0, 3);
+                      const day = dateParts[1] || "—";
+                      const palette = idx % 2 === 0
+                        ? { background: "rgba(22,163,74,0.1)", color: "#15803d" }
+                        : { background: "rgba(2,132,199,0.1)", color: "#0284c7" };
+                      return (
+                        <div key={ev.id} style={{ display: "flex", gap: "12px", alignItems: "center", cursor: "pointer" }} onClick={() => setSelectedEvent(ev)}>
+                          <div style={{ width: "40px", height: "40px", borderRadius: "10px", ...palette, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1, flexShrink: 0 }}>
+                            <span style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase" }}>{month}</span>
+                            <span style={{ fontSize: "16px", fontWeight: 800 }}>{day}</span>
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: "13px", fontWeight: 700, color: "#000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</div>
+                            <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>{ev.time}{ev.location ? ` • ${ev.location}` : ""}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -3820,11 +4593,7 @@ export default function AdminPortal({
                         <td style={styles.td}><input type="text" value={editingHarvest.peak} onChange={(e) => setEditingHarvest({...editingHarvest, peak: e.target.value})} style={{...styles.editInput, width: "80px"}} placeholder="Peak Month" /></td>
                         <td style={styles.td}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <select value={editingHarvest.demand} onChange={(e) => setEditingHarvest({...editingHarvest, demand: e.target.value})} style={styles.editInput}>
-                              <option value="High Demand">High Demand</option>
-                              <option value="Medium Demand">Medium Demand</option>
-                              <option value="Low Demand">Low Demand</option>
-                            </select>
+                            <AdminEcoDropdown value={editingHarvest.demand} options={[{ value: "High Demand", label: "High Demand" }, { value: "Medium Demand", label: "Medium Demand" }, { value: "Low Demand", label: "Low Demand" }]} onChange={value => setEditingHarvest({...editingHarvest, demand: value})} />
                             <input type="text" value={editingHarvest.priceTrend} onChange={(e) => setEditingHarvest({...editingHarvest, priceTrend: e.target.value})} style={styles.editInput} placeholder="Price Trend" />
                           </div>
                         </td>
@@ -3836,17 +4605,9 @@ export default function AdminPortal({
                         </td>
                         <td style={styles.td}>
                           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                            <select value={editingHarvest.water} onChange={(e) => setEditingHarvest({...editingHarvest, water: e.target.value})} style={styles.editInput}>
-                              <option value="High">High Water</option>
-                              <option value="Medium">Medium Water</option>
-                              <option value="Low">Low Water</option>
-                            </select>
+                            <AdminEcoDropdown value={editingHarvest.water} options={[{ value: "High", label: "High Water" }, { value: "Medium", label: "Medium Water" }, { value: "Low", label: "Low Water" }]} onChange={value => setEditingHarvest({...editingHarvest, water: value})} />
                             <input type="text" value={editingHarvest.soil} onChange={(e) => setEditingHarvest({...editingHarvest, soil: e.target.value})} style={styles.editInput} placeholder="Soil (e.g. Loamy)" />
-                            <select value={editingHarvest.pestRisk} onChange={(e) => setEditingHarvest({...editingHarvest, pestRisk: e.target.value})} style={styles.editInput}>
-                              <option value="High">High Pest Risk</option>
-                              <option value="Medium">Medium Pest Risk</option>
-                              <option value="Low">Low Pest Risk</option>
-                            </select>
+                            <AdminEcoDropdown value={editingHarvest.pestRisk} options={[{ value: "High", label: "High Pest Risk" }, { value: "Medium", label: "Medium Pest Risk" }, { value: "Low", label: "Low Pest Risk" }]} onChange={value => setEditingHarvest({...editingHarvest, pestRisk: value})} />
                           </div>
                         </td>
                         <td style={styles.td}>
@@ -3896,11 +4657,7 @@ export default function AdminPortal({
                         <td style={styles.td}>
                           {editingHarvest?.id === h.id && !editingHarvest.isNew ? (
                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                              <select value={editingHarvest.demand} onChange={(e) => setEditingHarvest({...editingHarvest, demand: e.target.value})} style={styles.editInput}>
-                                <option value="High Demand">High Demand</option>
-                                <option value="Medium Demand">Medium Demand</option>
-                                <option value="Low Demand">Low Demand</option>
-                              </select>
+                              <AdminEcoDropdown value={editingHarvest.demand} options={[{ value: "High Demand", label: "High Demand" }, { value: "Medium Demand", label: "Medium Demand" }, { value: "Low Demand", label: "Low Demand" }]} onChange={value => setEditingHarvest({...editingHarvest, demand: value})} />
                               <input type="text" value={editingHarvest.priceTrend} onChange={(e) => setEditingHarvest({...editingHarvest, priceTrend: e.target.value})} style={styles.editInput} placeholder="Price Trend" />
                             </div>
                           ) : (
@@ -3926,17 +4683,9 @@ export default function AdminPortal({
                         <td style={styles.td}>
                           {editingHarvest?.id === h.id && !editingHarvest.isNew ? (
                             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                              <select value={editingHarvest.water} onChange={(e) => setEditingHarvest({...editingHarvest, water: e.target.value})} style={styles.editInput}>
-                                <option value="High">High Water</option>
-                                <option value="Medium">Medium Water</option>
-                                <option value="Low">Low Water</option>
-                              </select>
+                              <AdminEcoDropdown value={editingHarvest.water} options={[{ value: "High", label: "High Water" }, { value: "Medium", label: "Medium Water" }, { value: "Low", label: "Low Water" }]} onChange={value => setEditingHarvest({...editingHarvest, water: value})} />
                               <input type="text" value={editingHarvest.soil} onChange={(e) => setEditingHarvest({...editingHarvest, soil: e.target.value})} style={styles.editInput} placeholder="Soil (e.g. Loamy)" />
-                              <select value={editingHarvest.pestRisk} onChange={(e) => setEditingHarvest({...editingHarvest, pestRisk: e.target.value})} style={styles.editInput}>
-                                <option value="High">High Pest Risk</option>
-                                <option value="Medium">Medium Pest Risk</option>
-                                <option value="Low">Low Pest Risk</option>
-                              </select>
+                              <AdminEcoDropdown value={editingHarvest.pestRisk} options={[{ value: "High", label: "High Pest Risk" }, { value: "Medium", label: "Medium Pest Risk" }, { value: "Low", label: "Low Pest Risk" }]} onChange={value => setEditingHarvest({...editingHarvest, pestRisk: value})} />
                             </div>
                           ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
@@ -4017,14 +4766,7 @@ export default function AdminPortal({
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                      <select value={scanStatusFilter} onChange={(e) => setScanStatusFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
-                        <option value="All">All Statuses</option>
-                        <option value="Healthy">Healthy</option>
-                        <option value="Disease Detected">Disease Detected</option>
-                        <option value="Critical">Critical</option>
-                        <option value="Under Review">Under Review</option>
-                        <option value="Resolved">Resolved</option>
-                      </select>
+                      <div style={{ width: "160px" }}><AdminEcoDropdown value={scanStatusFilter} options={[{ value: "All", label: "All Statuses" }, { value: "Healthy", label: "Healthy" }, { value: "Disease Detected", label: "Disease Detected" }, { value: "Critical", label: "Critical" }, { value: "Under Review", label: "Under Review" }, { value: "Resolved", label: "Resolved" }]} onChange={setScanStatusFilter} compact align="right" /></div>
                     </div>
                   </div>
                 </div>
@@ -4083,20 +4825,37 @@ export default function AdminPortal({
                       <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.6)", fontWeight: 500 }}>V.2.4 (Philippine Climate Model)</div>
                     </div>
                   </div>
-                  <button style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "#fff", border: "1px solid rgba(2,132,199,0.2)", color: "#0284c7", fontSize: "12px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><RefreshCcw size={14} /> Update AI Models</button>
+                  <button onClick={() => setToastMessage("AI models are up to date (v2.4 — Philippine Climate Model)")} style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "#fff", border: "1px solid rgba(2,132,199,0.2)", color: "#0284c7", fontSize: "12px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><RefreshCcw size={14} /> Update AI Models</button>
                 </div>
 
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px" }}>
-                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Disease Library</h3>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "4px" }}>Disease Library</h3>
+                  <p style={{ margin: "0 0 14px", fontSize: "11px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Entries here power every diagnosis users receive in the AI Plant Doctor.</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    {mockDiseaseDatabase.map((disease, idx) => (
-                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
-                        <div><div style={{ fontSize: "13px", fontWeight: 700 }}>{disease.name}</div><div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>{disease.crop}</div></div>
-                        <span style={{ fontSize: "10px", fontWeight: 700, color: disease.severity === "High" ? "#dc2626" : "#f59e0b", padding: "2px 6px", borderRadius: "4px", background: disease.severity === "High" ? "rgba(220,38,38,0.1)" : "rgba(245,158,11,0.1)" }}>{disease.severity}</span>
+                    {plantDiseases.length === 0 && (
+                      <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.45)", textAlign: "center", padding: "12px" }}>No diseases yet. Add one below.</div>
+                    )}
+                    {plantDiseases.map((disease) => (
+                      <div key={disease.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", padding: "10px", borderRadius: "10px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                        <div style={{ minWidth: 0 }}><div style={{ fontSize: "13px", fontWeight: 700 }}>{disease.name}</div><div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", fontWeight: 600 }}>{disease.crop} · {disease.confidence}</div></div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+                          <span style={{ fontSize: "10px", fontWeight: 700, color: disease.severity === "High" ? "#dc2626" : disease.severity === "Low" ? "#16a34a" : "#f59e0b", padding: "2px 6px", borderRadius: "4px", background: disease.severity === "High" ? "rgba(220,38,38,0.1)" : disease.severity === "Low" ? "rgba(22,163,74,0.1)" : "rgba(245,158,11,0.1)" }}>{disease.severity}</span>
+                          <button onClick={() => handleDeleteDisease(disease.id)} title="Delete disease" style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)" }}><Trash2 size={13} /></button>
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <button style={{ width: "100%", padding: "10px", marginTop: "12px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "none", color: "#15803d", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}>Manage Database</button>
+                  <div style={{ marginTop: "14px", paddingTop: "14px", borderTop: "1px solid rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.6)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Add Disease</div>
+                    <input type="text" placeholder="Condition name (e.g. Leaf Spot)" value={diseaseForm.name} onChange={e => setDiseaseForm({ ...diseaseForm, name: e.target.value })} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
+                    <input type="text" placeholder="Affected plant (e.g. Tomato)" value={diseaseForm.plant} onChange={e => setDiseaseForm({ ...diseaseForm, plant: e.target.value })} style={{ ...styles.editInput, ...ecoGlassInputStyle }} />
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <div style={{ flex: 1 }}><AdminEcoDropdown value={diseaseForm.severity} options={[{ value: "Low", label: "Low" }, { value: "Medium", label: "Medium" }, { value: "High", label: "High" }]} onChange={(v) => setDiseaseForm({ ...diseaseForm, severity: v })} compact /></div>
+                      <input type="text" placeholder="Confidence" value={diseaseForm.confidence} onChange={e => setDiseaseForm({ ...diseaseForm, confidence: e.target.value })} style={{ ...styles.editInput, ...ecoGlassInputStyle, width: "90px", flexShrink: 0 }} />
+                    </div>
+                    <textarea placeholder="Care recommendations (one per line)" rows={3} value={diseaseForm.recommendation} onChange={e => setDiseaseForm({ ...diseaseForm, recommendation: e.target.value })} style={{ ...styles.editInput, ...ecoGlassInputStyle, resize: "vertical", fontFamily: "inherit", lineHeight: 1.4 }} />
+                    <button onClick={handleAddDisease} style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "#16a34a", border: "none", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}><Plus size={14} /> Add to Library</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4127,11 +4886,7 @@ export default function AdminPortal({
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                     <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Revenue & Growth</h3>
-                    <select style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.08)", padding: "6px 12px", borderRadius: "999px", fontSize: "12px", fontWeight: 600, outline: "none" }}>
-                      <option>Last 30 Days</option>
-                      <option>Last Quarter</option>
-                      <option>Year to Date</option>
-                    </select>
+                    <div style={{ width: "150px" }}><StaticEcoDropdown options={[{ value: "Last 30 Days", label: "Last 30 Days" }, { value: "Last Quarter", label: "Last Quarter" }, { value: "Year to Date", label: "Year to Date" }]} compact align="right" /></div>
                   </div>
                   <div style={{ width: "100%", height: "220px", overflow: "visible" }}>
                     <svg viewBox="0 0 600 220" style={{ width: "100%", height: "100%", overflow: "visible" }}>
@@ -4236,8 +4991,8 @@ export default function AdminPortal({
                   <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Generate Reports</h3>
                   <p style={{ fontSize: "12px", color: "rgba(0,0,0,0.6)", marginBottom: "16px", lineHeight: 1.5 }}>Export enterprise-level financial and environmental metrics for investors and partners.</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <button style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}><Download size={16}/> Export Full PDF</button>
-                    <button style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "12px", borderRadius: "12px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}><FileText size={16}/> Download Raw CSV</button>
+                    <button onClick={() => setToastMessage("Generating full PDF report…")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}><Download size={16}/> Export Full PDF</button>
+                    <button onClick={() => downloadCSV("analytics-raw.csv", orders)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", padding: "12px", borderRadius: "12px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}><FileText size={16}/> Download Raw CSV</button>
                   </div>
                 </div>
               </div>
@@ -4274,14 +5029,7 @@ export default function AdminPortal({
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(0,0,0,0.03)", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)" }}>
                       <Filter size={14} style={{ color: "rgba(0,0,0,0.4)" }} />
-                      <select value={contentTypeFilter} onChange={(e) => setContentTypeFilter(e.target.value)} style={{ background: "transparent", border: "none", outline: "none", fontSize: "12px", color: "#000", fontWeight: 600 }}>
-                        <option value="All">All Types</option>
-                        <option value="Article">Article</option>
-                        <option value="Page">Page</option>
-                        <option value="Announcement">Announcement</option>
-                        <option value="Tutorial">Tutorial</option>
-                        <option value="Component">Component</option>
-                      </select>
+                      <div style={{ width: "150px" }}><AdminEcoDropdown value={contentTypeFilter} options={[{ value: "All", label: "All Types" }, { value: "Article", label: "Article" }, { value: "Page", label: "Page" }, { value: "Announcement", label: "Announcement" }, { value: "Tutorial", label: "Tutorial" }, { value: "Component", label: "Component" }]} onChange={setContentTypeFilter} compact align="right" /></div>
                     </div>
                   </div>
                 </div>
@@ -4311,7 +5059,7 @@ export default function AdminPortal({
                             <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)" }}>by {cnt.author}</div>
                           </td>
                           <td style={styles.td}>
-                            <button style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}><Edit2 size={12} style={{ marginRight: "4px" }} /> Edit</button>
+                            <button onClick={() => setEditingContent({ ...cnt, body: cnt.body || "" })} style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}><Edit2 size={12} style={{ marginRight: "4px" }} /> Edit</button>
                           </td>
                         </tr>
                       ))}
@@ -4334,7 +5082,7 @@ export default function AdminPortal({
                     onChange={(e) => setAiPrompt(e.target.value)}
                     style={{ width: "100%", height: "80px", padding: "12px", borderRadius: "12px", border: "1px solid rgba(139,92,246,0.2)", background: "rgba(255,255,255,0.8)", fontSize: "12px", resize: "none", outline: "none", marginBottom: "12px", boxSizing: "border-box", fontFamily: "inherit" }}
                   />
-                  <button style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 4px 12px rgba(139,92,246,0.3)" }}>
+                  <button onClick={() => setToastMessage(aiPrompt.trim() ? "Generating content from your prompt…" : "Enter a prompt above to generate content.")} style={{ width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 4px 12px rgba(139,92,246,0.3)" }}>
                     Generate Content
                   </button>
                 </div>
@@ -4344,7 +5092,7 @@ export default function AdminPortal({
                   <h3 style={{ ...styles.cardHeading, fontSize: "16px", marginBottom: "16px" }}>Quick Actions</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     <button onClick={() => handleAddContent("Article", "Draft")} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Edit2 size={16} /> Create New Article</button>
-                    <button style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Layout size={16} /> Edit Homepage</button>
+                    <button onClick={() => setToastMessage("Opening homepage editor…")} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Layout size={16} /> Edit Homepage</button>
                     <button onClick={() => handleAddContent("Announcement", "Published")} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "rgba(245,158,11,0.1)", color: "#b45309", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}><Megaphone size={16} /> Post Announcement</button>
                   </div>
                 </div>
@@ -4355,7 +5103,7 @@ export default function AdminPortal({
             <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h3 style={{ ...styles.cardHeading, fontSize: "18px", display: "flex", alignItems: "center", gap: "8px" }}><Image size={18} color="#0ea5e9"/> Media Library</h3>
-                <button style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "999px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "1px solid rgba(14,165,233,0.2)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>
+                <button onClick={() => setToastMessage("Media upload dialog opened")} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "999px", background: "rgba(14,165,233,0.1)", color: "#0ea5e9", border: "1px solid rgba(14,165,233,0.2)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>
                   <Plus size={14} /> Upload Media
                 </button>
               </div>
@@ -4407,15 +5155,7 @@ export default function AdminPortal({
                   onChange={(e) => setForumDraft({ ...forumDraft, body: e.target.value })}
                   style={{ width: "100%", height: "110px", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "13px", resize: "none", outline: "none", marginBottom: "12px", boxSizing: "border-box", fontFamily: "inherit" }}
                 />
-                <select
-                  value={forumDraft.category}
-                  onChange={(e) => setForumDraft({ ...forumDraft, category: e.target.value })}
-                  style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "13px", outline: "none", marginBottom: "14px", boxSizing: "border-box", fontWeight: 600 }}
-                >
-                  {forumCategories.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                <div style={{ marginBottom: "14px" }}><AdminEcoDropdown value={forumDraft.category} options={forumCategories.map(c => ({ value: c, label: c }))} onChange={value => setForumDraft({ ...forumDraft, category: value })} /></div>
                 <button
                   onClick={handlePublishOfficialPost}
                   style={{ width: "100%", padding: "11px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 4px 12px rgba(22,163,74,0.3)" }}
@@ -4500,16 +5240,13 @@ export default function AdminPortal({
                     <div style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.6)", marginBottom: "6px" }}>5-Day Conditions</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                       {Array.from({ length: 5 }).map((_, dayIdx) => (
-                        <select
+                        <AdminEcoDropdown
                           key={dayIdx}
                           value={(r.cond || [])[dayIdx] || "Sunny"}
-                          onChange={(e) => updatePlannerCondition(region, dayIdx, e.target.value)}
-                          style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.85)", fontSize: "12px", outline: "none", fontWeight: 600 }}
-                        >
-                          {forecastConditions.map((c) => (
-                            <option key={c} value={c}>Day {dayIdx + 1}: {c}</option>
-                          ))}
-                        </select>
+                          options={forecastConditions.map(c => ({ value: c, label: `Day ${dayIdx + 1}: ${c}` }))}
+                          onChange={(val) => updatePlannerCondition(region, dayIdx, val)}
+                          compact
+                        />
                       ))}
                     </div>
                   </div>
@@ -4538,12 +5275,417 @@ export default function AdminPortal({
               </div>
             </div>
           </div>
+        ) : activeTab === "Expert Support" ? (
+          <div style={styles.dashboardContainer}>
+            {/* Specialist Stats */}
+            <div style={styles.statsGrid}>
+              {[
+                { label: "Total Specialists", value: String((advisors || []).length), trend: "on the website", up: true, icon: <UserCheck size={16} color="#15803d" /> },
+                { label: "Verified", value: String((advisors || []).filter(a => a.verified).length), trend: "badge shown", up: true, icon: <ShieldCheck size={16} color="#0284c7" /> },
+                { label: "Available Now", value: String((advisors || []).filter(a => a.availability === "Available").length), trend: "accepting bookings", up: true, icon: <CheckCircle size={16} color="#16a34a" /> },
+                { label: "Expertise Areas", value: String([...new Set((advisors || []).flatMap(a => a.expertise || []))].length), trend: "filter categories", up: true, icon: <Star size={16} color="#f59e0b" /> },
+              ].map((stat, idx) => (
+                <div key={idx} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                    <span style={{ ...styles.trendBadge, color: "#15803d", background: "rgba(22, 163, 74, 0.1)" }}>{stat.trend}</span>
+                  </div>
+                  <div style={styles.statValue}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px", alignItems: "start" }}>
+              {/* Specialists Table */}
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Specialist Management</h3>
+                  <button onClick={() => downloadCSV("Expert_Specialists.csv", (advisors || []).map(a => ({ ID: a.id, Name: a.name, Verified: a.verified ? "Yes" : "No", Rating: a.rating, Expertise: (a.expertise || []).join("; "), Availability: a.availability, Days: a.availableDays, Time: a.availableTime })))} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "12px", cursor: "pointer" }}>
+                    <Download size={14} /> Export CSV
+                  </button>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ ...styles.table, width: "100%", minWidth: "640px" }}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Specialist</th>
+                        <th style={styles.th}>Expertise</th>
+                        <th style={styles.th}>Schedule</th>
+                        <th style={styles.th}>Rating</th>
+                        <th style={styles.th}>Availability</th>
+                        <th style={styles.th}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredAdvisorsList.map((advisor) => (
+                        <tr key={advisor.id} style={styles.tr}>
+                          <td style={styles.td}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                              {advisor.image ? (
+                                <img src={advisor.image} alt={advisor.name} style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", border: "2px solid #4ade80", flexShrink: 0 }} />
+                              ) : (
+                                <div title="No photo set — blank placeholder shown on the website" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "linear-gradient(135deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12))", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(0,0,0,0.35)", flexShrink: 0 }}>
+                                  <UserCheck size={16} />
+                                </div>
+                              )}
+                              <div>
+                                <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                                  {advisor.name}
+                                  {advisor.verified && <ShieldCheck size={13} color="#16a34a" />}
+                                </div>
+                                <div style={{ fontSize: "10px", color: advisor.image ? "rgba(0,0,0,0.5)" : "#b45309", fontWeight: 600 }}>
+                                  {advisor.image ? "Photo set" : "No photo (blank)"}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ ...styles.td, maxWidth: "180px" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                              {(advisor.expertise || []).map((exp) => (
+                                <span key={exp} style={{ padding: "2px 8px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, background: "rgba(22,163,74,0.08)", color: "#15803d" }}>{exp}</span>
+                              ))}
+                            </div>
+                          </td>
+                          <td style={styles.td}>
+                            <div style={{ fontSize: "12px", fontWeight: 600 }}>{advisor.availableDays || "—"}</div>
+                            <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)" }}>{advisor.availableTime || "—"}</div>
+                          </td>
+                          <td style={styles.td}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: 700 }}><Star size={12} color="#f59e0b" fill="#f59e0b" /> {advisor.rating}</span>
+                          </td>
+                          <td style={styles.td}>
+                            <button onClick={() => handleToggleAdvisorAvailability(advisor.id)} style={{ padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, border: "none", cursor: "pointer", background: advisor.availability === "Available" ? "rgba(22,163,74,0.1)" : "rgba(220,38,38,0.1)", color: advisor.availability === "Available" ? "#15803d" : "#dc2626" }}>
+                              {advisor.availability}
+                            </button>
+                          </td>
+                          <td style={styles.td}>
+                            <div style={{ display: "flex", gap: "6px" }}>
+                              <button onClick={() => handleEditAdvisor(advisor)} title="Edit" style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "6px" }}><Edit2 size={13} /></button>
+                              <button onClick={() => handleToggleAdvisorVerified(advisor.id)} title={advisor.verified ? "Unverify" : "Verify"} style={{ ...styles.actionBtn, color: advisor.verified ? "#16a34a" : "#6b7280", background: advisor.verified ? "rgba(22,163,74,0.1)" : "rgba(107,114,128,0.1)", padding: "6px" }}><ShieldCheck size={13} /></button>
+                              <button onClick={() => handleDeleteAdvisor(advisor.id)} title="Remove" style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px" }}><Trash2 size={13} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredAdvisorsList.length === 0 && (
+                        <tr><td style={{ ...styles.td, textAlign: "center", color: "rgba(0,0,0,0.45)" }} colSpan={6}>No specialists found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Add / Edit form */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", background: "linear-gradient(135deg, rgba(22,163,74,0.1), rgba(22,163,74,0.02))" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", color: "#15803d", marginBottom: "14px" }}>
+                    {editingAdvisor ? (editingAdvisor.isNew ? "Add Specialist" : "Edit Specialist") : "Specialist Tools"}
+                  </h3>
+                  {editingAdvisor ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <input type="text" value={editingAdvisor.name} onChange={e => setEditingAdvisor({ ...editingAdvisor, name: e.target.value })} style={styles.editInput} placeholder="Full name (e.g. Dr. Maria Santos)" />
+                      <input type="text" value={editingAdvisor.image} onChange={e => setEditingAdvisor({ ...editingAdvisor, image: e.target.value })} style={styles.editInput} placeholder="Photo URL (leave blank for placeholder)" />
+                      <input type="text" value={editingAdvisor.expertiseText} onChange={e => setEditingAdvisor({ ...editingAdvisor, expertiseText: e.target.value })} style={styles.editInput} placeholder="Expertise (comma separated)" />
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <input type="number" step="0.1" min="0" max="5" value={editingAdvisor.rating} onChange={e => setEditingAdvisor({ ...editingAdvisor, rating: e.target.value })} style={{ ...styles.editInput, flex: 1 }} placeholder="Rating" />
+                        <div style={{ flex: 2 }}>
+                          <AdminEcoDropdown value={editingAdvisor.availability} options={advisorAvailabilityOptions} onChange={value => setEditingAdvisor({ ...editingAdvisor, availability: value })} compact />
+                        </div>
+                      </div>
+                      <input type="text" value={editingAdvisor.availableDays} onChange={e => setEditingAdvisor({ ...editingAdvisor, availableDays: e.target.value })} style={styles.editInput} placeholder="Available days (e.g. Mon - Fri)" />
+                      <input type="text" value={editingAdvisor.availableTime} onChange={e => setEditingAdvisor({ ...editingAdvisor, availableTime: e.target.value })} style={styles.editInput} placeholder="Available time (e.g. 9:00 AM - 5:00 PM)" />
+                      <textarea value={editingAdvisor.bio} onChange={e => setEditingAdvisor({ ...editingAdvisor, bio: e.target.value })} style={{ ...styles.editInput, height: "70px", resize: "none", fontFamily: "inherit" }} placeholder="Short bio shown on the website..." />
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.7)", cursor: "pointer" }}>
+                        <input type="checkbox" checked={!!editingAdvisor.verified} onChange={e => setEditingAdvisor({ ...editingAdvisor, verified: e.target.checked })} style={{ accentColor: "#16a34a" }} />
+                        Verified specialist (shows badge)
+                      </label>
+                      <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                        <button onClick={handleSaveAdvisor} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}><Save size={14} /> Save</button>
+                        <button onClick={() => setEditingAdvisor(null)} style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "rgba(220,38,38,0.1)", color: "#dc2626", border: "none", fontWeight: 600, fontSize: "12px", cursor: "pointer" }}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <button onClick={() => setEditingAdvisor({ ...emptyAdvisorDraft })} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
+                        <Plus size={16} /> Add New Specialist
+                      </button>
+                      <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", lineHeight: 1.5, background: "rgba(255,255,255,0.6)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                        Specialist photos are intentionally blank for now — the website shows a placeholder until you paste a real photo URL here.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "Specialist Certification" ? (
+          <div style={styles.dashboardContainer}>
+            {/* Course Stats */}
+            <div style={styles.statsGrid}>
+              {[
+                { label: "Total Courses", value: String((certCourses || []).length), trend: "on the website", icon: <GraduationCap size={16} color="#15803d" /> },
+                { label: "With Real Photo", value: String((certCourses || []).filter(c => c.image).length), trend: "photo cards", icon: <Image size={16} color="#0284c7" /> },
+                { label: "Total Lessons", value: String((certCourses || []).reduce((sum, c) => sum + (parseInt(c.lessons, 10) || 0), 0)), trend: "across all courses", icon: <Play size={16} color="#b45309" /> },
+                { label: "Avg Rating", value: (certCourses || []).length ? ((certCourses.reduce((sum, c) => sum + (parseFloat(c.rating) || 0), 0) / certCourses.length).toFixed(1)) : "—", trend: "learner reviews", icon: <Star size={16} color="#f59e0b" /> },
+              ].map((stat, idx) => (
+                <div key={idx} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                    <span style={{ ...styles.trendBadge, color: "#15803d", background: "rgba(22, 163, 74, 0.1)" }}>{stat.trend}</span>
+                  </div>
+                  <div style={styles.statValue}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px", alignItems: "start" }}>
+              {/* Courses Table */}
+              <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Course Management</h3>
+                  <button onClick={() => downloadCSV("Certification_Courses.csv", (certCourses || []).map(c => ({ ID: c.id, Title: c.title, Instructor: c.instructor, Duration: c.duration, Lessons: c.lessons, Price: c.price, Badge: c.badge || "", Rating: c.rating, Photo: c.image ? "Yes" : "No" })))} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "12px", cursor: "pointer" }}>
+                    <Download size={14} /> Export CSV
+                  </button>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ ...styles.table, width: "100%", minWidth: "640px" }}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Course</th>
+                        <th style={styles.th}>Instructor</th>
+                        <th style={styles.th}>Duration</th>
+                        <th style={styles.th}>Lessons</th>
+                        <th style={styles.th}>Price</th>
+                        <th style={styles.th}>Rating</th>
+                        <th style={styles.th}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCoursesList.map((course) => (
+                        <tr key={course.id} style={styles.tr}>
+                          <td style={styles.td}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                              {course.image ? (
+                                <img src={course.image} alt={course.title} style={{ width: "48px", height: "36px", borderRadius: "8px", objectFit: "cover", border: "1px solid rgba(0,0,0,0.08)", flexShrink: 0 }} />
+                              ) : (
+                                <div title="No photo set — icon placeholder shown on the website" style={{ width: "48px", height: "36px", borderRadius: "8px", background: "linear-gradient(135deg, rgba(74,222,128,0.15), rgba(14,165,233,0.15))", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(0,0,0,0.35)", flexShrink: 0 }}>
+                                  <GraduationCap size={16} />
+                                </div>
+                              )}
+                              <div>
+                                <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                                  {course.title}
+                                  {course.badge && <span style={{ padding: "2px 8px", borderRadius: "999px", fontSize: "9px", fontWeight: 700, background: "rgba(22,163,74,0.1)", color: "#15803d", textTransform: "uppercase" }}>{course.badge}</span>}
+                                </div>
+                                <div style={{ fontSize: "10px", color: course.image ? "rgba(0,0,0,0.5)" : "#b45309", fontWeight: 600 }}>
+                                  {course.image ? "Photo set" : "No photo (icon shown)"}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={styles.td}>{course.instructor}</td>
+                          <td style={styles.td}>{course.duration}</td>
+                          <td style={styles.td}>{course.lessons}</td>
+                          <td style={{ ...styles.td, fontWeight: 700, color: "#15803d" }}>{course.price}</td>
+                          <td style={styles.td}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: 700 }}><Star size={12} color="#f59e0b" fill="#f59e0b" /> {course.rating}</span>
+                          </td>
+                          <td style={styles.td}>
+                            <div style={{ display: "flex", gap: "6px" }}>
+                              <button onClick={() => handleEditCourse(course)} title="Edit" style={{ ...styles.actionBtn, color: "#0ea5e9", background: "rgba(14,165,233,0.1)", padding: "6px" }}><Edit2 size={13} /></button>
+                              <button onClick={() => handleDeleteCourse(course.id)} title="Remove" style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px" }}><Trash2 size={13} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredCoursesList.length === 0 && (
+                        <tr><td style={{ ...styles.td, textAlign: "center", color: "rgba(0,0,0,0.45)" }} colSpan={7}>No courses found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Add / Edit form */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "20px", background: "linear-gradient(135deg, rgba(22,163,74,0.1), rgba(22,163,74,0.02))" }}>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "16px", color: "#15803d", marginBottom: "14px" }}>
+                    {editingCourse ? (editingCourse.isNew ? "Add Course" : "Edit Course") : "Course Tools"}
+                  </h3>
+                  {editingCourse ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <input type="text" value={editingCourse.title} onChange={e => setEditingCourse({ ...editingCourse, title: e.target.value })} style={styles.editInput} placeholder="Course title" />
+                      <input type="text" value={editingCourse.image} onChange={e => setEditingCourse({ ...editingCourse, image: e.target.value })} style={styles.editInput} placeholder="Photo URL (blank = icon placeholder)" />
+                      {editingCourse.image && (
+                        <img src={editingCourse.image} alt="Course preview" style={{ width: "100%", height: "90px", objectFit: "cover", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.08)" }} />
+                      )}
+                      <input type="text" value={editingCourse.instructor} onChange={e => setEditingCourse({ ...editingCourse, instructor: e.target.value })} style={styles.editInput} placeholder="Instructor (e.g. Dr. Maria Santos)" />
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <input type="text" value={editingCourse.duration} onChange={e => setEditingCourse({ ...editingCourse, duration: e.target.value })} style={{ ...styles.editInput, flex: 1 }} placeholder="Duration" />
+                        <input type="number" min="1" value={editingCourse.lessons} onChange={e => setEditingCourse({ ...editingCourse, lessons: e.target.value })} style={{ ...styles.editInput, flex: 1 }} placeholder="Lessons" />
+                      </div>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <input type="text" value={editingCourse.price} onChange={e => setEditingCourse({ ...editingCourse, price: e.target.value })} style={{ ...styles.editInput, flex: 1 }} placeholder="Price (e.g. ₱1,500)" />
+                        <input type="number" step="0.1" min="0" max="5" value={editingCourse.rating} onChange={e => setEditingCourse({ ...editingCourse, rating: e.target.value })} style={{ ...styles.editInput, flex: 1 }} placeholder="Rating" />
+                      </div>
+                      <input type="text" value={editingCourse.badge} onChange={e => setEditingCourse({ ...editingCourse, badge: e.target.value })} style={styles.editInput} placeholder="Badge label (e.g. Best Seller)" />
+                      <textarea value={editingCourse.desc} onChange={e => setEditingCourse({ ...editingCourse, desc: e.target.value })} style={{ ...styles.editInput, height: "70px", resize: "none", fontFamily: "inherit" }} placeholder="Short description shown on the course card..." />
+                      <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                        <button onClick={handleSaveCourse} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}><Save size={14} /> Save</button>
+                        <button onClick={() => setEditingCourse(null)} style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "rgba(220,38,38,0.1)", color: "#dc2626", border: "none", fontWeight: 600, fontSize: "12px", cursor: "pointer" }}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <button onClick={() => setEditingCourse({ ...emptyCourseDraft })} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
+                        <Plus size={16} /> Add New Course
+                      </button>
+                      <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", lineHeight: 1.5, background: "rgba(255,255,255,0.6)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                        Courses appear on the website's Specialist Certification page. Paste a real photo URL to replace the icon placeholder on the course card.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "Surplus Exchange" ? (
+          <div style={styles.dashboardContainer}>
+            {/* Marketplace Stats */}
+            <div style={styles.statsGrid}>
+              {[
+                { label: "Active Listings", value: String((surplusListings || []).filter(l => l.status === "Available").length), trend: "on the market", icon: <Package size={16} color="#15803d" /> },
+                { label: "Total Listings", value: String((surplusListings || []).length), trend: "all statuses", icon: <Box size={16} color="#0284c7" /> },
+                { label: "Open Demands", value: String((surplusDemands || []).filter(d => d.status !== "Closed").length), trend: "buyer requests", icon: <ShoppingCart size={16} color="#f59e0b" /> },
+                { label: "Est. Listing Value", value: `₱${((surplusListings || []).reduce((sum, l) => sum + (Number(l.price) || 0) * (Number(l.quantity) || 0), 0)).toLocaleString()}`, trend: "gross volume", icon: <CreditCard size={16} color="#8b5cf6" /> },
+              ].map((stat, idx) => (
+                <div key={idx} className="inner-blur-glass" style={styles.statCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                    <div style={styles.statIconWrap}>{stat.icon}</div>
+                    <span style={{ ...styles.trendBadge, color: "#15803d", background: "rgba(22, 163, 74, 0.1)" }}>{stat.trend}</span>
+                  </div>
+                  <div style={styles.statValue}>{stat.value}</div>
+                  <div style={styles.statLabel}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Farmer Listings */}
+            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+                <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Surplus Listings</h3>
+                <button onClick={() => downloadCSV("Surplus_Listings.csv", (surplusListings || []).map(l => ({ ID: l.id, Product: l.product, Quantity: `${l.quantity}${l.unit}`, Price: l.price, Location: l.location, Farmer: l.farmer, Status: l.status, Category: l.category || "", BestBefore: l.bestBefore || "" })))} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "12px", cursor: "pointer" }}>
+                  <Download size={14} /> Export CSV
+                </button>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ ...styles.table, width: "100%", minWidth: "700px" }}>
+                  <thead>
+                    <tr>
+                      <th style={styles.th}>Product</th>
+                      <th style={styles.th}>Qty</th>
+                      <th style={styles.th}>Price</th>
+                      <th style={styles.th}>Location</th>
+                      <th style={styles.th}>Farmer</th>
+                      <th style={styles.th}>Status</th>
+                      <th style={styles.th}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSurplusListings.map((listing) => (
+                      <tr key={listing.id} style={styles.tr}>
+                        <td style={{ ...styles.td, fontWeight: 700 }}>{listing.product}</td>
+                        <td style={styles.td}>{listing.quantity}{listing.unit}</td>
+                        <td style={{ ...styles.td, fontWeight: 700, color: "#15803d" }}>₱{listing.price}/{listing.unit}</td>
+                        <td style={styles.td}>{listing.location || "—"}</td>
+                        <td style={styles.td}>{listing.farmer || "—"}</td>
+                        <td style={{ ...styles.td, minWidth: "130px" }}>
+                          <AdminEcoDropdown value={listing.status || "Available"} options={listingStatusOptions} onChange={(value) => handleSetListingStatus(listing.id, value)} compact />
+                        </td>
+                        <td style={styles.td}>
+                          <button onClick={() => handleDeleteListing(listing.id)} title="Remove listing" style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px" }}><Trash2 size={13} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredSurplusListings.length === 0 && (
+                      <tr><td style={{ ...styles.td, textAlign: "center", color: "rgba(0,0,0,0.45)" }} colSpan={7}>No surplus listings found.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Buyer Demands */}
+            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+                <h3 style={{ ...styles.cardHeading, fontSize: "18px" }}>Establishment Demands</h3>
+                <button onClick={() => downloadCSV("Surplus_Demands.csv", (surplusDemands || []).map(d => ({ ID: d.id, Buyer: d.restaurant, Product: d.product, Quantity: `${d.quantity}${d.unit}`, TargetPrice: d.targetPrice, Location: d.location, NeededBy: d.neededDate, Urgent: d.urgent ? "Yes" : "No", Status: d.status || "Open" })))} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 600, fontSize: "12px", cursor: "pointer" }}>
+                  <Download size={14} /> Export CSV
+                </button>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ ...styles.table, width: "100%", minWidth: "700px" }}>
+                  <thead>
+                    <tr>
+                      <th style={styles.th}>Buyer</th>
+                      <th style={styles.th}>Needs</th>
+                      <th style={styles.th}>Qty</th>
+                      <th style={styles.th}>Target Price</th>
+                      <th style={styles.th}>Needed By</th>
+                      <th style={styles.th}>Urgent</th>
+                      <th style={styles.th}>Status</th>
+                      <th style={styles.th}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSurplusDemands.map((demand) => (
+                      <tr key={demand.id} style={styles.tr}>
+                        <td style={{ ...styles.td, fontWeight: 700 }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            {demand.restaurant}
+                            {demand.verified && <ShieldCheck size={13} color="#16a34a" />}
+                          </span>
+                        </td>
+                        <td style={styles.td}>{demand.product}</td>
+                        <td style={styles.td}>{demand.quantity} {demand.unit}</td>
+                        <td style={{ ...styles.td, fontWeight: 700, color: "#15803d" }}>₱{demand.targetPrice}/{demand.unit}</td>
+                        <td style={styles.td}>{demand.neededDate || "—"}</td>
+                        <td style={styles.td}>
+                          <button onClick={() => handleToggleDemandUrgent(demand.id)} style={{ padding: "3px 10px", borderRadius: "999px", fontSize: "10px", fontWeight: 700, border: "none", cursor: "pointer", textTransform: "uppercase", background: demand.urgent ? "rgba(220,38,38,0.1)" : "rgba(107,114,128,0.1)", color: demand.urgent ? "#dc2626" : "#6b7280" }}>
+                            {demand.urgent ? "Urgent" : "Normal"}
+                          </button>
+                        </td>
+                        <td style={styles.td}>
+                          <button onClick={() => handleToggleDemandStatus(demand.id)} style={{ padding: "3px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, border: "none", cursor: "pointer", background: demand.status === "Closed" ? "rgba(107,114,128,0.1)" : "rgba(22,163,74,0.1)", color: demand.status === "Closed" ? "#6b7280" : "#15803d" }}>
+                            {demand.status === "Closed" ? "Closed" : "Open"}
+                          </button>
+                        </td>
+                        <td style={styles.td}>
+                          <button onClick={() => handleDeleteDemand(demand.id)} title="Remove demand" style={{ ...styles.actionBtn, color: "#dc2626", background: "rgba(220,38,38,0.1)", padding: "6px" }}><Trash2 size={13} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredSurplusDemands.length === 0 && (
+                      <tr><td style={{ ...styles.td, textAlign: "center", color: "rgba(0,0,0,0.45)" }} colSpan={8}>No demand posts found.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         ) : (
           activeTab === "Settings" ? (
             <div style={styles.dashboardContainer}>
               {/* Settings Stats Grid */}
               <div style={styles.statsGrid}>
-                {mockSettingsStats.map((stat, idx) => (
+                {mockSettingsStats.map((base, idx) => {
+                  const stat =
+                    base.label === "Active Admins" ? { ...base, value: String(settingsDraft.admins.length) }
+                    : base.label === "System Status" ? { ...base, value: settingsDraft.maintenanceMode ? "Maintenance" : "Online", trend: settingsDraft.maintenanceMode ? "Public access off" : "99.9% Uptime", up: !settingsDraft.maintenanceMode }
+                    : base;
+                  return (
                   <div key={idx} className="inner-blur-glass" style={styles.statCard}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                       <div style={styles.statIconWrap}>{stat.icon}</div>
@@ -4555,7 +5697,8 @@ export default function AdminPortal({
                     <div style={styles.statValue}>{stat.value}</div>
                     <div style={styles.statLabel}>{stat.label}</div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
   
               <div style={{ display: "grid", gridTemplateColumns: "250px 1fr", gap: "24px" }}>
@@ -4588,7 +5731,7 @@ export default function AdminPortal({
                 <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "32px", minHeight: "500px", display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
                     <h3 style={{ ...styles.cardHeading, fontSize: "20px", margin: 0 }}>{activeSettingsTab}</h3>
-                    <button style={{ padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
+                    <button onClick={handleSaveSettings} style={{ padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 8px 16px rgba(22,163,74,0.2)" }}>
                       <Save size={16} /> Save Changes
                     </button>
                   </div>
@@ -4598,11 +5741,11 @@ export default function AdminPortal({
                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                          <div>
                            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Platform Name</label>
-                           <input type="text" defaultValue="EcoEquity" style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
+                           <input type="text" value={settingsDraft.platformName} onChange={(e) => updateSetting("platformName", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
                          </div>
                          <div>
                            <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Support Email</label>
-                           <input type="email" defaultValue="support@ecoequity.ph" style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
+                           <input type="email" value={settingsDraft.supportEmail} onChange={(e) => updateSetting("supportEmail", e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
                          </div>
                        </div>
                        <div>
@@ -4612,8 +5755,8 @@ export default function AdminPortal({
                              <div style={{ fontSize: "14px", fontWeight: 700, color: "#000", marginBottom: "4px" }}>Enable Maintenance Mode</div>
                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Restrict public access while updating the platform. Admins can still log in.</div>
                            </div>
-                           <div style={{ width: "44px", height: "24px", background: "rgba(0,0,0,0.1)", borderRadius: "999px", position: "relative", cursor: "pointer", transition: "background 0.3s" }}>
-                             <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "transform 0.3s" }} />
+                           <div onClick={() => updateSetting("maintenanceMode", !settingsDraft.maintenanceMode)} style={{ width: "44px", height: "24px", background: settingsDraft.maintenanceMode ? "#16a34a" : "rgba(0,0,0,0.1)", borderRadius: "999px", position: "relative", cursor: "pointer", transition: "background 0.3s", flexShrink: 0 }}>
+                             <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "transform 0.3s", transform: settingsDraft.maintenanceMode ? "translateX(20px)" : "translateX(0)" }} />
                            </div>
                          </div>
                        </div>
@@ -4634,15 +5777,47 @@ export default function AdminPortal({
                              </tr>
                            </thead>
                            <tbody>
-                             <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                               <td style={{ padding: "12px 8px", fontWeight: 600 }}>Juan Dela Cruz (You)</td>
-                               <td style={{ padding: "12px 8px", color: "#b45309", fontWeight: 700 }}>Super Admin</td>
-                               <td style={{ padding: "12px 8px", color: "#16a34a", fontWeight: 600 }}>Enabled</td>
-                               <td style={{ padding: "12px 8px" }}><button style={{ ...styles.actionBtn, background: "rgba(14,165,233,0.1)", color: "#0ea5e9", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Edit</button></td>
-                             </tr>
+                             {settingsDraft.admins.map((adm) => (
+                               <tr key={adm.id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                                 <td style={{ padding: "12px 8px", fontWeight: 600 }}>{adm.name}{adm.isYou ? " (You)" : ""}</td>
+                                 <td style={{ padding: "12px 8px", color: adm.role === "Super Admin" ? "#b45309" : "#0f172a", fontWeight: 700 }}>{adm.role}</td>
+                                 <td style={{ padding: "12px 8px", color: adm.twoFactor ? "#16a34a" : "#e11d48", fontWeight: 600 }}>{adm.twoFactor ? "Enabled" : "Disabled"}</td>
+                                 <td style={{ padding: "12px 8px", display: "flex", gap: "8px" }}>
+                                   <button onClick={() => setEditingAdmin({ ...adm })} style={{ ...styles.actionBtn, background: "rgba(14,165,233,0.1)", color: "#0ea5e9", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Edit</button>
+                                   {!adm.isYou && <button onClick={() => handleRemoveAdmin(adm.id)} style={{ ...styles.actionBtn, background: "rgba(225,29,72,0.1)", color: "#e11d48", fontSize: "11px", fontWeight: 700, padding: "6px 12px" }}>Remove</button>}
+                                 </td>
+                               </tr>
+                             ))}
                            </tbody>
                          </table>
-                         <button style={{ marginTop: "16px", padding: "10px 16px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px dashed #16a34a", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", width: "100%" }}>+ Add New Admin</button>
+
+                         {editingAdmin && (
+                           <div style={{ marginTop: "16px", padding: "20px", borderRadius: "14px", border: "1px solid rgba(22,163,74,0.25)", background: "rgba(22,163,74,0.04)", display: "flex", flexDirection: "column", gap: "16px" }}>
+                             <div style={{ fontSize: "13px", fontWeight: 800, color: "#15803d" }}>{settingsDraft.admins.some((a) => a.id === editingAdmin.id) ? "Edit Admin" : "Add New Admin"}</div>
+                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                               <div>
+                                 <label style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.55)", marginBottom: "6px", textTransform: "uppercase" }}>Name</label>
+                                 <input type="text" value={editingAdmin.name} onChange={(e) => setEditingAdmin((p) => ({ ...p, name: e.target.value }))} placeholder="Full name" style={{ width: "100%", padding: "10px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "#fff", fontSize: "13px", fontWeight: 600, outline: "none", boxSizing: "border-box" }} />
+                               </div>
+                               <div>
+                                 <label style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.55)", marginBottom: "6px", textTransform: "uppercase" }}>Role</label>
+                                 <AdminEcoDropdown value={editingAdmin.role} options={adminRoleOptions} onChange={(v) => setEditingAdmin((p) => ({ ...p, role: v }))} />
+                               </div>
+                             </div>
+                             <label style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
+                               <input type="checkbox" checked={!!editingAdmin.twoFactor} onChange={(e) => setEditingAdmin((p) => ({ ...p, twoFactor: e.target.checked }))} style={{ width: "16px", height: "16px", accentColor: "#16a34a" }} />
+                               Two-Factor Authentication enabled
+                             </label>
+                             <div style={{ display: "flex", gap: "12px" }}>
+                               <button onClick={handleSaveAdmin} style={{ padding: "10px 18px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Save Admin</button>
+                               <button onClick={() => setEditingAdmin(null)} style={{ padding: "10px 18px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Cancel</button>
+                             </div>
+                           </div>
+                         )}
+
+                         {!editingAdmin && (
+                           <button onClick={() => setEditingAdmin({ name: "", role: "Admin", twoFactor: false })} style={{ marginTop: "16px", padding: "10px 16px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px dashed #16a34a", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", width: "100%" }}>+ Add New Admin</button>
+                         )}
                        </div>
                      </div>
                   )}
@@ -4657,7 +5832,14 @@ export default function AdminPortal({
                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.5)", fontWeight: 500 }}>Accept GCash, Maya, and Credit Cards</div>
                            </div>
                          </div>
-                         <button style={{ padding: "8px 16px", borderRadius: "8px", background: "rgba(22,163,74,0.1)", color: "#15803d", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Configure API</button>
+                         <div onClick={() => updateSetting("paymongoEnabled", !settingsDraft.paymongoEnabled)} style={{ width: "44px", height: "24px", background: settingsDraft.paymongoEnabled ? "#16a34a" : "rgba(0,0,0,0.1)", borderRadius: "999px", position: "relative", cursor: "pointer", transition: "background 0.3s", flexShrink: 0 }}>
+                           <div style={{ width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "transform 0.3s", transform: settingsDraft.paymongoEnabled ? "translateX(20px)" : "translateX(0)" }} />
+                         </div>
+                       </div>
+                       <div>
+                         <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Secret API Key</label>
+                         <input type="password" value={settingsDraft.paymongoKey} onChange={(e) => updateSetting("paymongoKey", e.target.value)} placeholder="sk_live_••••••••••••••••" disabled={!settingsDraft.paymongoEnabled} style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: settingsDraft.paymongoEnabled ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.04)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box", opacity: settingsDraft.paymongoEnabled ? 1 : 0.6 }} />
+                         <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", marginTop: "8px" }}>Stored locally for this demo. Used to authenticate PayMongo charge requests.</p>
                        </div>
                      </div>
                   )}
@@ -4667,17 +5849,14 @@ export default function AdminPortal({
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Plant Doctor Confidence Threshold</label>
                          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                           <input type="range" min="50" max="99" defaultValue="85" style={{ flex: 1, accentColor: "#16a34a" }} />
-                           <span style={{ fontSize: "14px", fontWeight: 800, color: "#15803d", width: "40px", textAlign: "right" }}>85%</span>
+                           <input type="range" min="50" max="99" value={settingsDraft.aiConfidenceThreshold} onChange={(e) => updateSetting("aiConfidenceThreshold", Number(e.target.value))} style={{ flex: 1, accentColor: "#16a34a" }} />
+                           <span style={{ fontSize: "14px", fontWeight: 800, color: "#15803d", width: "40px", textAlign: "right" }}>{settingsDraft.aiConfidenceThreshold}%</span>
                          </div>
                          <p style={{ fontSize: "11px", color: "rgba(0,0,0,0.5)", marginTop: "8px" }}>Diagnoses below this threshold will be flagged as "Under Review" for human agronomist verification.</p>
                        </div>
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Active Neural Model</label>
-                         <select style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "14px", fontWeight: 600, outline: "none", boxSizing: "border-box" }}>
-                           <option>Verde-Agri-V2.4 (Optimized for PH Climate)</option>
-                           <option>Verde-Agri-V2.3 (Legacy)</option>
-                         </select>
+                         <AdminEcoDropdown value={settingsDraft.activeModel} onChange={(v) => updateSetting("activeModel", v)} options={[{ value: "Verde-Agri-V2.4 (Optimized for PH Climate)", label: "Verde-Agri-V2.4 (Optimized for PH Climate)" }, { value: "Verde-Agri-V2.3 (Legacy)", label: "Verde-Agri-V2.3 (Legacy)" }]} />
                        </div>
                      </div>
                   )}
@@ -4687,15 +5866,15 @@ export default function AdminPortal({
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Theme Mode</label>
                          <div style={{ display: "flex", gap: "16px" }}>
-                           <div style={{ flex: 1, padding: "16px", borderRadius: "12px", border: "2px solid #16a34a", background: "rgba(255,255,255,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#0f172a" }}>Light Mode</div>
-                           <div style={{ flex: 1, padding: "16px", borderRadius: "12px", border: "2px solid transparent", background: "rgba(15,23,42,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#fff" }}>Dark Mode</div>
+                           <div onClick={() => updateSetting("themeMode", "Light")} style={{ flex: 1, padding: "16px", borderRadius: "12px", border: settingsDraft.themeMode === "Light" ? "2px solid #16a34a" : "2px solid transparent", background: "rgba(255,255,255,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#0f172a" }}>Light Mode</div>
+                           <div onClick={() => updateSetting("themeMode", "Dark")} style={{ flex: 1, padding: "16px", borderRadius: "12px", border: settingsDraft.themeMode === "Dark" ? "2px solid #16a34a" : "2px solid transparent", background: "rgba(15,23,42,0.8)", textAlign: "center", fontWeight: 700, cursor: "pointer", color: "#fff" }}>Dark Mode</div>
                          </div>
                        </div>
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Accent Color</label>
                          <div style={{ display: "flex", gap: "12px" }}>
                            {["#16a34a", "#0284c7", "#8b5cf6", "#f59e0b", "#e11d48"].map(color => (
-                             <div key={color} style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, cursor: "pointer", border: color === "#16a34a" ? "3px solid #fff" : "none", boxShadow: color === "#16a34a" ? `0 0 0 2px ${color}` : "none" }} />
+                             <div key={color} onClick={() => updateSetting("accentColor", color)} style={{ width: "32px", height: "32px", borderRadius: "50%", background: color, cursor: "pointer", border: color === settingsDraft.accentColor ? "3px solid #fff" : "3px solid transparent", boxShadow: color === settingsDraft.accentColor ? `0 0 0 2px ${color}` : "none" }} />
                            ))}
                          </div>
                        </div>
@@ -4706,15 +5885,16 @@ export default function AdminPortal({
                      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
                        <div style={{ padding: "20px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", background: "rgba(22,163,74,0.05)" }}>
                          <h4 style={{ margin: "0 0 8px", fontSize: "15px", fontWeight: 700, color: "#15803d" }}>Automated Backups</h4>
-                         <p style={{ margin: "0 0 16px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Your database is automatically backed up every day at 12:00 AM UTC. You can also trigger a manual backup below.</p>
+                         <p style={{ margin: "0 0 12px", fontSize: "12px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Your database is automatically backed up every day at 12:00 AM UTC. You can also trigger a manual backup below.</p>
+                         <p style={{ margin: "0 0 16px", fontSize: "12px", fontWeight: 700, color: "#15803d" }}>Last backup: {settingsDraft.lastBackup ? new Date(settingsDraft.lastBackup).toLocaleString() : "No manual backup yet"}</p>
                          <div style={{ display: "flex", gap: "12px" }}>
-                           <button style={{ padding: "10px 16px", borderRadius: "10px", background: "#16a34a", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Backup Now</button>
-                           <button style={{ padding: "10px 16px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Restore from Backup</button>
+                           <button onClick={handleBackupNow} style={{ padding: "10px 16px", borderRadius: "10px", background: "#16a34a", color: "#fff", border: "none", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Backup Now</button>
+                           <button onClick={() => setToastMessage(settingsDraft.lastBackup ? "Restored from last backup" : "No backup available to restore")} style={{ padding: "10px 16px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", color: "#000", border: "1px solid rgba(0,0,0,0.1)", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}>Restore from Backup</button>
                          </div>
                        </div>
                        <div>
                          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)", marginBottom: "8px", textTransform: "uppercase" }}>Data Export</label>
-                         <button style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}>Export Full System Data (CSV)</button>
+                         <button onClick={handleExportData} style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(2,132,199,0.1)", color: "#0284c7", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer" }}>Export Full System Data (JSON)</button>
                        </div>
                      </div>
                   )}
@@ -4938,12 +6118,14 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "16px 24px",
-    background: "rgba(255,255,255,0.4)",
-    borderBottom: "1px solid rgba(0,0,0,0.05)",
+    padding: "18px 28px",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.45) 100%)",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
     borderTopLeftRadius: "24px",
     borderTopRightRadius: "24px",
-    backdropFilter: "blur(10px)",
+    backdropFilter: "blur(16px) saturate(140%)",
+    WebkitBackdropFilter: "blur(16px) saturate(140%)",
+    boxShadow: "0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 16px rgba(15,23,42,0.04)",
     position: "sticky",
     top: 0,
     zIndex: 10,
@@ -4951,25 +6133,28 @@ const styles = {
   breadcrumb: {
     display: "flex",
     alignItems: "center",
-    gap: "6px",
-    fontSize: "11px",
-    fontWeight: 600,
+    gap: "7px",
+    fontSize: "10.5px",
+    fontWeight: 700,
     color: "rgba(0,0,0,0.4)",
-    marginBottom: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "0.6px",
+    marginBottom: "5px",
   },
   pageTitle: {
-    fontSize: "18px",
+    fontSize: "23px",
     fontWeight: 800,
-    color: "#000",
+    color: "#0f172a",
     margin: 0,
-    letterSpacing: "-0.5px",
-    lineHeight: 1.2,
+    letterSpacing: "-0.6px",
+    lineHeight: 1.15,
   },
   pageSubtitle: {
-    fontSize: "12px",
+    fontSize: "12.5px",
     fontWeight: 500,
-    color: "rgba(0,0,0,0.45)",
-    margin: "2px 0 0",
+    color: "rgba(15,23,42,0.5)",
+    margin: "3px 0 0",
+    lineHeight: 1.4,
   },
   adminIdentity: {
     display: "flex",

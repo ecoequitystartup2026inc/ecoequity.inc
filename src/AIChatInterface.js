@@ -726,7 +726,10 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
     
   const isPayButtonDisabled = isProcessing || !isFormValid;
 
-  return (
+  // The composer can send when there's text typed or an image staged.
+  const canSend = input.trim().length > 0 || !!selectedImage;
+
+  return ReactDOM.createPortal(
     <div style={{ ...aiChatStyles.overlay, ...(isMobile ? aiChatStyles.overlayMobile : {}) }}> {/* Removed onClick={onClose} to prevent closing on overlay click */}
       <div
         onDragOver={handleDragOver}
@@ -997,6 +1000,16 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
             onChange={handleInputChange}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = "rgba(21,128,61,0.55)";
+              e.currentTarget.style.background = "#ffffff";
+              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(21,128,61,0.12)";
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = "rgba(0, 0, 0, 0.1)";
+              e.currentTarget.style.background = "#f3f4f6";
+              e.currentTarget.style.boxShadow = "none";
+            }}
             placeholder={isLiveAgentChat
               ? "Type your message to the live agent..." : (currentBot === 'general' ? "Ask about EcoEquity..." : "Ask about your plants...")}
             style={{ ...aiChatStyles.chatInput, ...(isMobile ? aiChatStyles.chatInputMobile : {}) }}
@@ -1016,10 +1029,15 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
           )}
           <button
             onClick={handleSendMessage}
-            style={{ ...aiChatStyles.sendButton, ...(isMobile ? aiChatStyles.sendButtonMobile : {}) }}
+            disabled={!canSend}
+            style={{
+              ...aiChatStyles.sendButton,
+              ...(isMobile ? aiChatStyles.sendButtonMobile : {}),
+              ...(canSend ? {} : aiChatStyles.sendButtonDisabled),
+            }}
             aria-label="Send message"
-            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
+            onMouseEnter={(e) => { if (!canSend) return; e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
+            onMouseLeave={(e) => { if (!canSend) return; e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -1142,8 +1160,9 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
       )}
 
       {showPaymentModal && ReactDOM.createPortal(
-        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease" }}>
-          <div style={{ background: "#ffffff", borderRadius: "24px", padding: isMobile ? "24px" : "40px", maxWidth: "800px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.15)", animation: "scaleUp 0.3s ease-out" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease" }}
+        onClick={() => setShowPaymentModal(false)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "#ffffff", borderRadius: "24px", padding: isMobile ? "24px" : "40px", maxWidth: "800px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.15)", animation: "scaleUp 0.3s ease-out" }}>
             <button onClick={() => setShowPaymentModal(false)} style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}>&times;</button>
             
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr", gap: "32px" }}>
@@ -1301,7 +1320,8 @@ function AIChatInterface({ onClose, isMobile }) { // Removed autoCorrect and per
         </div>,
         document.body
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1312,15 +1332,17 @@ const aiChatStyles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: "transparent",
+    background: "rgba(15, 23, 42, 0.45)",
+    backdropFilter: "blur(6px)",
+    WebkitBackdropFilter: "blur(6px)",
     display: "flex",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    padding: "0 28px 28px",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "24px",
     zIndex: 9999,
     transition: "opacity 0.3s ease-out",
     boxSizing: "border-box",
-    pointerEvents: "none",
+    pointerEvents: "auto",
   },
   overlayMobile: {
     background: "rgba(0, 0, 0, 0.42)",
@@ -1335,10 +1357,10 @@ const aiChatStyles = {
     borderRadius: "20px",
     border: "1px solid rgba(0,0,0,0.06)",
     boxShadow: "0 30px 80px rgba(6,32,24,0.28), inset 0 1px 0 rgba(255,255,255,0.8)",
-    width: "min(92vw, 420px)",
-    maxWidth: "420px",
-    height: "min(78vh, 580px)",
-    maxHeight: "78vh",
+    width: "min(94vw, 720px)",
+    maxWidth: "720px",
+    height: "min(88vh, 800px)",
+    maxHeight: "88vh",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -1668,6 +1690,13 @@ aiMessage: {
   sendButtonMobile: { // New mobile style
     width: "40px",
     height: "40px",
+  },
+  sendButtonDisabled: {
+    background: "linear-gradient(135deg, #e5e7eb, #d1d5db)",
+    color: "#9ca3af",
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "none",
+    cursor: "not-allowed",
   },
   iconButton: {
     background: "transparent",

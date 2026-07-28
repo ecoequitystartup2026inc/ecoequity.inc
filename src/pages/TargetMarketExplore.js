@@ -1,9 +1,75 @@
 import React, { useState, useEffect } from "react";
 
+const iconProps = {
+  width: 26,
+  height: 26,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "#15803d",
+  strokeWidth: 1.7,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+// Globe — Digital Acquisition
+const DigitalIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" />
+    <path d="M12 3c2.5 2.4 3.9 5.6 4 9-.1 3.4-1.5 6.6-4 9-2.5-2.4-3.9-5.6-4-9 .1-3.4 1.5-6.6 4-9Z" />
+  </svg>
+);
+
+// People — Physical & Community Engagement
+const CommunityIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="9" cy="8" r="3" />
+    <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+    <path d="M16 6.5a3 3 0 0 1 0 5.8" />
+    <path d="M17.5 14.5A5.5 5.5 0 0 1 20.5 20" />
+  </svg>
+);
+
+// Handshake — B2B & Sector Integration
+const B2BIcon = () => (
+  <svg {...iconProps}>
+    <path d="M11 7 8.5 9.5a1.8 1.8 0 0 0 0 2.5 1.8 1.8 0 0 0 2.5 0L13 10l3.5 3.5a1.5 1.5 0 0 0 2-2.2L14 6h-1.5L11 7Z" />
+    <path d="M13 10l2.2 2.2M11 12l1.8 1.8M9 14l1.6 1.6" />
+    <path d="M3 7h3v6H3M21 7h-3v6h3" />
+  </svg>
+);
+
 const acquisitionCards = [
-  { heading: "Digital Acquisition", text: "• Content Marketing: Create highly shareable content leveraging the AI Plant Doctor data for localized insights.\n\n• SEO/ASO: Target high-intent search terms related to urban farming, local crop diseases, and \"Plantito/Plantita\" guides in Tagalog and regional dialects.\n\n• Monetization Strategy: Offer the AI diagnosis and basic Canvas courses for free and convert users to the Paid Subscription Tier for Certification Tracks and advanced data." },
-  { heading: "Physical & Community Engagement", text: "• LGU Partnership Integration: Partner with LGUs and Barangays to promote Event RSVP for official community training, instantly providing credibility and access to organized groups.\n\n• Specialist Workshops: Host high-value workshops via the Community Hub using verified local specialists. Heavily market these events in launch cities to drive physical platform adoption.\n\n• Word-of-Mouth: Encourage successful Novice users (via events) to become Micro-Vendors, showing a clear path from learning to earning." },
-  { heading: "B2B & Sector Integration", text: "• Direct Sales to Institutions: Employ a small, specialized sales team to onboard hotels, restaurants, and food processors into the Institutional Buyer Network. The pitch is based on verifiable cost savings and Corporate Social Responsibility (CSR) impact (food waste reduction).\n\n• Farmer Outreach: Partner with provincial agricultural offices and farmer cooperatives in major producing regions (e.g., Benguet for vegetables) to demonstrate the immediate financial value of the Bulk Listing / Surplus Module in preventing spoilage losses." },
+  {
+    Icon: DigitalIcon,
+    tag: "Online",
+    heading: "Digital Acquisition",
+    bullets: [
+      { label: "Content Marketing", desc: "Create highly shareable content leveraging the AI Plant Doctor data for localized insights." },
+      { label: "SEO / ASO", desc: "Target high-intent search terms around urban farming, local crop diseases, and \"Plantito/Plantita\" guides in Tagalog and regional dialects." },
+      { label: "Monetization", desc: "Offer AI diagnosis and basic Canvas courses free, then convert users to the Paid Subscription Tier for Certification Tracks and advanced data." },
+    ],
+  },
+  {
+    Icon: CommunityIcon,
+    tag: "On-Ground",
+    heading: "Physical & Community",
+    bullets: [
+      { label: "LGU Partnerships", desc: "Partner with LGUs and Barangays to promote Event RSVP for official community training — instant credibility and access to organized groups." },
+      { label: "Specialist Workshops", desc: "Host high-value workshops via the Community Hub with verified local specialists, marketed heavily in launch cities." },
+      { label: "Word-of-Mouth", desc: "Encourage successful Novice users to become Micro-Vendors, showing a clear path from learning to earning." },
+    ],
+  },
+  {
+    Icon: B2BIcon,
+    tag: "B2B",
+    heading: "Sector Integration",
+    bullets: [
+      { label: "Direct Sales", desc: "A specialized sales team onboards hotels, restaurants, and food processors — pitched on verifiable cost savings and CSR impact from food-waste reduction." },
+      { label: "Farmer Outreach", desc: "Partner with provincial agricultural offices and cooperatives (e.g. Benguet) to prove the value of the Bulk Listing / Surplus Module in preventing spoilage losses." },
+      { label: "Impact Reporting", desc: "Give partner institutions auditable food-waste-diversion and local-sourcing metrics they can cite in CSR and ESG reports — turning procurement into a story worth telling." },
+    ],
+  },
 ];
 
 function TargetMarketExplore() {
@@ -40,36 +106,34 @@ function TargetMarketExplore() {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
           }
+          .tme-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
         `}
       </style>
 
-      <div style={styles.headerRow}>
-        <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
-          <span style={styles.badgeDot} />
-          <span>Who We Serve</span>
-        </div>
+      <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
+        <span style={styles.badgeDot} />
+        <span>Go-To-Market</span>
       </div>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
-        Distribution Channels <span style={styles.accent}>and Acquisition Tactics</span>
+        Distribution Channels <span style={styles.accent}>&amp; Acquisition Tactics</span>
       </h1>
       <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
-        EcoEquity serves households and communities in the Philippines who are
-        eager to achieve agricultural self-sufficiency through sustainable farming
-        practices.
+        A three-front strategy to reach households and communities across the
+        Philippines — pairing digital reach with grassroots trust and B2B scale.
       </p>
 
-      <div 
-        style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }} 
+      <div
+        style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }}
         className="hide-scroll"
         onScroll={handleScroll}
       >
         {acquisitionCards.map((c) => (
           <div
             key={c.heading}
-            className="inner-blur-glass"
+            className="inner-blur-glass tme-card"
             style={{
               ...styles.card,
               ...(isMobile ? styles.cardMobile : {}),
@@ -78,8 +142,27 @@ function TargetMarketExplore() {
             onMouseEnter={() => setHoveredCard(c.heading)}
             onMouseLeave={() => setHoveredCard(null)}
           >
-            <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>{c.heading}</h3>
-            <p style={{ ...styles.cardText, ...(isMobile ? styles.cardTextMobile : {}) }}>{c.text}</p>
+            <div style={styles.cardAccent} />
+            <div style={styles.cardHeaderArea}>
+              <div style={styles.cardIconWrap}>
+                <c.Icon />
+              </div>
+              <span style={styles.cardTag}>{c.tag}</span>
+              <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>
+                {c.heading}
+              </h3>
+            </div>
+            <div style={styles.cardDivider} />
+            <ul style={styles.bulletList}>
+              {c.bullets.map((b) => (
+                <li key={b.label} style={styles.bulletItem}>
+                  <span style={styles.bulletDot} />
+                  <span style={{ ...styles.bulletText, ...(isMobile ? styles.bulletTextMobile : {}) }}>
+                    <strong style={styles.bulletLabel}>{b.label}:</strong> {b.desc}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
@@ -98,7 +181,6 @@ function TargetMarketExplore() {
           ))}
         </div>
       )}
-
     </div>
   );
 }
@@ -109,22 +191,14 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    padding: "6px 16px 20px",
+    padding: "10px 16px 20px",
     maxWidth: "1100px",
     margin: "0 auto",
     animation: "fadeInUp 0.75s cubic-bezier(.22,1,.36,1) both",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   wrapMobile: {
-    padding: "16px 12px 30px",
-  },
-  headerRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    position: "relative",
-    marginBottom: "12px",
+    padding: "20px 10px 20px",
   },
   badge: {
     display: "inline-flex",
@@ -154,7 +228,7 @@ const styles = {
     fontSize: "clamp(28px, 4vw, 44px)",
     fontWeight: 300,
     color: "#000",
-    margin: "0 0 8px",
+    margin: "0 0 16px",
     lineHeight: 1.15,
     letterSpacing: "-0.8px",
     textShadow: "0 4px 12px rgba(0,0,0,0.1)",
@@ -184,21 +258,21 @@ const styles = {
     fontSize: "clamp(14px, 1.5vw, 16px)",
     fontWeight: 400,
     lineHeight: 1.72,
-    maxWidth: "580px",
-    marginBottom: "0",
+    maxWidth: "600px",
+    marginBottom: "14px",
   },
   bodyMobile: {
     fontSize: "13px",
     lineHeight: "1.6",
-    marginBottom: "8px",
+    marginBottom: "10px",
   },
   cardRow: {
     display: "flex",
-    gap: "24px",
+    gap: "18px",
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "stretch",
-    marginTop: "6px",
+    marginTop: "16px",
     width: "100%",
   },
   cardRowMobile: {
@@ -210,62 +284,134 @@ const styles = {
     scrollSnapType: "x mandatory",
     scrollPadding: "0 40px",
     WebkitOverflowScrolling: "touch",
+    width: "100%",
+    boxSizing: "border-box",
+    marginTop: "12px",
   },
   card: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
+    position: "relative",
+    overflow: "hidden",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42))",
     border: "1px solid rgba(0,0,0,0.05)",
-    borderRadius: "16px",
-    padding: "24px",
-    flex: "1 1 300px",
-    maxWidth: "340px",
+    borderRadius: "22px",
+    padding: "26px 24px 24px",
+    flex: "1 1 320px",
+    maxWidth: "360px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start",
-    textAlign: "left",
+    alignItems: "center",
     gap: "12px",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
-    backdropFilter: "blur(20px) saturate(165%)",
-    WebkitBackdropFilter: "blur(20px) saturate(165%)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.06)",
+    backdropFilter: "blur(20px) saturate(180%)",
+    WebkitBackdropFilter: "blur(20px) saturate(180%)",
     cursor: "default",
   },
   cardMobile: {
-    flex: "0 0 280px",
-    padding: "18px",
-    gap: "10px",
+    flex: "0 0 290px",
+    maxWidth: "none",
+    padding: "24px 20px 20px",
     scrollSnapAlign: "center",
     scrollSnapStop: "always",
   },
   cardHov: {
-    transform: "scale(1.025)",
+    transform: "translateY(-6px)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
+  },
+  cardAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "4px",
+    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+  },
+  cardHeaderArea: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "9px",
+  },
+  cardIconWrap: {
+    width: "52px",
+    height: "52px",
+    borderRadius: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
+    border: "1px solid rgba(255,255,255,0.7)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+  },
+  cardTag: {
+    fontSize: "10px",
+    fontWeight: 700,
+    letterSpacing: "0.7px",
+    textTransform: "uppercase",
+    color: "#15803d",
+    background: "rgba(74,222,128,0.14)",
+    padding: "3px 10px",
+    borderRadius: "999px",
   },
   cardHeading: {
-    fontSize: "16px",
+    fontSize: "17px",
     fontWeight: 700,
     color: "#000",
     margin: 0,
-    letterSpacing: "-0.2px",
+    letterSpacing: "-0.3px",
+    textAlign: "center",
   },
   cardHeadingMobile: {
-    fontSize: "15px",
+    fontSize: "16px",
   },
-  cardText: {
-    fontSize: "14px",
-    color: "rgba(0, 0, 0, 0.8)",
-    lineHeight: 1.6,
+  cardDivider: {
+    width: "34px",
+    height: "2px",
+    borderRadius: "999px",
+    background: "rgba(0,0,0,0.08)",
+    margin: "2px 0",
+  },
+  bulletList: {
+    listStyle: "none",
+    padding: 0,
     margin: 0,
-    whiteSpace: "pre-line",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    width: "100%",
     textAlign: "left",
   },
-  cardTextMobile: {
+  bulletItem: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "10px",
+  },
+  bulletDot: {
+    flex: "0 0 auto",
+    width: "6px",
+    height: "6px",
+    borderRadius: "50%",
+    marginTop: "7px",
+    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+    boxShadow: "0 0 6px rgba(74,222,128,0.5)",
+  },
+  bulletText: {
+    fontSize: "13px",
+    color: "rgba(0, 0, 0, 0.72)",
+    lineHeight: 1.58,
+  },
+  bulletTextMobile: {
     fontSize: "12px",
-    lineHeight: "1.5",
+  },
+  bulletLabel: {
+    color: "#0f172a",
+    fontWeight: 700,
   },
   indicatorRow: {
     display: "flex",
     justifyContent: "center",
     gap: "8px",
     marginTop: "0px",
-    paddingBottom: "24px",
+    paddingBottom: "12px",
   },
   dot: {
     width: "6px",

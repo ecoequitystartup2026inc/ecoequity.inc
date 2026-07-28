@@ -12,6 +12,7 @@ const categories = [
   "Native Seeds",
   "Soil Mixes",
   "Gardening Tools",
+  "Starter Kits",
 ];
 
 function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts, setSavedProducts, setOrders, onTrackOrder, products, setProducts, promoCodes }) {
@@ -351,7 +352,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem("verdeversity_reviews");
+    const saved = localStorage.getItem("ecoequity_reviews");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -666,11 +667,11 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
               <div style={styles.iconActions}>
                 <button ref={heartIconRef} style={styles.iconActionBtn} title="Wishlist" onClick={() => setWishlistOpen(true)}>
                   <FaHeart style={{ color: "#15803d" }} size={18} />
-                  {savedProducts.length > 0 && <span style={styles.iconBadge} className={wishlistBadgeAnim ? "animate-badgePop" : ""}>{savedProducts.length}</span>}
+                  {savedProducts.length > 0 && <span data-no-invert style={styles.iconBadge} className={wishlistBadgeAnim ? "animate-badgePop" : ""}>{savedProducts.length}</span>}
                 </button>
                 <button ref={cartIconRef} style={styles.iconActionBtn} title="Cart" onClick={() => setCartOpen(true)}>
                   <FaShoppingCart style={{ color: "#15803d" }} size={18} />
-                  {cartItems.length > 0 && <span style={styles.iconBadge} className={cartBadgeAnim ? "animate-badgePop" : ""}>{cartItems.length}</span>}
+                  {cartItems.length > 0 && <span data-no-invert style={styles.iconBadge} className={cartBadgeAnim ? "animate-badgePop" : ""}>{cartItems.length}</span>}
                 </button>
               </div>
             </div>
@@ -688,8 +689,13 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
               >
                 <div style={{ ...styles.imageContainer, ...(isMobile ? styles.imageContainerMobile : {}) }}>
                   <div style={styles.imagePlaceholder}>
-                     {/* Replace this with actual image tag: <img src={product.image} alt={product.name} /> */}
-                     <span style={{ fontSize: isMobile ? "28px" : "36px" }}>{product.emoji || <Sprout size="1em" color="#16a34a" />}</span>
+                     <ProductImage
+                       src={product.image}
+                       alt={product.name}
+                       emoji={product.emoji}
+                       imgStyle={styles.productImg}
+                       fallbackSize={isMobile ? "28px" : "36px"}
+                     />
                   </div>
                   {product.badge && <span style={{ ...styles.badgeLabel, ...(isMobile ? styles.badgeLabelMobile : {}) }}>{product.badge}</span>}
                   <button 
@@ -1134,8 +1140,8 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "8px", flexShrink: 0 }} className="custom-scrollbar">
                      {uniqueCartItems.map(item => (
                        <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "12px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
-                         <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
-                            {item.emoji || <Sprout size="1em" color="#16a34a" />}
+                         <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
+                            <ProductImage src={item.image} alt={item.name} emoji={item.emoji} imgStyle={styles.thumbImg} fallbackSize="20px" />
                          </div>
                          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1.2 }}>{item.name}</span>
@@ -1241,7 +1247,9 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         <div style={styles.recGrid}>
                            {recommendations.map(p => (
                               <div key={p.id} style={styles.recCard}>
-                                 <div style={{fontSize: '24px'}}>{p.emoji || <Sprout size="1em" color="#16a34a" />}</div>
+                                 <div style={{ width: "40px", height: "40px", borderRadius: "10px", overflow: "hidden", background: "rgba(22,163,74,0.08)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    <ProductImage src={p.image} alt={p.name} emoji={p.emoji} imgStyle={styles.thumbImg} fallbackSize="24px" />
+                                 </div>
                                  <div style={{flex: 1}}>
                                    <div style={styles.recName}>{p.name}</div>
                                    <div style={styles.recPrice}>₱{p.price}</div>
@@ -1396,6 +1404,20 @@ const InputField = ({ label, placeholder, value, onChange, onBlur, error }) => (
     {typeof error === 'string' && <span style={styles.errorText}>{error}</span>}
   </div>
 );
+
+// Renders a real product photo, falling back to the product's icon/emoji if the
+// image is missing or fails to load.
+const ProductImage = ({ src, alt, emoji, imgStyle, fallbackSize = "36px", fallbackWrapStyle }) => {
+  const [errored, setErrored] = useState(false);
+  if (!src || errored) {
+    return (
+      <span style={{ fontSize: fallbackSize, display: "flex", alignItems: "center", justifyContent: "center", ...fallbackWrapStyle }}>
+        {emoji || <Sprout size="1em" color="#16a34a" />}
+      </span>
+    );
+  }
+  return <img src={src} alt={alt || ""} loading="lazy" style={imgStyle} onError={() => setErrored(true)} />;
+};
 
 const PaymentCard = ({ id, label, icon, selected, onSelect }) => (
   <button 
@@ -1803,6 +1825,18 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  productImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+  thumbImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
   },
   badgeLabel: {
     position: "absolute",

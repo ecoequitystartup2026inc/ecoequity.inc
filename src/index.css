@@ -6,33 +6,89 @@
   padding: 0;
 }
 
-/* ── Dark mode: invert the UI for readability, then tint it dark blue ── */
+/* ── Dark mode: invert the UI for readability, then tint it dark blue ──
+   The whole app is authored light-first with inline styles, so dark mode
+   inverts the page rather than shipping a second palette.
+
+   The filter lives on <html>, not #root: a filtered element becomes the
+   containing block for its position:fixed descendants, which would peg
+   every fixed navbar, modal and drawer to #root instead of the viewport.
+   The root element is exempt from that.
+
+   The trailing contrast() softens the result — white surfaces land on a
+   lifted near-black instead of pure #000, and body text on a soft white
+   instead of a glaring #fff — without flattening the two toward each
+   other enough to lose readability. */
 html[data-theme="dark"] {
-  background: #0a1430;
+  /* Exact inverse of the filter below; re-applying it on a descendant
+     restores that element's true colors. Keep the two in sync:
+     contrast here must be 1 / contrast there. */
+  --undo-dark: contrast(1.163) hue-rotate(180deg) invert(1);
+  filter: invert(1) hue-rotate(180deg) contrast(0.86);
+  background: #dbebff;
 }
 
-html[data-theme="dark"] #root {
-  filter: invert(1) hue-rotate(180deg);
+html[data-theme="dark"] body {
+  /* Inverts to a dark navy (#192638), so short pages don't show a light gutter */
+  background: #dbebff;
+}
+
+/* Brand mint→sky gradient buttons and chips keep their light-mode look:
+   every one of them embeds this rgba literal in its inline style, so the
+   attribute match un-inverts them wholesale (0.9 also catches 0.95/0.96). */
+html[data-theme="dark"] [style*="rgba(134,239,172,0.9"] {
+  filter: var(--undo-dark);
 }
 
 /* Re-invert media so images/videos keep their true colors */
-html[data-theme="dark"] #root img,
-html[data-theme="dark"] #root video,
-html[data-theme="dark"] #root iframe,
-html[data-theme="dark"] #root svg image,
-html[data-theme="dark"] #root [data-no-invert] {
-  filter: invert(1) hue-rotate(180deg);
+html[data-theme="dark"] img,
+html[data-theme="dark"] video,
+html[data-theme="dark"] iframe,
+html[data-theme="dark"] svg image,
+html[data-theme="dark"] [data-no-invert] {
+  filter: var(--undo-dark);
 }
 
-/* Dark-blue tint laid over everything (sits above the inverted #root) */
+/* Buttons follow the page inversion (no --undo-dark): light buttons land
+   on dark surfaces and their dark labels land on white, matching the rest
+   of the page. Media inside buttons is re-inverted by the generic media
+   rule above. */
+
+/* Icons: flatten to black, which the page inversion then lands on white —
+   whatever color the icon was authored in.
+
+   `[width]` without a `%` is what separates an icon from the other inline
+   SVGs here: icon sets (lucide, react-icons) and the hand-written icons
+   size themselves with numeric width/height attributes, while the charts
+   and the decorative leaves size themselves from `style` or `width="100%"`
+   and so keep their own colors. SVGs wrapping a raster <image> are left to
+   the media rule above, and [data-no-invert] stays an escape hatch. */
+html[data-theme="dark"] svg[width]:not([width$="%"]):not(:has(image)):not([data-no-invert]):not([style*="rgba(134,239,172,0.9"] *) {
+  filter: brightness(0);
+}
+
+/* Icons inside un-inverted contexts ([data-no-invert] wrappers): the
+   ancestor's --undo-dark cancels the page inversion, so these icons
+   must be made white directly instead of relying on the page flip. */
+html[data-theme="dark"] [data-no-invert] svg[width]:not([width$="%"]):not(:has(image)) {
+  filter: brightness(0) invert(1);
+}
+
+/* All text — titles, body copy, and button labels — renders white in dark
+   mode. Inside the inverted page, authored black is what lands on white,
+   so force black here and let the inversion flip it. [data-no-invert]
+   islands keep their authored colors, and gradient-clipped titles are
+   unaffected because -webkit-text-fill-color still wins over color. */
+html[data-theme="dark"] :is(h1, h2, h3, h4, h5, h6, p, span, a, li, div,
+  label, legend, summary, button, td, th, dt, dd, blockquote, figcaption,
+  strong, em, b, i, small, code, pre):not(:is([data-no-invert], [data-no-invert] *,
+  [style*="rgba(134,239,172,0.9"], [style*="rgba(134,239,172,0.9"] *)) {
+  color: #000 !important;
+}
+
+/* Removed light tint overlay for cleaner dark mode */
 html[data-theme="dark"] body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: rgba(16, 34, 74, 0.55);
-  mix-blend-mode: color;
-  z-index: 2147483646;
+  display: none;
 }
 
 :root {
@@ -47,6 +103,7 @@ html[data-theme="dark"] body::after {
   --dark-800:  #1e293b;
   --dark-700:  #334155;
   --gray-400:  #94a3b8;
+  --text-primary: #0a0f0d;
   --glass-bg:  rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.18);
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
@@ -71,9 +128,36 @@ body {
   overflow-x: hidden;
 }
 
-/* Hamburger nav: collapse the menu into a right-side panel at ALL viewport widths */
+/* ── Navbar: the hamburger button hides/unhides the menu at all widths ──
+   Closed: only the hamburger shows. Open: a clean vertical menu — full
+   width on phones, a right-anchored dropdown card on wider screens. */
+
 .mobile-hamburger {
   display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  cursor: pointer;
+  transition: opacity 0.16s ease !important;
+}
+
+.mobile-hamburger:hover {
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .mobile-hamburger:hover {
+  box-shadow: none !important;
+}
+
+.mobile-hamburger:active {
+  transform: none;
 }
 
 .mobile-menu-backdrop {
@@ -92,7 +176,7 @@ body {
   display: none !important;
 }
 
-/* ── Hamburger menu: clean docked bar that drops in-flow (not floating) ── */
+/* Open state: clean vertical menu docked below the header row */
 .nav-links-panel.mobile-menu-open {
   display: flex !important;
   position: relative !important;
@@ -100,73 +184,149 @@ body {
   flex-basis: 100% !important;
   max-width: none !important;
   order: 99 !important;
-  margin-top: 12px !important;
-  flex-direction: row !important;
-  flex-wrap: wrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  padding: 12px 14px !important;
+  margin-top: 10px !important;
+  flex-direction: column !important;
+  /* The inline style carries flex-wrap: wrap; with a max-height, a wrapping
+     column flexbox silently spills items into an overlapping second column
+     instead of scrolling — which hid the Account section. */
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  gap: 4px !important;
+  padding: 10px !important;
   border-radius: 18px !important;
-  background: rgba(255, 255, 255, 0.72) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
   box-shadow:
-    0 10px 30px rgba(6, 32, 24, 0.08),
+    0 14px 34px rgba(6, 32, 24, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  overflow: visible !important;
+  /* The panel must scroll internally: on mobile the body itself cannot
+     scroll, so anything past the viewport would be unreachable. */
+  max-height: calc(100vh - 160px);
+  max-height: calc(100dvh - 160px);
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
   z-index: 1800 !important;
   animation: menuDock 0.28s cubic-bezier(0.22, 1, 0.36, 1) both !important;
 }
 
-/* Top-level items sit in a clean row, sized to content */
+html[data-theme="dark"] .nav-links-panel.mobile-menu-open {
+  box-shadow: 0 14px 34px rgba(6, 32, 24, 0.12) !important;
+}
+
+/* Dark mode: menu rows follow the page inversion (instead of the global
+   button undo) so their dark authored text lands on white against the
+   inverted, now-dark panel. */
+html[data-theme="dark"] .nav-links-panel.mobile-menu-open button {
+  filter: none !important;
+}
+
+/* With the undo filter gone, the button icons sit in inverted context
+   again: flatten them to black and let the page inversion make them white. */
+html[data-theme="dark"] .nav-links-panel.mobile-menu-open button svg[width]:not([width$="%"]):not(:has(image)):not([data-no-invert]) {
+  filter: brightness(0) !important;
+}
+
+/* Every top-level row spans the panel */
 .nav-links-panel.mobile-menu-open > div,
 .nav-links-panel.mobile-menu-open > button {
-  width: auto !important;
-  align-items: center !important;
+  width: 100% !important;
   position: relative !important;
 }
 
-.nav-links-panel.mobile-menu-open > div > button {
-  width: auto !important;
+/* Uppercase group labels ("Menu", "Account") */
+.nav-links-panel .nav-section-label {
+  display: block;
+  padding: 6px 14px 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(6, 32, 24, 0.42);
+  user-select: none;
 }
 
-/* Consistent, professional pill styling for every top-level menu item */
+/* Consistent, left-aligned rows with the chevron pushed to the right */
 .nav-links-panel.mobile-menu-open > button,
 .nav-links-panel.mobile-menu-open > div > button {
-  min-height: 38px !important;
-  padding: 8px 16px !important;
-  border-radius: 999px !important;
-  font-size: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
-  letter-spacing: 0.1px !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
   transition: background 0.18s ease, color 0.18s ease !important;
 }
 
-/* Dropdowns float below their item as clean cards instead of pushing the row */
+.nav-links-panel.mobile-menu-open > button:hover,
+.nav-links-panel.mobile-menu-open > div > button:hover {
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.16), rgba(125, 211, 252, 0.16)) !important;
+  color: #064e3b !important;
+}
+
+.nav-item-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.nav-links-panel.mobile-menu-open > div > button > span:last-of-type {
+  margin-left: auto !important;
+}
+
+/* Sub-menus expand in place as indented accordions */
 .nav-links-panel.mobile-menu-open > div > div {
-  position: absolute !important;
-  top: 100% !important;
-  left: 50% !important;
-  padding-top: 10px !important;
-  width: max-content !important;
-  z-index: 60 !important;
-  transform: translateX(-50%) !important;
-  animation: menuDropIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  width: 100% !important;
+  padding: 2px 0 4px 14px !important;
+  animation: menuFadeIn 0.18s ease both !important;
 }
 
 .nav-links-panel.mobile-menu-open > div > div > .inner-blur-glass {
-  width: max-content !important;
-  min-width: 184px !important;
-  max-width: 264px !important;
-  padding: 6px !important;
-  border-radius: 14px !important;
-  background: rgba(255, 255, 255, 0.97) !important;
-  border: 1px solid rgba(22, 163, 74, 0.1) !important;
-  box-shadow:
-    0 16px 38px rgba(6, 32, 24, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 4px !important;
+  border-radius: 12px !important;
+  background: rgba(240, 253, 244, 0.7) !important;
+  border-left: 2px solid rgba(22, 163, 74, 0.25) !important;
+  box-shadow: none !important;
+}
+
+.nav-links-panel.mobile-menu-open > div > div button {
+  text-align: left !important;
+  font-size: 13px !important;
+  padding: 10px 12px !important;
+}
+
+.nav-links-panel.mobile-menu-open > div > div button:hover {
+  background: rgba(22, 163, 74, 0.08) !important;
+  color: #064e3b !important;
+}
+
+/* Wider screens: the open menu docks under the hamburger as a card */
+@media (min-width: 768px) {
+  .nav-links-panel.mobile-menu-open {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 12px !important;
+    left: auto !important;
+    width: 340px !important;
+    flex-basis: auto !important;
+    margin-top: 0 !important;
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto !important;
+    box-shadow:
+      0 24px 54px rgba(6, 32, 24, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+  }
+
+  html[data-theme="dark"] .nav-links-panel.mobile-menu-open {
+    box-shadow: 0 24px 54px rgba(6, 32, 24, 0.18) !important;
+  }
 }
 
 @keyframes menuFadeIn {
@@ -230,6 +390,12 @@ textarea:focus,
 select:focus {
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
   border-color: #16a34a;
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus {
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
 }
 
 input::placeholder,
@@ -346,6 +512,12 @@ textarea::placeholder {
   -webkit-backdrop-filter: blur(34px) saturate(185%);
 }
 
+html[data-theme="dark"] .inner-blur-glass::before {
+  background: none;
+  backdrop-filter: blur(34px);
+  -webkit-backdrop-filter: blur(34px);
+}
+
 .inner-blur-glass > * {
   position: relative;
   z-index: 1;
@@ -391,4 +563,11 @@ textarea::placeholder {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+html[data-theme="dark"] .learn-more-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }

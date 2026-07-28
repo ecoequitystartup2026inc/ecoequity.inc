@@ -66,7 +66,7 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
   };
 
   return ReactDOM.createPortal(
-    <div style={{ ...modalStyles.overlay, ...(isMobile ? modalStyles.overlayMobile : {}) }}>
+    <div style={{ ...modalStyles.overlay, ...(isMobile ? modalStyles.overlayMobile : {}) }} onClick={onClose}>
       <div style={{ ...modalStyles.modalContent, ...(isMobile ? modalStyles.modalContentMobile : {}) }} onClick={(e) => e.stopPropagation()}>
         <button style={modalStyles.closeBtn} onClick={onClose}>
           <FaTimes />
@@ -204,14 +204,16 @@ const modalStyles = {
     right: 0,
     bottom: 0,
     zIndex: 10000,
-    background: "transparent",
+    background: "rgba(15, 23, 42, 0.45)",
+    backdropFilter: "blur(6px)",
+    WebkitBackdropFilter: "blur(6px)",
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
-    padding: "0 80px 0 0",
+    padding: "24px",
     boxSizing: "border-box",
-    animation: "fadeIn 0.3s ease",
-    pointerEvents: "none",
+    animation: "fadeIn 0.25s ease",
+    pointerEvents: "auto",
   },
   overlayMobile: {
     background: "rgba(0, 0, 0, 0.42)",
@@ -220,21 +222,20 @@ const modalStyles = {
     padding: 0,
     justifyContent: "flex-start",
     alignItems: "flex-start",
-    pointerEvents: "auto",
   },
   modalContent: {
-    maxWidth: "360px",
-    width: "min(90vw, 360px)",
-    maxHeight: "72vh",
+    maxWidth: "440px",
+    width: "min(92vw, 440px)",
+    maxHeight: "88vh",
     background: "linear-gradient(180deg, #ffffff 0%, #f6f9fb 100%)",
     border: "1px solid rgba(15,23,42,0.08)",
-    borderRadius: "16px",
-    padding: "26px 24px",
+    borderRadius: "18px",
+    padding: "28px 28px 26px",
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0 24px 60px rgba(15,23,42,0.18), 0 2px 6px rgba(15,23,42,0.06)",
+    boxShadow: "0 24px 60px rgba(15,23,42,0.28), 0 2px 6px rgba(15,23,42,0.08)",
     position: "relative",
-    animation: "scaleUp 0.3s ease",
+    animation: "scaleUp 0.28s ease",
     overflowY: "auto",
     pointerEvents: "auto",
   },

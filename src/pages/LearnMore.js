@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ProblemTimeline from "../components/ProblemTimeline";
 
 const sdgItems = [
   {
@@ -207,24 +208,45 @@ const sdgItems = [
       },
       {
         heading: "Platform Alignment",
-        text: "Standardizing the VerdeVersity Learning Canvas to serve as the blueprint curriculum for Local Government Unit (LGU) and Barangay urban agriculture deployment programs.",
+        text: "Standardizing the EcoEquity Learning Canvas to serve as the blueprint curriculum for Local Government Unit (LGU) and Barangay urban agriculture deployment programs.",
       },
     ],
   },
 ];
 
+// Only pull a card open on keyboard focus — on touch the tap already toggles it.
+const isKeyboardFocus = (el) => {
+  try {
+    return el.matches(":focus-visible");
+  } catch {
+    return false;
+  }
+};
+
 function LearnMore({ setActiveNav }) {
   const [isHovered, setIsHovered] = useState(false);
   const [exploreHovered, setExploreHovered] = useState(false);
-  const [hoveredSdg, setHoveredSdg] = useState(null);
-  const [expandedImage, setExpandedImage] = useState(null);
+  const [activeSdg, setActiveSdg] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  // Pointer capability, not width, decides how cards open: hover on a mouse,
+  // tap-to-toggle on touch. A wide tablet is still a touch device.
+  const [canHover, setCanHover] = useState(
+    () => window.matchMedia?.("(hover: hover)").matches ?? true
+  );
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia?.("(hover: hover)");
+    if (!mq) return undefined;
+    const onChange = (e) => setCanHover(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   const handleScroll = (e) => {
@@ -248,6 +270,241 @@ function LearnMore({ setActiveNav }) {
           @keyframes shimmerLine {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
+          }
+          @keyframes sdgBlockIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+
+          /* ── SDG card ───────────────────────────────────────── */
+          .sdg-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 290px;
+            width: 290px;
+            min-height: 440px;
+            padding: 0;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 20px;
+            overflow: hidden;
+            isolation: isolate;
+            background-color: #14532d;
+            background-size: cover;
+            background-position: center;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            text-align: left;
+            font-family: inherit;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+            transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease;
+          }
+          @media (min-width: 768px) {
+            .sdg-card {
+              flex: 0 0 calc((100% - 68px) / 3);
+              width: calc((100% - 68px) / 3);
+              min-height: 402px;
+            }
+          }
+          .sdg-card:hover,
+          .sdg-card.is-active {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 46px rgba(0,0,0,0.20);
+          }
+          .sdg-card:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 3px;
+          }
+
+          /* Layers: photo scrim → solid SDG colour → top accent */
+          .sdg-card__scrim,
+          .sdg-card__fill {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            transition: opacity .45s cubic-bezier(.22,1,.36,1);
+          }
+          .sdg-card__scrim {
+            z-index: 1;
+            background: linear-gradient(
+              180deg,
+              rgba(0,0,0,0.45) 0%,
+              rgba(0,0,0,0.08) 32%,
+              rgba(0,0,0,0.58) 70%,
+              rgba(0,0,0,0.86) 100%
+            );
+          }
+          .sdg-card__fill {
+            z-index: 2;
+            opacity: 0;
+            background:
+              radial-gradient(120% 90% at 12% 0%, rgba(255,255,255,0.24), transparent 58%),
+              var(--sdg-color);
+          }
+          .sdg-card.is-active .sdg-card__fill { opacity: 1; }
+          .sdg-card.is-active .sdg-card__scrim { opacity: 0; }
+          .sdg-card__accent {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            z-index: 5;
+            background: var(--sdg-color);
+            pointer-events: none;
+            transition: opacity .3s ease;
+          }
+          .sdg-card.is-active .sdg-card__accent { opacity: 0; }
+
+          /* Resting face */
+          .sdg-card__rest {
+            position: relative;
+            z-index: 3;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 20px;
+            transition: opacity .3s ease, transform .45s cubic-bezier(.22,1,.36,1);
+          }
+          .sdg-card.is-active .sdg-card__rest {
+            opacity: 0;
+            transform: translateY(-12px);
+          }
+          .sdg-card__tag {
+            align-self: flex-start;
+            display: inline-block;
+            padding: 5px 11px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.28);
+            backdrop-filter: blur(12px) saturate(160%);
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
+            color: #fff;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          }
+          .sdg-card__foot {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+          }
+          .sdg-card__icon {
+            width: 76px;
+            height: 76px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+            transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+          }
+          .sdg-card:hover .sdg-card__icon { transform: scale(1.05) rotate(-2deg); }
+          .sdg-card__name {
+            display: block;
+            color: #fff;
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.3px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.45);
+          }
+          .sdg-card__cue {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.78);
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+          }
+          .sdg-card__arrow { transition: transform .3s ease; }
+          .sdg-card:hover .sdg-card__arrow { transform: translateX(4px); }
+
+          /* Revealed face */
+          .sdg-card__detail {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(14px);
+            pointer-events: none;
+            transition: opacity .35s ease, transform .45s cubic-bezier(.22,1,.36,1);
+          }
+          .sdg-card.is-active .sdg-card__detail {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          .sdg-card__ghost {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            color: rgba(255,255,255,0.18);
+            font-size: 62px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -2px;
+            pointer-events: none;
+          }
+          .sdg-card__detailTitle {
+            display: block;
+            margin-top: 10px;
+            max-width: 82%;
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.3px;
+          }
+          .sdg-card__rule {
+            width: 46px;
+            height: 3px;
+            margin: 10px 0 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.9);
+          }
+          .sdg-card__blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            overflow-y: auto;
+          }
+          .sdg-card.is-active .sdg-card__block {
+            animation: sdgBlockIn .45s cubic-bezier(.22,1,.36,1) var(--d) both;
+          }
+          .sdg-card__blockHead {
+            display: block;
+            margin-bottom: 3px;
+            color: rgba(255,255,255,0.72);
+            font-size: 9.5px;
+            font-weight: 800;
+            letter-spacing: 0.9px;
+            text-transform: uppercase;
+          }
+          .sdg-card__blockText {
+            display: block;
+            font-size: 11.5px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.96);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .sdg-card,
+            .sdg-card__rest,
+            .sdg-card__detail,
+            .sdg-card__icon,
+            .sdg-card__arrow {
+              transition: none;
+              transform: none;
+            }
+            .sdg-card.is-active .sdg-card__block { animation: none; }
           }
         `}
       </style>
@@ -305,58 +562,64 @@ function LearnMore({ setActiveNav }) {
         onScroll={handleScroll}
         aria-label="Horizontal SDG slider"
       >
-        {sdgItems.map((sdg, index) => (
-          <div
-            key={`${sdg.number}-${sdg.title}`}
-            style={{
-              ...styles.sdgBox,
-              "--sdg-expanded-color": sdg.color || "#e5243b",
-              ...(sdg.bgImage ? { background: `url('${sdg.bgImage}') center / cover` } : {}),
-              ...(isMobile ? styles.sdgBoxMobile : {}),
-              ...(sdg.image ? styles.sdgBoxWithImage : {}),
-              ...(hoveredSdg === index ? styles.sdgBoxHover : {}),
-              ...(expandedImage === index ? styles.sdgBoxImageExpanded : {}),
-            }}
-            onMouseEnter={() => setHoveredSdg(index)}
-            onMouseLeave={() => setHoveredSdg(null)}
-          >
-            {sdg.title && (
-              <h3 style={{ ...styles.sdgTitle, ...(isMobile ? styles.sdgTitleMobile : {}) }}>{sdg.title}</h3>
-            )}
-            {sdg.text && (
-              <p style={{ ...styles.sdgText, ...(isMobile ? styles.sdgTextMobile : {}) }}>{sdg.text}</p>
-            )}
-            {sdg.image && (
-              <img
-                src={sdg.image}
-                alt=""
-                aria-hidden="true"
-                style={{
-                  ...styles.sdgCardImage,
-                  ...(isMobile ? styles.sdgCardImageMobile : {}),
-                  ...(expandedImage === index ? styles.sdgCardImageExpanded : {}),
-                }}
-                onMouseEnter={() => setExpandedImage(index)}
-                onMouseLeave={() => setExpandedImage(null)}
-              />
-            )}
-            {expandedImage === index && (
-              <span style={styles.expandedNumber}>{sdg.number}</span>
-            )}
-            {expandedImage === index && sdg.expandedContent && (
-              <div style={styles.expandedContent}>
-                <h3 style={styles.expandedTitle}>{sdg.expandedTitle}</h3>
-                <div style={styles.expandedLine} />
-                {sdg.expandedContent.map((item) => (
-                  <div key={item.heading} style={styles.expandedBlock}>
-                    <p style={styles.expandedHeading}>{item.heading}</p>
-                    <p style={styles.expandedText}>{item.text}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+        {sdgItems.map((sdg, index) => {
+          const isActive = activeSdg === index;
+          return (
+            <button
+              type="button"
+              key={sdg.number}
+              className={`sdg-card${isActive ? " is-active" : ""}`}
+              style={{
+                "--sdg-color": sdg.color || "#e5243b",
+                backgroundImage: sdg.bgImage ? `url('${sdg.bgImage}')` : undefined,
+              }}
+              aria-expanded={isActive}
+              aria-label={`Goal ${sdg.number}: ${sdg.expandedTitle}`}
+              onClick={canHover ? undefined : () => setActiveSdg(isActive ? null : index)}
+              onMouseEnter={canHover ? () => setActiveSdg(index) : undefined}
+              onMouseLeave={canHover ? () => setActiveSdg(null) : undefined}
+              onFocus={(e) => isKeyboardFocus(e.currentTarget) && setActiveSdg(index)}
+              onBlur={() => setActiveSdg((cur) => (cur === index ? null : cur))}
+            >
+              <span className="sdg-card__scrim" aria-hidden="true" />
+              <span className="sdg-card__fill" aria-hidden="true" />
+              <span className="sdg-card__accent" aria-hidden="true" />
+
+              <span className="sdg-card__rest">
+                <span className="sdg-card__tag">Goal {sdg.number}</span>
+                <span className="sdg-card__foot">
+                  {sdg.image && (
+                    <img className="sdg-card__icon" src={sdg.image} alt="" aria-hidden="true" />
+                  )}
+                  <span className="sdg-card__name">{sdg.expandedTitle}</span>
+                  <span className="sdg-card__cue">
+                    Targets &amp; alignment
+                    <span className="sdg-card__arrow" aria-hidden="true">→</span>
+                  </span>
+                </span>
+              </span>
+
+              <span className="sdg-card__detail">
+                <span className="sdg-card__ghost" aria-hidden="true">{sdg.number}</span>
+                <span className="sdg-card__tag">Goal {sdg.number}</span>
+                <span className="sdg-card__detailTitle">{sdg.expandedTitle}</span>
+                <span className="sdg-card__rule" aria-hidden="true" />
+                <span className="sdg-card__blocks hide-scroll">
+                  {sdg.expandedContent.map((item, i) => (
+                    <span
+                      key={item.heading}
+                      className="sdg-card__block"
+                      style={{ "--d": `${0.08 + i * 0.06}s` }}
+                    >
+                      <span className="sdg-card__blockHead">{item.heading}</span>
+                      <span className="sdg-card__blockText">{item.text}</span>
+                    </span>
+                  ))}
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <div style={styles.indicatorRow} aria-hidden="true">
@@ -377,41 +640,12 @@ function LearnMore({ setActiveNav }) {
             Problem <span style={styles.accent}>Addressed</span>
           </h2>
           <div style={styles.titleUnderline} />
-          <p style={{ ...styles.bodyMobile, marginBottom: '24px', padding: '0 16px', maxWidth: '100%' }}>
-            Dive deeper into our platform's capabilities and discover how we are
-            revolutionizing agriculture across the Philippines through sustainable practices.
+          <p style={{ ...styles.bodyMobile, marginBottom: '20px', padding: '0 16px', maxWidth: '100%' }}>
+            Four decades of policy and market shifts eroded Philippine food
+            self-sufficiency. Tap a year to reveal how the dependency was built.
           </p>
 
-          <div style={styles.circleColMobile}>
-            <div style={styles.timelineItemMobile}>
-              <div className="inner-blur-glass" style={styles.circleMobile}><span>1980</span></div>
-              <div style={styles.timelineTextMobile}>
-                <h3 style={styles.timelineHeadingMobile}>SHIFT FROM SELF-SUFFICIENCY TO IMPORT DEPENDENCY</h3>
-                <p style={styles.timelineBodyMobile}>The Peso devaluation (1980s Debt Crisis) made imported inputs expensive, immediately followed by WTO liberalization (1995). This killed local farmer profitability and formally cemented the reliance on cheap rice imports.</p>
-              </div>
-            </div>
-            <div style={styles.timelineItemMobile}>
-              <div className="inner-blur-glass" style={styles.circleMobile}><span>2000</span></div>
-              <div style={styles.timelineTextMobile}>
-                <h3 style={styles.timelineHeadingMobile}>WTO ACCESSION & TRADE LIBERALIZATION</h3>
-                <p style={styles.timelineBodyMobile}>Cheap imports flooded the market, making local crops unprofitable. Policy formally shifted to Import-Based Security, severely reducing domestic food sufficiency.</p>
-              </div>
-            </div>
-            <div style={styles.timelineItemMobile}>
-              <div className="inner-blur-glass" style={styles.circleMobile}><span>2010</span></div>
-              <div style={styles.timelineTextMobile}>
-                <h3 style={styles.timelineHeadingMobile}>GLOBAL PRICE SHOCKS & RAPID URBANIZATION</h3>
-                <p style={styles.timelineBodyMobile}>Import dependency caused high USD rates to translate to inaccessible domestic food prices. Rapid conversion of farmland further reduced productive capacity, heightening scarcity in urban areas.</p>
-              </div>
-            </div>
-            <div style={styles.timelineItemMobile}>
-              <div className="inner-blur-glass" style={styles.circleMobile}><span>2020</span></div>
-              <div style={styles.timelineTextMobile}>
-                <h3 style={styles.timelineHeadingMobile}>PANDEMIC & SUPPLY CHAIN FRAGILITY</h3>
-                <p style={styles.timelineBodyMobile}>Global supply shocks demonstrated the inability to sustain the population without external aid. Chronic high food inflation coupled with low employment made food fundamentally unaffordable and inaccessible for many Filipinos.</p>
-              </div>
-            </div>
-          </div>
+          <ProblemTimeline isMobile />
         </div>
       )}
     </div>
@@ -524,189 +758,17 @@ const styles = {
     scrollSnapType: "x mandatory",
     scrollPadding: "0 12px",
     WebkitOverflowScrolling: "touch",
-    padding: "10px 12px 16px",
+    padding: "18px 12px 26px",
     marginTop: "2px",
     overscrollBehaviorX: "contain",
   },
   sdgSliderMobile: {
     alignSelf: "center",
-    width: "min(100%, 300px)",
+    width: "min(100%, 314px)",
     maxWidth: "100%",
     gap: "18px",
-    padding: "10px 10px 16px",
-    scrollPadding: "0 10px",
-  },
-  sdgBox: {
-    width: "calc((100% - 68px) / 3)",
-    flex: "0 0 calc((100% - 68px) / 3)",
-    minWidth: "240px",
-    minHeight: "300px",
-    borderRadius: "16px",
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
-    border: "1px solid rgba(0,0,0,0.05)",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: "8px",
-    padding: "22px",
-    scrollSnapAlign: "start",
-    scrollSnapStop: "always",
-    backdropFilter: "blur(18px) saturate(170%)",
-    WebkitBackdropFilter: "blur(18px) saturate(170%)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
-    cursor: "default",
-    textAlign: "left",
-    overflow: "hidden",
-    position: "relative",
-    transformOrigin: "center center",
-    willChange: "transform",
-    transition: "transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease",
-  },
-  sdgBoxWithImage: {
-    paddingBottom: "104px",
-  },
-  sdgBoxMobile: {
-    width: "280px",
-    flex: "0 0 280px",
-    minWidth: "280px",
-    minHeight: "320px",
-    padding: "20px",
-  },
-  sdgBoxHover: {
-    transform: "scale(1.018)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 32px rgba(0,0,0,0.05)",
-    zIndex: 2,
-  },
-  sdgBoxImageExpanded: {
-    background: "var(--sdg-expanded-color)",
-    borderColor: "transparent",
-    backdropFilter: "none",
-    WebkitBackdropFilter: "none",
-    boxShadow: "none",
-  },
-  sdgTitle: {
-    fontSize: "18px",
-    fontWeight: 700,
-    color: "#000",
-    margin: 0,
-    lineHeight: 1.2,
-    letterSpacing: "-0.2px",
-    maxWidth: "100%",
-    textAlign: "left",
-  },
-  sdgTitleMobile: {
-    fontSize: "16px",
-    maxWidth: "100%",
-  },
-  sdgText: {
-    fontSize: "14px",
-    color: "rgba(0, 0, 0, 0.8)",
-    lineHeight: 1.7,
-    margin: 0,
-    maxWidth: "100%",
-    textAlign: "left",
-  },
-  sdgTextMobile: {
-    fontSize: "12px",
-    lineHeight: 1.5,
-  },
-  sdgCardImage: {
-    position: "absolute",
-    left: "18px",
-    bottom: "16px",
-    width: "130px",
-    height: "130px",
-    objectFit: "cover",
-    borderRadius: "24px",
-    padding: 0,
-    background: "transparent",
-    border: "none",
-    boxShadow: "none",
-    cursor: "default",
-    userSelect: "none",
-    zIndex: 2,
-    transition: "all 0.32s cubic-bezier(.22,1,.36,1)",
-  },
-  sdgCardImageMobile: {
-    left: "16px",
-    bottom: "14px",
-    width: "112px",
-    height: "112px",
-    borderRadius: "22px",
-  },
-  sdgCardImageExpanded: {
-    left: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
-    padding: 0,
-    borderRadius: "16px",
-    objectFit: "cover",
-    opacity: 0,
-    background: "transparent",
-    border: "none",
-    boxShadow: "none",
-    cursor: "default",
-    zIndex: 5,
-  },
-  expandedNumber: {
-    position: "absolute",
-    top: "16px",
-    right: "18px",
-    zIndex: 6,
-    color: "rgba(255,255,255,0.22)",
-    fontSize: "clamp(42px, 5vw, 60px)", // Made the font size smaller for website version
-    fontWeight: 800,
-    lineHeight: 0.9,
-    letterSpacing: 0,
-    pointerEvents: "none",
-  },
-  expandedContent: {
-    position: "absolute", // Keep absolute positioning
-    inset: "14px", // Reduced inset for more internal space
-    zIndex: 6,
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px", // Reduced gap for tighter spacing
-    color: "#fff",
-    textAlign: "left",
-    pointerEvents: "none",
-  },
-  expandedTitle: {
-    margin: 0,
-    fontSize: "clamp(16px, 1.8vw, 22px)", // Slightly reduced font size
-    fontWeight: 800,
-    lineHeight: 1,
-    letterSpacing: 0,
-  },
-  expandedLine: {
-    width: "58px",
-    height: "2px",
-    margin: "2px 0", // Reduced vertical margin
-    borderRadius: "999px",
-    background: "#ffffff",
-    boxShadow: "0 0 8px rgba(255,255,255,0.3)",
-  },
-  expandedBlock: {
-    display: "flex",
-    flexDirection: "column", // Keep column direction
-    gap: "0px", // Reduced gap for tighter spacing
-  },
-  expandedHeading: {
-    margin: 0,
-    fontSize: "11px",
-    fontWeight: 800,
-    lineHeight: 1.2,
-    textTransform: "uppercase",
-    letterSpacing: "0.3px",
-  },
-  expandedText: {
-    margin: 0,
-    fontSize: "clamp(8px, 0.9vw, 10px)", // Slightly reduced font size
-    fontWeight: 500,
-    lineHeight: 1.35,
-    color: "rgba(255,255,255,0.9)",
+    padding: "16px 12px 24px",
+    scrollPadding: "0 12px",
   },
   indicatorRow: {
     display: "flex",
@@ -720,63 +782,15 @@ const styles = {
   dot: {
     width: "6px",
     height: "6px",
-    borderRadius: "50%",
-    background: "rgba(0, 0, 0, 0.2)",
-    flex: "0 0 6px",
-    transition: "background 0.25s ease, box-shadow 0.25s ease",
+    borderRadius: "999px",
+    background: "rgba(0, 0, 0, 0.18)",
+    flex: "0 0 auto",
+    transition: "width 0.3s cubic-bezier(.22,1,.36,1), background 0.25s ease, box-shadow 0.25s ease",
   },
   dotActive: {
-    background: "#4ade80",
-    boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
-  },
-  circleColMobile: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "24px",
-    padding: "0 16px",
-  },
-  circleMobile: {
-    width: "60px",
-    height: "60px",
-    borderRadius: "50%",
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
-    border: "1px solid rgba(0,0,0,0.05)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "14px",
-    fontWeight: 700,
-    color: "#000",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
-    flexShrink: 0,
-  },
-  timelineItemMobile: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "12px",
-    textAlign: "center",
-  },
-  timelineTextMobile: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  timelineHeadingMobile: {
-    fontSize: "14px",
-    fontWeight: 700,
-    color: "#000",
-    margin: 0,
-    letterSpacing: "-0.2px",
-    lineHeight: 1.4,
-  },
-  timelineBodyMobile: {
-    fontSize: "12px",
-    color: "rgba(0, 0, 0, 0.8)",
-    lineHeight: 1.5,
-    margin: 0,
-    textAlign: "center",
+    width: "22px",
+    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    boxShadow: "0 0 10px rgba(74, 222, 128, 0.6)",
   },
   exploreMoreBtn: {
     position: "relative",

@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import ProblemTimeline from "../components/ProblemTimeline";
 
 function ExploreMore({ setActiveNav }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
-    <div style={styles.wrap}>
+    <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
       <style>
         {`
           @keyframes shimmerLine {
@@ -25,7 +33,7 @@ function ExploreMore({ setActiveNav }) {
             onClick={() => setActiveNav && setActiveNav("Learn More")}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-          > 
+          >
             <span>←</span>
           </button>
         </div>
@@ -35,62 +43,18 @@ function ExploreMore({ setActiveNav }) {
         </div>
       </div>
 
-      <h1 style={styles.title}>
+      <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Problem <span style={styles.accent}>Addressed</span>
       </h1>
       <div style={styles.titleUnderline} />
 
-      <p style={styles.body}>
-        Dive deeper into our platform's capabilities and discover how we are
-        revolutionizing agriculture across the Philippines through sustainable practices.
+      <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+        Four decades of policy and market shifts eroded Philippine food
+        self-sufficiency. Tap a year to reveal how the dependency was built —
+        and why it matters.
       </p>
 
-      <div style={styles.circleCol} data-testid="timeline-container">
-        <div style={styles.timelineItem}>
-          <div className="inner-blur-glass glass-hover-zoom" style={styles.circle}><span>1980</span></div>
-          <div style={styles.timelineText}>
-            <h3 style={styles.timelineHeading}>
-              SHIFT FROM SELF-SUFFICIENCY TO IMPORT DEPENDENCY
-            </h3>
-            <p style={styles.timelineBody}>
-              The Peso devaluation (1980s Debt Crisis) made imported inputs expensive, immediately followed by WTO liberalization (1995). This killed local farmer profitability and formally cemented the reliance on cheap rice imports.
-            </p>
-          </div>
-        </div>
-        <div style={styles.timelineItem}>
-          <div className="inner-blur-glass glass-hover-zoom" style={styles.circle}><span>2000</span></div>
-          <div style={styles.timelineText}>
-            <h3 style={styles.timelineHeading}>
-              WTO ACCESSION & TRADE LIBERALIZATION
-            </h3>
-            <p style={styles.timelineBody}>
-              Cheap imports flooded the market, making local crops unprofitable. Policy formally shifted to Import-Based Security, severely reducing domestic food sufficiency.
-            </p>
-          </div>
-        </div>
-        <div style={styles.timelineItem}>
-          <div className="inner-blur-glass glass-hover-zoom" style={styles.circle}><span>2010</span></div>
-          <div style={styles.timelineText}>
-            <h3 style={styles.timelineHeading}>
-              GLOBAL PRICE SHOCKS & RAPID URBANIZATION
-            </h3>
-            <p style={styles.timelineBody}>
-              Import dependency caused high USD rates to translate to inaccessible domestic food prices. Rapid conversion of farmland further reduced productive capacity, heightening scarcity in urban areas.
-            </p>
-          </div>
-        </div>
-        <div style={styles.timelineItem}>
-          <div className="inner-blur-glass glass-hover-zoom" style={styles.circle}><span>2020</span></div>
-          <div style={styles.timelineText}>
-            <h3 style={styles.timelineHeading}>
-              PANDEMIC & SUPPLY CHAIN FRAGILITY
-            </h3>
-            <p style={styles.timelineBody}>
-              Global supply shocks demonstrated the inability to sustain the population without external aid. Chronic high food inflation coupled with low employment made food fundamentally unaffordable and inaccessible for many Filipinos.
-            </p>
-          </div>
-        </div>
-      </div>
+      <ProblemTimeline isMobile={isMobile} />
     </div>
   );
 }
@@ -106,6 +70,9 @@ const styles = {
     margin: "0 auto",
     animation: "fadeInUp 0.75s cubic-bezier(.22,1,.36,1) both",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+  },
+  wrapMobile: {
+    padding: "20px 12px 24px",
   },
   headerRow: {
     display: "flex",
@@ -153,6 +120,9 @@ const styles = {
     textShadow: "0 4px 12px rgba(0,0,0,0.1)",
     animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both",
   },
+  titleMobile: {
+    fontSize: "clamp(24px, 7vw, 34px)",
+  },
   titleUnderline: {
     width: "118px",
     height: "4px",
@@ -177,6 +147,11 @@ const styles = {
     maxWidth: "580px",
     marginBottom: "24px",
   },
+  bodyMobile: {
+    fontSize: "13px",
+    lineHeight: 1.6,
+    marginBottom: "18px",
+  },
   backBtn: {
     padding: "8px 16px",
     borderRadius: "999px",
@@ -193,58 +168,7 @@ const styles = {
   backBtnHov: {
     transform: "scale(1.035)",
   },
-  circleCol: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    alignSelf: "center",
-    gap: "24px",
-    marginTop: "20px",
-  },
-  circle: {
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
-    border: "1px solid rgba(0,0,0,0.05)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "16px",
-    fontWeight: 600,
-    color: "#000",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.05)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    flexShrink: 0,
-  },
-  timelineItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: "24px",
-    textAlign: "left",
-  },
-  timelineText: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    maxWidth: "500px",
-  },
-  timelineHeading: {
-    fontSize: "16px",
-    fontWeight: 700,
-    color: "#000",
-    margin: 0,
-    letterSpacing: "-0.2px",
-    lineHeight: 1.4,
-  },
-  timelineBody: {
-    fontSize: "14px",
-    color: "rgba(0, 0, 0, 0.8)",
-    lineHeight: 1.6,
-    margin: 0,
-    textAlign: "left",
-  },
+
 };
 
 export default ExploreMore;
