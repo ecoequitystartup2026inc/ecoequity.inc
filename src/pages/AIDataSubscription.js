@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { FaCheckCircle, FaStar, FaRobot, FaTimes, FaCreditCard, FaQrcode, FaChevronDown } from "react-icons/fa";
 import { Check, X, Sparkles, Smartphone, PartyPopper, Handshake } from "lucide-react";
 import { initialSubscriptionPlans } from "../subscriptionPlans";
+import { MODAL_LAYER, modalOverlay } from "../styles/modal";
 
 function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSubscriber, loggedInUser, loggedInEmail, plans = initialSubscriptionPlans }) {
   // Pricing comes from the Admin Portal → Subscriptions tab; plans the admin marks
@@ -262,9 +263,9 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
         .ring-spinner {
             width: 18px;
             height: 18px;
-            border: 2px solid rgba(6, 32, 24, 0.3);
+            border: 2px solid rgba(var(--eco-c19-rgb), 0.3);
             border-radius: 50%;
-            border-top-color: #062018;
+            border-top-color: var(--eco-c19);
             animation: spinFade 1s linear infinite;
         }
         @keyframes checkmarkPop {
@@ -277,9 +278,9 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
             100% { stroke-dasharray: 50; stroke-dashoffset: 0; }
         }
         @keyframes pulseBadge {
-            0% { transform: translateX(-50%) scale(1); box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); }
-            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 6px 16px rgba(234, 179, 8, 0.5); }
-            100% { transform: translateX(-50%) scale(1); box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); }
+            0% { transform: translateX(-50%) scale(1); box-shadow: 0 4px 12px rgba(var(--eco-c7-rgb), 0.3); }
+            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 6px 16px rgba(var(--eco-c7-rgb), 0.5); }
+            100% { transform: translateX(-50%) scale(1); box-shadow: 0 4px 12px rgba(var(--eco-c7-rgb), 0.3); }
         }
       `}</style>
       <div style={styles.headerRow}>
@@ -307,7 +308,6 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Unlock AI-Powered <span style={styles.accent}>Agriculture</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Scale your farming with predictive diagnostics, localized weather alerts, and actionable crop analytics. Choose the plan that fits your growth.
@@ -332,14 +332,14 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
         <>
       {/* Toggle switch for Monthly / Yearly */}
       <div style={styles.toggleContainer}>
-        <span style={{ ...styles.toggleLabel, fontWeight: !isYearly ? 700 : 500, color: !isYearly ? "#15803d" : "rgba(0,0,0,0.6)" }}>Monthly</span>
+        <span style={{ ...styles.toggleLabel, fontWeight: !isYearly ? 700 : 500, color: !isYearly ? "var(--eco-c13)" : "rgba(0,0,0,0.6)" }}>Monthly</span>
         <div 
           style={styles.toggleTrack}
           onClick={() => setIsYearly(!isYearly)}
         >
           <div style={{ ...styles.toggleThumb, transform: isYearly ? "translateX(24px)" : "translateX(0)" }} />
         </div>
-        <span style={{ ...styles.toggleLabel, fontWeight: isYearly ? 700 : 500, color: isYearly ? "#15803d" : "rgba(0,0,0,0.6)" }}>
+        <span style={{ ...styles.toggleLabel, fontWeight: isYearly ? 700 : 500, color: isYearly ? "var(--eco-c13)" : "rgba(0,0,0,0.6)" }}>
           Yearly <span style={styles.discountBadge}>Save 20%</span>
         </span>
       </div>
@@ -381,7 +381,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                     <button
                       disabled={isFree}
                       onClick={isFree ? undefined : () => handlePlanClick(plan)}
-                      style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: isFree ? "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))" : `linear-gradient(135deg, ${plan.accentColor}, ${plan.color})`, color: isFree ? "#062018" : "#ffffff", fontWeight: 800, fontSize: "14px", cursor: isFree ? "not-allowed" : "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.48)", opacity: isFree ? 0.7 : 1 }}
+                      style={{ width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: isFree ? "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))" : `linear-gradient(135deg, ${plan.accentColor}, ${plan.color})`, color: isFree ? "var(--eco-c19)" : "#ffffff", fontWeight: 800, fontSize: "14px", cursor: isFree ? "not-allowed" : "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.2), inset 0 1px 0 rgba(255,255,255,0.48)", opacity: isFree ? 0.7 : 1 }}
                       onMouseEnter={(e) => { if (!isFree) e.currentTarget.style.transform = 'scale(1.035)'; }}
                       onMouseLeave={(e) => { if (!isFree) e.currentTarget.style.transform = 'scale(1)'; }}
                     >
@@ -443,7 +443,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                      <td style={styles.td}>{sub.nextBilling}</td>
                      <td style={styles.td}>
                        <button onClick={() => window.alert(`Upgrade options for the ${sub.plan} plan are on the way.`)} style={styles.actionBtn}>Upgrade</button>
-                       <button onClick={() => { if (window.confirm(`Cancel the ${sub.plan} subscription?`)) window.alert("Subscription cancelled."); }} style={{...styles.actionBtn, color: '#ef4444'}}>Cancel</button>
+                       <button onClick={() => { if (window.confirm(`Cancel the ${sub.plan} subscription?`)) window.alert("Subscription cancelled."); }} style={{...styles.actionBtn, color: 'var(--eco-c13)'}}>Cancel</button>
                      </td>
                    </tr>
                  ))}
@@ -482,7 +482,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                              newReqs[i].status = 'Approved';
                              setEnterpriseRequests(newReqs);
                            }}>Approve</button>
-                           <button style={{...styles.actionBtn, color: '#ef4444'}} onClick={() => {
+                           <button style={{...styles.actionBtn, color: 'var(--eco-c13)'}} onClick={() => {
                              const newReqs = [...enterpriseRequests];
                              newReqs[i].status = 'Rejected';
                              setEnterpriseRequests(newReqs);
@@ -501,7 +501,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
       )}
 
 {isModalOpen && selectedPlanDetails && ReactDOM.createPortal(
-        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease", boxSizing: "border-box" }} onClick={() => setIsModalOpen(false)}>
+        <div style={modalOverlay(MODAL_LAYER.nested)} onClick={() => setIsModalOpen(false)}>
           <div style={{ background: "#ffffff", borderRadius: "24px", padding: isMobile ? "24px" : "40px", maxWidth: "900px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.15)", animation: "scaleUp 0.3s ease-out", display: "flex", flexDirection: "column", boxSizing: "border-box" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setIsModalOpen(false)} style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}>&times;</button>
             
@@ -512,7 +512,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                   <h3 style={{ margin: "0 0 16px", fontSize: "18px", fontWeight: 800, color: "#000" }}>Order Summary</h3>
                   <div style={{ background: "#f8fafc", borderRadius: "16px", padding: "24px", border: "1px solid #e2e8f0" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-                      <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, #eab308, #ca8a04)" : "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}><Sparkles size="1em" color="#eab308" /></div>
+                      <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))" : "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}><Sparkles size="1em" color="var(--eco-c7)" /></div>
                       <div>
                         <div style={{ fontSize: "16px", fontWeight: 800, color: "#0f172a" }}>{selectedPlanDetails.name} Plan</div>
                         <div style={{ fontSize: "13px", color: "#64748b", fontWeight: 500 }}>{isYearly ? 'Yearly' : 'Monthly'} Billing</div>
@@ -524,13 +524,13 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                       <span style={{ fontWeight: 600, color: "#0f172a" }}>{isYearly ? selectedPlanDetails.priceYearly : selectedPlanDetails.priceMonthly}</span>
                     </div>
                     {isYearly && selectedPlanDetails.name !== 'Basic' && (
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "14px", color: "#16a34a" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "14px", color: "var(--eco-c13)" }}>
                         <span>Annual Discount</span>
                         <span style={{ fontWeight: 600 }}>Included</span>
                       </div>
                     )}
                     {discountAmount > 0 && (
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "14px", color: "#16a34a" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "14px", color: "var(--eco-c13)" }}>
                         <span>Promo Discount</span>
                         <span style={{ fontWeight: 600 }}>-₱{discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                       </div>
@@ -538,7 +538,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                     <div style={{ height: "1px", background: "#e2e8f0", margin: "20px 0" }}></div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: "15px", fontWeight: 700, color: "#000" }}>Total Due</span>
-                      <span style={{ fontSize: "24px", fontWeight: 800, color: "#15803d" }}>{calculateTotal()}</span>
+                      <span style={{ fontSize: "24px", fontWeight: 800, color: "var(--eco-c13)" }}>{calculateTotal()}</span>
                     </div>
                   </div>
                 </div>
@@ -548,15 +548,15 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Full Name</label>
-                      <input type="text" placeholder="Juan Dela Cruz" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('name') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('name')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('name'); if (!getError('name')) e.target.style.borderColor = "#e2e8f0"}} />
+                      <input type="text" placeholder="Juan Dela Cruz" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('name') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('name')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('name'); if (!getError('name')) e.target.style.borderColor = "#e2e8f0"}} />
                     </div>
                     <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Email Address</label>
-                      <input type="email" placeholder="juan@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('email') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('email')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('email'); if (!getError('email')) e.target.style.borderColor = "#e2e8f0"}} />
+                      <input type="email" placeholder="juan@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('email') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('email')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('email'); if (!getError('email')) e.target.style.borderColor = "#e2e8f0"}} />
                     </div>
                     <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Phone Number</label>
-                      <input type="tel" placeholder="0912 345 6789" required value={formData.phone} onChange={handlePhoneChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('phone') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('phone')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('phone'); if (!getError('phone')) e.target.style.borderColor = "#e2e8f0"}} />
+                      <input type="tel" placeholder="0912 345 6789" required value={formData.phone} onChange={handlePhoneChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('phone') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('phone')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('phone'); if (!getError('phone')) e.target.style.borderColor = "#e2e8f0"}} />
                     </div>
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Organization Type</label>
@@ -577,7 +577,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                           key={method} 
                           type="button" 
                           onClick={() => setFormData({...formData, paymentMethod: method, refNumber: "", cardName: "", cardNumber: "", cardExpiry: "", cardCvv: "" })}
-                          style={{ flex: 1, padding: "10px 8px", borderRadius: "8px", border: "none", background: formData.paymentMethod === method ? "#ffffff" : "transparent", color: formData.paymentMethod === method ? "#15803d" : "#64748b", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: formData.paymentMethod === method ? "0 2px 8px rgba(0,0,0,0.05)" : "none" }}>
+                          style={{ flex: 1, padding: "10px 8px", borderRadius: "8px", border: "none", background: formData.paymentMethod === method ? "#ffffff" : "transparent", color: formData.paymentMethod === method ? "var(--eco-c13)" : "#64748b", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", boxShadow: formData.paymentMethod === method ? "0 2px 8px rgba(0,0,0,0.05)" : "none" }}>
                           {method}
                         </button>
                       ))}
@@ -587,38 +587,38 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "fadeIn 0.3s ease" }}>
                         <div>
                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Cardholder Name</label>
-                          <input type="text" placeholder="Juan Dela Cruz" value={formData.cardName} onChange={e => setFormData({...formData, cardName: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardName') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardName')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardName'); if (!getError('cardName')) e.target.style.borderColor = "#e2e8f0"}} />
+                          <input type="text" placeholder="Juan Dela Cruz" value={formData.cardName} onChange={e => setFormData({...formData, cardName: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardName') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('cardName')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('cardName'); if (!getError('cardName')) e.target.style.borderColor = "#e2e8f0"}} />
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Card Number</label>
                           <div style={{ position: "relative" }}>
-                            <input type="text" placeholder="0000 0000 0000 0000" maxLength="19" value={formData.cardNumber} onChange={handleCardNumberChange} style={{ width: "100%", padding: "14px 16px", paddingRight: "40px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardNumber') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardNumber')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardNumber'); if (!getError('cardNumber')) e.target.style.borderColor = "#e2e8f0"}} />
+                            <input type="text" placeholder="0000 0000 0000 0000" maxLength="19" value={formData.cardNumber} onChange={handleCardNumberChange} style={{ width: "100%", padding: "14px 16px", paddingRight: "40px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardNumber') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('cardNumber')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('cardNumber'); if (!getError('cardNumber')) e.target.style.borderColor = "#e2e8f0"}} />
                             <svg style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                           </div>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                           <div>
                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Expiry Date</label>
-                            <input type="text" placeholder="MM/YY" maxLength="5" value={formData.cardExpiry} onChange={handleCardExpiryChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardExpiry') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardExpiry')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardExpiry'); if (!getError('cardExpiry')) e.target.style.borderColor = "#e2e8f0"}} />
+                            <input type="text" placeholder="MM/YY" maxLength="5" value={formData.cardExpiry} onChange={handleCardExpiryChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardExpiry') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('cardExpiry')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('cardExpiry'); if (!getError('cardExpiry')) e.target.style.borderColor = "#e2e8f0"}} />
                           </div>
                           <div>
                             <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>CVC</label>
-                            <input type="text" placeholder="123" maxLength="4" value={formData.cardCvv} onChange={handleCardCvvChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardCvv') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('cardCvv')) e.target.style.borderColor = "#16a34a"}} onBlur={e => {handleBlur('cardCvv'); if (!getError('cardCvv')) e.target.style.borderColor = "#e2e8f0"}} />
+                            <input type="text" placeholder="123" maxLength="4" value={formData.cardCvv} onChange={handleCardCvvChange} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('cardCvv') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('cardCvv')) e.target.style.borderColor = "var(--eco-c9)"}} onBlur={e => {handleBlur('cardCvv'); if (!getError('cardCvv')) e.target.style.borderColor = "#e2e8f0"}} />
                           </div>
                         </div>
                       </div>
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "fadeIn 0.3s ease" }}>
-                        <div style={{ padding: "16px", background: formData.paymentMethod === 'GCash' ? "#eff6ff" : "#ecfdf5", borderRadius: "12px", border: formData.paymentMethod === 'GCash' ? "1px solid #bfdbfe" : "1px solid #a7f3d0", display: "flex", alignItems: "center", gap: "16px", marginBottom: "4px" }}>
+                        <div style={{ padding: "16px", background: formData.paymentMethod === 'GCash' ? "var(--eco-c0)" : "var(--eco-c1)", borderRadius: "12px", border: formData.paymentMethod === 'GCash' ? "1px solid var(--eco-c5)" : "1px solid var(--eco-c4)", display: "flex", alignItems: "center", gap: "16px", marginBottom: "4px" }}>
                           <div style={{ fontSize: "28px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}><Smartphone size="1em" /></div>
                           <div>
-                            <div style={{ fontSize: "14px", fontWeight: 800, color: formData.paymentMethod === 'GCash' ? "#1d4ed8" : "#047857" }}>Pay with {formData.paymentMethod}</div>
-                            <div style={{ fontSize: "12px", color: formData.paymentMethod === 'GCash' ? "#3b82f6" : "#059669", fontWeight: 500, marginTop: "2px" }}>Scan QR code or use the app to pay.</div>
+                            <div style={{ fontSize: "14px", fontWeight: 800, color: formData.paymentMethod === 'GCash' ? "var(--eco-c13)" : "var(--eco-c13)" }}>Pay with {formData.paymentMethod}</div>
+                            <div style={{ fontSize: "12px", color: formData.paymentMethod === 'GCash' ? "var(--eco-c13)" : "var(--eco-c13)", fontWeight: 500, marginTop: "2px" }}>Scan QR code or use the app to pay.</div>
                           </div>
                         </div>
                         <div>
                           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Transaction Ref Number</label>
-                          <input type="text" placeholder="e.g. 1000293812" value={formData.refNumber} onChange={e => setFormData({...formData, refNumber: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('refNumber') ? {borderColor: '#ef4444', background: 'rgba(239, 68, 68, 0.05)'} : {}) }} onFocus={e => {if (!getError('refNumber')) e.target.style.borderColor = formData.paymentMethod === 'GCash' ? "#3b82f6" : "#10b981"}} onBlur={e => {handleBlur('refNumber'); if (!getError('refNumber')) e.target.style.borderColor = "#e2e8f0"}} />
+                          <input type="text" placeholder="e.g. 1000293812" value={formData.refNumber} onChange={e => setFormData({...formData, refNumber: e.target.value})} style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)", ...(getError('refNumber') ? {borderColor: 'var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)'} : {}) }} onFocus={e => {if (!getError('refNumber')) e.target.style.borderColor = formData.paymentMethod === 'GCash' ? "var(--eco-c7)" : "var(--eco-c8)"}} onBlur={e => {handleBlur('refNumber'); if (!getError('refNumber')) e.target.style.borderColor = "#e2e8f0"}} />
                         </div>
                         <button type="button" onClick={() => window.open(formData.paymentMethod === 'GCash' ? 'https://m.gcash.com' : 'https://maya.ph', '_blank')} style={{ padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.1)', color: '#000', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s ease', marginTop: '4px' }}>Open {formData.paymentMethod} App</button>
                       </div>
@@ -627,8 +627,8 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                     <div>
                       <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Promo Code (Optional)</label>
                       <div style={{ display: "flex", gap: "8px" }}>
-                        <input type="text" placeholder="Enter code" value={formData.promoCode} onChange={e => { setFormData({...formData, promoCode: e.target.value}); setPromoError(false); setPromoSuccess(false); }} style={{ flex: 1, padding: "14px 16px", borderRadius: "12px", border: promoError ? "1px solid #ef4444" : promoSuccess ? "1px solid #16a34a" : "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }} onFocus={e => e.target.style.borderColor = promoError ? "#ef4444" : "#16a34a"} onBlur={e => e.target.style.borderColor = promoError ? "#ef4444" : promoSuccess ? "#16a34a" : "#e2e8f0"} />
-                        <button type="button" onClick={handleApplyPromo} style={{ padding: "0 20px", borderRadius: "12px", background: promoError ? "#ef4444" : promoSuccess ? "#16a34a" : "#15803d", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
+                        <input type="text" placeholder="Enter code" value={formData.promoCode} onChange={e => { setFormData({...formData, promoCode: e.target.value}); setPromoError(false); setPromoSuccess(false); }} style={{ flex: 1, padding: "14px 16px", borderRadius: "12px", border: promoError ? "1px solid var(--eco-c7)" : promoSuccess ? "1px solid var(--eco-c9)" : "1px solid #e2e8f0", background: "#ffffff", fontSize: "14px", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }} onFocus={e => e.target.style.borderColor = promoError ? "var(--eco-c7)" : "var(--eco-c9)"} onBlur={e => e.target.style.borderColor = promoError ? "var(--eco-c7)" : promoSuccess ? "var(--eco-c9)" : "#e2e8f0"} />
+                        <button type="button" onClick={handleApplyPromo} style={{ padding: "0 20px", borderRadius: "12px", background: promoError ? "var(--eco-c7)" : promoSuccess ? "var(--eco-c9)" : "var(--eco-c11)", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
                           {promoSuccess ? "Applied" : "Apply"}
                         </button>
                       </div>
@@ -637,7 +637,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                 ) : (
                    <div style={{ padding: "16px", background: "#f1f5f9", borderRadius: "12px", textAlign: "center", color: "#475569", display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", justifyContent: "center", flex: 1 }}>
                      <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "8px" }}>
-                       {selectedPlanDetails.name === 'Basic' ? <PartyPopper size={28} color="#16a34a" /> : <Handshake size={28} color="#16a34a" />}
+                       {selectedPlanDetails.name === 'Basic' ? <PartyPopper size={28} color="var(--eco-c9)" /> : <Handshake size={28} color="var(--eco-c9)" />}
                      </div>
                      <div style={{ fontSize: "14px", fontWeight: 600 }}>
                        {selectedPlanDetails.name === 'Basic' ? 'No payment required for the Basic plan.' : 'Our sales team will contact you for custom Enterprise billing.'}
@@ -646,7 +646,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                 )}
 
                 {message && (
-                  <div style={{ padding: "12px", borderRadius: "12px", fontSize: "13px", fontWeight: 600, textAlign: "center", background: message.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: message.type === 'success' ? '#15803d' : '#b91c1c', border: `1px solid ${message.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`, marginTop: "auto" }}>
+                  <div style={{ padding: "12px", borderRadius: "12px", fontSize: "13px", fontWeight: 600, textAlign: "center", background: message.type === 'success' ? 'rgba(var(--eco-c7-rgb), 0.1)' : 'rgba(var(--eco-c7-rgb), 0.1)', color: message.type === 'success' ? 'var(--eco-c13)' : 'var(--eco-c13)', border: `1px solid ${message.type === 'success' ? 'rgba(var(--eco-c7-rgb), 0.2)' : 'rgba(var(--eco-c7-rgb), 0.2)'}`, marginTop: "auto" }}>
                     {message.text}
                   </div>
                 )}
@@ -654,9 +654,9 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
                 <button 
                   onClick={handleSubscribe}
                   disabled={isLoading}
-                  style={{ width: "100%", padding: "16px", marginTop: message ? "8px" : "auto", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#ffffff", fontWeight: 800, fontSize: "15px", cursor: isLoading ? "not-allowed" : "pointer", boxShadow: "0 8px 24px rgba(22, 163, 74, 0.25)", transition: "all 0.2s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", opacity: isLoading ? 0.8 : 1 }}
-                  onMouseEnter={(e) => { if(!isLoading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(22, 163, 74, 0.35)'; } }}
-                  onMouseLeave={(e) => { if(!isLoading) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(22, 163, 74, 0.25)'; } }}
+                  style={{ width: "100%", padding: "16px", marginTop: message ? "8px" : "auto", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", color: "#ffffff", fontWeight: 800, fontSize: "15px", cursor: isLoading ? "not-allowed" : "pointer", boxShadow: "0 8px 24px rgba(var(--eco-c9-rgb), 0.25)", transition: "all 0.2s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", opacity: isLoading ? 0.8 : 1 }}
+                  onMouseEnter={(e) => { if(!isLoading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(var(--eco-c9-rgb), 0.35)'; } }}
+                  onMouseLeave={(e) => { if(!isLoading) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(var(--eco-c9-rgb), 0.25)'; } }}
                 >
                   {isLoading ? (
                     <>
@@ -683,9 +683,9 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
       )}
 
       {showPaymentSuccess && selectedPlanDetails && ReactDOM.createPortal(
-        <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease" }}>
+        <div style={modalOverlay(MODAL_LAYER.nestedConfirm)}>
           <div style={{ background: "#ffffff", borderRadius: "24px", padding: isMobile ? "32px 24px" : "40px", maxWidth: "380px", width: "100%", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.15)", animation: "scaleUp 0.3s ease-out", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, #0ea5e9, #0284c7)" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, #eab308, #ca8a04)" : "linear-gradient(135deg, #16a34a, #15803d)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: selectedPlanDetails.name === 'Enterprise' ? "0 8px 16px rgba(14, 165, 233, 0.3)" : selectedPlanDetails.name === 'Pro' ? "0 8px 16px rgba(234, 179, 8, 0.3)" : "0 8px 16px rgba(22, 163, 74, 0.3)", animation: "checkmarkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards" }}>
+            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: selectedPlanDetails.name === 'Enterprise' ? "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))" : selectedPlanDetails.name === 'Pro' ? "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))" : "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: selectedPlanDetails.name === 'Enterprise' ? "0 8px 16px rgba(var(--eco-c7-rgb), 0.3)" : selectedPlanDetails.name === 'Pro' ? "0 8px 16px rgba(var(--eco-c7-rgb), 0.3)" : "0 8px 16px rgba(var(--eco-c9-rgb), 0.3)", animation: "checkmarkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards" }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "successDraw 0.6s ease-out 0.2s both" }}>
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
@@ -696,13 +696,13 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
             <p style={{ margin: "0 0 32px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>
               {selectedPlanDetails.name === 'Enterprise' 
                 ? "Our sales team will contact you shortly to discuss your custom plan."
-                : <>You are now successfully subscribed to the <strong style={{ color: selectedPlanDetails.name === 'Pro' ? "#ca8a04" : "#15803d" }}>{selectedPlanDetails.name}</strong> plan.</>}
+                : <>You are now successfully subscribed to the <strong style={{ color: selectedPlanDetails.name === 'Pro' ? "var(--eco-c13)" : "var(--eco-c13)" }}>{selectedPlanDetails.name}</strong> plan.</>}
             </p>
             <button 
               onClick={() => setShowPaymentSuccess(false)}
-              style={{ width: "100%", padding: "14px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
+              style={{ width: "100%", padding: "14px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
             >
               Continue
             </button>
@@ -718,7 +718,7 @@ function AIDataSubscription({ setActiveNav, isAdmin = false, promoCodes, onNewSu
 const FieldWrap = ({ error, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1, width: "100%", textAlign: "left" }}>
     {children}
-    {typeof error === 'string' && <span style={{ fontSize: "10px", fontWeight: 700, color: "#ef4444", marginLeft: "4px" }}>{error}</span>}
+    {typeof error === 'string' && <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--eco-c13)", marginLeft: "4px" }}>{error}</span>}
   </div>
 );
 
@@ -751,7 +751,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
           style={{ 
             transition: 'transform 0.3s ease', 
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0)',
-            color: '#15803d'
+            color: 'var(--eco-c13)'
           }} 
           size={12} 
         />
@@ -774,8 +774,8 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
               }}
               onMouseEnter={(e) => {
                 if (value !== opt) {
-                  e.currentTarget.style.background = 'rgba(34, 197, 94, 0.08)';
-                  e.currentTarget.style.color = '#15803d';
+                  e.currentTarget.style.background = 'rgba(var(--eco-c7-rgb), 0.08)';
+                  e.currentTarget.style.color = 'var(--eco-c11)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -786,7 +786,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
               }}
             >
               <span>{opt}</span>
-              {value === opt && <FaCheckCircle size={14} style={{ color: '#16a34a' }} />}
+              {value === opt && <FaCheckCircle size={14} style={{ color: 'var(--eco-c13)' }} />}
             </div>
           ))}
         </div>
@@ -812,27 +812,17 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
-  badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block" },
+  badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "var(--eco-c6)", boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)", display: "inline-block" },
   title: { fontSize: "clamp(32px, 4vw, 46px)", fontWeight: 300, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)" },
   titleMobile: { fontSize: "clamp(24px, 7vw, 32px)" },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -841,18 +831,18 @@ const styles = {
   bodyMobile: { marginBottom: "24px" },
   toggleContainer: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "40px", padding: "10px 20px", borderRadius: "999px", background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)" },
   toggleLabel: { fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", transition: "color 0.2s ease, font-weight 0.2s ease" },
-  toggleTrack: { width: "48px", height: "24px", background: "linear-gradient(135deg, #86efac, #4ade80)", borderRadius: "999px", position: "relative", cursor: "pointer", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)", border: "1px solid rgba(21,128,61,0.2)" },
+  toggleTrack: { width: "48px", height: "24px", background: "linear-gradient(135deg, var(--eco-c5), var(--eco-c6))", borderRadius: "999px", position: "relative", cursor: "pointer", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)", border: "1px solid rgba(var(--eco-c11-rgb), 0.2)" },
   toggleThumb: { width: "20px", height: "20px", background: "#fff", borderRadius: "50%", position: "absolute", top: "1px", left: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", transition: "transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)" },
-  discountBadge: { background: "rgba(22, 163, 74, 0.1)", color: "#15803d", fontSize: "10px", padding: "2px 8px", borderRadius: "999px", fontWeight: 700, border: "1px solid rgba(22, 163, 74, 0.2)" },
+  discountBadge: { background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", fontSize: "10px", padding: "2px 8px", borderRadius: "999px", fontWeight: 700, border: "1px solid rgba(var(--eco-c9-rgb), 0.2)" },
   tabContainer: { display: "flex", gap: "10px", justifyContent: "center", marginBottom: "30px", flexWrap: "wrap" },
   tabBtn: { padding: "10px 20px", borderRadius: "999px", background: "rgba(255,255,255,0.4)", border: "1px solid rgba(0,0,0,0.05)", fontWeight: 600, cursor: "pointer", transition: "all 0.3s ease", fontSize: "14px" },
-  activeTabBtn: { background: "linear-gradient(135deg, rgba(134,239,172,0.9), rgba(125,211,252,0.9))", color: "#064e3b" },
+  activeTabBtn: { background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.9), rgba(var(--eco-c5-rgb), 0.9))", color: "var(--eco-c15)" },
   panelContainer: { width: "100%", background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))", borderRadius: "20px", padding: "30px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)", border: "1px solid rgba(255,255,255,0.5)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", boxSizing: "border-box" },
   panelTitle: { fontSize: "24px", fontWeight: 800, marginBottom: "20px", color: "#000" },
   comparisonTitle: { fontSize: "28px", fontWeight: 800, margin: "40px 0 20px", color: "#000" },
   tableWrapper: { width: "100%", overflowX: "auto", borderRadius: "16px", background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.05)" },
   table: { width: "100%", borderCollapse: "collapse", textAlign: "left" },
-  th: { padding: "16px", borderBottom: "2px solid rgba(0,0,0,0.1)", color: "#15803d", fontWeight: 700, fontSize: "15px", whiteSpace: "nowrap" },
+  th: { padding: "16px", borderBottom: "2px solid rgba(0,0,0,0.1)", color: "var(--eco-c13)", fontWeight: 700, fontSize: "15px", whiteSpace: "nowrap" },
   td: { padding: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.8)", fontSize: "14px", whiteSpace: "nowrap" },
   tr: { transition: "background 0.2s ease" },
   actionBtn: { padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "12px", fontWeight: 600, cursor: "pointer", marginRight: "8px" },
@@ -864,7 +854,7 @@ const styles = {
     width: "100%",
     padding: "14px 16px",
     borderRadius: "12px",
-    border: "1px solid rgba(34, 197, 94, 0.3)",
+    border: "1px solid rgba(var(--eco-c7-rgb), 0.3)",
     background: "rgba(255, 255, 255, 0.7)",
     fontSize: "14px",
     fontWeight: 500,
@@ -876,8 +866,8 @@ const styles = {
     textAlign: "left"
   },
   customDropdownHeaderActive: {
-    borderColor: "#16a34a",
-    boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
+    borderColor: "var(--eco-c9)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
     background: "rgba(255, 255, 255, 0.95)",
   },
   customDropdownList: {
@@ -888,7 +878,7 @@ const styles = {
     zIndex: 1000,
     background: "#ffffff",
     borderRadius: "12px",
-    border: "1px solid rgba(34, 197, 94, 0.2)",
+    border: "1px solid rgba(var(--eco-c7-rgb), 0.2)",
     padding: "8px",
     boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
     maxHeight: "200px",
@@ -907,8 +897,8 @@ const styles = {
     transition: "all 0.2s ease",
   },
   customDropdownItemActive: {
-    background: "rgba(34, 197, 94, 0.12)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c7-rgb), 0.12)",
+    color: "var(--eco-c13)",
     fontWeight: 700,
   },
 };

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import App from "./App";
 
 jest.mock("./supabaseClient", () => {
@@ -24,13 +24,21 @@ jest.mock("./supabaseClient", () => {
 jest.mock("./data/auth", () => ({
   signIn: jest.fn(),
   signUp: jest.fn(),
-  signInWithGoogle: jest.fn(),
   signOut: jest.fn(),
   resendConfirmation: jest.fn(),
   onAuthChange: jest.fn(),
   getCurrentUser: jest.fn(),
   getUserFromSession: jest.fn(),
   consumeAuthErrorFromUrl: jest.fn(),
+  // The password-reset helpers App.js imports. Without them the module mock is
+  // missing exports the component calls at mount, and every test here dies on
+  // "arrivedFromRecoveryLink is not a function" before rendering anything.
+  arrivedFromRecoveryLink: jest.fn(() => false),
+  requestPasswordReset: jest.fn(),
+  updatePassword: jest.fn(),
+  verifyPassword: jest.fn(),
+  passwordProblem: jest.fn(() => null),
+  PASSWORD_MIN_LENGTH: 8,
 }));
 
 beforeEach(() => {
@@ -47,11 +55,13 @@ beforeEach(() => {
 test("restored session leaves the auth screen so the nav menu bar is visible", async () => {
   render(<App />);
 
-  // applySession from the restored session should navigate off "Login",
-  // which unhides the navbar (hamburger toggle button).
+  // applySession from the restored session should navigate off "Login", which
+  // unhides the navbar — every item sits inline in it, so any one of them
+  // standing in the document is the signal. Scoped to the navbar row: the home
+  // footer repeats "About Us" as one of its own links.
   await waitFor(() =>
     expect(
-      screen.getByRole("button", { name: /toggle navigation menu/i })
+      within(document.querySelector(".nav-inline-links")).getByRole("button", { name: "About Us" })
     ).toBeInTheDocument()
   );
 });

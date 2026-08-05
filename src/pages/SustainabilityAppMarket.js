@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import Reveal, { RevealStyles } from "../components/Reveal";
 
 const iconProps = {
   width: 24,
   height: 24,
   viewBox: "0 0 24 24",
   fill: "none",
-  stroke: "#15803d",
+  stroke: "var(--eco-c11)",
   strokeWidth: 1.7,
   strokeLinecap: "round",
   strokeLinejoin: "round",
@@ -48,6 +49,10 @@ const tiers = [
     headline: "₱10T+",
     headlineLabel: "Addressable consumer spending",
     width: "100%",
+    image: "/farming.jpg",
+    imageAlt: "Farmers tending rows of leafy greens in an open field",
+    imageCaption: "Nationwide food, wellness, and home-growing spend",
+    imagePosition: "center 55%",
     description:
       "The entire market within the Philippines that could potentially use the product, driven by the shift towards self-sufficiency.",
     items: [
@@ -56,12 +61,17 @@ const tiers = [
         size: "₱10T+ PHP (~$170B USD)",
         description:
           "Total annual consumer spending on food, wellness, home goods, and agriculture — the total budget addressable by local organic sustenance.",
+        image: "/IMG_6223.jpeg",
+        imageAlt: "A dense field of cabbages ready for harvest",
       },
       {
         component: "Internet-Connected Population",
         size: "85M+ users",
         description:
           "The population engaging in urban farming, local sustainability, and digital learning — the \"Plantito/Plantita\" movement.",
+        image: "/kit_balcony_herb.png",
+        imageAlt: "A herb planter box on a sunlit window ledge",
+        imagePosition: "center 72%",
       },
     ],
   },
@@ -73,6 +83,10 @@ const tiers = [
     headline: "₱5B",
     headlineLabel: "Annual sustainability-app spend",
     width: "74%",
+    image: "/Solar.jpg",
+    imageAlt: "Solar panels and greenery in the foreground of a dense city skyline",
+    imageCaption: "Metro households already spending on green living",
+    imagePosition: "center 45%",
     description:
       "The portion of the TAM our services can realistically reach, constrained by urban density and connectivity.",
     items: [
@@ -81,12 +95,16 @@ const tiers = [
         size: "15M households",
         description:
           "High-density metros (Manila, Cebu, Davao) with disposable income for events, specialized learning, and micro-commerce.",
+        image: "/Establishment.jpg",
+        imageAlt: "High-rise towers under construction in a dense city centre",
       },
       {
         component: "Sustainability Active Users",
         size: "₱5B PHP / year",
         description:
           "Users already spending on mobile learning, digital wellness, and home/garden e-commerce — the appetite for digital-first sustainability.",
+        image: "/herb_kit.png",
+        imageAlt: "Potted mint and basil arranged on a home balcony",
       },
     ],
   },
@@ -98,6 +116,10 @@ const tiers = [
     headline: "150K+",
     headlineLabel: "Active monthly users",
     width: "48%",
+    image: "/Planting.jpg",
+    imageAlt: "A grower harvesting fresh peppers into a crate",
+    imageCaption: "Early adopters turning harvests into income",
+    imagePosition: "center 75%",
     description:
       "The realistic share we can capture in the first 3 years, focusing on highly engaged early adopters.",
     items: [
@@ -106,18 +128,25 @@ const tiers = [
         size: "150K+ AMU",
         description:
           "Individuals using 24/7 AI guidance, attending RSVP'd events/workshops, and engaging with the Instructor/Specialist Canvas.",
+        image: "/kids_kit.png",
+        imageAlt: "An adult guiding a child through planting a garden bed",
+        imagePosition: "58% 40%",
       },
       {
         component: "E-Commerce / Income Generators",
         size: "3,500+ Vendors",
         description:
           "Learners who become micro-entrepreneurs, selling locally grown produce or high-demand florals (Sampaguita, Orchids).",
+        image: "/starter_kit.png",
+        imageAlt: "A vendor tending trays of seedlings at a roadside market stall",
       },
       {
         component: "Community Impact",
         size: "500K+ meals / yr",
         description:
           "People guided toward self-sufficiency in accessible organic sustenance, lessening reliance on imported or market goods.",
+        image: "/Rice.jpg",
+        imageAlt: "Cupped hands sharing grain with a circle of open palms",
       },
     ],
   },
@@ -139,30 +168,64 @@ function SustainabilityAppMarket() {
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
           .sam-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
           .sam-funbar { transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s cubic-bezier(.22,1,.36,1); }
+
+          @keyframes samDotPulse {
+            0%, 100% { transform: scale(1);   opacity: 1; }
+            50%      { transform: scale(1.5); opacity: 0.55; }
+          }
+          .sam-dot { animation: samDotPulse 2.4s ease-in-out infinite; }
+
+          .sam-hero img { transition: transform .8s cubic-bezier(.22,1,.36,1); }
+          .sam-hero:hover img { transform: scale(1.04); }
+
+          .sam-cardmedia img { transition: transform .8s cubic-bezier(.22,1,.36,1); }
+          .sam-card:hover .sam-cardmedia img { transform: scale(1.05); }
+
+          .sam-itemthumb img { transition: transform .5s cubic-bezier(.22,1,.36,1); }
+          .sam-itemthumb:hover img { transform: scale(1.1); }
+
+          @media (prefers-reduced-motion: reduce) {
+            .sam-dot { animation: none; }
+            .sam-hero img, .sam-hero:hover img { transition: none; transform: none; }
+            .sam-cardmedia img, .sam-card:hover .sam-cardmedia img { transition: none; transform: none; }
+            .sam-itemthumb img, .sam-itemthumb:hover img { transition: none; transform: none; }
+          }
         `}
       </style>
+      <RevealStyles />
 
-      <div className="inner-blur-glass glass-hover-zoom-sm" style={{ ...styles.badge, ...(isMobile ? styles.badgeMobile : {}) }}>
-        <span style={styles.badgeDot} />
+      <Reveal className="inner-blur-glass glass-hover-zoom-sm" style={{ ...styles.badge, ...(isMobile ? styles.badgeMobile : {}) }}>
+        <span className="sam-dot" style={styles.badgeDot} />
         <span>Market Sizing</span>
-      </div>
+      </Reveal>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Sustainability App Market Sizing:{" "}
         <span style={styles.accent}>TAM, SAM, SOM</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
-      <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+      <Reveal as="p" delay={120} style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         A Philippines-focused view of the opportunity — narrowing from the total
         market down to the share we realistically capture in our first three years.
-      </p>
+      </Reveal>
+
+      {/* Context banner — the urban centers the sizing below is drawn from. Kept
+          to a single image so it frames the numbers instead of competing with them. */}
+      <Reveal variant="scale" delay={200} className="sam-hero" style={{ ...styles.hero, ...(isMobile ? styles.heroMobile : {}) }}>
+        <img
+          src="/Establishment.jpg"
+          alt="High-rise development across a major urban centre at sunset"
+          loading="lazy"
+          decoding="async"
+          style={styles.heroImg}
+        />
+        <span aria-hidden="true" style={styles.heroScrim} />
+        <span style={styles.heroCaption}>
+          Sizing anchored to the Philippines&rsquo; major urban centres
+        </span>
+      </Reveal>
 
       {/* Overview panel */}
       <div
@@ -205,6 +268,27 @@ function SustainabilityAppMarket() {
           >
             <div style={styles.cardAccent} />
 
+            {/* Tier image — gives each band of the funnel a concrete face. */}
+            <div
+              className="sam-cardmedia"
+              style={{ ...styles.cardMedia, ...(isMobile ? styles.cardMediaMobile : {}) }}
+            >
+              <img
+                src={t.image}
+                alt={t.imageAlt}
+                loading="lazy"
+                decoding="async"
+                style={{
+                  ...styles.cardMediaImg,
+                  ...(isMobile ? styles.cardMediaImgMobile : {}),
+                  objectPosition: t.imagePosition,
+                }}
+              />
+              <span aria-hidden="true" style={styles.cardMediaScrim} />
+              <span style={styles.cardMediaTag}>{t.id}</span>
+              <span style={styles.cardMediaCaption}>{t.imageCaption}</span>
+            </div>
+
             <div style={{ ...styles.cardHead, ...(isMobile ? styles.cardHeadMobile : {}) }}>
               <div style={styles.cardIconWrap}>
                 <t.Icon />
@@ -232,11 +316,28 @@ function SustainabilityAppMarket() {
                   key={it.component}
                   style={{ ...styles.item, ...(isMobile ? styles.itemMobile : {}) }}
                 >
-                  <div style={styles.itemMain}>
-                    <span style={styles.itemComponent}>{it.component}</span>
-                    <span style={{ ...styles.itemDesc, ...(isMobile ? styles.itemDescMobile : {}) }}>
-                      {it.description}
+                  <div style={styles.itemLead}>
+                    <span
+                      className="sam-itemthumb"
+                      style={{ ...styles.itemThumb, ...(isMobile ? styles.itemThumbMobile : {}) }}
+                    >
+                      <img
+                        src={it.image}
+                        alt={it.imageAlt}
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                          ...styles.itemThumbImg,
+                          ...(it.imagePosition ? { objectPosition: it.imagePosition } : {}),
+                        }}
+                      />
                     </span>
+                    <div style={styles.itemMain}>
+                      <span style={styles.itemComponent}>{it.component}</span>
+                      <span style={{ ...styles.itemDesc, ...(isMobile ? styles.itemDescMobile : {}) }}>
+                        {it.description}
+                      </span>
+                    </div>
                   </div>
                   <div style={styles.itemSizeWrap}>
                     <span style={styles.itemSize}>{it.size}</span>
@@ -276,7 +377,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -290,8 +391,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -307,18 +408,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(20px, 6vw, 28px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -338,6 +429,47 @@ const styles = {
   },
 
   /* Overview panel */
+  hero: {
+    position: "relative",
+    width: "100%",
+    maxWidth: "760px",
+    margin: "6px 0 20px",
+    borderRadius: "20px",
+    overflow: "hidden",
+    border: "1px solid rgba(0,0,0,0.06)",
+    boxShadow: "0 12px 32px rgba(0,0,0,0.10)",
+  },
+  heroMobile: {
+    margin: "4px 0 16px",
+    borderRadius: "16px",
+  },
+  heroImg: {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    aspectRatio: "21 / 8",
+    objectFit: "cover",
+    objectPosition: "center 62%",
+  },
+  heroScrim: {
+    position: "absolute",
+    inset: "auto 0 0 0",
+    height: "62%",
+    pointerEvents: "none",
+    background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%)",
+  },
+  heroCaption: {
+    position: "absolute",
+    left: "18px",
+    right: "18px",
+    bottom: "13px",
+    color: "#fff",
+    fontSize: "12.5px",
+    fontWeight: 500,
+    lineHeight: 1.5,
+    textAlign: "left",
+    textShadow: "0 1px 6px rgba(0,0,0,0.45)",
+  },
   funnel: {
     display: "flex",
     flexDirection: "row",
@@ -380,21 +512,21 @@ const styles = {
     boxSizing: "border-box",
   },
   funBarHov: {
-    background: "linear-gradient(135deg, rgba(74,222,128,0.14), rgba(125,211,252,0.14))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c6-rgb), 0.14), rgba(var(--eco-c5-rgb), 0.14))",
     transform: "translateY(-2px)",
   },
   funTier: {
     fontSize: "10px",
     fontWeight: 800,
     letterSpacing: "1.2px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   funValue: {
     fontSize: "clamp(17px, 2.4vw, 22px)",
     fontWeight: 700,
     letterSpacing: "-0.5px",
     lineHeight: 1.1,
-    background: "linear-gradient(90deg, #16a34a, #0284c7)",
+    background: "linear-gradient(90deg, var(--eco-c9), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -435,7 +567,7 @@ const styles = {
   },
   cardHov: {
     transform: "translateY(-5px)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(var(--eco-c11-rgb), 0.14)",
   },
   cardAccent: {
     position: "absolute",
@@ -443,7 +575,64 @@ const styles = {
     left: 0,
     right: 0,
     height: "4px",
-    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
+  },
+  cardMedia: {
+    position: "relative",
+    width: "100%",
+    borderRadius: "16px",
+    overflow: "hidden",
+    marginBottom: "18px",
+    border: "1px solid rgba(0,0,0,0.06)",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.09)",
+  },
+  cardMediaMobile: {
+    borderRadius: "13px",
+    marginBottom: "14px",
+  },
+  cardMediaImg: {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    aspectRatio: "21 / 8",
+    objectFit: "cover",
+  },
+  cardMediaImgMobile: {
+    aspectRatio: "16 / 9",
+  },
+  cardMediaScrim: {
+    position: "absolute",
+    inset: 0,
+    pointerEvents: "none",
+    background:
+      "linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 42%, rgba(0,0,0,0.62) 100%)",
+  },
+  cardMediaTag: {
+    position: "absolute",
+    top: "11px",
+    left: "13px",
+    padding: "4px 10px",
+    borderRadius: "999px",
+    fontSize: "10px",
+    fontWeight: 800,
+    letterSpacing: "1.2px",
+    color: "var(--eco-c13)",
+    background: "rgba(255,255,255,0.86)",
+    border: "1px solid rgba(255,255,255,0.9)",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+  },
+  cardMediaCaption: {
+    position: "absolute",
+    left: "14px",
+    right: "14px",
+    bottom: "11px",
+    color: "#fff",
+    fontSize: "12px",
+    fontWeight: 500,
+    lineHeight: 1.45,
+    textShadow: "0 1px 6px rgba(0,0,0,0.5)",
   },
   cardHead: {
     display: "flex",
@@ -463,9 +652,9 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
+    background: "linear-gradient(150deg, rgba(var(--eco-c6-rgb), 0.18), rgba(var(--eco-c5-rgb), 0.16))",
     border: "1px solid rgba(255,255,255,0.7)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(var(--eco-c11-rgb), 0.1)",
   },
   cardHeadText: {
     display: "flex",
@@ -479,7 +668,7 @@ const styles = {
     fontWeight: 800,
     letterSpacing: "1.2px",
     textTransform: "uppercase",
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   cardTitle: {
     fontSize: "18px",
@@ -510,7 +699,7 @@ const styles = {
     fontWeight: 700,
     letterSpacing: "-0.8px",
     lineHeight: 1.05,
-    background: "linear-gradient(90deg, #16a34a, #0284c7)",
+    background: "linear-gradient(90deg, var(--eco-c9), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -551,6 +740,35 @@ const styles = {
     gap: "8px",
     padding: "12px 14px",
   },
+  itemLead: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "13px",
+    flex: 1,
+    minWidth: 0,
+  },
+  itemThumb: {
+    flex: "0 0 auto",
+    width: "64px",
+    height: "64px",
+    borderRadius: "13px",
+    overflow: "hidden",
+    display: "block",
+    border: "1px solid rgba(0,0,0,0.06)",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.10)",
+    background: "rgba(255,255,255,0.6)",
+  },
+  itemThumbMobile: {
+    width: "54px",
+    height: "54px",
+    borderRadius: "11px",
+  },
+  itemThumbImg: {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
   itemMain: {
     display: "flex",
     flexDirection: "column",
@@ -579,9 +797,9 @@ const styles = {
     display: "inline-block",
     fontSize: "12px",
     fontWeight: 700,
-    color: "#0369a1",
-    background: "linear-gradient(135deg, rgba(74,222,128,0.16), rgba(125,211,252,0.2))",
-    border: "1px solid rgba(125,211,252,0.4)",
+    color: "var(--eco-c13)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c6-rgb), 0.16), rgba(var(--eco-c5-rgb), 0.2))",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.4)",
     padding: "6px 12px",
     borderRadius: "999px",
     whiteSpace: "nowrap",

@@ -9,10 +9,10 @@ const impactStats = [
 ];
 
 const communityImpactData = [
-  { id: 1, area: "Food Security", progress: 85, color: "#16a34a" },
-  { id: 2, area: "Economic Empowerment", progress: 70, color: "#0284c7" },
-  { id: 3, area: "Environmental Stewardship", progress: 90, color: "#15803d" },
-  { id: 4, area: "Biodiversity Preservation", progress: 65, color: "#fbbf24" },
+  { id: 1, area: "Food Security", progress: 85, color: "var(--eco-c13)" },
+  { id: 2, area: "Economic Empowerment", progress: 70, color: "var(--eco-c13)" },
+  { id: 3, area: "Environmental Stewardship", progress: 90, color: "var(--eco-c13)" },
+  { id: 4, area: "Biodiversity Preservation", progress: 65, color: "var(--eco-c6)" },
 ];
 
 function ImpactTrackingPage({ setActiveNav }) {
@@ -68,7 +68,6 @@ function ImpactTrackingPage({ setActiveNav }) {
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Measuring Our <span style={styles.titleAccent}>Impact</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Our commitment to sustainability is backed by data. We meticulously track key metrics to ensure transparency and drive meaningful environmental and community impact.
@@ -213,7 +212,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -223,8 +222,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   glassContentLayer: {
@@ -244,18 +243,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(20px, 7vw, 30px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   titleAccent: {
-    background: "linear-gradient(90deg, #15803d, #16a34a)",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -305,7 +294,7 @@ const styles = {
   },
   statIcon: {
     fontSize: "28px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginBottom: "8px",
   },
   statValue: {
@@ -339,7 +328,7 @@ const styles = {
   },
   cardIcon: {
     fontSize: "20px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   cardTitle: {
     fontSize: "18px",
@@ -401,7 +390,7 @@ const styles = {
   },
   metricIcon: {
     fontSize: "28px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginBottom: "8px",
   },
   metricValue: {
@@ -436,7 +425,7 @@ const styles = {
   peopleValue: {
     fontSize: "48px",
     fontWeight: 800,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     lineHeight: 1,
   },
   peopleLabel: {
@@ -457,15 +446,15 @@ const styles = {
     marginTop: "auto", // Pushes button to the bottom
     padding: "12px 24px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+    color: "var(--eco-c19)",
     border: "1px solid rgba(255,255,255,0.35)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "default",
     width: "fit-content",
     alignSelf: "center",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease",
   },
 };

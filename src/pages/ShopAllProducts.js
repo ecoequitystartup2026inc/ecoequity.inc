@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaShoppingCart, FaHeart, FaTimes, FaPlus, FaMinus, FaTrash, FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaCreditCard, FaMoneyBillWave, FaCheckCircle, FaLock, FaSeedling, FaGift, FaBoxOpen, FaClipboardList, FaTag, FaStar } from "react-icons/fa";
-import { Sprout, Heart, Check, Smartphone, ShoppingCart } from "lucide-react";
+import { Sprout, Heart, Check, Smartphone, ShoppingCart, ArrowLeft } from "lucide-react";
 import QuickViewModal from "./QuickViewModal";
+import { MODAL_LAYER, modalOverlay, nestedConfirmOverlay } from "../styles/modal";
 
 const categories = [
   "All",
@@ -15,7 +16,12 @@ const categories = [
   "Starter Kits",
 ];
 
-function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts, setSavedProducts, setOrders, onTrackOrder, products, setProducts, promoCodes }) {
+/* `stock` is a label ("In Stock" / "Low Stock"), not a number, so scarcity is
+   whatever the catalogue says it is — never something the UI works out itself. */
+const isLowStock = (product) =>
+  typeof product?.stock === "string" && /low|out/i.test(product.stock);
+
+function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts, setSavedProducts, setOrders, onTrackOrder, products, setProducts, promoCodes, addOrderEcoPoints, ecoEarnRate = 0.1, initialCheckoutOpen = false }) {
   // Append a customer review to a product and recompute its average rating + count.
   const handleAddReview = (productId, review) => {
     if (!setProducts) return;
@@ -32,6 +38,15 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
   };
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  // The checkout header gives up detail in stages as it narrows: below 1120px
+  // only the active step keeps its label, below 940px the stepper goes.
+  const [winWidth, setWinWidth] = useState(window.innerWidth);
+  const isNarrow = winWidth < 1120;
+  const showStepper = winWidth >= 940;
+  // Below this the summary can no longer sit beside the form and wraps under
+  // it, where a 420px-capped, sticky rail would be a narrow card with half a
+  // row of empty space next to it.
+  const summaryStacked = winWidth < 900;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -50,7 +65,8 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
   const [animations, setAnimations] = useState([]);
   const cartIconRef = useRef(null);
   const heartIconRef = useRef(null);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  // Opens straight into checkout when the shop was entered from a "Buy Now".
+  const [checkoutOpen, setCheckoutOpen] = useState(initialCheckoutOpen);
   const [selectedPayment, setSelectedPayment] = useState("cod");
   const [deliverySpeed, setDeliverySpeed] = useState("standard");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -252,7 +268,9 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
   const serviceFee = uniqueCartItems.length > 0 ? 15 : 0;
   const seedDonation = supportSeed ? 20 : 0;
   const totalAmount = Math.max(0, subtotal + shippingFee + serviceFee + seedDonation - discount);
-  const ecoPoints = Math.floor(totalAmount * 0.1);
+  /* The admin-configured rate (eco_program.earnRate), not a hardcoded 0.1 —
+     the summary was quoting a number the program no longer used. */
+  const ecoPoints = Math.floor(totalAmount * ecoEarnRate);
 
   const handleApplyPromo = () => {
     const code = promoCode.toUpperCase().trim();
@@ -327,7 +345,14 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
       seedDonation,
       discount,
       ecoPackaging,
-      rider: "Unassigned"
+      rider: "Unassigned",
+      // Structured cart, saved as order_items rows in Supabase (see data/orders.js).
+      lineItems: uniqueCartItems.map(item => ({
+        product_id: item.id,
+        name: item.name || item.title,
+        qty: item.quantity,
+        price: Number(item.price) || 0,
+      })),
     };
 
     setCheckoutOpen(false);
@@ -335,6 +360,12 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
     setLatestOrder(newOrder);
     if (setOrders) {
       setOrders(prev => [newOrder, ...prev]);
+    }
+    // The summary promises "You'll earn N EcoPoints"; this is what actually
+    // credits them. Without it the checkout made a claim the account never
+    // honoured. The server recomputes the amount — totalAmount is the input.
+    if (addOrderEcoPoints && totalAmount > 0) {
+      addOrderEcoPoints(totalAmount);
     }
     if (setCartItems) setCartItems([]);
     setFormData({
@@ -390,7 +421,10 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
   }, [isMobileCategoryDropdownOpen, isSortDropdownOpen]);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setWinWidth(window.innerWidth);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -466,9 +500,9 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
             to { opacity: 1; transform: scale(1); }
         }
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(var(--eco-c7-rgb), 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(var(--eco-c7-rgb), 0); }
+            100% { box-shadow: 0 0 0 0 rgba(var(--eco-c7-rgb), 0); }
         }
         .animate-pulseGlow {
             animation: pulseGlow 2s infinite;
@@ -533,7 +567,6 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
       <h1 style={styles.title}>
         Shop <span style={styles.accent}>All Products</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <div style={{ ...styles.shopLayout, ...(isMobile ? styles.shopLayoutMobile : {}) }}>
         {/* Sidebar (Desktop) */}
@@ -666,11 +699,11 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
               
               <div style={styles.iconActions}>
                 <button ref={heartIconRef} style={styles.iconActionBtn} title="Wishlist" onClick={() => setWishlistOpen(true)}>
-                  <FaHeart style={{ color: "#15803d" }} size={18} />
+                  <FaHeart style={{ color: "var(--eco-c13)" }} size={18} />
                   {savedProducts.length > 0 && <span data-no-invert style={styles.iconBadge} className={wishlistBadgeAnim ? "animate-badgePop" : ""}>{savedProducts.length}</span>}
                 </button>
                 <button ref={cartIconRef} style={styles.iconActionBtn} title="Cart" onClick={() => setCartOpen(true)}>
-                  <FaShoppingCart style={{ color: "#15803d" }} size={18} />
+                  <FaShoppingCart style={{ color: "var(--eco-c13)" }} size={18} />
                   {cartItems.length > 0 && <span data-no-invert style={styles.iconBadge} className={cartBadgeAnim ? "animate-badgePop" : ""}>{cartItems.length}</span>}
                 </button>
               </div>
@@ -709,14 +742,14 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                     }}
                     title="Save Product"
                   >
-                    {savedProducts.includes(product.id) ? <Heart size="1em" fill="#e11d48" color="#e11d48" /> : <Heart size="1em" color="#94a3b8" />}
+                    {savedProducts.includes(product.id) ? <Heart size="1em" fill="var(--eco-c9)" color="var(--eco-c9)" /> : <Heart size="1em" color="#94a3b8" />}
                   </button>
                 </div>
                 <div style={{ ...styles.productInfo, ...(isMobile ? styles.productInfoMobile : {}) }}>
                   <span style={{ ...styles.productCat, ...(isMobile ? styles.productCatMobile : {}) }}>{product.category}</span>
                   <h3 style={{ ...styles.productName, ...(isMobile ? styles.productNameMobile : {}) }}>{product.name}</h3>
                   <div style={{ display: "flex", alignItems: "center", gap: "3px", marginTop: "1px", marginBottom: "1px", minWidth: 0 }}>
-                     <FaStar style={{ color: "#fbbf24", fontSize: isMobile ? "10px" : "12px", flexShrink: 0 }} />
+                     <FaStar style={{ color: "var(--eco-c6)", fontSize: isMobile ? "10px" : "12px", flexShrink: 0 }} />
                      <span style={{ fontSize: isMobile ? "10px" : "12px", fontWeight: 700, color: "rgba(0,0,0,0.8)" }}>{product.rating ? product.rating.toFixed(1) : "0.0"}</span>
                      <span style={{ fontSize: isMobile ? "9px" : "11px", color: "rgba(0,0,0,0.5)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>({product.reviewCount || 0} reviews)</span>
                   </div>
@@ -759,10 +792,10 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
             onClick={(e) => e.stopPropagation()}
           >
             {showClearWishlistConfirm && (
-              <div style={{ position: "absolute", inset: 0, zIndex: 60, background: "rgba(255,255,255,0.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "inherit" }} className="animate-fadeIn">
-                <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", animation: "scaleUp 0.3s ease-out" }}>
-                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
-                    <FaTrash size={24} style={{ color: "#e11d48" }} />
+              <div style={styles.confirmOverlay}>
+                <div style={{ background: "linear-gradient(145deg, #ffffff, var(--eco-c0))", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(var(--eco-c9-rgb), 0.1)", boxShadow: "0 20px 40px rgba(var(--eco-c9-rgb), 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", animation: "scaleUp 0.3s ease-out" }}>
+                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
+                    <FaTrash size={24} style={{ color: "var(--eco-c13)" }} />
                   </div>
                   <h3 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>Empty Wishlist?</h3>
                   <p style={{ margin: "0 0 28px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Are you sure you want to remove all items from your wishlist? This action cannot be undone.</p>
@@ -775,9 +808,9 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                     >Cancel</button>
                     <button 
                       onClick={() => { setSavedProducts([]); setShowClearWishlistConfirm(false); }} 
-                      style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, #f43f5e, #e11d48)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(225, 29, 72, 0.3)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(225, 29, 72, 0.4)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(225, 29, 72, 0.3)'; }}
+                      style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(var(--eco-c9-rgb), 0.3)" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(var(--eco-c9-rgb), 0.4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--eco-c9-rgb), 0.3)'; }}
                     >Empty</button>
                   </div>
                 </div>
@@ -807,7 +840,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                     boxShadow: "0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.8)",
                     transition: "all 0.3s ease"
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 241, 242, 0.9)"; e.currentTarget.style.borderColor = "rgba(225, 29, 72, 0.2)"; e.currentTarget.style.color = "#e11d48"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(225, 29, 72, 0.1), inset 0 1px 0 rgba(255,255,255,0.9)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(var(--eco-c0-rgb), 0.9)"; e.currentTarget.style.borderColor = "rgba(var(--eco-c9-rgb), 0.2)"; e.currentTarget.style.color = "var(--eco-c9)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(var(--eco-c9-rgb), 0.1), inset 0 1px 0 rgba(255,255,255,0.9)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.6)"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.color = "rgba(0,0,0,0.6)"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.8)"; e.currentTarget.style.transform = "translateY(0)"; }}
                 >
                   <FaTrash size={12} style={{ marginTop: "-1px" }} /> Empty Wishlist
@@ -822,7 +855,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                 uniqueWishlistItems.map(item => (
                   <div key={item.id} style={styles.cartItem} className="flex items-center gap-3 bg-white/60 border border-black/5 rounded-2xl p-3">
                     <div style={styles.cartItemImgWrap} className="w-16 h-16 rounded-xl bg-green-600/10 flex items-center justify-center shrink-0">
-                      <span style={{ fontSize: "24px" }}><Sprout size="1em" color="#16a34a" /></span>
+                      <span style={{ fontSize: "24px" }}><Sprout size="1em" color="var(--eco-c9)" /></span>
                     </div>
                     <div style={styles.cartItemDetails} className="flex-1 flex flex-col gap-1">
                       <div style={styles.cartItemName} className="text-sm font-bold text-black">{item.name}</div>
@@ -851,10 +884,10 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
             onClick={(e) => e.stopPropagation()}
           >
             {showClearConfirm && (
-              <div style={{ position: "absolute", inset: 0, zIndex: 60, background: "rgba(255,255,255,0.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "inherit" }} className="animate-fadeIn">
-                <div style={{ background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", animation: "scaleUp 0.3s ease-out" }}>
-                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
-                    <FaTrash size={24} style={{ color: "#e11d48" }} />
+              <div style={styles.confirmOverlay}>
+                <div style={{ background: "linear-gradient(145deg, #ffffff, var(--eco-c0))", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(var(--eco-c9-rgb), 0.1)", boxShadow: "0 20px 40px rgba(var(--eco-c9-rgb), 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", animation: "scaleUp 0.3s ease-out" }}>
+                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
+                    <FaTrash size={24} style={{ color: "var(--eco-c13)" }} />
                   </div>
                   <h3 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>Clear Cart?</h3>
                   <p style={{ margin: "0 0 28px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>Are you sure you want to remove all items from your cart? This action cannot be undone.</p>
@@ -867,9 +900,9 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                     >Cancel</button>
                     <button 
                       onClick={() => { setCartItems([]); setShowClearConfirm(false); }} 
-                      style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, #f43f5e, #e11d48)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(225, 29, 72, 0.3)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(225, 29, 72, 0.4)'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(225, 29, 72, 0.3)'; }}
+                      style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(var(--eco-c9-rgb), 0.3)" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(var(--eco-c9-rgb), 0.4)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--eco-c9-rgb), 0.3)'; }}
                     >Clear All</button>
                   </div>
                 </div>
@@ -899,7 +932,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                     boxShadow: "0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.8)",
                     transition: "all 0.3s ease"
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255, 241, 242, 0.9)"; e.currentTarget.style.borderColor = "rgba(225, 29, 72, 0.2)"; e.currentTarget.style.color = "#e11d48"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(225, 29, 72, 0.1), inset 0 1px 0 rgba(255,255,255,0.9)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(var(--eco-c0-rgb), 0.9)"; e.currentTarget.style.borderColor = "rgba(var(--eco-c9-rgb), 0.2)"; e.currentTarget.style.color = "var(--eco-c9)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(var(--eco-c9-rgb), 0.1), inset 0 1px 0 rgba(255,255,255,0.9)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.6)"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.color = "rgba(0,0,0,0.6)"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.8)"; e.currentTarget.style.transform = "translateY(0)"; }}
                 >
                   <FaTrash size={12} style={{ marginTop: "-1px" }} /> Clear All
@@ -914,7 +947,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                 uniqueCartItems.map(item => (
                   <div key={item.id} style={styles.cartItem} className="flex items-center gap-3 bg-white/60 border border-black/5 rounded-2xl p-3">
                     <div style={styles.cartItemImgWrap} className="w-16 h-16 rounded-xl bg-green-600/10 flex items-center justify-center shrink-0">
-                      <span style={{ fontSize: "24px" }}><Sprout size="1em" color="#16a34a" /></span>
+                      <span style={{ fontSize: "24px" }}><Sprout size="1em" color="var(--eco-c9)" /></span>
                     </div>
                     <div style={styles.cartItemDetails} className="flex-1 flex flex-col gap-1">
                       <div style={styles.cartItemName} className="text-sm font-bold text-black">{item.name}</div>
@@ -956,68 +989,119 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
 
       {/* Checkout Modal */}
       {checkoutOpen && ReactDOM.createPortal(
-        <div style={styles.modalOverlay} onClick={() => setCheckoutOpen(false)}>
-          <div 
-            className="relative max-w-5xl w-[90%] max-h-[85vh] overflow-y-auto bg-white/90 backdrop-blur-xl rounded-[32px] p-8 shadow-2xl custom-scrollbar inner-blur-glass" 
+        /* Full-bleed, same sizing as the Settings shell: the scrim keeps its
+           blur but gives up its gutter, so the form owns the whole viewport
+           instead of a 1160px card floating in the middle of it. */
+        <div style={{ ...styles.modalOverlay, padding: 0, overflow: "hidden" }} onClick={() => setCheckoutOpen(false)}>
+          <div
+            className="relative inner-blur-glass"
             onClick={(e) => e.stopPropagation()}
             style={{ ...styles.checkoutModal, ...(isMobile ? styles.checkoutModalMobile : {}) }}
           >
-            <button 
-              onClick={() => { setCheckoutOpen(false); setCartOpen(true); }} 
-              style={styles.closeModalBtn}
-            >
-              <FaTimes size={18} />
-            </button>
-            
-            {/* Checkout Progress Stepper */}
-            <div style={styles.stepperWrap}>
-              {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => (
-                 <div key={step} style={{...styles.step, flex: idx < 2 ? 1 : "none"}}>
-                   <div style={{...styles.stepDot, ...(idx <= 1 ? styles.stepDotActive : {})}}>{idx < 1 ? <Check size={14} /> : idx + 1}</div>
-                   <span style={{...styles.stepText, ...(idx <= 1 ? styles.stepTextActive : {})}}>{step}</span>
-                   {idx < 2 && (
-                     <div style={styles.stepLineTrack}>
-                       <div style={{ ...styles.stepLineFill, ...(idx < 1 ? styles.stepLineFillActive : {}) }} />
-                     </div>
-                   )}
-                 </div>
-              ))}
+            {/* Fixed header bar. Full-screen means there is no card edge to
+                anchor the title or the exit control to, so both live in a bar
+                that never scrolls away — the stepper, the way back to the cart
+                and the way out stay reachable from anywhere in a long form. */}
+            <div style={{ ...styles.checkoutHeader, ...(isMobile ? styles.checkoutHeaderMobile : {}) }}>
+              <div style={styles.checkoutHeaderSide}>
+                <button
+                  type="button"
+                  onClick={() => { setCheckoutOpen(false); setCartOpen(true); }}
+                  style={{ ...styles.checkoutBackBtn, ...(isMobile ? { padding: "8px", borderRadius: "50%" } : {}) }}
+                  aria-label="Back to cart"
+                >
+                  <ArrowLeft size={16} strokeWidth={2.4} />
+                  {!isMobile && <span>Back to cart</span>}
+                </button>
+                <div style={styles.checkoutHeaderTitleWrap}>
+                  <h1 style={styles.checkoutHeaderTitle}>Checkout</h1>
+                  {/* Just the count: the stepper beside it already names the
+                      step on desktop, and the long form truncated at 1024. */}
+                  <p style={styles.checkoutHeaderSub}>Step 2 of 3</p>
+                </div>
+              </div>
+
+              {/* Checkout Progress Stepper — desktop only. Its labels are
+                  centred under their dots and need ~420px to stay legible,
+                  which a phone header does not have; the subtitle above
+                  carries the same "where am I" information there. */}
+              {showStepper && (
+                <div style={styles.headerStepper}>
+                  {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => {
+                    const done = idx < 1;
+                    const current = idx === 1;
+                    // Labels are inline, not floating under the dots: a header
+                    // bar has no room below the row for them to hang in.
+                    const showLabel = !isNarrow || current;
+                    return (
+                      <React.Fragment key={step}>
+                        <div style={styles.headerStep}>
+                          <div style={{...styles.stepDot, ...(done || current ? styles.stepDotActive : {})}}>{done ? <Check size={13} strokeWidth={3} /> : idx + 1}</div>
+                          {showLabel && (
+                            <span style={{...styles.headerStepText, ...(done || current ? styles.stepTextActive : {})}}>{step}</span>
+                          )}
+                        </div>
+                        {idx < 2 && (
+                          <div style={styles.stepLineTrack}>
+                            <div style={{ ...styles.stepLineFill, ...(done ? styles.stepLineFillActive : {}) }} />
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div style={{ ...styles.checkoutHeaderSide, justifyContent: "flex-end" }}>
+                {!isMobile && (
+                  <span style={styles.secureChip}>
+                    <FaLock size={10} /> Secure checkout
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setCheckoutOpen(false)}
+                  style={styles.checkoutCloseBtn}
+                  aria-label="Close checkout"
+                >
+                  <FaTimes size={16} />
+                </button>
+              </div>
             </div>
 
-            <div style={{ textAlign: "center", marginBottom: "24px", marginTop: "0px" }}>
-               <h1 style={{ ...styles.modalTitle, marginBottom: "4px", fontSize: "28px" }} className="font-extrabold text-gray-900 drop-shadow-sm">
-                 Checkout
-               </h1>
-               <p style={{ fontSize: "14px", color: "rgba(0,0,0,0.6)", fontWeight: 500 }}>Complete your order with secure payment.</p>
-            </div>
+            <div className="custom-scrollbar" style={{ ...styles.checkoutScroll, ...(isMobile ? styles.checkoutScrollMobile : {}) }}>
+            {/* The shell runs edge to edge; the columns inside do not. Past
+                ~1500px a form row is wider than the eye tracks comfortably,
+                so the content centres and the extra width becomes margin. */}
+            <div style={styles.checkoutContent}>
 
             <div style={styles.checkoutGrid}>
               {/* Left Column: Form & Payment */}
               <div style={styles.checkoutLeft}>
-                 <div style={styles.deliveryEstimateCard}>
-                    <FaTruck size={20} style={{color: '#15803d'}} />
-                    <div style={{flex: 1}}>
-                       <div style={{fontSize: '14px', fontWeight: 800, color: '#000'}}>Estimated Delivery</div>
-                       <div style={{fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600}}>
-                         {deliverySpeed === "express" ? "1-2 Business Days" : "3-5 Business Days"}
-                       </div>
-                    </div>
-                 </div>
                  {/* Delivery Info */}
                  <div style={styles.checkoutSection}>
+                   {/* The arrival estimate rides in the section header rather
+                       than in a banner of its own above the card — it was
+                       repeating, word for word, the speed card selected below
+                       it. */}
                    <h2 style={styles.checkoutSectionTitle}>
                      <span style={styles.checkoutSectionNumber}>1</span>
                      Delivery Information
+                     <span style={{ ...styles.sectionMetaChip, ...(isMobile ? { marginLeft: 0 } : {}) }}>
+                       <FaTruck size={11} /> Arrives in {deliverySpeed === "express" ? "1-2" : "3-5"} business days
+                     </span>
                    </h2>
-                   <div style={styles.checkoutFormGrid}>
+                   <div style={{ ...styles.checkoutFormGrid, gridTemplateColumns: isMobile ? "1fr" : isNarrow ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))" }}>
                      <InputField label="Full Name" placeholder="Juan Dela Cruz" value={formData.fullName} onChange={(val) => handleInputChange("fullName", val)} onBlur={() => handleBlur("fullName")} error={getError("fullName")} />
                      <InputField label="Phone Number" placeholder="0912 345 6789" value={formData.phone} onChange={(val) => handleInputChange("phone", val)} onBlur={() => handleBlur("phone")} error={getError("phone")} />
                      <InputField label="Email Address" placeholder="juan@example.com" value={formData.email} onChange={(val) => handleInputChange("email", val)} onBlur={() => handleBlur("email")} error={getError("email")} />
-                     <InputField label="Delivery Address" placeholder="123 Main St, Brgy 1" value={formData.address} onChange={(val) => handleInputChange("address", val)} onBlur={() => handleBlur("address")} error={getError("address")} />
+                     {/* A street address is the longest thing typed here, so it
+                         gets two tracks while the codes beside it get one. */}
+                     <InputField full label="Delivery Address" placeholder="123 Main St, Brgy 1" value={formData.address} onChange={(val) => handleInputChange("address", val)} onBlur={() => handleBlur("address")} error={getError("address")} />
                      <InputField label="City / Municipality" placeholder="Quezon City" value={formData.city} onChange={(val) => handleInputChange("city", val)} onBlur={() => handleBlur("city")} error={getError("city")} />
                      <InputField label="Province" placeholder="Metro Manila" value={formData.province} onChange={(val) => handleInputChange("province", val)} onBlur={() => handleBlur("province")} error={getError("province")} />
                      <InputField label="ZIP / Postal Code" placeholder="1100" value={formData.zip} onChange={(val) => handleInputChange("zip", val)} onBlur={() => handleBlur("zip")} error={getError("zip")} />
-                     <InputField label="Delivery Instructions" placeholder="Leave at the front desk..." value={formData.instructions} onChange={(val) => handleInputChange("instructions", val)} />
+                     <InputField full label="Delivery Instructions" placeholder="Leave at the front desk..." value={formData.instructions} onChange={(val) => handleInputChange("instructions", val)} />
                      <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "6px", marginTop: "4px" }}>
                        <label style={styles.inputLabel}>Delivery Speed</label>
                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px" }}>
@@ -1034,11 +1118,11 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                      <span style={styles.checkoutSectionNumber}>2</span>
                      Payment Method
                    </h2>
-                   <div style={styles.checkoutFormGrid}>
-                     <PaymentCard id="cod" label="Cash on Delivery" icon={<FaMoneyBillWave color="#16a34a" size={24} />} selected={selectedPayment} onSelect={setSelectedPayment} />
-                     <PaymentCard id="gcash" label="GCash" icon={<span style={{ color: "#3b82f6", fontWeight: 800, fontStyle: "italic", fontSize: "20px", letterSpacing: "-1px" }}>G</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
+                   <div style={{ ...styles.checkoutPaymentGrid, ...(isMobile ? { gridTemplateColumns: "1fr" } : {}) }}>
+                     <PaymentCard id="cod" label="Cash on Delivery" icon={<FaMoneyBillWave color="var(--eco-c9)" size={24} />} selected={selectedPayment} onSelect={setSelectedPayment} />
+                     <PaymentCard id="gcash" label="GCash" icon={<span style={{ color: "var(--eco-c13)", fontWeight: 800, fontStyle: "italic", fontSize: "20px", letterSpacing: "-1px" }}>G</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
                      <PaymentCard id="card" label="Credit / Debit Card" icon={<FaCreditCard color="#4b5563" size={24} />} selected={selectedPayment} onSelect={setSelectedPayment} />
-                     <PaymentCard id="maya" label="Maya" icon={<span style={{ color: "#10b981", fontWeight: 800, fontStyle: "italic", fontSize: "20px" }}>maya</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
+                     <PaymentCard id="maya" label="Maya" icon={<span style={{ color: "var(--eco-c13)", fontWeight: 800, fontStyle: "italic", fontSize: "20px" }}>maya</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
                    </div>
 
                    {/* Dynamic Payment Details */}
@@ -1052,7 +1136,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         <div style={styles.paymentDetailsCard}>
                            <div style={styles.paymentInstructions}>Send payment to GCash Number: <strong>0912 345 6789</strong></div>
                            <div style={styles.qrPlaceholder}>
-                              <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
+                              <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="var(--eco-c11)" /></span>
                               <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                            </div>
                            <InputField label="Reference Number" placeholder="e.g. 1000293812" value={paymentData.gcashRef} onChange={(val) => handlePaymentInputChange("gcashRef", val)} onBlur={() => handleBlur("gcashRef")} error={getError("gcashRef")} />
@@ -1085,15 +1169,24 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         </div>
                      )}
                    </div>
-                   
-                   {/* Eco Options */}
+                 </div>
+
+                 {/* Eco & Support Options — its own numbered step. These were
+                     two unlabelled checkboxes hanging off the bottom of the
+                     payment card, where they read as fine print rather than
+                     the third thing the form asks you to decide. */}
+                 <div style={styles.checkoutSection}>
+                   <h2 style={styles.checkoutSectionTitle}>
+                     <span style={styles.checkoutSectionNumber}>3</span>
+                     Eco &amp; Support Options
+                   </h2>
                    <div style={styles.ecoOptionsWrap}>
-                      <label style={styles.checkboxLabel}>
+                      <label style={{ ...styles.checkboxLabel, ...styles.ecoOptionRow }}>
                         <input type="checkbox" checked={supportSeed} onChange={(e) => setSupportSeed(e.target.checked)} style={styles.checkboxInput} />
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           Add ₱20 to support native seed preservation
                           <span 
-                            style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
+                            style={{ cursor: 'help', position: 'relative', color: 'var(--eco-c13)', fontWeight: 800 }}
                             onMouseEnter={() => setShowSeedOptionTooltip(true)}
                             onMouseLeave={() => setShowSeedOptionTooltip(false)}
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowSeedOptionTooltip(!showSeedOptionTooltip); }}
@@ -1108,12 +1201,12 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                           </span>
                         </span>
                       </label>
-                      <label style={styles.checkboxLabel}>
+                      <label style={{ ...styles.checkboxLabel, ...styles.ecoOptionRow }}>
                         <input type="checkbox" checked={ecoPackaging} onChange={(e) => setEcoPackaging(e.target.checked)} style={styles.checkboxInput} />
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           Use eco-friendly packaging
                           <span 
-                            style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
+                            style={{ cursor: 'help', position: 'relative', color: 'var(--eco-c13)', fontWeight: 800 }}
                             onMouseEnter={() => setShowEcoPackagingTooltip(true)}
                             onMouseLeave={() => setShowEcoPackagingTooltip(false)}
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowEcoPackagingTooltip(!showEcoPackagingTooltip); }}
@@ -1133,29 +1226,48 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
               </div>
 
               {/* Right Column: Order Summary */}
-              <div style={styles.checkoutRight}>
-                 <div style={{ ...styles.checkoutSection, background: "rgba(255,255,255,0.8)", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", height: "100%", display: "flex", flexDirection: "column" }}>
-                   <h2 style={{ ...styles.checkoutSectionTitle, borderBottom: "1px solid rgba(0,0,0,0.1)", paddingBottom: "12px", marginBottom: "12px", flexShrink: 0 }}>Order Summary ({(uniqueCartItems.length)})</h2>
-                   
-                   <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "8px", flexShrink: 0 }} className="custom-scrollbar">
+              <div style={{ ...styles.checkoutRight, ...(summaryStacked ? styles.checkoutRightMobile : {}) }}>
+                 <div style={{ ...styles.checkoutSection, ...styles.summaryCard }}>
+                   {/* Counts units, not lines — the cart icon and the cart
+                       modal both count units, and "(1)" over two tomatoes read
+                       as a missing item. */}
+                   <h2 style={{ ...styles.checkoutSectionTitle, borderBottom: "1px solid rgba(0,0,0,0.07)", paddingBottom: "14px", marginBottom: "14px", flexShrink: 0 }}>
+                     Order Summary
+                     <span style={styles.summaryCountPill}>{cartItems.length}</span>
+                   </h2>
+
+                   {/* Everything between the heading and the buttons scrolls as
+                       one region. A cart of five items used to push the whole
+                       card past the rail's height and clip Place Order in
+                       half; now the heading and the CTA are pinned and only
+                       this middle band moves. */}
+                   <div className="custom-scrollbar" style={{ ...styles.summaryScroll, ...(summaryStacked ? { overflowY: "visible" } : {}) }}>
+                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                      {uniqueCartItems.map(item => (
                        <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "12px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
-                         <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
+                         <div style={{ width: "48px", height: "48px", background: "rgba(var(--eco-c9-rgb), 0.1)", borderRadius: "12px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
                             <ProductImage src={item.image} alt={item.name} emoji={item.emoji} imgStyle={styles.thumbImg} fallbackSize="20px" />
                          </div>
                          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1.2 }}>{item.name}</span>
-                           <span style={{color: '#f97316', fontSize: '10px', fontWeight: 800, marginTop: '2px'}}>Only {(item.id % 3) + 2} left in stock!</span>
+                           {/* The unit price, plus the product's real stock
+                               label when it is running low. This line used to
+                               read "Only N left in stock!" with N derived from
+                               the product id — an invented number shown as
+                               fact on every row, including in-stock ones. */}
+                           <span style={{ fontSize: "11px", fontWeight: 700, marginTop: "2px", color: isLowStock(item) ? "var(--eco-c13)" : "rgba(0,0,0,0.5)" }}>
+                             {isLowStock(item) ? `${item.stock} · ` : ""}₱{Number(item.price).toFixed(2)} each
+                           </span>
                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
                              <div style={{ display: "flex", alignItems: "center", background: "rgba(0,0,0,0.05)", borderRadius: "6px", overflow: "hidden" }}>
                                <button type="button" style={{ background: "transparent", border: "none", padding: "4px 8px", cursor: "pointer", color: "#000", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => updateQuantity(item.id, -1)}><FaMinus size={8} /></button>
                                <span style={{ fontSize: "12px", fontWeight: 600, minWidth: "16px", textAlign: "center", color: "#000" }}>{item.quantity}</span>
                                <button type="button" style={{ background: "transparent", border: "none", padding: "4px 8px", cursor: "pointer", color: "#000", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => updateQuantity(item.id, 1)}><FaPlus size={8} /></button>
                              </div>
-                             <button type="button" style={{ background: "rgba(225, 29, 72, 0.1)", border: "none", borderRadius: "6px", padding: "4px 8px", color: "#e11d48", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => removeFromCart(item.id)}><FaTrash size={10} /></button>
+                             <button type="button" style={{ background: "rgba(var(--eco-c9-rgb), 0.1)", border: "none", borderRadius: "6px", padding: "4px 8px", color: "var(--eco-c13)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => removeFromCart(item.id)}><FaTrash size={10} /></button>
                            </div>
                          </div>
-                         <div style={{ fontSize: "14px", fontWeight: 800, color: "#15803d" }}>
+                         <div style={{ fontSize: "14px", fontWeight: 800, color: "var(--eco-c13)" }}>
                            ₱{(item.price * item.quantity).toFixed(2)}
                          </div>
                        </div>
@@ -1166,15 +1278,15 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                    </div>
                    
                    {/* Promo Code Input */}
-                   <div style={{ ...styles.promoWrap, ...(promoError ? { border: '1px solid #ef4444', background: 'rgba(239, 68, 68, 0.05)' } : promoSuccess ? { border: '1px solid #16a34a', background: 'rgba(22, 163, 74, 0.05)', boxShadow: '0 0 15px rgba(34,197,94,0.2)' } : {}) }} className={`${promoError ? "animate-shakeError" : ""} ${promoSuccess ? "highlight-flash" : ""}`}>
-                      <FaTag style={{color: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : 'rgba(0,0,0,0.3)', marginLeft: '12px'}} />
+                   <div style={{ ...styles.promoWrap, ...(promoError ? { border: '1px solid var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)' } : promoSuccess ? { border: '1px solid var(--eco-c9)', background: 'rgba(var(--eco-c9-rgb), 0.05)', boxShadow: '0 0 15px rgba(var(--eco-c7-rgb), 0.2)' } : {}) }} className={`${promoError ? "animate-shakeError" : ""} ${promoSuccess ? "highlight-flash" : ""}`}>
+                      <FaTag style={{color: promoError ? 'var(--eco-c13)' : promoSuccess ? 'var(--eco-c13)' : 'rgba(0,0,0,0.3)', marginLeft: '12px'}} />
                       <input 
                         value={promoCode} 
                         onChange={e => { setPromoCode(e.target.value); if (promoError) setPromoError(false); if (promoSuccess) setPromoSuccess(false); }} 
                         placeholder="Promo code (e.g. GREEN10)" 
-                        style={{ ...styles.promoInput, color: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#000' }} 
+                        style={{ ...styles.promoInput, color: promoError ? 'var(--eco-c13)' : promoSuccess ? 'var(--eco-c13)' : '#000' }} 
                       />
-                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#15803d' }}>{promoSuccess ? 'Applied' : 'Apply'}</button>
+                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? 'var(--eco-c7)' : promoSuccess ? 'var(--eco-c9)' : 'var(--eco-c11)' }}>{promoSuccess ? 'Applied' : 'Apply'}</button>
                    </div>
 
                    <div style={{ marginTop: "12px", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "8px", flexShrink: 0 }}>
@@ -1210,21 +1322,21 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                        </div>
                      )}
                      {discount > 0 && (
-                       <div className="animate-slideInDiscount" style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#16a34a", fontWeight: 700 }}>
+                       <div className="animate-slideInDiscount" style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "var(--eco-c13)", fontWeight: 700 }}>
                          <span>Discount</span>
                          <span>-₱{discount.toFixed(2)}</span>
                        </div>
                      )}
                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "18px", fontWeight: 800, color: "#000", marginTop: "8px", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px" }}>
                        <span>Total Amount</span>
-                       <span style={{ color: "#15803d" }}>₱{totalAmount.toFixed(2)}</span>
+                       <span style={{ color: "var(--eco-c13)" }}>₱{totalAmount.toFixed(2)}</span>
                      </div>
                      
                      {/* Reward Points */}
                      <div style={styles.rewardsBox}>
-                        <FaGift style={{color: '#15803d'}} />
+                        <FaGift style={{color: 'var(--eco-c13)'}} />
                         <span>You'll earn <strong 
-                          style={{ color: '#15803d', cursor: 'help', position: 'relative', borderBottom: '1px dotted #15803d' }}
+                          style={{ color: 'var(--eco-c13)', cursor: 'help', position: 'relative', borderBottom: '1px dotted var(--eco-c11)' }}
                           onMouseEnter={() => setShowEcoTooltip(true)}
                           onMouseLeave={() => setShowEcoTooltip(false)}
                           onClick={(e) => { e.stopPropagation(); setShowEcoTooltip(!showEcoTooltip); }}
@@ -1247,7 +1359,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                         <div style={styles.recGrid}>
                            {recommendations.map(p => (
                               <div key={p.id} style={styles.recCard}>
-                                 <div style={{ width: "40px", height: "40px", borderRadius: "10px", overflow: "hidden", background: "rgba(22,163,74,0.08)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                 <div style={{ width: "40px", height: "40px", borderRadius: "10px", overflow: "hidden", background: "rgba(var(--eco-c9-rgb), 0.08)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                     <ProductImage src={p.image} alt={p.name} emoji={p.emoji} imgStyle={styles.thumbImg} fallbackSize="24px" />
                                  </div>
                                  <div style={{flex: 1}}>
@@ -1261,26 +1373,32 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
                      </div>
                    )}
 
-                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingTop: "16px" }}>
-                     <button 
-                       onClick={handlePlaceOrder}
-                       className="animate-pulseGlow"
-                       style={{ ...styles.buyNowBtn, padding: "16px", fontSize: "16px", opacity: (uniqueCartItems.length === 0 || !isFormValid || !isPaymentValid()) ? 0.5 : 1, pointerEvents: (uniqueCartItems.length === 0 || !isFormValid || !isPaymentValid()) ? "none" : "auto" }} 
-                       onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'}
-                       onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                     >
-                       Place Order
-                     </button>
-                     <button 
-                       style={{ ...styles.continueBtn, padding: "12px", fontSize: "14px" }}
-                       onClick={() => { setCheckoutOpen(false); setCartOpen(true); }}
-                     >
-                       Back to Cart
-                     </button>
                    </div>
-                   
-                   <div style={{textAlign: 'center', fontSize: '11px', color: 'rgba(0,0,0,0.5)', fontWeight: 600, marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'}}>
-                      <FaSeedling color="#16a34a" /> This purchase helps support local farmers.
+
+                   {/* Phones get these two actions from the fixed bar at the
+                       foot of the screen instead — repeating them here would
+                       put the same button on screen twice. */}
+                   {!isMobile && (
+                     <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "10px", paddingTop: "18px" }}>
+                       <button
+                         onClick={handlePlaceOrder}
+                         style={{ ...styles.buyNowBtn, padding: "16px", fontSize: "16px", borderRadius: "999px", opacity: (uniqueCartItems.length === 0 || !isFormValid || !isPaymentValid()) ? 0.5 : 1, pointerEvents: (uniqueCartItems.length === 0 || !isFormValid || !isPaymentValid()) ? "none" : "auto", transition: "transform 0.2s ease" }}
+                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                       >
+                         Place Order
+                       </button>
+                       <button
+                         style={{ ...styles.continueBtn, padding: "12px", fontSize: "14px", borderRadius: "999px" }}
+                         onClick={() => { setCheckoutOpen(false); setCartOpen(true); }}
+                       >
+                         Back to Cart
+                       </button>
+                     </div>
+                   )}
+
+                   <div style={{textAlign: 'center', fontSize: '11px', color: 'rgba(0,0,0,0.5)', fontWeight: 600, marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'}}>
+                      <FaSeedling color="var(--eco-c9)" /> This purchase helps support local farmers.
                    </div>
                  </div>
               </div>
@@ -1288,11 +1406,32 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
 
             {/* Trust Badges */}
             <div style={styles.trustBadgeRow}>
-              <TrustBadge icon={<FaLock color="#16a34a" size={16} />} title="SSL Secured" desc="100% Encrypted" />
-              <TrustBadge icon={<FaShieldAlt color="#16a34a" size={16} />} title="Verified Payment" desc="Safe Checkout" />
-              <TrustBadge icon={<FaTruck color="#16a34a" size={16} />} title="Fast Delivery" desc="Nationwide" />
-              <TrustBadge icon={<FaBoxOpen color="#16a34a" size={16} />} title="Eco-Packaging" desc="Sustainable" />
+              <TrustBadge icon={<FaLock color="var(--eco-c9)" size={14} />} title="SSL Secured" desc="100% Encrypted" />
+              <TrustBadge icon={<FaShieldAlt color="var(--eco-c9)" size={14} />} title="Verified Payment" desc="Safe Checkout" />
+              <TrustBadge icon={<FaTruck color="var(--eco-c9)" size={14} />} title="Fast Delivery" desc="Nationwide" />
+              <TrustBadge icon={<FaBoxOpen color="var(--eco-c9)" size={14} />} title="Eco-Packaging" desc="Sustainable" />
             </div>
+
+            </div>
+            </div>
+
+            {/* Phone action bar. On a phone the summary sits under three
+                sections of form, so the button that ends the flow was a full
+                screen of scrolling away from the last field. */}
+            {isMobile && (
+              <div style={styles.checkoutMobileBar}>
+                <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Total</span>
+                  <span style={{ fontSize: "20px", fontWeight: 800, color: "var(--eco-c13)" }}>₱{totalAmount.toFixed(2)}</span>
+                </div>
+                <button
+                  onClick={handlePlaceOrder}
+                  style={{ ...styles.buyNowBtn, flex: 1, padding: "14px", fontSize: "15px", borderRadius: "999px", opacity: (uniqueCartItems.length === 0 || !isFormValid || !isPaymentValid()) ? 0.5 : 1, pointerEvents: (uniqueCartItems.length === 0 || !isFormValid || !isPaymentValid()) ? "none" : "auto" }}
+                >
+                  Place Order
+                </button>
+              </div>
+            )}
 
           </div>
         </div>,
@@ -1318,7 +1457,7 @@ function ShopAllProducts({ setActiveNav, cartItems, setCartItems, savedProducts,
               ))}
             </div>
 
-            <FaCheckCircle style={{ color: "#22c55e", fontSize: "64px", marginBottom: "16px" }} />
+            <FaCheckCircle style={{ color: "var(--eco-c13)", fontSize: "64px", marginBottom: "16px" }} />
             <h2 style={{ fontSize: "28px", fontWeight: 800, color: "#000", margin: "0 0 8px" }}>Order Confirmed!</h2>
             <p style={{ fontSize: "15px", color: "rgba(0,0,0,0.6)", marginBottom: "32px", lineHeight: 1.5 }}>
               Your order has been successfully placed. We will send you an email confirmation shortly.
@@ -1387,23 +1526,31 @@ const FloatingIcon = ({ anim }) => {
     });
   }, [anim]);
 
-  return <div style={style}>{anim.type === 'cart' ? <ShoppingCart size={20} color="#16a34a" /> : <Heart size={20} fill="#16a34a" color="#16a34a" />}</div>;
+  return <div style={style}>{anim.type === 'cart' ? <ShoppingCart size={20} color="var(--eco-c9)" /> : <Heart size={20} fill="var(--eco-c9)" color="var(--eco-c9)" />}</div>;
 };
 
-const InputField = ({ label, placeholder, value, onChange, onBlur, error }) => (
-  <div style={styles.inputWrap}>
-    <label style={{ ...styles.inputLabel, color: error ? '#ef4444' : 'rgba(0,0,0,0.7)' }}>{label}</label>
-    <input 
-      type="text" 
-      placeholder={placeholder} 
-      value={value}
-      onChange={(e) => onChange && onChange(e.target.value)}
-      onBlur={onBlur}
-      style={{ ...styles.inputField, ...(error ? styles.inputFieldError : {}) }}
-    />
-    {typeof error === 'string' && <span style={styles.errorText}>{error}</span>}
-  </div>
-);
+const InputField = ({ label, placeholder, value, onChange, onBlur, error, full = false }) => {
+  // Focus is inline state, like every other interactive style in this file —
+  // there is no stylesheet here to carry a :focus rule.
+  const [focused, setFocused] = useState(false);
+  return (
+    // `full` is "1 / -1" rather than a span count so it stays one whole row at
+    // one, two or three columns without forcing extra tracks into the grid.
+    <div style={{ ...styles.inputWrap, ...(full ? { gridColumn: "1 / -1" } : {}) }}>
+      <label style={{ ...styles.inputLabel, color: error ? 'var(--eco-c13)' : 'rgba(0,0,0,0.55)' }}>{label}</label>
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange && onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => { setFocused(false); if (onBlur) onBlur(e); }}
+        style={{ ...styles.inputField, ...(focused && !error ? styles.inputFieldFocus : {}), ...(error ? styles.inputFieldError : {}) }}
+      />
+      {typeof error === 'string' && <span style={styles.errorText}>{error}</span>}
+    </div>
+  );
+};
 
 // Renders a real product photo, falling back to the product's icon/emoji if the
 // image is missing or fails to load.
@@ -1412,7 +1559,7 @@ const ProductImage = ({ src, alt, emoji, imgStyle, fallbackSize = "36px", fallba
   if (!src || errored) {
     return (
       <span style={{ fontSize: fallbackSize, display: "flex", alignItems: "center", justifyContent: "center", ...fallbackWrapStyle }}>
-        {emoji || <Sprout size="1em" color="#16a34a" />}
+        {emoji || <Sprout size="1em" color="var(--eco-c9)" />}
       </span>
     );
   }
@@ -1446,7 +1593,7 @@ const DeliverySpeedCard = ({ id, label, desc, price, selected, onSelect }) => (
       <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1 }}>{label}</span>
       <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.5)", lineHeight: 1 }}>{desc}</span>
     </div>
-    <div style={{ fontSize: "13px", fontWeight: 800, color: "#15803d" }}>{price}</div>
+    <div style={{ fontSize: "13px", fontWeight: 800, color: "var(--eco-c13)" }}>{price}</div>
   </button>
 );
 
@@ -1455,8 +1602,10 @@ const TrustBadge = ({ icon, title, desc }) => (
     <div style={styles.trustBadgeIconWrap}>
       {icon}
     </div>
-    <h4 style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 800, color: "#000" }}>{title}</h4>
-    <p style={{ margin: 0, fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.5)" }}>{desc}</p>
+    <div style={{ minWidth: 0 }}>
+      <h4 style={{ margin: 0, fontSize: "12.5px", fontWeight: 800, color: "rgba(0,0,0,0.75)" }}>{title}</h4>
+      <p style={{ margin: 0, fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.42)" }}>{desc}</p>
+    </div>
   </div>
 );
 
@@ -1498,7 +1647,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -1508,8 +1657,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -1522,18 +1671,8 @@ const styles = {
     textShadow: "0 4px 12px rgba(0,0,0,0.1)",
     textAlign: "center",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -1600,18 +1739,18 @@ const styles = {
     transition: "all 0.3s ease",
   },
   catBtnActive: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.25), rgba(125,211,252,0.25))",
-    border: "1px solid rgba(134,239,172,0.4)",
-    color: "#064e3b",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.25), rgba(var(--eco-c5-rgb), 0.25))",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.4)",
+    color: "var(--eco-c15)",
     fontWeight: 700,
-    boxShadow: "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
+    boxShadow: "0 8px 24px rgba(var(--eco-c7-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
     backdropFilter: "blur(12px) saturate(180%)",
     WebkitBackdropFilter: "blur(12px) saturate(180%)",
   },
   catBtnHover: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.12), rgba(125,211,252,0.12))",
-    color: "#064e3b",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.08)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.12), rgba(var(--eco-c5-rgb), 0.12))",
+    color: "var(--eco-c15)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.08)",
   },
   mainArea: {
     flex: 1,
@@ -1683,7 +1822,7 @@ const styles = {
     position: "absolute",
     top: "-4px",
     right: "-4px",
-    background: "#e11d48",
+    background: "var(--eco-c9)",
     color: "#fff",
     fontSize: "10px",
     fontWeight: 700,
@@ -1717,7 +1856,7 @@ const styles = {
     width: "100%",
     padding: "12px 16px",
     borderRadius: "12px",
-    border: "1px solid rgba(34, 197, 94, 0.3)",
+    border: "1px solid rgba(var(--eco-c7-rgb), 0.3)",
     background: "rgba(255, 255, 255, 0.7)",
     fontSize: "13.5px",
     fontWeight: 600,
@@ -1729,8 +1868,8 @@ const styles = {
     textAlign: "left"
   },
   customSortSelectActive: {
-    borderColor: "#16a34a",
-    boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
+    borderColor: "var(--eco-c9)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.2), inset 0 1px 2px rgba(255,255,255,0.5)",
     background: "rgba(255, 255, 255, 0.95)",
   },
   customSortSelectHover: {
@@ -1743,7 +1882,7 @@ const styles = {
     right: 0,
     background: "rgba(255, 255, 255, 0.95)",
     borderRadius: "12px",
-    border: "1px solid rgba(34, 197, 94, 0.2)",
+    border: "1px solid rgba(var(--eco-c7-rgb), 0.2)",
     padding: "8px",
     boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
     backdropFilter: "blur(20px) saturate(180%)",
@@ -1768,13 +1907,13 @@ const styles = {
     textAlign: "left",
   },
   sortByDropdownItemActive: {
-    background: "rgba(34, 197, 94, 0.12)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c7-rgb), 0.12)",
+    color: "var(--eco-c13)",
     fontWeight: 700,
   },
   sortByDropdownItemHover: {
-    background: "rgba(34, 197, 94, 0.08)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c7-rgb), 0.08)",
+    color: "var(--eco-c13)",
   },
   productGrid: {
     display: "grid",
@@ -1821,7 +1960,7 @@ const styles = {
   imagePlaceholder: {
     width: "100%",
     height: "100%",
-    background: "rgba(22, 163, 74, 0.05)",
+    background: "rgba(var(--eco-c9-rgb), 0.05)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -1842,8 +1981,8 @@ const styles = {
     position: "absolute",
     top: "10px",
     left: "10px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(74,222,128,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c6-rgb), 0.95))",
+    color: "var(--eco-c19)",
     padding: "4px 10px",
     borderRadius: "999px",
     fontSize: "10px",
@@ -1884,7 +2023,7 @@ const styles = {
     fontSize: "14px",
   },
   saveBtnActive: {
-    color: "#e11d48", // red
+    color: "var(--eco-c13)", // red
     background: "#fff",
   },
   productInfo: {
@@ -1925,7 +2064,7 @@ const styles = {
   productPrice: {
     fontSize: "14px",
     fontWeight: 800,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginTop: "2px",
   },
   productPriceMobile: {
@@ -1944,9 +2083,9 @@ const styles = {
     flex: 1,
     padding: "8px 0",
     borderRadius: "8px",
-    background: "rgba(22, 163, 74, 0.1)",
-    border: "1px solid rgba(22, 163, 74, 0.2)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    border: "1px solid rgba(var(--eco-c9-rgb), 0.2)",
+    color: "var(--eco-c13)",
     fontSize: "12px",
     fontWeight: 700,
     cursor: "pointer",
@@ -1956,13 +2095,13 @@ const styles = {
     flex: 1,
     padding: "8px 0",
     borderRadius: "8px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.4)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "12px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.15)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.15)",
   },
   productActionBtnMobile: {
     padding: "6px 0",
@@ -1979,24 +2118,13 @@ const styles = {
     color: "rgba(0,0,0,0.5)",
     fontSize: "15px",
   },
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 9999,
-    background: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    animation: "fadeIn 0.3s ease",
-  },
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
+  confirmOverlay: nestedConfirmOverlay(),
   cartModal: {
     maxWidth: "500px",
     width: "100%",
     maxHeight: "85vh",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,253,244,0.8))",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.9), rgba(var(--eco-c0-rgb), 0.8))",
     border: "1px solid rgba(255,255,255,0.8)",
     borderRadius: "24px",
     padding: "32px 24px",
@@ -2068,7 +2196,7 @@ const styles = {
     width: "60px",
     height: "60px",
     borderRadius: "12px",
-    background: "rgba(22, 163, 74, 0.1)",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -2088,7 +2216,7 @@ const styles = {
   cartItemPrice: {
     fontSize: "13px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   cartItemActions: {
     display: "flex",
@@ -2121,11 +2249,11 @@ const styles = {
     color: "#000",
   },
   removeBtn: {
-    background: "rgba(225, 29, 72, 0.1)",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
     border: "none",
     borderRadius: "8px",
     padding: "6px 8px",
-    color: "#e11d48",
+    color: "var(--eco-c13)",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
@@ -2156,7 +2284,7 @@ const styles = {
   cartTotalAmount: {
     fontSize: "20px",
     fontWeight: 800,
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   cartFooterBtns: {
     display: "flex",
@@ -2177,124 +2305,329 @@ const styles = {
     flex: 1,
     padding: "12px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease",
   },
+  /* Full-screen surface, not a card: no frame, radius or drop shadow, and it
+     fills the viewport on every breakpoint the way the Settings shell does.
+     It is an app shell — a header that stays put, a body that scrolls — so
+     the padding lives on the scroller, not here. */
   checkoutModal: {
-    maxWidth: "1160px",
+    maxWidth: "none",
     width: "100%",
-    height: "calc(100vh - 40px)",
+    height: "100%",
     maxHeight: "none",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
-    border: "1px solid rgba(255,255,255,0.8)",
-    borderRadius: "30px",
-    padding: "24px 40px",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))",
+    border: "none",
+    borderRadius: 0,
+    padding: 0,
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+    boxShadow: "none",
     position: "relative",
-    animation: "scaleUp 0.3s ease",
-    overflowY: "auto",
+    animation: "fadeIn 0.25s ease",
+    overflow: "hidden",
     boxSizing: "border-box"
   },
   checkoutModalMobile: {
-    height: "calc(100dvh - clamp(8px, 2dvh, 16px))",
-    width: "calc(100vw - clamp(18px, 6vw, 48px))",
-    maxWidth: "430px",
-    padding: "24px 16px",
-    borderRadius: "clamp(18px, 5vw, 24px)",
+    height: "100%",
+    width: "100%",
+    maxWidth: "none",
+    borderRadius: 0,
+  },
+  checkoutHeader: {
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    padding: "12px clamp(16px, 4vw, 40px)",
+    /* Opaque, not glass: the form scrolls underneath it, and a translucent
+       bar would let field labels smear through the title. */
+    background: "linear-gradient(180deg, #ffffff, rgba(var(--eco-c0-rgb), 0.97))",
+    borderBottom: "1px solid rgba(0,0,0,0.07)",
+    boxShadow: "0 1px 12px rgba(0,0,0,0.03)",
+    zIndex: 5,
+  },
+  checkoutHeaderMobile: {
+    padding: "10px 14px",
+    gap: "10px",
+  },
+  checkoutHeaderSide: {
+    flex: "1 1 0",
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    /* Clips instead of colliding: the title is nowrap, so without this it ran
+       straight over the stepper once the bar got tight. */
+    overflow: "hidden",
+  },
+  checkoutHeaderTitleWrap: {
+    minWidth: 0,
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    gap: "1px",
+  },
+  checkoutHeaderTitle: {
+    margin: 0,
+    fontSize: "19px",
+    fontWeight: 800,
+    letterSpacing: "-0.4px",
+    color: "#000",
+    lineHeight: 1.1,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  checkoutHeaderSub: {
+    margin: 0,
+    fontSize: "11.5px",
+    fontWeight: 650,
+    color: "rgba(0,0,0,0.48)",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  checkoutBackBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: "7px",
+    padding: "8px 14px",
+    borderRadius: "999px",
+    background: "rgba(var(--eco-c9-rgb), 0.08)",
+    border: "1px solid rgba(var(--eco-c9-rgb), 0.16)",
+    color: "var(--eco-c14)",
+    fontSize: "13px",
+    fontWeight: 700,
+    fontFamily: "inherit",
+    cursor: "pointer",
+    flexShrink: 0,
+    transition: "background 0.2s ease",
+  },
+  checkoutCloseBtn: {
+    width: "38px",
+    height: "38px",
+    flexShrink: 0,
+    borderRadius: "50%",
+    background: "rgba(0,0,0,0.05)",
+    border: "none",
+    color: "rgba(0,0,0,0.55)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "background 0.2s ease",
+  },
+  secureChip: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "7px 13px",
+    borderRadius: "999px",
+    background: "rgba(var(--eco-c9-rgb), 0.08)",
+    color: "var(--eco-c14)",
+    fontSize: "11.5px",
+    fontWeight: 700,
+    letterSpacing: "0.01em",
+    whiteSpace: "nowrap",
+  },
+  checkoutScroll: {
+    flex: 1,
+    minHeight: 0,
+    overflowY: "auto",
+    padding: "26px clamp(20px, 4vw, 48px) 40px",
+    boxSizing: "border-box",
+  },
+  checkoutScrollMobile: {
+    padding: "16px 14px 28px",
+  },
+  checkoutContent: {
+    width: "100%",
+    maxWidth: "1500px",
+    margin: "0 auto",
   },
   checkoutGrid: {
     display: "flex",
     flexWrap: "wrap",
-    gap: "16px",
+    gap: "20px",
     width: "100%",
-    alignItems: "stretch",
+    alignItems: "flex-start",
   },
+  /* 460px basis, not 520: with the summary's 340 and the 20px gap, a wider
+     basis wrapped the rail under the form at ~950px — a width where the two
+     columns still fit — and `summaryStacked` had not kicked in to widen it. */
   checkoutLeft: {
-    flex: "1 1 500px",
+    flex: "1 1 460px",
     display: "flex",
     flexDirection: "column",
     gap: "20px",
   },
+  /* Capped, not free-growing: on a full-screen panel a summary that tracks the
+     form column ends up ~600px wide, which strands each amount half a screen
+     from its label. The form takes the extra width instead. */
   checkoutRight: {
-    flex: "1 1 300px",
+    flex: "1 1 340px",
+    maxWidth: "420px",
     display: "flex",
     flexDirection: "column",
     position: "sticky",
+    /* Sticks just under the header, and caps its own height so the Place
+       Order button stays on screen however long the cart is. */
     top: "0px",
+    maxHeight: "calc(100vh - 118px)",
     alignSelf: "flex-start",
   },
+  checkoutRightMobile: {
+    position: "static",
+    maxWidth: "none",
+    maxHeight: "none",
+  },
   checkoutSection: {
-    background: "rgba(255,255,255,0.6)",
-    border: "1px solid rgba(0,0,0,0.05)",
-    borderRadius: "24px",
-    padding: "16px",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)",
+    background: "rgba(255,255,255,0.72)",
+    border: "1px solid rgba(0,0,0,0.06)",
+    borderRadius: "20px",
+    padding: "20px",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 18px rgba(0,0,0,0.035)",
   },
-  checkoutSectionTitle: {
-    fontSize: "18px",
-    fontWeight: 800,
-    color: "#000",
-    marginBottom: "12px",
-    marginTop: "0",
+  summaryCard: {
+    background: "rgba(255,255,255,0.88)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 34px rgba(0,0,0,0.07)",
     display: "flex",
-    alignItems: "center",
-    gap: "10px",
+    flexDirection: "column",
+    minHeight: 0,
+    overflow: "hidden",
   },
-  checkoutSectionNumber: {
-    width: "28px",
-    height: "28px",
-    borderRadius: "50%",
-    background: "rgba(22, 163, 74, 0.1)",
-    color: "#15803d",
+  summaryScroll: {
+    flex: "1 1 auto",
+    minHeight: 0,
+    overflowY: "auto",
+    paddingRight: "6px",
+    marginRight: "-6px",
+  },
+  summaryCountPill: {
+    marginLeft: "auto",
+    minWidth: "24px",
+    height: "24px",
+    padding: "0 8px",
+    borderRadius: "999px",
+    background: "rgba(var(--eco-c9-rgb), 0.12)",
+    color: "var(--eco-c14)",
+    fontSize: "12px",
+    fontWeight: 800,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "14px",
-    fontWeight: 800,
   },
+  checkoutSectionTitle: {
+    fontSize: "16px",
+    fontWeight: 800,
+    letterSpacing: "-0.2px",
+    color: "#000",
+    marginBottom: "16px",
+    marginTop: "0",
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+  checkoutSectionNumber: {
+    width: "26px",
+    height: "26px",
+    borderRadius: "50%",
+    background: "var(--eco-c11)",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "13px",
+    fontWeight: 800,
+    flexShrink: 0,
+    boxShadow: "0 4px 10px rgba(var(--eco-c7-rgb), 0.32)",
+  },
+  checkoutMobileBar: {
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    padding: "12px 14px calc(12px + env(safe-area-inset-bottom))",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.97), #ffffff)",
+    borderTop: "1px solid rgba(0,0,0,0.07)",
+    boxShadow: "0 -2px 16px rgba(0,0,0,0.05)",
+  },
+  /* 240px tracks, not 200: on a full-screen panel the narrower track fitted
+     four fields to a row, which put "Delivery Address" in the same width as
+     "ZIP" and made the form read as a spreadsheet. */
   checkoutFormGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "16px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "16px 18px",
+  },
+  /* Right-aligned note in a section header — supporting detail that belongs
+     with the heading, not a banner of its own. */
+  sectionMetaChip: {
+    marginLeft: "auto",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "6px 12px",
+    borderRadius: "999px",
+    background: "rgba(var(--eco-c9-rgb), 0.09)",
+    color: "var(--eco-c14)",
+    fontSize: "11.5px",
+    fontWeight: 700,
+    whiteSpace: "nowrap",
+  },
+  /* Two up, not auto-fit: there are four methods, and a three-across track
+     left the fourth stranded alone on its own row. */
+  checkoutPaymentGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "14px",
   },
   inputWrap: {
     display: "flex",
     flexDirection: "column",
-    gap: "4px",
+    gap: "5px",
     width: "100%",
   },
   inputLabel: {
-    fontSize: "11px",
+    fontSize: "10.5px",
     fontWeight: 800,
-    color: "rgba(0,0,0,0.6)",
+    color: "rgba(0,0,0,0.55)",
     textTransform: "uppercase",
-    letterSpacing: "0.5px",
-    marginLeft: "4px",
+    letterSpacing: "0.07em",
+    marginLeft: "2px",
   },
   inputField: {
     width: "100%",
-    padding: "10px 14px",
-    borderRadius: "14px",
-    border: "1px solid rgba(0,0,0,0.1)",
-    background: "rgba(255,255,255,0.8)",
-    fontSize: "13px",
+    padding: "12px 14px",
+    borderRadius: "12px",
+    border: "1px solid rgba(0,0,0,0.09)",
+    background: "#fff",
+    fontSize: "13.5px",
+    fontWeight: 500,
     color: "#000",
     outline: "none",
     boxSizing: "border-box",
-    transition: "all 0.2s ease",
+    transition: "border-color 0.18s ease, box-shadow 0.18s ease",
     fontFamily: "inherit",
   },
+  inputFieldFocus: {
+    /* Full `border` shorthand, not `borderColor`: the base style sets the
+       shorthand, and React warns when a rerender mixes the two forms. */
+    border: "1px solid var(--eco-c9)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.18)",
+  },
   inputFieldError: {
-    border: "1px solid #ef4444",
-    background: "rgba(239, 68, 68, 0.05)",
+    border: "1px solid var(--eco-c7)",
+    background: "rgba(var(--eco-c7-rgb), 0.05)",
   },
   stepperWrap: {
     display: "flex",
@@ -2304,6 +2637,56 @@ const styles = {
     maxWidth: "500px",
     margin: "0 auto 32px",
     position: "relative",
+  },
+  /* Header variant: shrinkable, centred between the title and the exit
+     controls, with its labels beside the dots rather than under them. */
+  headerStepper: {
+    flex: "0 1 auto",
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+  },
+  headerStep: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    minWidth: 0,
+  },
+  headerStepText: {
+    fontSize: "12.5px",
+    fontWeight: 650,
+    color: "rgba(0,0,0,0.42)",
+    whiteSpace: "nowrap",
+  },
+  /* The connector between two step dots. These four keys were referenced by
+     both steppers but never defined, so every connector rendered unstyled —
+     a zero-height, zero-width div — and the dots floated unjoined. */
+  stepLineTrack: {
+    /* Grows to fill in the success modal, where each step is a flex:1 column;
+       falls back to its own width in the header, where it is not. */
+    flex: "1 1 auto",
+    width: "clamp(24px, 6vw, 64px)",
+    minWidth: "16px",
+    height: "3px",
+    borderRadius: "999px",
+    background: "rgba(0,0,0,0.08)",
+    overflow: "hidden",
+  },
+  stepLineFill: {
+    width: "0%",
+    height: "100%",
+    borderRadius: "999px",
+    background: "linear-gradient(90deg, var(--eco-c9), var(--eco-c11))",
+    transition: "width 0.4s ease",
+  },
+  stepLineFillActive: {
+    width: "100%",
+  },
+  stepLineFillCompleted: {
+    width: "100%",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c13))",
   },
   step: {
     display: "flex",
@@ -2328,9 +2711,9 @@ const styles = {
     transition: "all 0.3s ease",
   },
   stepDotActive: {
-    background: "linear-gradient(135deg, #16a34a, #15803d)",
+    background: "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))",
     color: "#fff",
-    boxShadow: "0 4px 12px rgba(21,128,61,0.3)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c11-rgb), 0.3)",
   },
   stepText: {
     position: "absolute",
@@ -2343,7 +2726,7 @@ const styles = {
     whiteSpace: "nowrap",
   },
   stepTextActive: {
-    color: "#15803d",
+    color: "var(--eco-c13)",
     fontWeight: 800,
   },
   stepLine: {
@@ -2356,25 +2739,20 @@ const styles = {
     zIndex: 1,
   },
   stepLineActive: {
-    background: "linear-gradient(90deg, #16a34a, #86efac)",
-  },
-  deliveryEstimateCard: {
-    background: "linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(22, 163, 74, 0.05))",
-    border: "1px solid rgba(22, 163, 74, 0.2)",
-    borderRadius: "16px",
-    padding: "16px 20px",
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.02)",
+    background: "linear-gradient(90deg, var(--eco-c9), var(--eco-c5))",
   },
   ecoOptionsWrap: {
     display: "flex",
     flexDirection: "column",
     gap: "10px",
-    marginTop: "8px",
-    paddingTop: "16px",
-    borderTop: "1px solid rgba(0,0,0,0.05)",
+  },
+  /* Each option is a tappable row, not a bare checkbox on the card ground —
+     it gives the label a hit area and matches the payment/delivery cards. */
+  ecoOptionRow: {
+    padding: "12px 14px",
+    borderRadius: "14px",
+    border: "1px solid rgba(var(--eco-c9-rgb), 0.18)",
+    background: "rgba(var(--eco-c9-rgb), 0.05)",
   },
   checkboxLabel: {
     display: "flex",
@@ -2388,7 +2766,7 @@ const styles = {
   checkboxInput: {
     width: "18px",
     height: "18px",
-    accentColor: "#16a34a",
+    accentColor: "var(--eco-c9)",
     cursor: "pointer",
   },
   promoWrap: {
@@ -2411,7 +2789,7 @@ const styles = {
     color: "#000",
   },
   promoBtn: {
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     border: "none",
     padding: "0 16px",
@@ -2421,8 +2799,8 @@ const styles = {
     cursor: "pointer",
   },
   rewardsBox: {
-    background: "rgba(251, 191, 36, 0.15)",
-    border: "1px solid rgba(251, 191, 36, 0.3)",
+    background: "rgba(var(--eco-c6-rgb), 0.15)",
+    border: "1px solid rgba(var(--eco-c6-rgb), 0.3)",
     borderRadius: "12px",
     padding: "10px 14px",
     display: "flex",
@@ -2430,7 +2808,7 @@ const styles = {
     gap: "10px",
     fontSize: "12px",
     fontWeight: 600,
-    color: "#b45309",
+    color: "var(--eco-c13)",
     marginTop: "4px",
   },
   ecoTooltip: {
@@ -2439,7 +2817,7 @@ const styles = {
     left: "50%",
     transform: "translateX(-50%)",
     marginBottom: "10px",
-    background: "#062018",
+    background: "var(--eco-c19)",
     color: "#fff",
     padding: "10px 14px",
     borderRadius: "10px",
@@ -2460,7 +2838,7 @@ const styles = {
     transform: "translateX(-50%)",
     borderWidth: "6px",
     borderStyle: "solid",
-    borderColor: "#062018 transparent transparent transparent",
+    borderColor: "var(--eco-c19) transparent transparent transparent",
   },
   recommendationsWrap: {
     marginTop: "16px",
@@ -2473,10 +2851,12 @@ const styles = {
     color: "#000",
     margin: "0 0 10px",
   },
+  /* One per row. Two 150px cards in the summary rail left the product name
+     three words tall next to a 40px thumbnail. */
   recGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "10px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
   },
   recCard: {
     background: "rgba(255,255,255,0.8)",
@@ -2499,11 +2879,11 @@ const styles = {
   recPrice: {
     fontSize: "11px",
     fontWeight: 800,
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   recAddBtn: {
-    background: "rgba(22, 163, 74, 0.1)",
-    color: "#16a34a",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    color: "var(--eco-c13)",
     border: "none",
     borderRadius: "50%",
     width: "24px",
@@ -2517,21 +2897,22 @@ const styles = {
   paymentCard: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
-    padding: "12px 14px",
-    borderRadius: "16px",
-    border: "1px solid rgba(0,0,0,0.1)",
-    background: "rgba(255,255,255,0.6)",
+    gap: "11px",
+    padding: "14px",
+    borderRadius: "14px",
+    border: "1px solid rgba(0,0,0,0.09)",
+    background: "#fff",
     cursor: "pointer",
-    transition: "all 0.2s ease",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+    transition: "border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.025)",
     width: "100%",
     boxSizing: "border-box",
+    fontFamily: "inherit",
   },
   paymentCardActive: {
-    background: "rgba(22, 163, 74, 0.08)",
-    border: "1px solid #16a34a",
-    boxShadow: "0 4px 15px rgba(22,163,74,0.15)",
+    background: "rgba(var(--eco-c9-rgb), 0.07)",
+    border: "1px solid var(--eco-c9)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.16)",
   },
   paymentRadio: {
     width: "20px",
@@ -2545,25 +2926,25 @@ const styles = {
     background: "rgba(255,255,255,0.5)",
   },
   paymentRadioActive: {
-    borderColor: "#16a34a",
+    borderColor: "var(--eco-c9)",
     background: "#fff",
   },
   paymentRadioInner: {
     width: "10px",
     height: "10px",
     borderRadius: "50%",
-    background: "#16a34a",
+    background: "var(--eco-c9)",
   },
   paymentDetailsWrap: {
     marginTop: "16px",
     animation: "fadeIn 0.3s ease",
   },
   paymentInfoBox: {
-    background: "rgba(22, 163, 74, 0.1)",
-    border: "1px solid rgba(22, 163, 74, 0.2)",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    border: "1px solid rgba(var(--eco-c9-rgb), 0.2)",
     borderRadius: "12px",
     padding: "16px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     fontSize: "14px",
     fontWeight: 600,
     display: "flex",
@@ -2613,7 +2994,7 @@ const styles = {
   },
   uploadSuccess: {
     fontSize: "12px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     display: "flex",
     alignItems: "center",
     gap: "4px",
@@ -2623,39 +3004,38 @@ const styles = {
     whiteSpace: "nowrap",
     maxWidth: "150px",
   },
+  /* A quiet footer strip, not four more cards. Below three stacked panels of
+     form, boxed badges read as another section to fill in. */
   trustBadgeRow: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-    gap: "12px",
-    marginTop: "12px",
-    paddingTop: "12px",
-    borderTop: "1px solid rgba(0,0,0,0.05)",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "10px",
+    marginTop: "24px",
+    paddingTop: "20px",
+    borderTop: "1px solid rgba(0,0,0,0.06)",
   },
   trustBadge: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    textAlign: "center",
-    padding: "8px",
-    background: "rgba(255,255,255,0.4)",
-    borderRadius: "16px",
-    border: "1px solid rgba(255,255,255,0.6)",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+    gap: "10px",
+    padding: "6px 4px",
+    background: "transparent",
+    border: "none",
   },
   trustBadgeIconWrap: {
-    width: "32px",
-    height: "32px",
+    width: "30px",
+    height: "30px",
+    flexShrink: 0,
     borderRadius: "50%",
-    background: "rgba(22, 163, 74, 0.1)",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "6px",
   },
   successModal: {
     maxWidth: "460px",
     width: "90%",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))",
     border: "1px solid rgba(255,255,255,0.8)",
     borderRadius: "32px",
     padding: "40px",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Salad, Soup, Sprout, Building2, Cherry, Carrot, Bike } from "lucide-react";
+import { MODAL_CLOSE_BTN, MODAL_LAYER, modalOverlay } from "../styles/modal";
 import ReactDOM from "react-dom";
 import { FaArrowLeft, FaMapMarkerAlt, FaWeightHanging, FaDollarSign, FaPlusCircle, FaHandshake, FaTimes, FaChevronDown, FaCheckCircle, FaCalendarAlt, FaChartLine, FaFilter, FaPaperPlane, FaMicrophone, FaImage, FaStar, FaRegStar, FaBoxOpen, FaClock } from "react-icons/fa";
 
@@ -31,11 +32,11 @@ export const surplusCategories = ["Vegetables", "Herbs", "Fruits", "Grains", "Ot
 
 // Category → display icon (kept out of stored data so it stays serializable).
 const getCategoryIcon = (category) => {
-  if (category === "Herbs") return <Sprout size="1em" color="#16a34a" />;
-  if (category === "Fruits") return <Cherry size="1em" color="#dc2626" />;
-  if (category === "Grains") return <Soup size="1em" color="#ea580c" />;
-  if (category === "Vegetables") return <Salad size="1em" color="#16a34a" />;
-  return <Building2 size="1em" color="#0284c7" />;
+  if (category === "Herbs") return <Sprout size="1em" color="var(--eco-c9)" />;
+  if (category === "Fruits") return <Cherry size="1em" color="var(--eco-c9)" />;
+  if (category === "Grains") return <Soup size="1em" color="var(--eco-c9)" />;
+  if (category === "Vegetables") return <Salad size="1em" color="var(--eco-c9)" />;
+  return <Building2 size="1em" color="var(--eco-c9)" />;
 };
 
 function SurplusExchangePage({ setActiveNav, listings, setListings, demands, setDemands }) {
@@ -671,7 +672,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
       <div style={styles.filterContainer}>
         <div style={styles.mainFilterGroup}>
           <button onClick={() => setFilter('active')} style={filter === 'active' ? styles.mainFilterActive : styles.mainFilter}>Active</button>
-          <button onClick={() => setFilter('saved')} style={filter === 'saved' ? styles.mainFilterActive : styles.mainFilter}><FaStar size={10} style={{ marginRight: '4px', color: filter === 'saved' ? '#f59e0b' : 'rgba(0,0,0,0.35)' }} />Saved</button>
+          <button onClick={() => setFilter('saved')} style={filter === 'saved' ? styles.mainFilterActive : styles.mainFilter}><FaStar size={10} style={{ marginRight: '4px', color: filter === 'saved' ? 'var(--eco-c13)' : 'rgba(0,0,0,0.35)' }} />Saved</button>
           <button onClick={() => setFilter('archived')} style={filter === 'archived' ? styles.mainFilterActive : styles.mainFilter}>Archived</button>
         </div>
         {filter === 'active' && (
@@ -693,7 +694,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
       {/* Market insights computed from live marketplace data */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
         {[
-          { label: 'Active Listings', value: String(listingStats.activeCount), icon: <FaBoxOpen />, color: '#15803d', bg: 'rgba(22, 163, 74, 0.1)' },
+          { label: 'Active Listings', value: String(listingStats.activeCount), icon: <FaBoxOpen />, color: 'var(--eco-c13)', bg: 'rgba(var(--eco-c9-rgb), 0.1)' },
           { label: 'Est. Market Value', value: `₱${listingStats.marketValue.toLocaleString()}`, icon: <FaChartLine />, color: '#0284c7', bg: 'rgba(14, 165, 233, 0.1)' },
           { label: 'Expiring Soon', value: String(listingStats.expiringCount), icon: <FaClock />, color: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
           { label: 'Open Buyer Demands', value: String(listingStats.openDemands), icon: <FaHandshake />, color: '#7c3aed', bg: 'rgba(124, 58, 237, 0.1)' },
@@ -710,7 +711,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
 
       {/* Category / location filters for listings */}
       <div className="inner-blur-glass" style={styles.listingFilterBar}>
-        <span style={{ fontSize: '14px', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '8px' }}><FaFilter /> Filters:</span>
+        <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--eco-c13)', display: 'flex', alignItems: 'center', gap: '8px' }}><FaFilter /> Filters:</span>
         <div style={{ width: '180px', zIndex: 100 }}>
           <CustomDropdown
             options={["All Categories", ...surplusCategories]}
@@ -767,7 +768,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                             aria-label={isSaved ? 'Remove from saved' : 'Save listing'}
                             onClick={() => toggleSaved(item.id)}
                           >
-                            {isSaved ? <FaStar color="#f59e0b" /> : <FaRegStar color="rgba(0,0,0,0.3)" />}
+                            {isSaved ? <FaStar color="var(--eco-c7)" /> : <FaRegStar color="rgba(0,0,0,0.3)" />}
                           </button>
                           <span
                             style={styles.productLink}
@@ -791,14 +792,14 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                         )}
                       </td>
                       <td style={styles.td}>{item.quantity}{item.unit}</td>
-                      {!isMobile && <td style={{...styles.td, fontWeight: 700, color: '#15803d'}}>₱{item.price}/{item.unit}</td>}
-                      {!isMobile && <td style={styles.td}><span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaMapMarkerAlt color="#15803d" size={11} /> {item.location || '—'}</span></td>}
+                      {!isMobile && <td style={{...styles.td, fontWeight: 700, color: 'var(--eco-c13)'}}>₱{item.price}/{item.unit}</td>}
+                      {!isMobile && <td style={styles.td}><span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaMapMarkerAlt color="var(--eco-c11)" size={11} /> {item.location || '—'}</span></td>}
                       {!isMobile && <td style={styles.td}>{item.farmer || '—'}</td>}
                       <td style={styles.td}>
                         <span style={{
                           padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 700,
-                          background: item.status === 'Available' ? 'rgba(22,163,74,0.1)' : item.status === 'Reserved' ? 'rgba(234,179,8,0.12)' : 'rgba(220,38,38,0.1)',
-                          color: item.status === 'Available' ? '#15803d' : item.status === 'Reserved' ? '#b45309' : '#dc2626',
+                          background: item.status === 'Available' ? 'rgba(var(--eco-c9-rgb), 0.1)' : item.status === 'Reserved' ? 'rgba(var(--eco-c7-rgb), 0.12)' : 'rgba(var(--eco-c9-rgb), 0.1)',
+                          color: item.status === 'Available' ? 'var(--eco-c13)' : item.status === 'Reserved' ? 'var(--eco-c13)' : 'var(--eco-c13)',
                         }}>{item.status || 'Available'}</span>
                       </td>
                       <td style={styles.td}>
@@ -832,25 +833,25 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
            {/* Analytics Cards */}
            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               <div className="inner-blur-glass" style={{ ...styles.restaurantCard, padding: '20px', alignItems: 'center', gap: '8px' }}>
-                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#15803d' }}><FaChartLine /></div>
+                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(var(--eco-c9-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'var(--eco-c13)' }}><FaChartLine /></div>
                  <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>₱{demandStats.totalValue.toLocaleString()}</h3>
                  <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Total Open Demand Value</span>
               </div>
               <div className="inner-blur-glass" style={{ ...styles.restaurantCard, padding: '20px', alignItems: 'center', gap: '8px' }}>
-                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#0ea5e9' }}><FaHandshake /></div>
+                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(var(--eco-c7-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'var(--eco-c13)' }}><FaHandshake /></div>
                  <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>{demandStats.buyerCount}</h3>
                  <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Active Institutional Buyers</span>
               </div>
               <div className="inner-blur-glass" style={{ ...styles.restaurantCard, padding: '20px', alignItems: 'center', gap: '8px' }}>
-                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#d97706' }}><FaWeightHanging /></div>
+                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(var(--eco-c7-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'var(--eco-c13)' }}><FaWeightHanging /></div>
                  <h3 style={{ margin: '4px 0', fontSize: '24px', fontWeight: 800 }}>{demandStats.weekVolume.toLocaleString()} kg</h3>
                  <span style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>Volume Needed This Week</span>
               </div>
            </div>
 
            {/* Advanced Filters */}
-           <div className="inner-blur-glass" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))', padding: '16px 24px', borderRadius: '24px', border: '1px solid rgba(34, 197, 94, 0.2)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-               <span style={{ fontSize: '15px', fontWeight: 800, color: '#15803d', display: 'flex', alignItems: 'center', gap: '8px' }}><FaFilter /> Filters:</span>
+           <div className="inner-blur-glass" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', background: 'linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))', padding: '16px 24px', borderRadius: '24px', border: '1px solid rgba(var(--eco-c7-rgb), 0.2)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+               <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--eco-c13)', display: 'flex', alignItems: 'center', gap: '8px' }}><FaFilter /> Filters:</span>
                <div style={{ width: '180px', zIndex: 100 }}>
                  <CustomDropdown
                     options={["All Categories", ...surplusCategories]}
@@ -866,7 +867,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                  />
                </div>
                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#000' }} onClick={(e) => { e.preventDefault(); setUrgentOnly(!urgentOnly); }}>
-                  <div style={{ width: '22px', height: '22px', borderRadius: '6px', border: urgentOnly ? 'none' : '2px solid rgba(0,0,0,0.2)', background: urgentOnly ? 'linear-gradient(135deg, #4ade80, #16a34a)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease', boxShadow: urgentOnly ? '0 4px 10px rgba(34,197,94,0.3)' : 'none' }}>
+                  <div style={{ width: '22px', height: '22px', borderRadius: '6px', border: urgentOnly ? 'none' : '2px solid rgba(0,0,0,0.2)', background: urgentOnly ? 'linear-gradient(135deg, var(--eco-c6), var(--eco-c9))' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease', boxShadow: urgentOnly ? '0 4px 10px rgba(var(--eco-c7-rgb), 0.3)' : 'none' }}>
                      {urgentOnly && <FaCheckCircle color="#fff" size={12} />}
                   </div>
                   Urgent Only
@@ -874,7 +875,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
            </div>
 
          {filteredDemands.length === 0 && (
-           <div className="inner-blur-glass" style={{ padding: '40px 24px', borderRadius: '24px', textAlign: 'center', background: 'linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,253,244,0.8))', border: '1px solid rgba(255,255,255,0.8)' }}>
+           <div className="inner-blur-glass" style={{ padding: '40px 24px', borderRadius: '24px', textAlign: 'center', background: 'linear-gradient(145deg, rgba(255,255,255,0.9), rgba(var(--eco-c0-rgb), 0.8))', border: '1px solid rgba(255,255,255,0.8)' }}>
              <p style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'rgba(0,0,0,0.7)' }}>No open demands match your filters.</p>
              <p style={{ margin: '8px 0 0', fontSize: '13px', color: 'rgba(0,0,0,0.5)' }}>Try clearing a filter — or post your own demand so nearby farmers know what you need.</p>
            </div>
@@ -892,11 +893,11 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                      <span style={styles.restaurantLocation}><FaMapMarkerAlt /> {demand.location}</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                     <div style={{ background: demand.matchScore > 90 ? 'rgba(22, 163, 74, 0.1)' : 'rgba(234, 179, 8, 0.1)', color: demand.matchScore > 90 ? '#15803d' : '#b45309', padding: '4px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>
+                     <div style={{ background: demand.matchScore > 90 ? 'rgba(var(--eco-c9-rgb), 0.1)' : 'rgba(var(--eco-c7-rgb), 0.1)', color: demand.matchScore > 90 ? 'var(--eco-c13)' : 'var(--eco-c13)', padding: '4px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>
                         {demand.matchScore}% Match
                      </div>
                      {demand.urgent && (
-                       <div style={{ background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                       <div style={{ background: 'rgba(var(--eco-c9-rgb), 0.1)', color: 'var(--eco-c13)', padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                           Urgent
                        </div>
                      )}
@@ -932,13 +933,13 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                   return (
                      <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', flexDirection: 'column' }}>
                         <button style={{...styles.sendOfferBtnCard, ...(isDeclined ? styles.reopenBtnSmall : {})}} 
-                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(34,197,94,0.3)'; }} 
-                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(34,197,94,0.2)'; }} 
+                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 12px 28px rgba(var(--eco-c7-rgb), 0.3)'; }} 
+                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(var(--eco-c7-rgb), 0.2)'; }} 
                                 onClick={() => handleRestaurantAction(demand, isCompleted)}>
                            {isCompleted ? 'Track Delivery' : isDeclined ? 'Re-open Negotiation' : hasOngoingNegotiation ? 'Continue Negotiation' : 'Negotiate / Send Offer'}
                         </button>
                         {(hasOngoingNegotiation || isCompleted) && (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', background: isCompleted ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: isCompleted ? '#0284c7' : '#059669', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', background: isCompleted ? 'rgba(var(--eco-c7-rgb), 0.1)' : 'rgba(var(--eco-c8-rgb), 0.1)', color: isCompleted ? 'var(--eco-c13)' : 'var(--eco-c13)', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
                             {isCompleted ? 'Preparing Delivery' : 'Ongoing Negotiation'}
                           </div>
                         )}
@@ -964,7 +965,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
             </div>
             
             <div style={styles.negotiateProductSummary}>
-              <div style={{...styles.negotiateProductIcon, ...(isMobile ? styles.negotiateProductIconMobile : {})}}>{modalType === 'negotiate' ? <Cherry size="1em" color="#dc2626" /> : <Carrot size="1em" color="#ea580c" />}</div>
+              <div style={{...styles.negotiateProductIcon, ...(isMobile ? styles.negotiateProductIconMobile : {})}}>{modalType === 'negotiate' ? <Cherry size="1em" color="var(--eco-c9)" /> : <Carrot size="1em" color="var(--eco-c9)" />}</div>
               <div style={styles.negotiateProductDetails}>
                 <h3 style={styles.negotiateProductTitle}>{selectedItem.product}</h3>
                 <p style={styles.negotiateProductFarmer}>
@@ -1018,7 +1019,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                 </div>
                 {sellerStatus === 'completed' ? (
                   <div style={styles.archivedNotice}>
-                    <FaCheckCircle style={{ color: '#16a34a', fontSize: '24px' }} />
+                    <FaCheckCircle style={{ color: 'var(--eco-c13)', fontSize: '24px' }} />
                     <p>This negotiation was successfully completed and is now archived.</p>
                   </div>
                 ) : sellerStatus === 'declined' ? (
@@ -1250,8 +1251,8 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                   </div>
                   <span style={{
                     padding: '4px 12px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, flexShrink: 0,
-                    background: viewListing.status === 'Reserved' ? 'rgba(234,179,8,0.12)' : viewListing.status === 'Sold' ? 'rgba(220,38,38,0.1)' : 'rgba(22,163,74,0.1)',
-                    color: viewListing.status === 'Reserved' ? '#b45309' : viewListing.status === 'Sold' ? '#dc2626' : '#15803d',
+                    background: viewListing.status === 'Reserved' ? 'rgba(var(--eco-c7-rgb), 0.12)' : viewListing.status === 'Sold' ? 'rgba(var(--eco-c9-rgb), 0.1)' : 'rgba(var(--eco-c9-rgb), 0.1)',
+                    color: viewListing.status === 'Reserved' ? 'var(--eco-c13)' : viewListing.status === 'Sold' ? 'var(--eco-c13)' : 'var(--eco-c13)',
                   }}>{viewListing.status || 'Available'}</span>
                 </div>
 
@@ -1264,19 +1265,19 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                     <span style={styles.demandLabel}>Price</span>
                     <span style={styles.demandValueHighlight}>₱{viewListing.price}/{viewListing.unit}</span>
                     {priceDiffPct !== null && (
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: priceDiffPct < 0 ? '#15803d' : priceDiffPct > 0 ? '#b45309' : 'rgba(0,0,0,0.5)' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: priceDiffPct < 0 ? 'var(--eco-c13)' : priceDiffPct > 0 ? 'var(--eco-c13)' : 'rgba(0,0,0,0.5)' }}>
                         {priceDiffPct === 0 ? 'At category average' : `${Math.abs(priceDiffPct)}% ${priceDiffPct < 0 ? 'below' : 'above'} category average`}
                       </span>
                     )}
                   </div>
                   <div style={styles.detailFact}>
                     <span style={styles.demandLabel}>Location</span>
-                    <span style={styles.demandValue}><FaMapMarkerAlt color="#15803d" size={11} /> {viewListing.location || '—'}</span>
+                    <span style={styles.demandValue}><FaMapMarkerAlt color="var(--eco-c11)" size={11} /> {viewListing.location || '—'}</span>
                   </div>
                   <div style={styles.detailFact}>
                     <span style={styles.demandLabel}>Best Before</span>
                     {viewListing.bestBefore ? (
-                      <span style={{ ...styles.demandValue, color: expiringSoon ? '#d97706' : '#000' }}>
+                      <span style={{ ...styles.demandValue, color: expiringSoon ? 'var(--eco-c13)' : '#000' }}>
                         {viewListing.bestBefore}
                         {expiryDays !== null && expiryDays >= 0 && ` (${expiryDays === 0 ? 'today' : `${expiryDays}d left`})`}
                         {expiryDays !== null && expiryDays < 0 && ' (past date)'}
@@ -1306,7 +1307,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                             <div style={{ fontSize: '13px', fontWeight: 800, color: '#000', display: 'flex', alignItems: 'center', gap: '6px' }}>
                               {demand.restaurant}
                               {demand.verified && <FaCheckCircle style={styles.verifiedBadge} title="Verified Buyer" />}
-                              {demand.urgent && <span style={{ fontSize: '9px', fontWeight: 800, color: '#dc2626', background: 'rgba(220,38,38,0.1)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase' }}>Urgent</span>}
+                              {demand.urgent && <span style={{ fontSize: '9px', fontWeight: 800, color: 'var(--eco-c13)', background: 'rgba(var(--eco-c9-rgb), 0.1)', padding: '2px 6px', borderRadius: '6px', textTransform: 'uppercase' }}>Urgent</span>}
                             </div>
                             <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', marginTop: '2px' }}>
                               Needs {demand.quantity}{demand.unit} of {demand.product} at ~₱{demand.targetPrice}/{demand.unit} by {demand.neededDate}
@@ -1324,7 +1325,7 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
 
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button style={styles.detailSaveBtn} onClick={() => toggleSaved(viewListing.id)}>
-                    {isSaved ? <FaStar color="#f59e0b" /> : <FaRegStar />} {isSaved ? 'Saved' : 'Save'}
+                    {isSaved ? <FaStar color="var(--eco-c7)" /> : <FaRegStar />} {isSaved ? 'Saved' : 'Save'}
                   </button>
                   <button
                     style={{ ...styles.submitBtn, marginTop: 0, flex: 1, padding: '13px', opacity: isSoldOut ? 0.5 : 1, cursor: isSoldOut ? 'not-allowed' : 'pointer' }}
@@ -1349,19 +1350,19 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 4px' }}>{trackingDelivery.product}</h3>
                <p style={{ fontSize: '13px', color: 'rgba(0,0,0,0.6)', margin: '0 0 16px' }}>To: {trackingDelivery.restaurant}</p>
                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-                  <div style={{ position: 'absolute', left: '11px', top: '10px', bottom: '10px', width: '2px', background: '#16a34a' }} />
+                  <div style={{ position: 'absolute', left: '11px', top: '10px', bottom: '10px', width: '2px', background: 'var(--eco-c9)' }} />
                   <div style={{ display: 'flex', gap: '12px', position: 'relative', zIndex: 1 }}>
-                     <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}><FaCheckCircle /></div>
+                     <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--eco-c9)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}><FaCheckCircle /></div>
                      <div>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#000' }}>Agreement Confirmed</div>
                         <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.5)' }}>Today, 10:00 AM</div>
                      </div>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', position: 'relative', zIndex: 1 }}>
-                     <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', boxShadow: '0 0 0 4px rgba(22, 163, 74, 0.2)' }}><span style={{ width: '8px', height: '8px', background: '#fff', borderRadius: '50%' }} /></div>
+                     <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--eco-c9)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', boxShadow: '0 0 0 4px rgba(var(--eco-c9-rgb), 0.2)' }}><span style={{ width: '8px', height: '8px', background: '#fff', borderRadius: '50%' }} /></div>
                      <div>
-                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#15803d' }}>Preparing for Dispatch</div>
-                        <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600 }}>Estimated Delivery: Tomorrow</div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--eco-c13)' }}>Preparing for Dispatch</div>
+                        <div style={{ fontSize: '12px', color: 'var(--eco-c13)', fontWeight: 600 }}>Estimated Delivery: Tomorrow</div>
                      </div>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', position: 'relative', zIndex: 1, opacity: 0.4 }}>
@@ -1378,11 +1379,11 @@ function SurplusExchangePage({ setActiveNav, listings, setListings, demands, set
                   </div>
                </div>
                
-               <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '16px', border: '1px solid rgba(14, 165, 233, 0.2)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(14, 165, 233, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}><Bike size="1em" color="#0284c7" /></div>
+               <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(var(--eco-c7-rgb), 0.1)', borderRadius: '16px', border: '1px solid rgba(var(--eco-c7-rgb), 0.2)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(var(--eco-c7-rgb), 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}><Bike size="1em" color="var(--eco-c9)" /></div>
                   <div style={{ flex: 1 }}>
                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#000', marginBottom: '2px' }}>Rider: Juan Perez</div>
-                     <div style={{ fontSize: '13px', color: '#0284c7', fontWeight: 700 }}>0912 345 6789</div>
+                     <div style={{ fontSize: '13px', color: 'var(--eco-c13)', fontWeight: 700 }}>0912 345 6789</div>
                      <div style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', fontWeight: 500, marginTop: '2px' }}>Honda Click • ABC-1234</div>
                   </div>
                </div>
@@ -1411,18 +1412,18 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
-  badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block" },
+  badgeDot: { width: "6px", height: "6px", borderRadius: "50%", background: "var(--eco-c6)", boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)", display: "inline-block" },
   title: { fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 300, margin: "10px 0" },
   subtitle: { fontSize: "14px", color: "rgba(0,0,0,0.55)", maxWidth: "620px", textAlign: "center", margin: "0 0 24px", lineHeight: 1.6 },
   titleMobile: { fontSize: "clamp(20px, 6vw, 30px)" }, // Smaller title on mobile
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -1430,80 +1431,80 @@ const styles = {
   tabContainer: { display: "flex", gap: "10px", marginBottom: "24px", padding: "5px", background: "rgba(255,255,255,0.4)", borderRadius: "999px" },
   tabButton: { padding: "8px 20px", borderRadius: "999px", border: "1px solid transparent", background: "transparent", cursor: "pointer", fontWeight: 600, transition: "all 0.3s ease" },
   tabButtonActive: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.25), rgba(125,211,252,0.25))",
-    border: "1px solid rgba(134,239,172,0.4)",
-    color: "#064e3b",
-    boxShadow: "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.25), rgba(var(--eco-c5-rgb), 0.25))",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.4)",
+    color: "var(--eco-c15)",
+    boxShadow: "0 8px 24px rgba(var(--eco-c7-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
     backdropFilter: "blur(12px) saturate(180%)",
     WebkitBackdropFilter: "blur(12px) saturate(180%)",
   },
   tabButtonHover: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.12), rgba(125,211,252,0.12))",
-    color: "#064e3b",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.08)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.12), rgba(var(--eco-c5-rgb), 0.12))",
+    color: "var(--eco-c15)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.08)",
   },
   tableWrapper: { width: "100%", borderRadius: "20px", overflow: "hidden", border: "1px solid rgba(0,0,0,0.05)", background: "rgba(255,255,255,0.4)" },
   table: { width: "100%", borderCollapse: "collapse", textAlign: "left" },
-  th: { padding: "16px", color: "#15803d", fontSize: "13px", borderBottom: "1px solid rgba(0,0,0,0.05)", cursor: 'pointer', userSelect: 'none' },
+  th: { padding: "16px", color: "var(--eco-c13)", fontSize: "13px", borderBottom: "1px solid rgba(0,0,0,0.05)", cursor: 'pointer', userSelect: 'none' },
   td: { padding: "16px", fontSize: "14px", borderBottom: "1px solid rgba(0,0,0,0.02)" },
-  tableActionBtn: { padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", cursor: "pointer", fontWeight: 700, boxShadow: "0 18px 38px rgba(34,197,94,0.26)", transition: "all 0.2s ease" },
-  floatingActionBtn: { marginTop: "24px", display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", border: "1px solid rgba(255,255,255,0.35)", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(34,197,94,0.26)", fontSize: "14px", transition: "all 0.2s ease" }, 
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, animation: "fadeIn 0.3s ease", padding: "20px", boxSizing: "border-box" },
-  negotiateModalContent: { maxWidth: "880px", width: "100%", maxHeight: "calc(100vh - 40px)", background: "linear-gradient(145deg, rgba(255,255,255,0.96), rgba(240,253,244,0.93))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "20px", padding: "20px", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", animation: "scaleUp 0.4s cubic-bezier(.22,1,.36,1)", overflow: "hidden", boxSizing: "border-box" },
+  tableActionBtn: { padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", cursor: "pointer", fontWeight: 700, boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26)", transition: "all 0.2s ease" },
+  floatingActionBtn: { marginTop: "24px", display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", border: "1px solid rgba(255,255,255,0.35)", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26)", fontSize: "14px", transition: "all 0.2s ease" }, 
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
+  negotiateModalContent: { maxWidth: "880px", width: "100%", maxHeight: "calc(100vh - 40px)", background: "linear-gradient(145deg, rgba(255,255,255,0.96), rgba(var(--eco-c0-rgb), 0.93))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "20px", padding: "20px", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", animation: "scaleUp 0.4s cubic-bezier(.22,1,.36,1)", overflow: "hidden", boxSizing: "border-box" },
   negotiateModalContentMobile: { padding: "16px", maxHeight: "calc(100vh - 24px)", borderRadius: "18px" },
-  closeBtn: { position: "absolute", top: "16px", right: "16px", zIndex: 50, background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", color: "rgba(0,0,0,0.6)", cursor: "pointer", transition: "background 0.2s ease" },
+  closeBtn: MODAL_CLOSE_BTN,
   negotiationHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "12px" },
   negotiationTitle: { margin: 0, color: "#000", fontSize: "18px", fontWeight: 800, lineHeight: 1.2, textAlign: "left" },
   negotiateProductSummary: { display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "rgba(255,255,255,0.78)", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", marginBottom: "10px", minWidth: 0 },
-  negotiateProductIcon: { width: "42px", height: "42px", flexShrink: 0, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(21,128,61,0.08)", fontSize: "28px" },
+  negotiateProductIcon: { width: "42px", height: "42px", flexShrink: 0, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(var(--eco-c11-rgb), 0.08)", fontSize: "28px" },
   negotiateProductIconMobile: { width: "38px", height: "38px", fontSize: "24px" },
   negotiateProductDetails: { minWidth: 0, flex: 1 },
   negotiateProductTitle: { fontSize: "16px", fontWeight: 800, margin: 0, color: "#000", lineHeight: 1.25 },
   negotiateProductFarmer: { fontSize: "13px", color: "rgba(0,0,0,0.6)", margin: 0 },
   negotiatePriceInfo: { marginLeft: "auto", textAlign: "right", flexShrink: 0 },
   negotiateOriginalPriceLabel: { display: "block", fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.5)", textTransform: "uppercase" },
-  negotiateOriginalPrice: { display: "block", fontSize: "14px", fontWeight: 800, color: "#15803d", lineHeight: 1.2 },
+  negotiateOriginalPrice: { display: "block", fontSize: "14px", fontWeight: 800, color: "var(--eco-c13)", lineHeight: 1.2 },
   negotiateChatContainer: { flex: "1 1 auto", minHeight: "160px", maxHeight: "230px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", padding: "14px 4px 14px 0", background: "transparent" },
   chatBubble: { maxWidth: "85%", padding: "12px 14px", borderRadius: "16px", lineHeight: 1.5, fontSize: "13px" },
   chatBubbleSystem: { alignSelf: "center", background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.6)", fontWeight: 500, fontSize: "11px", fontStyle: "italic" },
-  chatBubbleBuyer: { alignSelf: "flex-end", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", borderBottomRightRadius: "4px" },
-  chatBubbleSeller: { alignSelf: "flex-start", background: "#fff", color: "#000", border: "1px solid rgba(21,128,61,0.15)", borderBottomLeftRadius: "4px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
+  chatBubbleBuyer: { alignSelf: "flex-end", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", borderBottomRightRadius: "4px" },
+  chatBubbleSeller: { alignSelf: "flex-start", background: "#fff", color: "#000", border: "1px solid rgba(var(--eco-c11-rgb), 0.15)", borderBottomLeftRadius: "4px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" },
   negotiateInputArea: { width: "100%", display: "flex", flexDirection: "column", gap: 0, border: "1px solid rgba(0,0,0,0.06)", borderRadius: "18px", overflow: "hidden", background: "rgba(255,255,255,0.38)", boxSizing: "border-box" },
   negotiateInputAreaMobile: { borderRadius: "16px" },
   negotiationQuickPanel: { padding: "10px 12px", background: "rgba(249,250,251,0.18)", backdropFilter: "none", WebkitBackdropFilter: "none", borderTop: "1px solid rgba(0,0,0,0.02)", display: "flex", flexDirection: "column", gap: "8px", boxSizing: "border-box" },
   quickPriceRow: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px", width: "100%", minHeight: "28px" },
-  quickPriceLabel: { marginRight: "2px", color: "#15803d", fontSize: "11px", fontWeight: 800, lineHeight: 1.2, whiteSpace: "nowrap" },
-  quickPricePill: { height: "26px", padding: "0 10px", borderRadius: "999px", background: "#ffffff", border: "1px solid rgba(21,128,61,0.22)", color: "#15803d", fontSize: "12px", lineHeight: "24px", fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", transition: "all 0.2s ease" },
+  quickPriceLabel: { marginRight: "2px", color: "var(--eco-c13)", fontSize: "11px", fontWeight: 800, lineHeight: 1.2, whiteSpace: "nowrap" },
+  quickPricePill: { height: "26px", padding: "0 10px", borderRadius: "999px", background: "#ffffff", border: "1px solid rgba(var(--eco-c11-rgb), 0.22)", color: "var(--eco-c13)", fontSize: "12px", lineHeight: "24px", fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", transition: "all 0.2s ease" },
   quickPromptRow: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "6px", maxHeight: "104px", overflowY: "auto", paddingRight: "2px", width: "100%", boxSizing: "border-box" },
-  quickPromptBtn: { width: "100%", minWidth: 0, padding: "7px 10px", borderRadius: "12px", background: "rgba(255,255,255,0.68)", border: "1px solid rgba(21,128,61,0.14)", color: "#374151", fontSize: "11px", lineHeight: 1.25, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", textAlign: "left", whiteSpace: "normal", boxSizing: "border-box" },
+  quickPromptBtn: { width: "100%", minWidth: 0, padding: "7px 10px", borderRadius: "12px", background: "rgba(255,255,255,0.68)", border: "1px solid rgba(var(--eco-c11-rgb), 0.14)", color: "#374151", fontSize: "11px", lineHeight: 1.25, fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 2px 4px rgba(0,0,0,0.02)", textAlign: "left", whiteSpace: "normal", boxSizing: "border-box" },
   messageInputWrapper: { padding: "12px", background: "#ffffff", borderTop: "1px solid rgba(0,0,0,0.05)", display: "grid", gridTemplateColumns: "38px 38px minmax(0, 1fr) 44px", gap: "10px", alignItems: "end", width: "100%", boxSizing: "border-box" },
   chatIconButton: { width: "38px", height: "38px", flexShrink: 0, borderRadius: "50%", border: "none", background: "transparent", color: "#6b7280", fontSize: "17px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "background 0.2s, color 0.2s" },
   chatIconButtonMobile: { width: "34px", height: "34px", fontSize: "15px" },
   negotiationInput: { flex: 1, minWidth: 0, height: "44px", minHeight: "44px", maxHeight: "92px", padding: "11px 14px", borderRadius: "24px", border: "1px solid rgba(0,0,0,0.1)", background: "#f3f4f6", color: "#111827", fontSize: "14px", outline: "none", resize: "none", overflowY: "auto", lineHeight: 1.45, fontFamily: "inherit", transition: "border-color 0.2s, background 0.2s", boxSizing: "border-box" },
   negotiationInputMobile: { height: "40px", minHeight: "40px", padding: "9px 12px", fontSize: "13px" },
-  sendOfferBtn: { width: "44px", height: "44px", flexShrink: 0, borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease, box-shadow 0.2s ease", fontWeight: 700 },
+  sendOfferBtn: { width: "44px", height: "44px", flexShrink: 0, borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease, box-shadow 0.2s ease", fontWeight: 700 },
   sendOfferBtnMobile: { width: "40px", height: "40px" },
   negotiateActions: { display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "10px", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "10px" },
-  declineBtn: { flex: "1 1 110px", minHeight: "38px", padding: "9px 10px", borderRadius: "12px", background: "rgba(220, 38, 38, 0.1)", color: "#dc2626", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer" },
+  declineBtn: { flex: "1 1 110px", minHeight: "38px", padding: "9px 10px", borderRadius: "12px", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer" },
   counterBtn: { flex: "1 1 110px", minHeight: "38px", padding: "9px 10px", borderRadius: "12px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer" },
-  acceptBtn: { flex: "1 1 132px", minHeight: "38px", padding: "9px 10px", borderRadius: "12px", background: "linear-gradient(135deg, #4ade80, #22c55e)", color: "#fff", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.3)" },
+  acceptBtn: { flex: "1 1 132px", minHeight: "38px", padding: "9px 10px", borderRadius: "12px", background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c7))", color: "#fff", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.3)" },
   completedIndicator: { marginLeft: '8px', fontSize: '10px', fontWeight: 700, color: '#6b7280', background: 'rgba(107, 114, 128, 0.1)', padding: '2px 6px', borderRadius: '6px', border: '1px solid rgba(107, 114, 128, 0.2)' },
   viewArchiveBtn: { background: "rgba(107, 114, 128, 0.1)", color: "#4b5563", border: "1px solid rgba(107, 114, 128, 0.2)" },
-  ongoingIndicator: { marginLeft: '8px', fontSize: '10px', fontWeight: 700, color: '#059669', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' },
-  declinedIndicator: { marginLeft: '8px', fontSize: '10px', fontWeight: 700, color: '#dc2626', background: 'rgba(220, 38, 38, 0.1)', padding: '2px 6px', borderRadius: '6px', border: '1px solid rgba(220, 38, 38, 0.2)' },
+  ongoingIndicator: { marginLeft: '8px', fontSize: '10px', fontWeight: 700, color: 'var(--eco-c13)', background: 'rgba(var(--eco-c8-rgb), 0.1)', padding: '2px 6px', borderRadius: '6px', border: '1px solid rgba(var(--eco-c8-rgb), 0.2)' },
+  declinedIndicator: { marginLeft: '8px', fontSize: '10px', fontWeight: 700, color: 'var(--eco-c13)', background: 'rgba(var(--eco-c9-rgb), 0.1)', padding: '2px 6px', borderRadius: '6px', border: '1px solid rgba(var(--eco-c9-rgb), 0.2)' },
   confirmationView: { padding: "20px", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, animation: "fadeIn 0.5s ease-out" },
   confirmationTitle: { fontSize: "20px", fontWeight: 800, color: "#000", marginBottom: "16px" },
   confirmationSummary: { background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "16px", padding: "16px", marginBottom: "24px", textAlign: "left" },
   summaryItem: { fontSize: "14px", color: "rgba(0,0,0,0.8)", marginBottom: "8px" },
-  summaryTotal: { fontSize: "18px", fontWeight: 800, color: "#15803d", marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(0,0,0,0.1)" },
+  summaryTotal: { fontSize: "18px", fontWeight: 800, color: "var(--eco-c13)", marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(0,0,0,0.1)" },
   confirmationActions: { display: "flex", gap: "12px", justifyContent: "center" },
   confirmationBackBtn: { padding: "12px 24px", borderRadius: "12px", background: "rgba(0,0,0,0.05)", color: "#000", border: "none", fontWeight: 700, cursor: "pointer" },
-  confirmationConfirmBtn: { padding: "12px 24px", borderRadius: "12px", background: "linear-gradient(135deg, #4ade80, #22c55e)", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.3)" },
-  archivedNotice: { padding: "20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", background: "rgba(22, 163, 74, 0.05)", borderRadius: "16px", border: "1px solid rgba(22, 163, 74, 0.2)", flex: 1 },
-  reopenContainer: { padding: "20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", background: "rgba(234, 179, 8, 0.05)", borderRadius: "16px", border: "1px solid rgba(234, 179, 8, 0.2)" },
+  confirmationConfirmBtn: { padding: "12px 24px", borderRadius: "12px", background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c7))", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.3)" },
+  archivedNotice: { padding: "20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", background: "rgba(var(--eco-c9-rgb), 0.05)", borderRadius: "16px", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", flex: 1 },
+  reopenContainer: { padding: "20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", background: "rgba(var(--eco-c7-rgb), 0.05)", borderRadius: "16px", border: "1px solid rgba(var(--eco-c7-rgb), 0.2)" },
   reopenText: { fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.7)", margin: 0 },
-  reopenBtn: { padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, #facc15, #eab308)", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(234, 179, 8, 0.3)" },
-  reopenBtnSmall: { background: "linear-gradient(135deg, #facc15, #eab308)", color: "#fff", border: "none" },
+  reopenBtn: { padding: "10px 20px", borderRadius: "10px", background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c7))", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.3)" },
+  reopenBtnSmall: { background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c7))", color: "#fff", border: "none" },
   searchBarContainer: {
     width: "100%", maxWidth: "600px", marginBottom: "20px",
   },
@@ -1515,11 +1516,11 @@ const styles = {
   filterContainer: { display: "flex", justifyContent: "space-between", alignItems: 'center', width: "100%", maxWidth: "1100px", marginBottom: "16px" },
   mainFilterGroup: { display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.03)', padding: '4px', borderRadius: '10px', border: '1px solid rgba(0,0,0,0.05)' },
   mainFilter: { padding: '6px 16px', borderRadius: '8px', border: 'none', background: 'transparent', fontWeight: 600, fontSize: '13px', color: 'rgba(0,0,0,0.6)', cursor: 'pointer' },
-  mainFilterActive: { padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)', background: '#fff', fontWeight: 700, fontSize: '13px', color: '#15803d', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' },
+  mainFilterActive: { padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)', background: '#fff', fontWeight: 700, fontSize: '13px', color: 'var(--eco-c13)', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' },
   filterLabel: { display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.7)", cursor: "pointer" },
-  filterCheckbox: { width: "16px", height: "16px", accentColor: "#16a34a" },
+  filterCheckbox: { width: "16px", height: "16px", accentColor: "var(--eco-c9)" },
   listSurplusModalContent: {
-    maxWidth: "540px", width: "100%", maxHeight: "90vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "24px", padding: "32px", display: "flex", flexDirection: "column", boxShadow: "0 15px 40px rgba(0,0,0,0.2)", position: "relative", animation: "scaleUp 0.3s ease", overflowY: "auto", textAlign: "left", boxSizing: "border-box",
+    maxWidth: "540px", width: "100%", maxHeight: "90vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "24px", padding: "32px", display: "flex", flexDirection: "column", boxShadow: "0 15px 40px rgba(0,0,0,0.2)", position: "relative", animation: "scaleUp 0.3s ease", overflowY: "auto", textAlign: "left", boxSizing: "border-box",
   },
   listSurplusModalContentMobile: {
     padding: "24px 16px"
@@ -1545,43 +1546,43 @@ const styles = {
     resize: 'vertical'
   },
   submitBtn: {
-    marginTop: "8px", padding: "16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(34, 197, 94, 0.2)", transition: "all 0.2s ease"
+    marginTop: "8px", padding: "16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(var(--eco-c7-rgb), 0.2)", transition: "all 0.2s ease"
   },
   saveAndCloseBtn: { padding: "8px 14px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.1)", color: "#000", fontSize: "12px", fontWeight: 600, cursor: "pointer", transition: "background 0.2s ease" },
   customDropdownWrap: { position: "relative", width: "100%" },
   customDropdownHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255, 255, 255, 0.8)", fontSize: "14px", color: "#000", cursor: "pointer", transition: "all 0.2s ease", outline: "none", textAlign: "left", boxSizing: "border-box", fontFamily: "inherit" },
-  customDropdownHeaderActive: { borderColor: "#16a34a", boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.1)", background: "rgba(255, 255, 255, 0.95)" },
-  customDropdownList: { position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, zIndex: 1000, background: "rgba(255, 255, 255, 0.95)", borderRadius: "12px", border: "1px solid rgba(34, 197, 94, 0.2)", padding: "8px", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", maxHeight: "200px", overflowY: "auto", animation: "fadeIn 0.2s ease" },
+  customDropdownHeaderActive: { borderColor: "var(--eco-c9)", boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.1)", background: "rgba(255, 255, 255, 0.95)" },
+  customDropdownList: { position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, zIndex: 1000, background: "rgba(255, 255, 255, 0.95)", borderRadius: "12px", border: "1px solid rgba(var(--eco-c7-rgb), 0.2)", padding: "8px", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", maxHeight: "200px", overflowY: "auto", animation: "fadeIn 0.2s ease" },
   customDropdownItem: { padding: "10px 12px", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", transition: "all 0.2s ease" },
-  customDropdownItemActive: { background: "rgba(34, 197, 94, 0.12)", color: "#15803d", fontWeight: 700 },
+  customDropdownItemActive: { background: "rgba(var(--eco-c7-rgb), 0.12)", color: "var(--eco-c13)", fontWeight: 700 },
   restaurantGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px", width: "100%", padding: "10px 0" },
-  restaurantCard: { background: "linear-gradient(150deg, rgba(255,255,255,0.9), rgba(240,253,244,0.7))", border: "1px solid rgba(255,255,255,0.9)", borderRadius: "24px", padding: "24px", display: "flex", flexDirection: "column", gap: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.06)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", transition: "transform 0.3s ease, box-shadow 0.3s ease" },
+  restaurantCard: { background: "linear-gradient(150deg, rgba(255,255,255,0.9), rgba(var(--eco-c0-rgb), 0.7))", border: "1px solid rgba(255,255,255,0.9)", borderRadius: "24px", padding: "24px", display: "flex", flexDirection: "column", gap: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.06)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", transition: "transform 0.3s ease, box-shadow 0.3s ease" },
   restaurantCardHeader: { display: "flex", alignItems: "center", gap: "16px", borderBottom: "1px solid rgba(0,0,0,0.05)", paddingBottom: "16px" },
-  restaurantLogo: { width: "56px", height: "56px", borderRadius: "16px", background: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", flexShrink: 0, border: "2px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" },
+  restaurantLogo: { width: "56px", height: "56px", borderRadius: "16px", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", flexShrink: 0, border: "2px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" },
   restaurantNameWrap: { display: "flex", alignItems: "center", gap: "6px" },
   restaurantName: { fontSize: "18px", fontWeight: 800, color: "#000", margin: 0 },
-  verifiedBadge: { color: "#16a34a", fontSize: "14px" },
+  verifiedBadge: { color: "var(--eco-c13)", fontSize: "14px" },
   restaurantLocation: { fontSize: "13px", color: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", fontWeight: 500 },
   restaurantCardBody: { display: "flex", flexDirection: "column", gap: "16px", flex: 1 },
   demandItem: { display: "flex", flexDirection: "column", gap: "4px" },
   demandRow: { display: "flex", justifyContent: "space-between", gap: "12px", background: "rgba(255,255,255,0.5)", padding: "12px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.03)" },
   demandLabel: { fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.5)", textTransform: "uppercase", letterSpacing: "0.5px" },
   demandValue: { fontSize: "14px", fontWeight: 700, color: "#000" },
-  demandValueHighlight: { fontSize: "16px", fontWeight: 800, color: "#15803d" },
-  demandDate: { fontSize: "13px", fontWeight: 700, color: "#0284c7", display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(14, 165, 233, 0.1)", padding: "6px 12px", borderRadius: "8px", width: "fit-content" },
-  sendOfferBtnCard: { marginTop: "auto", padding: "14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", border: "1px solid rgba(255,255,255,0.4)", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 8px 24px rgba(34,197,94,0.2)", transition: "all 0.2s ease" },
-  insightCard: { display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", borderRadius: "18px", background: "linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,253,244,0.8))", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)" },
-  listingFilterBar: { display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", padding: "14px 20px", borderRadius: "20px", border: "1px solid rgba(34, 197, 94, 0.2)", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" },
-  clearFiltersBtn: { marginLeft: "auto", padding: "8px 14px", borderRadius: "10px", background: "rgba(220, 38, 38, 0.08)", color: "#dc2626", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer" },
+  demandValueHighlight: { fontSize: "16px", fontWeight: 800, color: "var(--eco-c13)" },
+  demandDate: { fontSize: "13px", fontWeight: 700, color: "var(--eco-c13)", display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(var(--eco-c7-rgb), 0.1)", padding: "6px 12px", borderRadius: "8px", width: "fit-content" },
+  sendOfferBtnCard: { marginTop: "auto", padding: "14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", border: "1px solid rgba(255,255,255,0.4)", fontWeight: 700, fontSize: "14px", cursor: "pointer", boxShadow: "0 8px 24px rgba(var(--eco-c7-rgb), 0.2)", transition: "all 0.2s ease" },
+  insightCard: { display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", borderRadius: "18px", background: "linear-gradient(145deg, rgba(255,255,255,0.9), rgba(var(--eco-c0-rgb), 0.8))", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 8px 24px rgba(0,0,0,0.05)" },
+  listingFilterBar: { display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))", padding: "14px 20px", borderRadius: "20px", border: "1px solid rgba(var(--eco-c7-rgb), 0.2)", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" },
+  clearFiltersBtn: { marginLeft: "auto", padding: "8px 14px", borderRadius: "10px", background: "rgba(var(--eco-c9-rgb), 0.08)", color: "var(--eco-c13)", border: "none", fontSize: "12px", fontWeight: 700, cursor: "pointer" },
   starBtn: { background: "transparent", border: "none", padding: "2px", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", flexShrink: 0 },
-  productLink: { cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(21,128,61,0.3)", textUnderlineOffset: "3px" },
-  expiringBadge: { display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 800, color: "#d97706", background: "rgba(245, 158, 11, 0.12)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(245, 158, 11, 0.25)" },
-  matchBadge: { display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 800, color: "#0284c7", background: "rgba(14, 165, 233, 0.1)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(14, 165, 233, 0.25)", cursor: "pointer" },
+  productLink: { cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(var(--eco-c11-rgb), 0.3)", textUnderlineOffset: "3px" },
+  expiringBadge: { display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 800, color: "var(--eco-c13)", background: "rgba(var(--eco-c7-rgb), 0.12)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(var(--eco-c7-rgb), 0.25)" },
+  matchBadge: { display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 800, color: "var(--eco-c13)", background: "rgba(var(--eco-c7-rgb), 0.1)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(var(--eco-c7-rgb), 0.25)", cursor: "pointer" },
   detailFactGrid: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", margin: "0 0 16px" },
   detailFact: { display: "flex", flexDirection: "column", gap: "4px", background: "rgba(255,255,255,0.6)", padding: "12px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.04)" },
-  matchDemandRow: { display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.65)", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(14, 165, 233, 0.15)" },
-  matchOfferBtn: { flexShrink: 0, padding: "8px 14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", border: "1px solid rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.2)" },
-  detailSaveBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "13px 20px", borderRadius: "999px", background: "rgba(245, 158, 11, 0.1)", color: "#b45309", border: "1px solid rgba(245, 158, 11, 0.25)", fontSize: "13px", fontWeight: 700, cursor: "pointer" },
+  matchDemandRow: { display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.65)", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(var(--eco-c7-rgb), 0.15)" },
+  matchOfferBtn: { flexShrink: 0, padding: "8px 14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", border: "1px solid rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.2)" },
+  detailSaveBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "13px 20px", borderRadius: "999px", background: "rgba(var(--eco-c7-rgb), 0.1)", color: "var(--eco-c13)", border: "1px solid rgba(var(--eco-c7-rgb), 0.25)", fontSize: "13px", fontWeight: 700, cursor: "pointer" },
 };
 
 const CustomDropdown = ({ options, value, onChange, placeholder }) => {
@@ -1609,7 +1610,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
         }}
       >
         <span>{value || placeholder}</span>
-        <FaChevronDown style={{ transition: 'transform 0.3s ease', transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', color: '#15803d' }} size={12} />
+        <FaChevronDown style={{ transition: 'transform 0.3s ease', transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', color: 'var(--eco-c13)' }} size={12} />
       </button>
       {isOpen && (
         <div className="inner-blur-glass custom-scrollbar" style={styles.customDropdownList}>
@@ -1618,11 +1619,11 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
               key={opt}
               onClick={() => { onChange(opt); setIsOpen(false); }}
               style={{ ...styles.customDropdownItem, ...(value === opt ? styles.customDropdownItemActive : {}) }}
-              onMouseEnter={(e) => { if (value !== opt) { e.currentTarget.style.background = 'rgba(34, 197, 94, 0.08)'; e.currentTarget.style.color = '#15803d'; } }}
+              onMouseEnter={(e) => { if (value !== opt) { e.currentTarget.style.background = 'rgba(var(--eco-c7-rgb), 0.08)'; e.currentTarget.style.color = 'var(--eco-c11)'; } }}
               onMouseLeave={(e) => { if (value !== opt) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#000'; } }}
             >
               <span>{opt}</span>
-              {value === opt && <FaCheckCircle size={14} style={{ color: '#16a34a' }} />}
+              {value === opt && <FaCheckCircle size={14} style={{ color: 'var(--eco-c13)' }} />}
             </div>
           ))}
         </div>

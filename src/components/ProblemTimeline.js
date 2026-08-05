@@ -94,7 +94,7 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
           }
           .pt-rail { background: rgba(0,0,0,0.09); }
           .pt-rail-fill {
-            background: linear-gradient(90deg, #4ade80, #22c55e);
+            background: linear-gradient(90deg, var(--eco-c6), var(--eco-c7));
             transform: scaleX(var(--p));
             transform-origin: left center;
             transition: transform .5s cubic-bezier(.22,1,.36,1);
@@ -116,10 +116,10 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
             font-weight: 700;
             letter-spacing: -0.3px;
             cursor: pointer;
-            color: #15803d;
+            color: var(--eco-c13);
             background: rgba(255,255,255,0.82);
-            border: 1px solid rgba(21,128,61,0.18);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 16px rgba(21,128,61,0.10);
+            border: 1px solid rgba(var(--eco-c11-rgb), 0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 16px rgba(var(--eco-c11-rgb), 0.10);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             transition: transform .35s cubic-bezier(.34,1.56,.64,1),
@@ -128,13 +128,13 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
           }
           @media (max-width: 767px) { .pt-node { font-size: 13px; } }
           .pt-node:hover { transform: scale(1.06); }
-          .pt-node:focus-visible { outline: 2px solid #22c55e; outline-offset: 3px; }
+          .pt-node:focus-visible { outline: 2px solid var(--eco-c7); outline-offset: 3px; }
           .pt-node[aria-selected="true"] {
             color: #fff;
-            background: linear-gradient(145deg, #4ade80, #22c55e);
+            background: linear-gradient(145deg, var(--eco-c6), var(--eco-c7));
             border-color: transparent;
             transform: scale(1.06);
-            box-shadow: 0 0 0 5px rgba(74,222,128,0.16), 0 10px 24px rgba(34,197,94,0.32);
+            box-shadow: 0 0 0 5px rgba(var(--eco-c6-rgb), 0.16), 0 10px 24px rgba(var(--eco-c7-rgb), 0.32);
             cursor: default;
           }
 
@@ -146,7 +146,7 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
             height: 22px;
             margin-left: -1px;
             border-radius: 999px;
-            background: linear-gradient(180deg, rgba(34,197,94,0.85), rgba(34,197,94,0.12));
+            background: linear-gradient(180deg, rgba(var(--eco-c7-rgb), 0.85), rgba(var(--eco-c7-rgb), 0.12));
             pointer-events: none;
             transition: left .5s cubic-bezier(.22,1,.36,1);
           }
@@ -175,8 +175,8 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
             border-radius: 18px;
             padding: 18px 22px 20px 24px;
             background: linear-gradient(150deg, rgba(255,255,255,0.74), rgba(255,255,255,0.46));
-            border: 1px solid rgba(34,197,94,0.22);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 32px rgba(21,128,61,0.10);
+            border: 1px solid rgba(var(--eco-c7-rgb), 0.22);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 32px rgba(var(--eco-c11-rgb), 0.10);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             opacity: 0;
@@ -199,7 +199,7 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
             bottom: 0;
             width: 3px;
             border-radius: 0 3px 3px 0;
-            background: linear-gradient(180deg, #4ade80, #7dd3fc);
+            background: linear-gradient(180deg, var(--eco-c6), var(--eco-c5));
           }
           .pt-panel__tag {
             padding: 3px 10px;
@@ -208,8 +208,8 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
             font-weight: 700;
             letter-spacing: 0.7px;
             text-transform: uppercase;
-            color: #15803d;
-            background: rgba(74,222,128,0.16);
+            color: var(--eco-c13);
+            background: rgba(var(--eco-c6-rgb), 0.16);
           }
           .pt-panel__heading {
             display: block;

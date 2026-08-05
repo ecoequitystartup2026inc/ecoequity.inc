@@ -38,10 +38,6 @@ function OurTeam() {
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
         `}
       </style>
 
@@ -53,7 +49,6 @@ function OurTeam() {
       <h1 style={styles.title}>
         Our <span style={styles.accent}>Team</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={styles.body}>
         EcoEquity is built by a passionate team dedicated to transforming
@@ -133,7 +128,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -143,8 +138,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -157,18 +152,8 @@ const styles = {
     textShadow: "0 4px 12px rgba(0,0,0,0.1)",
     animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -249,7 +234,7 @@ const styles = {
   cardRole: {
     fontSize: "13px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     margin: 0,
     textTransform: "uppercase",
     letterSpacing: "0.8px",
@@ -272,9 +257,9 @@ const styles = {
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   dotActive: {
-    background: "#4ade80",
+    background: "var(--eco-c6)",
     transform: "scale(1.25)",
-    boxShadow: "0 0 10px rgba(74, 222, 128, 0.4)",
+    boxShadow: "0 0 10px rgba(var(--eco-c6-rgb), 0.4)",
   },
 };
 

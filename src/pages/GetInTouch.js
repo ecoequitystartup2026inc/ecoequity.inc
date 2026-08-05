@@ -5,8 +5,8 @@ const CONTACT_MESSAGES_STORAGE_KEY = "ecoequity_contact_messages";
 const CONTACT_INFO = [
   {
     label: "Email",
-    value: "hello@ecoequity.com",
-    href: "mailto:hello@ecoequity.com",
+    value: "ecoequity.inc2026@gmail.com",
+    href: "mailto:ecoequity.inc2026@gmail.com",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
     ),
@@ -45,24 +45,9 @@ const CATEGORIES = [
 
 const MESSAGE_MAX = 800;
 
-const FAQS = [
-  {
-    q: "How soon will I get a response?",
-    a: "Our team typically replies within 1–2 business days. Urgent product support requests are prioritized.",
-  },
-  {
-    q: "Do you offer partnerships with farms and cooperatives?",
-    a: "Yes! We actively partner with local farms, cooperatives, and agri-businesses. Select \"Partnership\" above and tell us about your goals.",
-  },
-  {
-    q: "Where are you located?",
-    a: "We're based on Gov. Pack Rd., Baguio City, Benguet. You can also reach us anytime by email or phone.",
-  },
-  {
-    q: "Can I get help with an existing order?",
-    a: "Absolutely. Choose \"Product Support\" and include your order number so we can assist you faster.",
-  },
-];
+/* The FAQ that used to close this page now lives in the site footer
+   (components/SiteFooter.js), where it reaches every visitor, not just the
+   ones who made it to Contact. */
 
 const EMPTY_FORM = { name: "", email: "", subject: "", message: "", category: CATEGORIES[0] };
 
@@ -76,7 +61,6 @@ function GetInTouch({ setActiveNav }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [btnHovered, setBtnHovered] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
 
   const validate = () => {
     const next = {};
@@ -148,10 +132,6 @@ function GetInTouch({ setActiveNav }) {
     <div style={styles.wrap}>
       <style>
         {`
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
           @keyframes popIn {
             0% { opacity: 0; transform: scale(0.85); }
             100% { opacity: 1; transform: scale(1); }
@@ -163,10 +143,6 @@ function GetInTouch({ setActiveNav }) {
             border: 2px solid rgba(255,255,255,0.4);
             border-top-color: #fff;
             animation: gitSpin 0.7s linear infinite;
-          }
-          .git-faq-body {
-            overflow: hidden;
-            transition: max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.28s ease;
           }
         `}
       </style>
@@ -193,7 +169,6 @@ function GetInTouch({ setActiveNav }) {
       <h1 style={styles.title}>
         Get in <span style={styles.accent}>Touch</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={styles.body}>
         We'd love to hear from you! Reach out to us for any inquiries,
@@ -408,50 +383,6 @@ function GetInTouch({ setActiveNav }) {
         </div>
       </div>
 
-      {/* ── FAQ ── */}
-      <div style={styles.faqSection}>
-        <h2 style={styles.faqTitle}>Frequently Asked Questions</h2>
-        <div style={styles.faqList}>
-          {FAQS.map((item, i) => {
-            const isOpen = openFaq === i;
-            return (
-              <div
-                key={item.q}
-                style={{
-                  ...styles.faqItem,
-                  ...(isOpen ? styles.faqItemOpen : {}),
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(isOpen ? null : i)}
-                  style={styles.faqQuestion}
-                  aria-expanded={isOpen}
-                >
-                  <span>{item.q}</span>
-                  <span
-                    style={{
-                      ...styles.faqChevron,
-                      transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
-                  </span>
-                </button>
-                <div
-                  className="git-faq-body"
-                  style={{
-                    maxHeight: isOpen ? "160px" : "0px",
-                    opacity: isOpen ? 1 : 0,
-                  }}
-                >
-                  <p style={styles.faqAnswer}>{item.a}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }
@@ -489,7 +420,7 @@ const styles = {
     borderRadius: "50%",
     background: "rgba(255,255,255,0.6)",
     border: "1px solid rgba(0,0,0,0.05)",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     fontSize: "20px",
     fontWeight: 600,
     lineHeight: 1,
@@ -514,7 +445,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
@@ -523,8 +454,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -537,18 +468,8 @@ const styles = {
     textShadow: "0 4px 12px rgba(0,0,0,0.1)",
     animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -601,9 +522,9 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     borderRadius: "12px",
-    background: "linear-gradient(150deg, rgba(74,222,128,0.22), rgba(125,211,252,0.18))",
-    color: "#15803d",
-    border: "1px solid rgba(74,222,128,0.25)",
+    background: "linear-gradient(150deg, rgba(var(--eco-c6-rgb), 0.22), rgba(var(--eco-c5-rgb), 0.18))",
+    color: "var(--eco-c13)",
+    border: "1px solid rgba(var(--eco-c6-rgb), 0.25)",
   },
   infoTextWrap: {
     display: "flex",
@@ -614,7 +535,7 @@ const styles = {
   infoLabel: {
     fontSize: "11px",
     fontWeight: 700,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.5px",
     textTransform: "uppercase",
   },
@@ -684,7 +605,7 @@ const styles = {
     letterSpacing: "0.2px",
   },
   req: {
-    color: "#ef4444",
+    color: "var(--eco-c13)",
     marginLeft: "3px",
   },
   labelRow: {
@@ -698,7 +619,7 @@ const styles = {
     color: "rgba(0,0,0,0.4)",
   },
   charCountMax: {
-    color: "#dc2626",
+    color: "var(--eco-c13)",
     fontWeight: 600,
   },
   pillRow: {
@@ -719,10 +640,10 @@ const styles = {
     transition: "all 0.16s ease",
   },
   pillActive: {
-    background: "linear-gradient(135deg, #22c55e, #4ade80)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c6))",
     borderColor: "transparent",
     color: "#fff",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.3)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.3)",
   },
   input: {
     width: "100%",
@@ -738,17 +659,17 @@ const styles = {
     transition: "border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease",
   },
   inputFocus: {
-    borderColor: "#4ade80",
+    borderColor: "var(--eco-c6)",
     background: "rgba(255,255,255,0.75)",
-    boxShadow: "0 0 0 3px rgba(74,222,128,0.18)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c6-rgb), 0.18)",
   },
   inputError: {
-    borderColor: "#ef4444",
-    boxShadow: "0 0 0 3px rgba(239,68,68,0.12)",
+    borderColor: "var(--eco-c7)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.12)",
   },
   errorText: {
     fontSize: "11.5px",
-    color: "#dc2626",
+    color: "var(--eco-c13)",
     fontWeight: 500,
   },
   submitBtn: {
@@ -757,20 +678,20 @@ const styles = {
     padding: "13px 20px",
     borderRadius: "12px",
     border: "none",
-    background: "linear-gradient(135deg, #22c55e, #4ade80)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c6))",
     color: "#fff",
     fontSize: "15px",
     fontWeight: 700,
     letterSpacing: "0.2px",
     cursor: "pointer",
     fontFamily: "inherit",
-    boxShadow: "0 8px 20px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.4)",
+    boxShadow: "0 8px 20px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.4)",
     transition: "transform 0.18s cubic-bezier(.34,1.56,.64,1), box-shadow 0.18s ease, filter 0.18s ease",
   },
   submitBtnHov: {
     transform: "translateY(-2px)",
     filter: "brightness(1.05)",
-    boxShadow: "0 12px 26px rgba(34,197,94,0.45), inset 0 1px 0 rgba(255,255,255,0.5)",
+    boxShadow: "0 12px 26px rgba(var(--eco-c7-rgb), 0.45), inset 0 1px 0 rgba(255,255,255,0.5)",
   },
   submitBtnLoading: {
     cursor: "not-allowed",
@@ -799,9 +720,9 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     borderRadius: "50%",
-    background: "linear-gradient(135deg, #22c55e, #4ade80)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c6))",
     color: "#fff",
-    boxShadow: "0 10px 24px rgba(34,197,94,0.4)",
+    boxShadow: "0 10px 24px rgba(var(--eco-c7-rgb), 0.4)",
   },
   successTitle: {
     fontSize: "20px",
@@ -815,68 +736,6 @@ const styles = {
     lineHeight: 1.6,
     maxWidth: "320px",
     margin: 0,
-  },
-  faqSection: {
-    width: "100%",
-    marginTop: "48px",
-    textAlign: "center",
-  },
-  faqTitle: {
-    fontSize: "clamp(22px, 3vw, 28px)",
-    fontWeight: 300,
-    color: "#000",
-    letterSpacing: "-0.5px",
-    margin: "0 0 20px",
-  },
-  faqList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    textAlign: "left",
-    maxWidth: "640px",
-    margin: "0 auto",
-  },
-  faqItem: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
-    border: "1px solid rgba(0,0,0,0.05)",
-    borderRadius: "14px",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 6px 18px rgba(0,0,0,0.04)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    overflow: "hidden",
-    transition: "border-color 0.18s ease",
-  },
-  faqItemOpen: {
-    borderColor: "rgba(74,222,128,0.4)",
-  },
-  faqQuestion: {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "12px",
-    padding: "15px 18px",
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    fontSize: "14.5px",
-    fontWeight: 600,
-    color: "#000",
-    textAlign: "left",
-  },
-  faqChevron: {
-    flexShrink: 0,
-    display: "flex",
-    color: "#15803d",
-    transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
-  },
-  faqAnswer: {
-    padding: "0 18px 16px",
-    margin: 0,
-    fontSize: "13.5px",
-    lineHeight: 1.65,
-    color: "rgba(0,0,0,0.7)",
   },
 };
 

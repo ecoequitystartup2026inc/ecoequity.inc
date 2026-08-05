@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ProblemTimeline from "../components/ProblemTimeline";
 
 const sdgItems = [
@@ -153,7 +153,7 @@ const sdgItems = [
     number: "15",
     image: "/8.png",
     bgImage: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1000", // Forest / biodiversity — SDG 15 Life on Land
-    color: "#279b48",
+    color: "var(--eco-c13)",
     expandedTitle: "Life on Land",
     expandedContent: [
       {
@@ -229,6 +229,7 @@ function LearnMore({ setActiveNav }) {
   const [activeSdg, setActiveSdg] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const sliderRef = useRef(null);
   // Pointer capability, not width, decides how cards open: hover on a mouse,
   // tap-to-toggle on touch. A wide tablet is still a touch device.
   const [canHover, setCanHover] = useState(
@@ -261,16 +262,22 @@ function LearnMore({ setActiveNav }) {
     }
   };
 
+  const scrollSlider = (direction) => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+    const scrollDistance = slider.clientWidth * 0.7;
+    slider.scrollTo({
+      left: slider.scrollLeft + scrollDistance * direction,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
       <style>
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
           @keyframes sdgBlockIn {
             from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -289,9 +296,7 @@ function LearnMore({ setActiveNav }) {
             border-radius: 20px;
             overflow: hidden;
             isolation: isolate;
-            background-color: #14532d;
-            background-size: cover;
-            background-position: center;
+            background-color: var(--eco-c13);
             scroll-snap-align: start;
             scroll-snap-stop: always;
             text-align: left;
@@ -316,6 +321,29 @@ function LearnMore({ setActiveNav }) {
           .sdg-card:focus-visible {
             outline: 2px solid #fff;
             outline-offset: 3px;
+          }
+
+          /* The SDG photo, on its own layer under every other one (the scrim
+             is z-index 1). Separating it from the card is what lets dark mode
+             re-invert the photograph on its own — see the rule further down. */
+          .sdg-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: var(--sdg-bg, none);
+            background-size: cover;
+            background-position: center;
+            pointer-events: none;
+          }
+          /* Dark mode inverts the whole page; this puts the photo back to its
+             true colours, the same way index.css treats <img> and <video>.
+             The scrim comes with it: it is the photo's own darkening gradient,
+             and left inverted it turns into a white wash that lifts the
+             picture right out of its light-mode look. */
+          html[data-theme="dark"] .sdg-card::before,
+          html[data-theme="dark"] .sdg-card__scrim {
+            filter: var(--undo-dark);
           }
 
           /* Layers: photo scrim → solid SDG colour → top accent */
@@ -534,7 +562,6 @@ function LearnMore({ setActiveNav }) {
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Sustainable Development Goals Aligned with <span style={styles.accent}>EcoEquity</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       {!isMobile && (
         <button
@@ -556,13 +583,24 @@ function LearnMore({ setActiveNav }) {
         EcoEquity is a comprehensive platform built to transform agricultural practices and empower local communities. Find out more about our initiatives, our technology, and how you can get involved.
       </p>
 
-      <div
-        className="hide-scroll"
-        style={{ ...styles.sdgSlider, ...(isMobile ? styles.sdgSliderMobile : {}) }}
-        onScroll={handleScroll}
-        aria-label="Horizontal SDG slider"
-      >
-        {sdgItems.map((sdg, index) => {
+      <div style={styles.sliderWrapper}>
+        <button
+          type="button"
+          aria-label="Scroll SDG cards left"
+          onClick={() => scrollSlider(-1)}
+          style={styles.arrowButton}
+        >
+          ‹
+        </button>
+
+        <div
+          ref={sliderRef}
+          className="hide-scroll"
+          style={{ ...styles.sdgSlider, ...(isMobile ? styles.sdgSliderMobile : {}) }}
+          onScroll={handleScroll}
+          aria-label="Horizontal SDG slider"
+        >
+          {sdgItems.map((sdg, index) => {
           const isActive = activeSdg === index;
           return (
             <button
@@ -571,7 +609,10 @@ function LearnMore({ setActiveNav }) {
               className={`sdg-card${isActive ? " is-active" : ""}`}
               style={{
                 "--sdg-color": sdg.color || "#e5243b",
-                backgroundImage: sdg.bgImage ? `url('${sdg.bgImage}')` : undefined,
+                /* The photo is painted by .sdg-card::before, not by the card
+                   itself, so dark mode can un-invert that one layer without
+                   touching the card's text and colour fills. */
+                "--sdg-bg": sdg.bgImage ? `url('${sdg.bgImage}')` : "none",
               }}
               aria-expanded={isActive}
               aria-label={`Goal ${sdg.number}: ${sdg.expandedTitle}`}
@@ -622,6 +663,17 @@ function LearnMore({ setActiveNav }) {
         })}
       </div>
 
+      <button
+        type="button"
+        aria-label="Scroll SDG cards right"
+        onClick={() => scrollSlider(1)}
+        style={{ ...styles.arrowButton, ...styles.arrowButtonRight }}
+      >
+        ›
+      </button>
+
+      </div>
+
       <div style={styles.indicatorRow} aria-hidden="true">
         {sdgItems.map((_, i) => (
           <div
@@ -639,7 +691,6 @@ function LearnMore({ setActiveNav }) {
           <h2 style={{ ...styles.titleMobile, fontSize: '24px', marginBottom: '8px' }}>
             Problem <span style={styles.accent}>Addressed</span>
           </h2>
-          <div style={styles.titleUnderline} />
           <p style={{ ...styles.bodyMobile, marginBottom: '20px', padding: '0 16px', maxWidth: '100%' }}>
             Four decades of policy and market shifts eroded Philippine food
             self-sufficiency. Tap a year to reveal how the dependency was built.
@@ -689,7 +740,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -699,8 +750,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -718,18 +769,8 @@ const styles = {
     fontSize: "clamp(22px, 6vw, 30px)",
     maxWidth: "330px",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -770,6 +811,33 @@ const styles = {
     padding: "16px 12px 24px",
     scrollPadding: "0 12px",
   },
+  sliderWrapper: {
+    display: "grid",
+    gridTemplateColumns: "48px minmax(0, 1fr) 48px",
+    gap: "12px",
+    alignItems: "center",
+    width: "100%",
+    marginTop: "24px",
+  },
+  arrowButton: {
+    width: "48px",
+    height: "48px",
+    borderRadius: "18px",
+    border: "1px solid rgba(0,0,0,0.08)",
+    background: "rgba(255,255,255,0.86)",
+    color: "#111",
+    fontSize: "24px",
+    fontWeight: 700,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    boxShadow: "0 10px 22px rgba(0,0,0,0.1)",
+    transition: "transform 0.16s ease, background 0.2s ease",
+  },
+  arrowButtonRight: {
+    justifySelf: "end",
+  },
   indicatorRow: {
     display: "flex",
     justifyContent: "center",
@@ -789,8 +857,8 @@ const styles = {
   },
   dotActive: {
     width: "22px",
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
-    boxShadow: "0 0 10px rgba(74, 222, 128, 0.6)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
+    boxShadow: "0 0 10px rgba(var(--eco-c6-rgb), 0.6)",
   },
   exploreMoreBtn: {
     position: "relative",

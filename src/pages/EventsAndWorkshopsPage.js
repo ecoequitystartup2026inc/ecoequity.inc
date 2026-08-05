@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
+import { MODAL_LAYER, modalOverlay } from "../styles/modal";
 import ReactDOM from "react-dom";
 import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUser, FaFilter, FaTimes, FaArrowLeft, FaSearch, FaUsers, FaTag } from "react-icons/fa";
 
@@ -317,10 +318,6 @@ END:VCALENDAR`;
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
         `}
       </style>
 
@@ -349,7 +346,6 @@ END:VCALENDAR`;
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Events & <span style={styles.accent}>Workshops</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Join our upcoming farming workshops, seminars, webinars, trainings, and community events to grow your skills and connect with fellow enthusiasts.
@@ -427,12 +423,12 @@ END:VCALENDAR`;
               <div style={styles.capacityWrap}>
                 <div style={styles.capacityLabelRow}>
                   <span style={styles.capacityLabel}><FaUsers /> {event.attendees} / {event.maxAttendees} joined</span>
-                  <span style={{ ...styles.capacityLabel, color: isEventFull(event) ? "#b45309" : "#15803d" }}>
+                  <span style={{ ...styles.capacityLabel, color: isEventFull(event) ? "var(--eco-c13)" : "var(--eco-c13)" }}>
                     {isEventFull(event) ? "No spots left" : `${spotsLeft(event)} spots left`}
                   </span>
                 </div>
                 <div style={styles.capacityBarBg}>
-                  <div style={{ ...styles.capacityBarFill, width: `${Math.min((event.attendees / event.maxAttendees) * 100, 100)}%`, background: isEventFull(event) ? "#eab308" : "linear-gradient(90deg, #4ade80, #16a34a)" }} />
+                  <div style={{ ...styles.capacityBarFill, width: `${Math.min((event.attendees / event.maxAttendees) * 100, 100)}%`, background: isEventFull(event) ? "var(--eco-c7)" : "linear-gradient(90deg, var(--eco-c6), var(--eco-c9))" }} />
                 </div>
               </div>
             )}
@@ -469,12 +465,12 @@ END:VCALENDAR`;
               <div style={styles.capacityWrap}>
                 <div style={styles.capacityLabelRow}>
                   <span style={styles.capacityLabel}><FaUsers /> {selectedEvent.attendees} / {selectedEvent.maxAttendees} joined</span>
-                  <span style={{ ...styles.capacityLabel, color: isEventFull(selectedEvent) ? "#b45309" : "#15803d" }}>
+                  <span style={{ ...styles.capacityLabel, color: isEventFull(selectedEvent) ? "var(--eco-c13)" : "var(--eco-c13)" }}>
                     {isEventFull(selectedEvent) ? "No spots left" : `${spotsLeft(selectedEvent)} spots left`}
                   </span>
                 </div>
                 <div style={styles.capacityBarBg}>
-                  <div style={{ ...styles.capacityBarFill, width: `${Math.min((selectedEvent.attendees / selectedEvent.maxAttendees) * 100, 100)}%`, background: isEventFull(selectedEvent) ? "#eab308" : "linear-gradient(90deg, #4ade80, #16a34a)" }} />
+                  <div style={{ ...styles.capacityBarFill, width: `${Math.min((selectedEvent.attendees / selectedEvent.maxAttendees) * 100, 100)}%`, background: isEventFull(selectedEvent) ? "var(--eco-c7)" : "linear-gradient(90deg, var(--eco-c6), var(--eco-c9))" }} />
                 </div>
               </div>
             )}
@@ -557,7 +553,7 @@ END:VCALENDAR`;
       {showSuccessModal && confirmedEvent && ReactDOM.createPortal(
         <div style={styles.successModalOverlay} onClick={handleCloseSuccess}>
           <div style={styles.successModalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.successCheckmark}><Check size={28} color="#16a34a" /></div>
+            <div style={styles.successCheckmark}><Check size={28} color="var(--eco-c9)" /></div>
             <h2 style={styles.successTitle}>You're Confirmed!</h2>
             <p style={styles.successSubtitle}>You've successfully joined:</p>
             <div style={styles.successEventCard}>
@@ -639,7 +635,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -649,8 +645,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -665,18 +661,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(26px, 7.5vw, 36px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -758,18 +744,18 @@ const styles = {
     transition: "all 0.3s ease",
   },
   filterBtnActive: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.25), rgba(125,211,252,0.25))",
-    border: "1px solid rgba(134,239,172,0.4)",
-    color: "#064e3b",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.25), rgba(var(--eco-c5-rgb), 0.25))",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.4)",
+    color: "var(--eco-c15)",
     fontWeight: 700,
-    boxShadow: "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
+    boxShadow: "0 8px 24px rgba(var(--eco-c7-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.3)",
     backdropFilter: "blur(12px) saturate(180%)",
     WebkitBackdropFilter: "blur(12px) saturate(180%)",
   },
   filterBtnHover: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.12), rgba(125,211,252,0.12))",
-    color: "#064e3b",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.08)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.12), rgba(var(--eco-c5-rgb), 0.12))",
+    color: "var(--eco-c15)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.08)",
   },
   eventGrid: {
     display: "flex", // Changed to flex for horizontal scrolling
@@ -837,7 +823,7 @@ const styles = {
     zIndex: 1,
   },
   eventTypeBadge: {
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     padding: "4px 10px",
     borderRadius: "999px",
@@ -845,14 +831,14 @@ const styles = {
     fontWeight: 700,
     textTransform: "uppercase",
     letterSpacing: "0.5px",
-    boxShadow: "0 2px 8px rgba(21,128,61,0.2)",
+    boxShadow: "0 2px 8px rgba(var(--eco-c11-rgb), 0.2)",
   },
   eventPriceBadge: {
     display: "inline-flex",
     alignItems: "center",
     gap: "5px",
-    background: "rgba(2,132,199,0.1)",
-    color: "#0284c7",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    color: "var(--eco-c13)",
     padding: "4px 10px",
     borderRadius: "999px",
     fontSize: "11px",
@@ -861,8 +847,8 @@ const styles = {
     letterSpacing: "0.5px",
   },
   eventFullBadge: {
-    background: "rgba(234,179,8,0.15)",
-    color: "#b45309",
+    background: "rgba(var(--eco-c7-rgb), 0.15)",
+    color: "var(--eco-c13)",
     padding: "4px 10px",
     borderRadius: "999px",
     fontSize: "11px",
@@ -961,43 +947,32 @@ const styles = {
     height: "40px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "2px solid #15803d",
+    border: "2px solid var(--eco-c11)",
   },
   speakerName: {
     fontSize: "13px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   rsvpButton: {
     width: "100%",
     padding: "10px 15px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
     marginTop: "15px",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease",
     position: "relative",
     zIndex: 1,
   },
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    zIndex: 1000,
-  },
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
   modalContent: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))",
     border: "1px solid rgba(0,0,0,0.1)",
     borderRadius: "24px",
     padding: "30px",
@@ -1060,14 +1035,14 @@ const styles = {
     width: "100%",
     padding: "12px 15px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "15px",
     fontWeight: 700,
     cursor: "pointer",
     marginTop: "20px",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease",
     textDecoration: "none",
     textAlign: "center",
@@ -1086,29 +1061,18 @@ const styles = {
     transition: "all 0.3s ease",
   },
 dotActive: {
-    background: "#15803d",
+    background: "var(--eco-c11)",
     transform: "scale(1.2)",
   },
-  ideasModalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.5)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    zIndex: 1100,
-  },
+  ideasModalOverlay: modalOverlay(MODAL_LAYER.nested),
   ideasModalContent: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.98), rgba(240,253,244,0.95))",
-    border: "1px solid rgba(134,239,172,0.3)",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.98), rgba(var(--eco-c0-rgb), 0.95))",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.3)",
     borderRadius: "24px",
     padding: "28px",
     maxWidth: "480px",
     width: "100%",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.25), 0 0 30px rgba(134,239,172,0.15)",
+    boxShadow: "0 20px 50px rgba(0,0,0,0.25), 0 0 30px rgba(var(--eco-c5-rgb), 0.15)",
     position: "relative",
     display: "flex",
     flexDirection: "column",
@@ -1136,19 +1100,19 @@ dotActive: {
   ideasModalTitle: {
     fontSize: "20px",
     fontWeight: 700,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     margin: 0,
     paddingBottom: "8px",
-    borderBottom: "2px solid rgba(134,239,172,0.3)",
+    borderBottom: "2px solid rgba(var(--eco-c5-rgb), 0.3)",
   },
   ideasEventInfo: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.1), rgba(125,211,252,0.1))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.1), rgba(var(--eco-c5-rgb), 0.1))",
     borderRadius: "16px",
     padding: "16px",
-    border: "1px solid rgba(134,239,172,0.2)",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.2)",
   },
   ideasEventTypeBadge: {
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     padding: "3px 10px",
     borderRadius: "999px",
@@ -1223,35 +1187,24 @@ ideasConfirmBtn: {
     flex: 2,
     padding: "12px 16px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 8px 24px rgba(34,197,94,0.3), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 8px 24px rgba(var(--eco-c7-rgb), 0.3), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "all 0.2s ease",
   },
-  successModalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.6)",
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    zIndex: 1200,
-  },
+  successModalOverlay: modalOverlay(MODAL_LAYER.nestedConfirm),
   successModalContent: {
-    background: "linear-gradient(160deg, rgba(255,255,255,0.99), rgba(220,252,231,0.97))",
-    border: "2px solid rgba(134,239,172,0.5)",
+    background: "linear-gradient(160deg, rgba(255,255,255,0.99), rgba(var(--eco-c3-rgb), 0.97))",
+    border: "2px solid rgba(var(--eco-c5-rgb), 0.5)",
     borderRadius: "28px",
     padding: "32px",
     maxWidth: "420px",
     width: "100%",
-    boxShadow: "0 25px 60px rgba(0,0,0,0.3), 0 0 50px rgba(134,239,172,0.2)",
+    boxShadow: "0 25px 60px rgba(0,0,0,0.3), 0 0 50px rgba(var(--eco-c5-rgb), 0.2)",
     position: "relative",
     display: "flex",
     flexDirection: "column",
@@ -1264,19 +1217,19 @@ ideasConfirmBtn: {
     width: "72px",
     height: "72px",
     borderRadius: "50%",
-    background: "linear-gradient(135deg, #4ade80, #22c55e)",
+    background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c7))",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "36px",
     color: "#fff",
-    boxShadow: "0 8px 24px rgba(34,197,94,0.4)",
+    boxShadow: "0 8px 24px rgba(var(--eco-c7-rgb), 0.4)",
     marginBottom: "8px",
   },
   successTitle: {
     fontSize: "26px",
     fontWeight: 800,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     margin: 0,
   },
   successSubtitle: {
@@ -1285,15 +1238,15 @@ ideasConfirmBtn: {
     margin: 0,
   },
   successEventCard: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.15), rgba(125,211,252,0.15))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.15), rgba(var(--eco-c5-rgb), 0.15))",
     borderRadius: "16px",
     padding: "16px 20px",
-    border: "1px solid rgba(134,239,172,0.3)",
+    border: "1px solid rgba(var(--eco-c5-rgb), 0.3)",
     width: "100%",
     textAlign: "left",
   },
   successEventType: {
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     padding: "3px 10px",
     borderRadius: "999px",
@@ -1327,13 +1280,13 @@ successButton: {
     width: "100%",
     padding: "14px 20px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, #15803d, #22c55e)",
+    background: "linear-gradient(135deg, var(--eco-c11), var(--eco-c7))",
     border: "1px solid rgba(255,255,255,0.3)",
     color: "#fff",
     fontSize: "15px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 10px 30px rgba(21,128,61,0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
+    boxShadow: "0 10px 30px rgba(var(--eco-c11-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
     transition: "all 0.2s ease",
   },
   calendarButtonsRow: {
@@ -1347,8 +1300,8 @@ successButton: {
     padding: "12px 20px",
     borderRadius: "999px",
     background: "rgba(255,255,255,0.9)",
-    border: "1px solid rgba(21,128,61,0.3)",
-    color: "#15803d",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.3)",
+    color: "var(--eco-c13)",
     fontSize: "14px",
     fontWeight: 600,
     cursor: "pointer",
@@ -1361,7 +1314,7 @@ successButton: {
     borderRadius: "999px",
     background: "rgba(255,255,255,0.8)",
     border: "1px solid rgba(0,0,0,0.1)",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     fontSize: "14px",
     fontWeight: 600,
     cursor: "pointer",

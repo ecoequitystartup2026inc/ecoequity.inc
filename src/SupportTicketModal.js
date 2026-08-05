@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes, FaPaperPlane, FaHeadset, FaUser, FaEnvelope, FaTag, FaCommentDots, FaUpload, FaCheckCircle, FaExclamationTriangle, FaFileAlt } from "react-icons/fa";
+import { MODAL_LAYER } from "./styles/modal";
 
 const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit, isMobile }) => {
   const [formData, setFormData] = useState({
@@ -65,23 +66,26 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
     }
   };
 
+  // Docked corner panel, matching SiteFeedbackWidget and AIChatInterface — no
+  // scrim, so the page (or the Account modal it can be opened from) stays visible.
   return ReactDOM.createPortal(
-    <div style={{ ...modalStyles.overlay, ...(isMobile ? modalStyles.overlayMobile : {}) }} onClick={onClose}>
-      <div style={{ ...modalStyles.modalContent, ...(isMobile ? modalStyles.modalContentMobile : {}) }} onClick={(e) => e.stopPropagation()}>
-        <button style={modalStyles.closeBtn} onClick={onClose}>
-          <FaTimes />
-        </button>
-
-        <div style={modalStyles.header}>
+    <div style={{ ...modalStyles.panel, ...(isMobile ? modalStyles.panelMobile : {}) }}>
+      <div style={modalStyles.header}>
+        <div style={modalStyles.headerText}>
           <div style={modalStyles.headerTitleRow}>
-            <FaHeadset size={18} style={modalStyles.headerIconInline} />
+            <FaHeadset size={14} style={modalStyles.headerIconInline} />
             <h2 style={modalStyles.title}>Submit a Support Ticket</h2>
           </div>
           <p style={modalStyles.subtitle}>
-            Please fill out the form below and we'll get back to you as soon as possible.
+            We'll get back to you as soon as possible.
           </p>
         </div>
+        <button style={modalStyles.closeBtn} aria-label="Close support ticket form" onClick={onClose}>
+          <FaTimes size={12} />
+        </button>
+      </div>
 
+      <div style={modalStyles.body} className="slim-scroll">
         <form onSubmit={handleSubmit} style={modalStyles.form}>
           <div style={modalStyles.inputGroup}>
             <label style={modalStyles.label}><FaUser /> Your Name</label>
@@ -196,114 +200,92 @@ const SupportTicketModal = ({ isOpen, onClose, loggedInUser, userEmail, onSubmit
   );
 };
 
+
 const modalStyles = {
-  overlay: {
+  // Same anchor, width, radius, glass and shadow as SiteFeedbackWidget's `panel`.
+  // It sits at the nested-modal tier because it can be opened from inside the
+  // Account Settings modal and has to stay visible over it.
+  panel: {
     position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10000,
-    background: "rgba(15, 23, 42, 0.45)",
-    backdropFilter: "blur(6px)",
-    WebkitBackdropFilter: "blur(6px)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "24px",
-    boxSizing: "border-box",
-    animation: "fadeIn 0.25s ease",
-    pointerEvents: "auto",
-  },
-  overlayMobile: {
-    background: "rgba(0, 0, 0, 0.42)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    padding: 0,
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-  },
-  modalContent: {
-    maxWidth: "440px",
-    width: "min(92vw, 440px)",
-    maxHeight: "88vh",
-    background: "linear-gradient(180deg, #ffffff 0%, #f6f9fb 100%)",
-    border: "1px solid rgba(15,23,42,0.08)",
-    borderRadius: "18px",
-    padding: "28px 28px 26px",
+    right: "28px",
+    bottom: "112px",
+    zIndex: MODAL_LAYER.nested,
+    width: "370px",
+    maxHeight: "min(72vh, 620px)",
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0 24px 60px rgba(15,23,42,0.28), 0 2px 6px rgba(15,23,42,0.08)",
-    position: "relative",
-    animation: "scaleUp 0.28s ease",
-    overflowY: "auto",
-    pointerEvents: "auto",
+    overflow: "hidden",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.97), rgba(var(--eco-c0-rgb), 0.95))",
+    border: "1px solid rgba(255,255,255,0.7)",
+    borderRadius: "20px",
+    boxShadow: "0 24px 50px rgba(var(--eco-c19-rgb), 0.22)",
+    backdropFilter: "blur(20px) saturate(170%)",
+    WebkitBackdropFilter: "blur(20px) saturate(170%)",
+    animation: "scaleUp 0.25s ease",
   },
-  modalContentMobile: {
-    width: "100vw",
-    maxWidth: "100vw",
-    height: "100dvh",
-    maxHeight: "100dvh",
-    margin: 0,
-    borderRadius: 0,
-    border: "none",
-    boxSizing: "border-box",
-    transformOrigin: "top center",
+  panelMobile: {
+    right: "clamp(12px, 4vw, 20px)",
+    left: "clamp(12px, 4vw, 20px)",
+    width: "auto",
+    bottom: "calc(clamp(16px, 3dvh, 24px) + 152px)",
+    maxHeight: "70dvh",
   },
   closeBtn: {
-    position: "absolute",
-    top: "16px",
-    right: "16px",
-    zIndex: 50,
-    background: "rgba(0,0,0,0.05)",
-    border: "none",
+    flexShrink: 0,
+    width: "28px",
+    height: "28px",
     borderRadius: "50%",
-    width: "32px",
-    height: "32px",
+    border: "none",
+    background: "rgba(var(--eco-c19-rgb), 0.06)",
+    color: "var(--eco-c19)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "16px",
-    color: "rgba(0,0,0,0.6)",
     cursor: "pointer",
-    transition: "background 0.2s",
+    transition: "background 0.2s ease",
   },
   header: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "flex-start",
-    textAlign: "left",
-    gap: "6px",
-    marginBottom: "20px",
-    paddingBottom: "16px",
-    borderBottom: "1px solid rgba(15,23,42,0.08)",
+    justifyContent: "space-between",
+    gap: "12px",
+    padding: "14px 16px 10px",
+    borderBottom: "1px solid rgba(var(--eco-c19-rgb), 0.08)",
+    flexShrink: 0,
+  },
+  headerText: {
+    minWidth: 0,
   },
   headerTitleRow: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
+    gap: "7px",
   },
   headerIconInline: {
-    color: "#15803d",
+    color: "var(--eco-c13)",
     flexShrink: 0,
   },
   title: {
-    fontSize: "18px",
-    fontWeight: 800,
-    color: "#0f172a",
+    fontSize: "15px",
+    fontWeight: 850,
+    color: "var(--eco-c19)",
     margin: 0,
     letterSpacing: "-0.2px",
   },
   subtitle: {
-    fontSize: "13px",
-    color: "#64748b",
-    margin: 0,
+    fontSize: "12px",
+    color: "rgba(var(--eco-c19-rgb), 0.6)",
+    margin: "3px 0 0",
     lineHeight: 1.45,
+  },
+  body: {
+    overflowY: "auto",
+    padding: "12px 16px 16px",
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "10px",
   },
   inputGroup: {
     display: "flex",
@@ -311,31 +293,31 @@ const modalStyles = {
     gap: "6px",
   },
   label: {
-    fontSize: "12.5px",
-    fontWeight: 600,
-    color: "#334155",
+    fontSize: "11.5px",
+    fontWeight: 700,
+    color: "rgba(var(--eco-c19-rgb), 0.62)",
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: "7px",
   },
   input: {
-    padding: "10px 14px",
-    borderRadius: "10px",
-    border: "1px solid #e2e8f0",
-    background: "#ffffff",
-    fontSize: "13px",
-    color: "#0f172a",
+    padding: "9px 12px",
+    borderRadius: "12px",
+    border: "1px solid rgba(var(--eco-c19-rgb), 0.1)",
+    background: "rgba(255,255,255,0.85)",
+    fontSize: "12.5px",
+    color: "var(--eco-c19)",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "inherit",
   },
   select: {
-    padding: "10px 14px",
-    borderRadius: "10px",
-    border: "1px solid #e2e8f0",
-    background: "#ffffff",
-    fontSize: "13px",
-    color: "#0f172a",
+    padding: "9px 12px",
+    borderRadius: "12px",
+    border: "1px solid rgba(var(--eco-c19-rgb), 0.1)",
+    background: "rgba(255,255,255,0.85)",
+    fontSize: "12.5px",
+    color: "var(--eco-c19)",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "inherit",
@@ -345,39 +327,42 @@ const modalStyles = {
     backgroundPosition: "right 12px center",
   },
   textarea: {
-    padding: "10px 14px",
-    borderRadius: "10px",
-    border: "1px solid rgba(0,0,0,0.1)",
-    background: "rgba(255,255,255,0.8)",
-    fontSize: "13px",
-    color: "#000",
+    padding: "9px 12px",
+    borderRadius: "12px",
+    border: "1px solid rgba(var(--eco-c19-rgb), 0.1)",
+    background: "rgba(255,255,255,0.85)",
+    fontSize: "12.5px",
+    color: "var(--eco-c19)",
     outline: "none",
     boxSizing: "border-box",
     fontFamily: "inherit",
-    resize: "vertical",
+    resize: "none",
   },
   fileInput: {
-    padding: "12px 0",
-    fontSize: "14px",
-    color: "#000",
+    padding: "6px 0",
+    fontSize: "11.5px",
+    color: "rgba(var(--eco-c19-rgb), 0.7)",
     fontFamily: "inherit",
   },
   fileName: {
-    fontSize: "12px",
-    color: "rgba(0,0,0,0.6)",
-    marginTop: "-8px",
-    marginLeft: "4px",
+    fontSize: "11px",
+    color: "rgba(var(--eco-c19-rgb), 0.55)",
+    marginTop: "-4px",
+    marginLeft: "2px",
+    wordBreak: "break-all",
   },
   submitBtn: {
+    marginTop: "4px",
     padding: "12px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
-    fontSize: "14px",
-    fontWeight: 700,
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.96), rgba(var(--eco-c5-rgb), 0.96))",
+    border: "1px solid rgba(255,255,255,0.45)",
+    color: "var(--eco-c19)",
+    fontSize: "13px",
+    fontWeight: 850,
+    fontFamily: "inherit",
     cursor: "pointer",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 10px 24px rgba(var(--eco-c7-rgb), 0.22)",
     transition: "transform 0.2s ease",
     display: "flex",
     alignItems: "center",
@@ -386,18 +371,18 @@ const modalStyles = {
   },
   spinner: {
     border: "3px solid rgba(0,0,0,0.3)",
-    borderTop: "3px solid #062018",
+    borderTop: "3px solid var(--eco-c19)",
     borderRadius: "50%",
-    width: "18px",
-    height: "18px",
+    width: "16px",
+    height: "16px",
     animation: "spin 1s linear infinite",
   },
   statusMessageSuccess: {
-    padding: "12px",
+    padding: "10px 12px",
     borderRadius: "12px",
-    background: "rgba(22, 163, 74, 0.1)",
-    color: "#15803d",
-    fontSize: "14px",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    color: "var(--eco-c13)",
+    fontSize: "12.5px",
     fontWeight: 600,
     display: "flex",
     alignItems: "center",
@@ -405,11 +390,11 @@ const modalStyles = {
     animation: "fadeIn 0.3s ease",
   },
   statusMessageError: {
-    padding: "12px",
+    padding: "10px 12px",
     borderRadius: "12px",
-    background: "rgba(220, 38, 38, 0.1)",
-    color: "#dc2626",
-    fontSize: "14px",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    color: "var(--eco-c13)",
+    fontSize: "12.5px",
     fontWeight: 600,
     display: "flex",
     alignItems: "center",

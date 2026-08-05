@@ -65,17 +65,17 @@ function SiteFeedbackWidget({ isOpen, onClose, isMobile, onSubmit, currentPage, 
           <p style={styles.headerSub}>Tell us how EcoEquity feels to use.</p>
         </div>
         <button type="button" aria-label="Close feedback" style={styles.closeBtn} onClick={onClose}>
-          <X size={16} color="#062018" strokeWidth={2.6} />
+          <X size={16} color="var(--eco-c19)" strokeWidth={2.6} />
         </button>
       </div>
 
       {submitted ? (
         <div style={styles.thanks}>
-          <PartyPopper size={30} color="#16a34a" />
+          <PartyPopper size={30} color="var(--eco-c9)" />
           <h4 style={styles.thanksTitle}>Thanks for the feedback!</h4>
           <div style={styles.thanksStars}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} size={16} fill={s <= rating ? "#fbbf24" : "none"} color={s <= rating ? "#fbbf24" : "rgba(0,0,0,0.2)"} strokeWidth={2} />
+              <Star key={s} size={16} fill={s <= rating ? "var(--eco-c6)" : "none"} color={s <= rating ? "var(--eco-c6)" : "rgba(0,0,0,0.2)"} strokeWidth={2} />
             ))}
           </div>
           <p style={styles.thanksText}>Your rating helps us improve the experience for every gardener.</p>
@@ -97,8 +97,8 @@ function SiteFeedbackWidget({ isOpen, onClose, isMobile, onSubmit, currentPage, 
               >
                 <Star
                   size={30}
-                  fill={shown >= s ? "#fbbf24" : "none"}
-                  color={shown >= s ? "#fbbf24" : "rgba(0,0,0,0.25)"}
+                  fill={shown >= s ? "var(--eco-c6)" : "none"}
+                  color={shown >= s ? "var(--eco-c6)" : "rgba(0,0,0,0.25)"}
                   strokeWidth={2}
                 />
               </button>
@@ -153,28 +153,30 @@ function SiteFeedbackWidget({ isOpen, onClose, isMobile, onSubmit, currentPage, 
 }
 
 const styles = {
-  panel: { position: "fixed", right: "28px", bottom: "112px", zIndex: 2200, width: "340px", maxHeight: "min(78vh, 620px)", display: "flex", flexDirection: "column", overflowY: "auto", background: "linear-gradient(150deg, rgba(255,255,255,0.97), rgba(240,253,244,0.95))", border: "1px solid rgba(255,255,255,0.7)", borderRadius: "20px", boxShadow: "0 24px 50px rgba(6,32,24,0.22)", backdropFilter: "blur(20px) saturate(170%)", WebkitBackdropFilter: "blur(20px) saturate(170%)", animation: "scaleUp 0.25s ease" },
+  /* bottom clears the floating FAB row (48px, 48px off the viewport floor) so
+     the panel never covers its own trigger. */
+  panel: { position: "fixed", right: "28px", bottom: "112px", zIndex: 2200, width: "340px", maxHeight: "min(78vh, 620px)", display: "flex", flexDirection: "column", overflowY: "auto", background: "linear-gradient(150deg, rgba(255,255,255,0.97), rgba(var(--eco-c0-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.7)", borderRadius: "20px", boxShadow: "0 24px 50px rgba(var(--eco-c19-rgb), 0.22)", backdropFilter: "blur(20px) saturate(170%)", WebkitBackdropFilter: "blur(20px) saturate(170%)", animation: "scaleUp 0.25s ease" },
   panelMobile: { right: "clamp(12px, 4vw, 20px)", left: "clamp(12px, 4vw, 20px)", width: "auto", bottom: "calc(clamp(16px, 3dvh, 24px) + 152px)", maxHeight: "70dvh" },
   header: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", padding: "16px 16px 10px" },
-  headerTitle: { margin: 0, fontSize: "15px", fontWeight: 850, color: "#062018" },
-  headerSub: { margin: "3px 0 0", fontSize: "12px", color: "rgba(6,32,24,0.6)" },
-  closeBtn: { flexShrink: 0, width: "28px", height: "28px", borderRadius: "50%", border: "none", background: "rgba(6,32,24,0.06)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+  headerTitle: { margin: 0, fontSize: "15px", fontWeight: 850, color: "var(--eco-c19)" },
+  headerSub: { margin: "3px 0 0", fontSize: "12px", color: "rgba(var(--eco-c19-rgb), 0.6)" },
+  closeBtn: { flexShrink: 0, width: "28px", height: "28px", borderRadius: "50%", border: "none", background: "rgba(var(--eco-c19-rgb), 0.06)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
   body: { display: "flex", flexDirection: "column", padding: "0 16px 16px" },
-  label: { fontSize: "11.5px", fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: "rgba(6,32,24,0.45)", marginBottom: "8px" },
+  label: { fontSize: "11.5px", fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: "rgba(var(--eco-c19-rgb), 0.45)", marginBottom: "8px" },
   starRow: { display: "flex", gap: "4px", justifyContent: "center", marginBottom: "2px" },
   starBtn: { background: "transparent", border: "none", padding: "2px", cursor: "pointer", lineHeight: 0, transition: "transform 0.15s ease" },
-  ratingLabel: { display: "block", textAlign: "center", fontSize: "12.5px", fontWeight: 800, color: "#b45309", minHeight: "18px", marginBottom: "14px", transition: "opacity 0.15s ease" },
+  ratingLabel: { display: "block", textAlign: "center", fontSize: "12.5px", fontWeight: 800, color: "var(--eco-c13)", minHeight: "18px", marginBottom: "14px", transition: "opacity 0.15s ease" },
   topicRow: { display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "14px" },
-  topicChip: { padding: "6px 11px", borderRadius: "999px", border: "1px solid rgba(6,32,24,0.12)", background: "rgba(255,255,255,0.8)", color: "rgba(6,32,24,0.7)", fontSize: "12px", fontWeight: 700, fontFamily: "inherit", cursor: "pointer", transition: "all 0.18s ease" },
-  topicChipOn: { background: "rgba(22,163,74,0.12)", borderColor: "rgba(22,163,74,0.35)", color: "#15803d" },
-  textarea: { width: "100%", height: "76px", padding: "11px 12px 24px", borderRadius: "12px", border: "1px solid rgba(6,32,24,0.1)", background: "rgba(255,255,255,0.85)", fontSize: "13px", fontFamily: "inherit", color: "#062018", resize: "none", outline: "none", boxSizing: "border-box", marginBottom: "14px" },
-  counter: { position: "absolute", bottom: "22px", right: "12px", fontSize: "11px", fontWeight: 600, color: "rgba(6,32,24,0.4)" },
-  submitBtn: { width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.45)", background: "linear-gradient(135deg, rgba(134,239,172,0.96), rgba(125,211,252,0.96))", color: "#062018", fontSize: "13px", fontWeight: 850, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 10px 24px rgba(34,197,94,0.22)" },
+  topicChip: { padding: "6px 11px", borderRadius: "999px", border: "1px solid rgba(var(--eco-c19-rgb), 0.12)", background: "rgba(255,255,255,0.8)", color: "rgba(var(--eco-c19-rgb), 0.7)", fontSize: "12px", fontWeight: 700, fontFamily: "inherit", cursor: "pointer", transition: "all 0.18s ease" },
+  topicChipOn: { background: "rgba(var(--eco-c9-rgb), 0.12)", borderColor: "rgba(var(--eco-c9-rgb), 0.35)", color: "var(--eco-c13)" },
+  textarea: { width: "100%", height: "76px", padding: "11px 12px 24px", borderRadius: "12px", border: "1px solid rgba(var(--eco-c19-rgb), 0.1)", background: "rgba(255,255,255,0.85)", fontSize: "13px", fontFamily: "inherit", color: "var(--eco-c19)", resize: "none", outline: "none", boxSizing: "border-box", marginBottom: "14px" },
+  counter: { position: "absolute", bottom: "22px", right: "12px", fontSize: "11px", fontWeight: 600, color: "rgba(var(--eco-c19-rgb), 0.4)" },
+  submitBtn: { width: "100%", padding: "12px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.45)", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.96), rgba(var(--eco-c5-rgb), 0.96))", color: "var(--eco-c19)", fontSize: "13px", fontWeight: 850, fontFamily: "inherit", cursor: "pointer", boxShadow: "0 10px 24px rgba(var(--eco-c7-rgb), 0.22)" },
   submitBtnDisabled: { opacity: 0.55, cursor: "not-allowed", boxShadow: "none" },
   thanks: { display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "8px", padding: "8px 16px 20px" },
-  thanksTitle: { margin: 0, fontSize: "15px", fontWeight: 850, color: "#15803d" },
+  thanksTitle: { margin: 0, fontSize: "15px", fontWeight: 850, color: "var(--eco-c13)" },
   thanksStars: { display: "flex", gap: "3px" },
-  thanksText: { margin: "0 0 6px", fontSize: "12.5px", color: "rgba(6,32,24,0.6)", lineHeight: 1.5 },
+  thanksText: { margin: "0 0 6px", fontSize: "12.5px", color: "rgba(var(--eco-c19-rgb), 0.6)", lineHeight: 1.5 },
 };
 
 export default SiteFeedbackWidget;

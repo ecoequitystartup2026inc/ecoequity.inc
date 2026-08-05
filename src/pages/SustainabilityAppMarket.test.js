@@ -50,6 +50,50 @@ describe("SustainabilityAppMarket Component", () => {
     expect(screen.getByText("150K+ AMU")).toBeInTheDocument();
   });
 
+  it("renders an image band on every tier card", () => {
+    const { container } = render(<SustainabilityAppMarket />);
+
+    const media = container.querySelectorAll(".sam-cardmedia img");
+    expect(media).toHaveLength(3);
+
+    expect([...media].map((img) => img.getAttribute("src"))).toEqual([
+      "/farming.jpg",
+      "/Solar.jpg",
+      "/Planting.jpg",
+    ]);
+
+    media.forEach((img) => {
+      expect(img.getAttribute("alt")).toBeTruthy();
+      expect(img.getAttribute("loading")).toBe("lazy");
+    });
+
+    expect(screen.getByText("Nationwide food, wellness, and home-growing spend")).toBeInTheDocument();
+    expect(screen.getByText("Metro households already spending on green living")).toBeInTheDocument();
+    expect(screen.getByText("Early adopters turning harvests into income")).toBeInTheDocument();
+  });
+
+  it("renders a thumbnail on every line item across the three tiers", () => {
+    const { container } = render(<SustainabilityAppMarket />);
+
+    const thumbs = container.querySelectorAll(".sam-itemthumb img");
+    expect(thumbs).toHaveLength(7); // 2 TAM + 2 SAM + 3 SOM
+
+    expect([...thumbs].map((img) => img.getAttribute("src"))).toEqual([
+      "/IMG_6223.jpeg",
+      "/kit_balcony_herb.png",
+      "/Establishment.jpg",
+      "/herb_kit.png",
+      "/kids_kit.png",
+      "/starter_kit.png",
+      "/Rice.jpg",
+    ]);
+
+    thumbs.forEach((img) => {
+      expect(img.getAttribute("alt")).toBeTruthy();
+      expect(img.getAttribute("loading")).toBe("lazy");
+    });
+  });
+
   it("applies the hover lift to a tier card on mouse enter and removes it on mouse leave", () => {
     const { container } = render(<SustainabilityAppMarket />);
 
@@ -62,7 +106,7 @@ describe("SustainabilityAppMarket Component", () => {
       fireEvent.mouseEnter(card);
       expect(card).toHaveStyle("transform: translateY(-5px)");
       expect(card.style.boxShadow).toBe(
-        "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)"
+        "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(var(--eco-c11-rgb), 0.14)"
       );
 
       fireEvent.mouseLeave(card);

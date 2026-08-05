@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { FaLeaf, FaTimes, FaLightbulb, FaRocket, FaCheckCircle, FaTrash, FaMinus, FaPlus, FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaCreditCard, FaMoneyBillWave, FaLock, FaSeedling, FaGift, FaBoxOpen, FaTag, FaHeart, FaShoppingCart } from "react-icons/fa";
 import { Leaf, Cherry, Carrot, Wrench, Sprout, Heart, Check, Smartphone } from "lucide-react";
+import { MODAL_LAYER, modalOverlay, nestedConfirmOverlay } from "../styles/modal";
 
 // Real kit photo that falls back to the icon circle if the image is missing.
 function KitImage({ src, alt, icon }) {
@@ -33,7 +34,7 @@ const starterKitsData = [
     desc: "Perfect for urban spaces. Includes 5 organic herb varieties, premium soil, and eco-pots for your apartment balcony.",
     price: "₱850.00",
     image: "/kit_balcony_herb.png",
-    icon: <Leaf size="1em" color="#16a34a" />,
+    icon: <Leaf size="1em" color="var(--eco-c9)" />,
     badge: "Best Seller",
     suggestions: [
       "Use vertical planters to maximize space on your balcony.",
@@ -93,7 +94,7 @@ const starterKitsData = [
     desc: "Ergonomic, rust-resistant essential hand tools including a trowel, pruner, cultivator, and gardening gloves.",
     price: "₱650.00",
     image: "/kit_tools.png",
-    icon: <Wrench size="1em" color="#15803d" />,
+    icon: <Wrench size="1em" color="var(--eco-c11)" />,
     badge: "Essential",
     suggestions: [
       "Clean and dry your tools after each use to prevent rust.",
@@ -199,7 +200,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
 
   const uniqueCartItems = Object.keys(cartItemCounts).map((id) => {
     const product = starterKitsData.find((p) => p.id === parseInt(id));
-    if (!product) return { id: parseInt(id), title: `Item #${id}`, price: "₱0.00", icon: <Sprout size="1em" color="#16a34a" />, quantity: cartItemCounts[id], numericPrice: 0 };
+    if (!product) return { id: parseInt(id), title: `Item #${id}`, price: "₱0.00", icon: <Sprout size="1em" color="var(--eco-c9)" />, quantity: cartItemCounts[id], numericPrice: 0 };
     const numericPrice = parseFloat(product.price.replace(/[^\d.]/g, ''));
     return { ...product, quantity: cartItemCounts[id], numericPrice };
   });
@@ -354,7 +355,14 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
         instructions: formData.instructions,
         payment: selectedPayment === 'cod' ? 'Cash on Delivery' : selectedPayment === 'gcash' ? 'GCash' : selectedPayment === 'maya' ? 'Maya' : selectedPayment === 'bank' ? 'Bank Transfer' : 'Credit Card',
         paymentStatus: selectedPayment === 'cod' ? 'Pending' : 'Paid',
-        rider: "Unassigned"
+        rider: "Unassigned",
+        // Structured cart, saved as order_items rows in Supabase (see data/orders.js).
+        lineItems: uniqueCartItems.map(item => ({
+          product_id: item.id,
+          name: item.name || item.title,
+          qty: item.quantity,
+          price: Number(item.price) || 0,
+        })),
       };
       setLatestOrder(newOrder);
       setOrders(prev => [newOrder, ...(prev || [])]);
@@ -409,16 +417,16 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
             100% { transform: rotate(0deg); }
           }
           @keyframes highlightFlash {
-            0% { background-color: rgba(74, 222, 128, 0.4) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2); }
+            0% { background-color: rgba(var(--eco-c6-rgb), 0.4) !important; transform: scale(1.02); box-shadow: 0 4px 12px rgba(var(--eco-c6-rgb), 0.2); }
             100% { background-color: rgba(255,255,255,0.6) !important; transform: scale(1); box-shadow: none; }
           }
           .highlight-flash {
             animation: highlightFlash 1.5s ease-out forwards;
           }
           @keyframes pulseGlow {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(var(--eco-c7-rgb), 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(var(--eco-c7-rgb), 0); }
+            100% { box-shadow: 0 0 0 0 rgba(var(--eco-c7-rgb), 0); }
           }
           .animate-pulseGlow {
             animation: pulseGlow 2s infinite;
@@ -473,7 +481,6 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
       <h1 style={styles.title}>
         Starter Kits <span style={styles.accent}>& Toolsets</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Kickstart your sustainable agricultural journey with our premium, all-in-one gardening kits and ergonomic toolsets designed specifically for the Philippine climate.
@@ -489,7 +496,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <FaHeart style={{ color: "#15803d" }} size={18} />
+            <FaHeart style={{ color: "var(--eco-c13)" }} size={18} />
             {activeSavedProducts.length > 0 && <span style={styles.iconBadge} className={wishlistBadgeAnim ? "animate-badgePop" : ""}>{activeSavedProducts.length}</span>}
           </button>
           <button 
@@ -499,7 +506,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <FaShoppingCart style={{ color: "#15803d" }} size={18} />
+            <FaShoppingCart style={{ color: "var(--eco-c13)" }} size={18} />
             {activeCartItems.length > 0 && <span style={styles.iconBadge} className={cartBadgeAnim ? "animate-badgePop" : ""}>{activeCartItems.length}</span>}
           </button>
         </div>
@@ -532,7 +539,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                 }}
                 title="Save Product"
               >
-                {activeSavedProducts.includes(kit.id) ? <Heart size="1em" fill="#e11d48" color="#e11d48" /> : <Heart size="1em" color="#94a3b8" />}
+                {activeSavedProducts.includes(kit.id) ? <Heart size="1em" fill="var(--eco-c9)" color="var(--eco-c9)" /> : <Heart size="1em" color="#94a3b8" />}
               </button>
             </div>
             
@@ -611,14 +618,14 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
               {modalType === 'details' ? (
                 <>
                   <p style={{ marginBottom: "16px" }}><strong>Overview:</strong> {selectedKit.desc}</p>
-                  <p style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#15803d" }}><FaLightbulb style={{color: '#fbbf24'}}/> Ideas & Suggestions:</p>
+                  <p style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "var(--eco-c13)" }}><FaLightbulb style={{color: 'var(--eco-c6)'}}/> Ideas & Suggestions:</p>
                   <ul style={styles.modalList}>
                     {selectedKit.suggestions.map((sug, i) => <li key={i} style={styles.modalListItem}>{sug}</li>)}
                   </ul>
                 </>
               ) : (
                 <>
-                  <p style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#15803d" }}><FaRocket style={{color: '#3b82f6'}}/> Step-by-Step Guide:</p>
+                  <p style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "var(--eco-c13)" }}><FaRocket style={{color: 'var(--eco-c13)'}}/> Step-by-Step Guide:</p>
                   <ol style={styles.modalList}>
                     {selectedKit.getStartedGuide.map((step, i) => <li key={i} style={styles.modalListItem}>{step}</li>)}
                   </ol>
@@ -669,7 +676,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
               <div style={styles.confirmOverlay}>
                 <div style={styles.confirmBox}>
                   <div style={styles.confirmIconWrap}>
-                    <FaTrash size={24} style={{ color: "#e11d48" }} />
+                    <FaTrash size={24} style={{ color: "var(--eco-c13)" }} />
                   </div>
                   <h3 style={styles.confirmTitle}>Empty Wishlist?</h3>
                   <p style={styles.confirmText}>Are you sure you want to remove all items from your wishlist? This action cannot be undone.</p>
@@ -700,7 +707,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                 uniqueWishlistItems.map(item => (
                   <div key={item.id} style={styles.cartItem}>
                     <div style={styles.cartItemImgWrap}>
-                      <span style={{ fontSize: "24px" }}>{item.icon || <Sprout size="1em" color="#16a34a" />}</span>
+                      <span style={{ fontSize: "24px" }}>{item.icon || <Sprout size="1em" color="var(--eco-c9)" />}</span>
                     </div>
                     <div style={styles.cartItemDetails}>
                       <div style={styles.cartItemName}>{item.title}</div>
@@ -732,7 +739,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
               <div style={styles.confirmOverlay}>
                 <div style={styles.confirmBox}>
                   <div style={styles.confirmIconWrap}>
-                    <FaTrash size={24} style={{ color: "#e11d48" }} />
+                    <FaTrash size={24} style={{ color: "var(--eco-c13)" }} />
                   </div>
                   <h3 style={styles.confirmTitle}>Clear Cart?</h3>
                   <p style={styles.confirmText}>Are you sure you want to remove all items from your cart? This action cannot be undone.</p>
@@ -767,7 +774,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                     className={item.id === lastAddedId ? "highlight-flash" : ""}
                   >
                     <div style={styles.cartItemImgWrap}>
-                      <span style={{ fontSize: "24px" }}>{item.icon || <Sprout size="1em" color="#16a34a" />}</span>
+                      <span style={{ fontSize: "24px" }}>{item.icon || <Sprout size="1em" color="var(--eco-c9)" />}</span>
                     </div>
                     <div style={styles.cartItemDetails}>
                       <div style={styles.cartItemName}>{item.title}</div>
@@ -847,7 +854,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
               {/* Left Column: Form & Payment */}
               <div style={styles.checkoutLeft}>
                  <div style={styles.deliveryEstimateCard}>
-                    <FaTruck size={20} style={{color: '#15803d'}} />
+                    <FaTruck size={20} style={{color: 'var(--eco-c13)'}} />
                     <div style={{flex: 1}}>
                        <div style={{fontSize: '14px', fontWeight: 800, color: '#000'}}>Estimated Delivery</div>
                        <div style={{fontSize: '13px', color: 'rgba(0,0,0,0.6)', fontWeight: 600}}>
@@ -887,10 +894,10 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                      Payment Method
                    </h2>
                    <div style={styles.checkoutFormGrid}>
-                     <PaymentCard id="cod" label="Cash on Delivery" icon={<FaMoneyBillWave color="#16a34a" size={24} />} selected={selectedPayment} onSelect={setSelectedPayment} />
-                     <PaymentCard id="gcash" label="GCash" icon={<span style={{ color: "#3b82f6", fontWeight: 800, fontStyle: "italic", fontSize: "20px", letterSpacing: "-1px" }}>G</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
+                     <PaymentCard id="cod" label="Cash on Delivery" icon={<FaMoneyBillWave color="var(--eco-c9)" size={24} />} selected={selectedPayment} onSelect={setSelectedPayment} />
+                     <PaymentCard id="gcash" label="GCash" icon={<span style={{ color: "var(--eco-c13)", fontWeight: 800, fontStyle: "italic", fontSize: "20px", letterSpacing: "-1px" }}>G</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
                      <PaymentCard id="card" label="Credit / Debit Card" icon={<FaCreditCard color="#4b5563" size={24} />} selected={selectedPayment} onSelect={setSelectedPayment} />
-                     <PaymentCard id="maya" label="Maya" icon={<span style={{ color: "#10b981", fontWeight: 800, fontStyle: "italic", fontSize: "20px" }}>maya</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
+                     <PaymentCard id="maya" label="Maya" icon={<span style={{ color: "var(--eco-c13)", fontWeight: 800, fontStyle: "italic", fontSize: "20px" }}>maya</span>} selected={selectedPayment} onSelect={setSelectedPayment} />
                    </div>
 
                    {/* Dynamic Payment Details */}
@@ -904,7 +911,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                         <div style={styles.paymentDetailsCard}>
                            <div style={styles.paymentInstructions}>Send payment to GCash Number: <strong>0912 345 6789</strong></div>
                            <div style={styles.qrPlaceholder}>
-                              <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
+                              <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="var(--eco-c11)" /></span>
                               <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                            </div>
                            <InputField label="Reference Number" placeholder="e.g. 1000293812" value={paymentData.gcashRef} onChange={(val) => handlePaymentInputChange("gcashRef", val)} onBlur={() => handleBlur("gcashRef")} error={getError("gcashRef")} />
@@ -945,7 +952,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           Add ₱20 to support native seed preservation
                           <span 
-                            style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
+                            style={{ cursor: 'help', position: 'relative', color: 'var(--eco-c13)', fontWeight: 800 }}
                             onMouseEnter={() => setShowSeedOptionTooltip(true)}
                             onMouseLeave={() => setShowSeedOptionTooltip(false)}
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowSeedOptionTooltip(!showSeedOptionTooltip); }}
@@ -965,7 +972,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                         <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           Use eco-friendly packaging
                           <span 
-                            style={{ cursor: 'help', position: 'relative', color: '#15803d', fontWeight: 800 }}
+                            style={{ cursor: 'help', position: 'relative', color: 'var(--eco-c13)', fontWeight: 800 }}
                             onMouseEnter={() => setShowEcoPackagingTooltip(true)}
                             onMouseLeave={() => setShowEcoPackagingTooltip(false)}
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowEcoPackagingTooltip(!showEcoPackagingTooltip); }}
@@ -992,8 +999,8 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "8px", flexShrink: 0 }} className="custom-scrollbar">
                      {uniqueCartItems.map(item => (
                        <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "12px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)" }}>
-                         <div style={{ width: "48px", height: "48px", background: "rgba(22,163,74,0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
-                            {item.icon || <Sprout size="1em" color="#16a34a" />}
+                         <div style={{ width: "48px", height: "48px", background: "rgba(var(--eco-c9-rgb), 0.1)", borderRadius: "12px", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
+                            {item.icon || <Sprout size="1em" color="var(--eco-c9)" />}
                          </div>
                          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1.2 }}>{item.title}</span>
@@ -1003,10 +1010,10 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                                <span style={{ fontSize: "12px", fontWeight: 600, minWidth: "16px", textAlign: "center", color: "#000" }}>{item.quantity}</span>
                                <button type="button" style={{ background: "transparent", border: "none", padding: "4px 8px", cursor: "pointer", color: "#000", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => updateQuantity(item.id, 1)}><FaPlus size={8} /></button>
                              </div>
-                             <button type="button" style={{ background: "rgba(225, 29, 72, 0.1)", border: "none", borderRadius: "6px", padding: "4px 8px", color: "#e11d48", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => removeFromCart(item.id)}><FaTrash size={10} /></button>
+                             <button type="button" style={{ background: "rgba(var(--eco-c9-rgb), 0.1)", border: "none", borderRadius: "6px", padding: "4px 8px", color: "var(--eco-c13)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => removeFromCart(item.id)}><FaTrash size={10} /></button>
                            </div>
                          </div>
-                         <div style={{ fontSize: "14px", fontWeight: 800, color: "#15803d" }}>
+                         <div style={{ fontSize: "14px", fontWeight: 800, color: "var(--eco-c13)" }}>
                            ₱{(item.numericPrice * item.quantity).toFixed(2)}
                          </div>
                        </div>
@@ -1017,15 +1024,15 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                    </div>
                    
                    {/* Promo Code Input */}
-                   <div style={{ ...styles.promoWrap, ...(promoError ? { border: '1px solid #ef4444', background: 'rgba(239, 68, 68, 0.05)' } : promoSuccess ? { border: '1px solid #16a34a', background: 'rgba(22, 163, 74, 0.05)', boxShadow: '0 0 15px rgba(34,197,94,0.2)' } : {}) }} className={`${promoError ? "animate-shakeError" : ""} ${promoSuccess ? "highlight-flash" : ""}`}>
-                      <FaTag style={{color: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : 'rgba(0,0,0,0.3)', marginLeft: '12px'}} />
+                   <div style={{ ...styles.promoWrap, ...(promoError ? { border: '1px solid var(--eco-c7)', background: 'rgba(var(--eco-c7-rgb), 0.05)' } : promoSuccess ? { border: '1px solid var(--eco-c9)', background: 'rgba(var(--eco-c9-rgb), 0.05)', boxShadow: '0 0 15px rgba(var(--eco-c7-rgb), 0.2)' } : {}) }} className={`${promoError ? "animate-shakeError" : ""} ${promoSuccess ? "highlight-flash" : ""}`}>
+                      <FaTag style={{color: promoError ? 'var(--eco-c13)' : promoSuccess ? 'var(--eco-c13)' : 'rgba(0,0,0,0.3)', marginLeft: '12px'}} />
                       <input 
                         value={promoCode} 
                         onChange={e => { setPromoCode(e.target.value); if (promoError) setPromoError(false); if (promoSuccess) setPromoSuccess(false); }} 
                         placeholder="Promo code (e.g. GREEN10)" 
-                        style={{ ...styles.promoInput, color: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#000' }} 
+                        style={{ ...styles.promoInput, color: promoError ? 'var(--eco-c13)' : promoSuccess ? 'var(--eco-c13)' : '#000' }} 
                       />
-                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? '#ef4444' : promoSuccess ? '#16a34a' : '#15803d' }}>{promoSuccess ? 'Applied' : 'Apply'}</button>
+                      <button onClick={handleApplyPromo} style={{ ...styles.promoBtn, background: promoError ? 'var(--eco-c7)' : promoSuccess ? 'var(--eco-c9)' : 'var(--eco-c11)' }}>{promoSuccess ? 'Applied' : 'Apply'}</button>
                    </div>
 
                    <div style={{ marginTop: "12px", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "8px", flexShrink: 0 }}>
@@ -1061,21 +1068,21 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
                        </div>
                      )}
                      {discount > 0 && (
-                       <div className="animate-slideInDiscount" style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#16a34a", fontWeight: 700 }}>
+                       <div className="animate-slideInDiscount" style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "var(--eco-c13)", fontWeight: 700 }}>
                          <span>Discount</span>
                          <span>-₱{discount.toFixed(2)}</span>
                        </div>
                      )}
                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "18px", fontWeight: 800, color: "#000", marginTop: "8px", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px" }}>
                        <span>Total Amount</span>
-                       <span style={{ color: "#15803d" }}>₱{totalAmount.toFixed(2)}</span>
+                       <span style={{ color: "var(--eco-c13)" }}>₱{totalAmount.toFixed(2)}</span>
                      </div>
                      
                      {/* Reward Points */}
                      <div style={styles.rewardsBox}>
-                        <FaGift style={{color: '#15803d'}} />
+                        <FaGift style={{color: 'var(--eco-c13)'}} />
                         <span>You'll earn <strong 
-                          style={{ color: '#15803d', cursor: 'help', position: 'relative', borderBottom: '1px dotted #15803d' }}
+                          style={{ color: 'var(--eco-c13)', cursor: 'help', position: 'relative', borderBottom: '1px dotted var(--eco-c11)' }}
                           onMouseEnter={() => setShowEcoTooltip(true)}
                           onMouseLeave={() => setShowEcoTooltip(false)}
                           onClick={(e) => { e.stopPropagation(); setShowEcoTooltip(!showEcoTooltip); }}
@@ -1114,10 +1121,10 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
 
             {/* Trust Badges */}
             <div style={styles.trustBadgeRow}>
-              <TrustBadge icon={<FaLock color="#16a34a" size={16} />} title="SSL Secured" desc="100% Encrypted" />
-              <TrustBadge icon={<FaShieldAlt color="#16a34a" size={16} />} title="Verified Payment" desc="Safe Checkout" />
-              <TrustBadge icon={<FaTruck color="#16a34a" size={16} />} title="Fast Delivery" desc="Nationwide" />
-              <TrustBadge icon={<FaBoxOpen color="#16a34a" size={16} />} title="Eco-Packaging" desc="Sustainable" />
+              <TrustBadge icon={<FaLock color="var(--eco-c9)" size={16} />} title="SSL Secured" desc="100% Encrypted" />
+              <TrustBadge icon={<FaShieldAlt color="var(--eco-c9)" size={16} />} title="Verified Payment" desc="Safe Checkout" />
+              <TrustBadge icon={<FaTruck color="var(--eco-c9)" size={16} />} title="Fast Delivery" desc="Nationwide" />
+              <TrustBadge icon={<FaBoxOpen color="var(--eco-c9)" size={16} />} title="Eco-Packaging" desc="Sustainable" />
             </div>
 
           </div>
@@ -1129,7 +1136,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
       {showSuccess && ReactDOM.createPortal(
         <div style={styles.modalOverlay} onClick={() => setShowSuccess(false)}>
           <div className="inner-blur-glass" style={styles.successModal} onClick={(e) => e.stopPropagation()}>
-            <FaCheckCircle style={{ color: "#22c55e", fontSize: "64px", marginBottom: "16px" }} />
+            <FaCheckCircle style={{ color: "var(--eco-c13)", fontSize: "64px", marginBottom: "16px" }} />
             <h2 style={{ fontSize: "28px", fontWeight: 800, color: "#000", margin: "0 0 8px" }}>Order Confirmed!</h2>
             <p style={{ fontSize: "15px", color: "rgba(0,0,0,0.6)", marginBottom: "32px", lineHeight: 1.5 }}>
               Your order has been successfully placed. We will send you an email confirmation shortly.
@@ -1163,7 +1170,7 @@ function StarterKits({ setActiveNav, cartItems, setCartItems, setOrders, onTrack
 
 const InputField = ({ label, placeholder, value, onChange, onBlur, error }) => (
   <div style={styles.inputWrap}>
-    <label style={{ ...styles.inputLabel, color: error ? '#ef4444' : 'rgba(0,0,0,0.7)' }}>{label}</label>
+    <label style={{ ...styles.inputLabel, color: error ? 'var(--eco-c13)' : 'rgba(0,0,0,0.7)' }}>{label}</label>
     <input 
       type="text" 
       placeholder={placeholder} 
@@ -1203,7 +1210,7 @@ const DeliverySpeedCard = ({ id, label, desc, price, selected, onSelect }) => (
       <span style={{ fontSize: "14px", fontWeight: 700, color: "#000", lineHeight: 1 }}>{label}</span>
       <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.5)", lineHeight: 1 }}>{desc}</span>
     </div>
-    <div style={{ fontSize: "13px", fontWeight: 800, color: "#15803d" }}>{price}</div>
+    <div style={{ fontSize: "13px", fontWeight: 800, color: "var(--eco-c13)" }}>{price}</div>
   </button>
 );
 
@@ -1272,7 +1279,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -1282,8 +1289,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -1295,18 +1302,8 @@ const styles = {
     letterSpacing: "-0.8px",
     textShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -1351,7 +1348,7 @@ const styles = {
     position: "absolute",
     top: "-4px",
     right: "-4px",
-    background: "#e11d48",
+    background: "var(--eco-c9)",
     color: "#fff",
     fontSize: "10px",
     fontWeight: 700,
@@ -1374,7 +1371,7 @@ const styles = {
     gap: "16px",
   },
   card: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.8), rgba(240,253,244,0.6))",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.8), rgba(var(--eco-c0-rgb), 0.6))",
     border: "1px solid rgba(255,255,255,0.9)",
     borderRadius: "24px",
     overflow: "hidden",
@@ -1387,13 +1384,13 @@ const styles = {
   },
   cardHov: {
     transform: "translateY(-6px)",
-    boxShadow: "0 20px 40px rgba(21,128,61,0.12)",
+    boxShadow: "0 20px 40px rgba(var(--eco-c11-rgb), 0.12)",
   },
   imageContainer: {
     position: "relative",
     width: "100%",
     height: "180px",
-    background: "rgba(22, 163, 74, 0.05)",
+    background: "rgba(var(--eco-c9-rgb), 0.05)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -1412,7 +1409,7 @@ const styles = {
     position: "absolute",
     top: "14px",
     left: "14px",
-    background: "linear-gradient(135deg, #22c55e, #15803d)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c11))",
     color: "#fff",
     padding: "6px 12px",
     borderRadius: "999px",
@@ -1422,7 +1419,7 @@ const styles = {
     letterSpacing: "0.5px",
     display: "flex",
     alignItems: "center",
-    boxShadow: "0 4px 10px rgba(21,128,61,0.3)",
+    boxShadow: "0 4px 10px rgba(var(--eco-c11-rgb), 0.3)",
   },
   saveBtn: {
     position: "absolute",
@@ -1443,7 +1440,7 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
   },
   saveBtnActive: {
-    color: "#e11d48",
+    color: "var(--eco-c13)",
     background: "#fff",
   },
   cardContent: {
@@ -1470,8 +1467,8 @@ const styles = {
   cardPrice: {
     fontSize: "16px",
     fontWeight: 800,
-    color: "#15803d",
-    background: "rgba(22, 163, 74, 0.1)",
+    color: "var(--eco-c13)",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
     padding: "4px 10px",
     borderRadius: "8px",
   },
@@ -1503,9 +1500,9 @@ const styles = {
     flex: 1,
     padding: "12px 0",
     borderRadius: "12px",
-    background: "rgba(22, 163, 74, 0.1)",
-    border: "1px solid rgba(22, 163, 74, 0.2)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    border: "1px solid rgba(var(--eco-c9-rgb), 0.2)",
+    color: "var(--eco-c13)",
     fontSize: "13px",
     fontWeight: 700,
     cursor: "pointer",
@@ -1515,46 +1512,34 @@ const styles = {
     flex: 1,
     padding: "12px 0",
     borderRadius: "12px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.4)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "13px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.15)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.15)",
     transition: "transform 0.2s ease",
   },
   getStartedBtn: {
     flex: 1,
     padding: "12px 0",
     borderRadius: "12px",
-    background: "linear-gradient(135deg, #4ade80, #0ea5e9)",
+    background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c7))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "13px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease",
   },
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 9999,
-    background: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    animation: "fadeIn 0.3s ease",
-  },
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
   modalContent: {
     maxWidth: "540px",
     width: "100%",
     maxHeight: "85vh",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))",
     border: "1px solid rgba(255,255,255,0.8)",
     borderRadius: "24px",
     padding: "32px",
@@ -1585,42 +1570,40 @@ const styles = {
     marginBottom: "10px"
   },
   actionBtnModal: {
-    width: "100%", padding: "14px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.4)", color: "#062018", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.2)", transition: "transform 0.2s ease"
+    width: "100%", padding: "14px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.4)", color: "var(--eco-c19)", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.2)", transition: "transform 0.2s ease"
   },
   cartModal: {
-    maxWidth: "500px", width: "100%", maxHeight: "85vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "24px", padding: "32px 24px", display: "flex", flexDirection: "column", boxShadow: "0 10px 40px rgba(0,0,0,0.2)", position: "relative", animation: "scaleUp 0.3s ease", textAlign: "left"
+    maxWidth: "500px", width: "100%", maxHeight: "85vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "24px", padding: "32px 24px", display: "flex", flexDirection: "column", boxShadow: "0 10px 40px rgba(0,0,0,0.2)", position: "relative", animation: "scaleUp 0.3s ease", textAlign: "left"
   },
   cartModalMobile: { padding: "24px 16px", maxHeight: "90vh" },
-  confirmOverlay: {
-    position: "absolute", inset: 0, zIndex: 60, background: "rgba(255,255,255,0.7)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "inherit", animation: "fadeIn 0.2s ease-out"
-  },
+  confirmOverlay: nestedConfirmOverlay(),
   confirmBox: {
-    background: "linear-gradient(145deg, #ffffff, #fff1f2)", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(225, 29, 72, 0.1)", boxShadow: "0 20px 40px rgba(225, 29, 72, 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", animation: "scaleUp 0.3s ease-out"
+    background: "linear-gradient(145deg, #ffffff, var(--eco-c0))", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(var(--eco-c9-rgb), 0.1)", boxShadow: "0 20px 40px rgba(var(--eco-c9-rgb), 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center", animation: "scaleUp 0.3s ease-out"
   },
-  confirmIconWrap: { width: "56px", height: "56px", borderRadius: "50%", background: "rgba(225, 29, 72, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(225, 29, 72, 0.2)", animation: "shakeIcon 0.6s ease-in-out" },
+  confirmIconWrap: { width: "56px", height: "56px", borderRadius: "50%", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", animation: "shakeIcon 0.6s ease-in-out" },
   confirmTitle: { margin: "0 0 12px", fontSize: "20px", fontWeight: 800, color: "#000", letterSpacing: "-0.5px" },
   confirmText: { margin: "0 0 28px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 },
   confirmBtnRow: { display: "flex", gap: "12px", width: "100%" },
   cancelBtn: { flex: 1, padding: "14px", borderRadius: "16px", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)", color: "#000", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease" },
-  clearAllBtn: { flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, #f43f5e, #e11d48)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(225, 29, 72, 0.3)" },
+  clearAllBtn: { flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(var(--eco-c9-rgb), 0.3)" },
   emptyCartBtn: { display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "999px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.6)", fontSize: "12px", fontWeight: 600, cursor: "pointer", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: "0 2px 8px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.8)", transition: "all 0.3s ease" },
   cartModalTitle: { fontSize: "24px", fontWeight: 800, color: "#000", textAlign: "center", margin: "0 0 20px", letterSpacing: "-0.5px", position: "relative", zIndex: 1 },
   cartItemsContainer: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "4px", marginBottom: "20px", position: "relative", zIndex: 1 },
   emptyCartText: { textAlign: "center", color: "rgba(0,0,0,0.5)", fontSize: "15px", marginTop: "20px" },
   cartItem: { display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "16px", padding: "12px" },
-  cartItemImgWrap: { width: "60px", height: "60px", borderRadius: "12px", background: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  cartItemImgWrap: { width: "60px", height: "60px", borderRadius: "12px", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
   cartItemDetails: { flex: 1, display: "flex", flexDirection: "column", gap: "4px" },
   cartItemName: { fontSize: "14px", fontWeight: 700, color: "#000" },
-  cartItemPrice: { fontSize: "13px", fontWeight: 600, color: "#15803d" },
+  cartItemPrice: { fontSize: "13px", fontWeight: 600, color: "var(--eco-c13)" },
   cartItemActions: { display: "flex", alignItems: "center", gap: "12px", marginTop: "4px" },
   quantityControls: { display: "flex", alignItems: "center", background: "rgba(0,0,0,0.05)", borderRadius: "8px", overflow: "hidden" },
   qtyBtn: { background: "transparent", border: "none", padding: "6px 8px", cursor: "pointer", color: "#000", display: "flex", alignItems: "center", justifyContent: "center" },
   qtyText: { fontSize: "13px", fontWeight: 600, minWidth: "20px", textAlign: "center", color: "#000" },
-  removeBtn: { background: "rgba(225, 29, 72, 0.1)", border: "none", borderRadius: "8px", padding: "6px 8px", color: "#e11d48", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
+  removeBtn: { background: "rgba(var(--eco-c9-rgb), 0.1)", border: "none", borderRadius: "8px", padding: "6px 8px", color: "var(--eco-c13)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
   cartItemSubtotal: { fontSize: "14px", fontWeight: 800, color: "#000" },
   cartFooter: { borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "16px", position: "relative", zIndex: 1 },
   cartTotalRow: { display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "18px", fontWeight: 700, color: "#000" },
-  cartTotalAmount: { fontSize: "20px", fontWeight: 800, color: "#15803d" },
+  cartTotalAmount: { fontSize: "20px", fontWeight: 800, color: "var(--eco-c13)" },
   cartFooterBtns: { display: "flex", gap: "12px" },
   continueBtn: {
     flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.1)", color: "#000", fontSize: "14px", fontWeight: 600, cursor: "pointer"
@@ -1629,23 +1612,23 @@ const styles = {
     flex: 1,
     padding: "12px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease"
   },
   checkoutBtnModal: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.4)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     borderRadius: "12px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 6px 16px rgba(34,197,94,0.2)",
+    boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.2)",
     transition: "transform 0.2s ease"
   },
   checkoutModal: {
@@ -1653,7 +1636,7 @@ const styles = {
     width: "100%",
     height: "calc(100vh - 40px)",
     maxHeight: "none",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))",
     border: "1px solid rgba(255,255,255,0.8)",
     borderRadius: "30px",
     padding: "24px 40px",
@@ -1677,36 +1660,36 @@ const styles = {
   checkoutRight: { flex: "1 1 300px", display: "flex", flexDirection: "column", position: "sticky", top: "0px", alignSelf: "flex-start" },
   checkoutSection: { background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.05)", borderRadius: "24px", padding: "16px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.03)" },
   checkoutSectionTitle: { fontSize: "18px", fontWeight: 800, color: "#000", marginBottom: "12px", marginTop: "0", display: "flex", alignItems: "center", gap: "10px" },
-  checkoutSectionNumber: { width: "28px", height: "28px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", color: "#15803d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 800 },
+  checkoutSectionNumber: { width: "28px", height: "28px", borderRadius: "50%", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 800 },
   checkoutFormGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" },
   inputWrap: { display: "flex", flexDirection: "column", gap: "4px", width: "100%" },
   inputLabel: { fontSize: "11px", fontWeight: 800, color: "rgba(0,0,0,0.6)", textTransform: "uppercase", letterSpacing: "0.5px", marginLeft: "4px" },
   inputField: { width: "100%", padding: "10px 14px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.8)", fontSize: "13px", color: "#000", outline: "none", boxSizing: "border-box", transition: "all 0.2s ease", fontFamily: "inherit" },
-  inputFieldError: { border: "1px solid #ef4444", background: "rgba(239, 68, 68, 0.05)" },
-  errorText: { fontSize: "10px", fontWeight: 800, color: "#ef4444", marginLeft: "4px", marginTop: "-2px" },
+  inputFieldError: { border: "1px solid var(--eco-c7)", background: "rgba(var(--eco-c7-rgb), 0.05)" },
+  errorText: { fontSize: "10px", fontWeight: 800, color: "var(--eco-c13)", marginLeft: "4px", marginTop: "-2px" },
   stepperWrap: { display: "flex", alignItems: "center", justifyContent: "center", width: "85%", maxWidth: "400px", margin: "0 auto 32px", position: "relative" },
   step: { display: "flex", alignItems: "center", position: "relative", flex: 1 },
   stepDot: { width: "28px", height: "28px", borderRadius: "50%", background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 800, zIndex: 2, border: "2px solid #fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", transition: "all 0.3s ease" },
-  stepDotActive: { background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", boxShadow: "0 4px 12px rgba(21,128,61,0.3)" },
+  stepDotActive: { background: "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", color: "#fff", boxShadow: "0 4px 12px rgba(var(--eco-c11-rgb), 0.3)" },
   stepText: { position: "absolute", top: "36px", left: "14px", transform: "translateX(-50%)", fontSize: "11px", fontWeight: 600, color: "rgba(0,0,0,0.4)", whiteSpace: "nowrap" },
-  stepTextActive: { color: "#15803d", fontWeight: 800 },
+  stepTextActive: { color: "var(--eco-c13)", fontWeight: 800 },
   stepLine: { flex: 1, height: "4px", background: "rgba(0,0,0,0.05)", margin: "0 4px", borderRadius: "999px", position: "relative", zIndex: 1 },
-  stepLineActive: { background: "linear-gradient(90deg, #16a34a, #86efac)" },
-  deliveryEstimateCard: { background: "linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(22, 163, 74, 0.05))", border: "1px solid rgba(22, 163, 74, 0.2)", borderRadius: "16px", padding: "16px 20px", display: "flex", alignItems: "center", gap: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" },
+  stepLineActive: { background: "linear-gradient(90deg, var(--eco-c9), var(--eco-c5))" },
+  deliveryEstimateCard: { background: "linear-gradient(135deg, rgba(var(--eco-c9-rgb), 0.1), rgba(var(--eco-c9-rgb), 0.05))", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", borderRadius: "16px", padding: "16px 20px", display: "flex", alignItems: "center", gap: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" },
   ecoOptionsWrap: { display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px", paddingTop: "16px", borderTop: "1px solid rgba(0,0,0,0.05)" },
   checkboxLabel: { display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", fontWeight: 600, color: "rgba(0,0,0,0.8)", cursor: "pointer" },
-  checkboxInput: { width: "18px", height: "18px", accentColor: "#16a34a", cursor: "pointer" },
+  checkboxInput: { width: "18px", height: "18px", accentColor: "var(--eco-c9)", cursor: "pointer" },
   promoWrap: { display: "flex", alignItems: "center", background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.1)", borderRadius: "14px", marginTop: "8px", overflow: "hidden" },
   promoInput: { flex: 1, border: "none", background: "transparent", padding: "12px", fontSize: "13px", fontWeight: 500, outline: "none", color: "#000" },
-  promoBtn: { background: "#15803d", color: "#fff", border: "none", padding: "0 16px", height: "100%", fontSize: "13px", fontWeight: 700, cursor: "pointer" },
-  rewardsBox: { background: "rgba(251, 191, 36, 0.15)", border: "1px solid rgba(251, 191, 36, 0.3)", borderRadius: "12px", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px", fontSize: "12px", fontWeight: 600, color: "#b45309", marginTop: "4px" },
+  promoBtn: { background: "var(--eco-c11)", color: "#fff", border: "none", padding: "0 16px", height: "100%", fontSize: "13px", fontWeight: 700, cursor: "pointer" },
+  rewardsBox: { background: "rgba(var(--eco-c6-rgb), 0.15)", border: "1px solid rgba(var(--eco-c6-rgb), 0.3)", borderRadius: "12px", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px", fontSize: "12px", fontWeight: 600, color: "var(--eco-c13)", marginTop: "4px" },
   ecoTooltip: {
     position: "absolute",
     bottom: "100%",
     left: "50%",
     transform: "translateX(-50%)",
     marginBottom: "10px",
-    background: "#062018",
+    background: "var(--eco-c19)",
     color: "#fff",
     padding: "10px 14px",
     borderRadius: "10px",
@@ -1727,25 +1710,25 @@ const styles = {
     transform: "translateX(-50%)",
     borderWidth: "6px",
     borderStyle: "solid",
-    borderColor: "#062018 transparent transparent transparent",
+    borderColor: "var(--eco-c19) transparent transparent transparent",
   },
   paymentCard: { display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 2px 8px rgba(0,0,0,0.02)", width: "100%", boxSizing: "border-box" },
-  paymentCardActive: { background: "rgba(22, 163, 74, 0.08)", border: "1px solid #16a34a", boxShadow: "0 4px 15px rgba(22,163,74,0.15)" },
+  paymentCardActive: { background: "rgba(var(--eco-c9-rgb), 0.08)", border: "1px solid var(--eco-c9)", boxShadow: "0 4px 15px rgba(var(--eco-c9-rgb), 0.15)" },
   paymentRadio: { width: "20px", height: "20px", borderRadius: "50%", border: "2px solid rgba(0,0,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(255,255,255,0.5)" },
-  paymentRadioActive: { borderColor: "#16a34a", background: "#fff" },
-  paymentRadioInner: { width: "10px", height: "10px", borderRadius: "50%", background: "#16a34a" },
+  paymentRadioActive: { borderColor: "var(--eco-c9)", background: "#fff" },
+  paymentRadioInner: { width: "10px", height: "10px", borderRadius: "50%", background: "var(--eco-c9)" },
   paymentDetailsWrap: { marginTop: "16px", animation: "fadeIn 0.3s ease" },
-  paymentInfoBox: { background: "rgba(22, 163, 74, 0.1)", border: "1px solid rgba(22, 163, 74, 0.2)", borderRadius: "12px", padding: "16px", color: "#15803d", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" },
+  paymentInfoBox: { background: "rgba(var(--eco-c9-rgb), 0.1)", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", borderRadius: "12px", padding: "16px", color: "var(--eco-c13)", fontSize: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" },
   paymentDetailsCard: { background: "rgba(255,255,255,0.6)", border: "1px solid rgba(0,0,0,0.1)", borderRadius: "16px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" },
   paymentInstructions: { fontSize: "13px", color: "rgba(0,0,0,0.7)" },
   qrPlaceholder: { width: "100%", height: "100px", background: "rgba(0,0,0,0.03)", borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: "1px dashed rgba(0,0,0,0.15)", color: "rgba(0,0,0,0.5)", gap: "4px" },
   uploadProofWrap: { display: "flex", alignItems: "center", gap: "12px" },
   uploadProofBtn: { padding: "10px 16px", borderRadius: "10px", background: "rgba(0,0,0,0.05)", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: 600, transition: "background 0.2s" },
-  uploadSuccess: { fontSize: "12px", color: "#15803d", display: "flex", alignItems: "center", gap: "4px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "150px" },
+  uploadSuccess: { fontSize: "12px", color: "var(--eco-c13)", display: "flex", alignItems: "center", gap: "4px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "150px" },
   trustBadgeRow: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "12px", marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(0,0,0,0.05)" },
   trustBadge: { display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "8px", background: "rgba(255,255,255,0.4)", borderRadius: "16px", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 2px 10px rgba(0,0,0,0.02)" },
-  trustBadgeIconWrap: { width: "32px", height: "32px", borderRadius: "50%", background: "rgba(22, 163, 74, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" },
-  successModal: { maxWidth: "460px", width: "90%", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "32px", padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", position: "relative", animation: "scaleUp 0.3s ease", boxSizing: "border-box" },
+  trustBadgeIconWrap: { width: "32px", height: "32px", borderRadius: "50%", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" },
+  successModal: { maxWidth: "460px", width: "90%", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "32px", padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", position: "relative", animation: "scaleUp 0.3s ease", boxSizing: "border-box" },
 };
 
 export default StarterKits;

@@ -78,7 +78,6 @@ function IncomeGenerationPage({ setActiveNav }) {
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Economic <span style={styles.titleAccent}>Empowerment</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         EcoEquity is transforming urban gardens into sustainable income streams, empowering Filipino households to earn while contributing to local food security.
@@ -105,9 +104,9 @@ function IncomeGenerationPage({ setActiveNav }) {
           </div>
           <div style={styles.chartContainer}>
             {[
-              { label: "Urban Households", width: "85%", color: "#16a34a" },
-              { label: "Micro-Vendors", width: "60%", color: "#0284c7" },
-              { label: "B2B Surplus Units", width: "45%", color: "#15803d" },
+              { label: "Urban Households", width: "85%", color: "var(--eco-c13)" },
+              { label: "Micro-Vendors", width: "60%", color: "var(--eco-c13)" },
+              { label: "B2B Surplus Units", width: "45%", color: "var(--eco-c13)" },
             ].map((bar, i) => (
               <div key={i} style={styles.chartBarGroup}>
                 <div style={styles.barLabelRow}>
@@ -209,7 +208,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -219,8 +218,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   glassContentLayer: {
@@ -240,18 +239,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(20px, 7vw, 30px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   titleAccent: {
-    background: "linear-gradient(90deg, #15803d, #16a34a)",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -296,7 +285,7 @@ const styles = {
   },
   statIcon: {
     fontSize: "24px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginBottom: "8px",
   },
   statValue: {
@@ -328,7 +317,7 @@ const styles = {
   },
   cardIcon: {
     fontSize: "20px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   cardTitle: {
     fontSize: "18px",
@@ -397,8 +386,8 @@ const styles = {
   programImpactBadge: {
     padding: "6px 12px",
     borderRadius: "999px",
-    background: "rgba(22, 163, 74, 0.1)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c9-rgb), 0.1)",
+    color: "var(--eco-c13)",
     fontSize: "11px",
     fontWeight: 700,
     whiteSpace: "nowrap",
@@ -407,15 +396,15 @@ const styles = {
     marginTop: "24px",
     padding: "12px 24px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+    color: "var(--eco-c19)",
     border: "1px solid rgba(255,255,255,0.35)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "default",
     width: "fit-content",
     alignSelf: "center",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease",
   },
 };

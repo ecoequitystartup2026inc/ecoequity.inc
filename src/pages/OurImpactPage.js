@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaLeaf, FaSeedling, FaRecycle, FaLightbulb, FaArrowLeft, FaUserTie, FaRobot, FaHandshake, FaMoneyBillWave, FaChartLine } from "react-icons/fa";
+import ComingSoonBanner from "../components/ComingSoonBanner";
 
 const ourImpactData = [
   {
     category: "LGU Partnerships",
     name: "LGU Partnerships Dashboard",
-    icon: <FaHandshake style={{ color: "#15803d" }} />,
+    icon: <FaHandshake style={{ color: "var(--eco-c13)" }} />,
     price: "42 Active LGUs",
     description: "Collaborating with local government units to implement sustainable agricultural programs and community initiatives.",
     stock: "Expanding Network",
@@ -15,7 +16,7 @@ const ourImpactData = [
   {
     category: "Income Generation",
     name: "Income Generation Impact",
-    icon: <FaMoneyBillWave style={{ color: "#15803d" }} />,
+    icon: <FaMoneyBillWave style={{ color: "var(--eco-c13)" }} />,
     price: "₱63M+ Annual GMV",
     description: "Empowering micro-vendors and farmers through direct market access and sustainable income streams.",
     stock: "Continuous Growth",
@@ -25,7 +26,7 @@ const ourImpactData = [
   {
     category: "Native Seed Bank Program",
     name: "Native Seed Bank Management",
-    icon: <FaSeedling style={{ color: "#15803d" }} />,
+    icon: <FaSeedling style={{ color: "var(--eco-c13)" }} />,
     price: "250+ Varieties",
     description: "Preserving indigenous crop varieties and promoting biodiversity through community-managed seed banks.",
     stock: "Growing Collection",
@@ -35,7 +36,7 @@ const ourImpactData = [
   {
     category: "Impact Tracking",
     name: "Environmental Impact Tracking",
-    icon: <FaChartLine style={{ color: "#15803d" }} />,
+    icon: <FaChartLine style={{ color: "var(--eco-c13)" }} />,
     price: "100+ Tons CO2 Reduced",
     description: "Monitoring and reporting key environmental metrics to ensure transparency and drive sustainable practices.",
     stock: "Real-time Data",
@@ -64,22 +65,23 @@ function OurImpactPage({ setActiveNav }) {
 
   return (
     <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
+      <ComingSoonBanner
+        title="Our Impact — Coming Soon"
+        message="Our impact and sector programs are still being finalized. Explore what we're working toward — live data and full details are on the way."
+        onClose={() => setActiveNav && setActiveNav("Product & Services")}
+      />
       <style>
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
         `}
       </style>
 
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <defs>
           <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(134,239,172,0.95)" />
-            <stop offset="100%" stopColor="rgba(125,211,252,0.95)" />
+            <stop offset="0%" stopColor="rgba(var(--eco-c5-rgb), 0.95)" />
+            <stop offset="100%" stopColor="rgba(var(--eco-c5-rgb), 0.95)" />
           </linearGradient>
         </defs>
       </svg>
@@ -110,7 +112,6 @@ function OurImpactPage({ setActiveNav }) {
           <h1 style={{ ...styles.title, fontSize: "clamp(20px, 2.8vw, 32px)", textAlign: "left", ...(isMobile ? styles.titleMobile : {}), marginTop: "20px" }}>
             Driving Sustainable <span style={styles.titleAccent}>Change</span>
           </h1>
-          <div style={{ ...styles.titleUnderline, marginLeft: 0, marginBottom: "16px", ...(isMobile ? { ...styles.titleUnderlineMobile, marginLeft: 0 } : {}) }}></div>
           <p style={{ ...styles.body, fontSize: "clamp(12px, 1.4vw, 15px)", marginBottom: "16px", textAlign: "left", ...(isMobile ? styles.bodyMobile : {}) }}>
             EcoEquity is committed to creating tangible positive change, from empowering local communities to fostering food security and environmental stewardship.
           </p>
@@ -172,7 +173,7 @@ function OurImpactPage({ setActiveNav }) {
               >
                 <span aria-hidden="true" style={styles.impactCardInnerBlur} />
                 <div style={styles.impactImageContainer}>
-                  <span style={{ fontSize: "48px", color: "#15803d", display: "flex" }}>
+                  <span style={{ fontSize: "48px", color: "var(--eco-c13)", display: "flex" }}>
                     {impact.icon}
                   </span>
                   <span style={styles.sustainabilityBadge}>{impact.sustainabilityBadge}</span>
@@ -278,7 +279,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -288,8 +289,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   glassContentLayer: { 
@@ -360,23 +361,8 @@ const styles = {
     overflowWrap: "break-word",
     marginBottom: "clamp(4px, 0.8dvh, 7px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
-  titleUnderlineMobile: {
-    width: "clamp(70px, 22vw, 94px)",
-    height: "3px",
-    margin: "0 auto clamp(7px, 1.2dvh, 11px)",
-  },
   titleAccent: { 
-    background: "linear-gradient(90deg, #15803d, #16a34a)",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -458,7 +444,7 @@ const styles = {
     flexShrink: 0,
     borderRadius: "20px",
     overflow: "hidden",
-    background: "linear-gradient(135deg, rgba(22,163,74,0.1), rgba(22,163,74,0.05))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c9-rgb), 0.1), rgba(var(--eco-c9-rgb), 0.05))",
     border: "4px solid rgba(255,255,255,0.9)",
     boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
     display: "flex",
@@ -468,7 +454,7 @@ const styles = {
   sustainabilityBadge: {
     position: "absolute",
     bottom: "10px",
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     padding: "4px 8px",
     borderRadius: "999px",
@@ -490,14 +476,14 @@ const styles = {
   impactDescription: { fontSize: "13px", color: "rgba(0,0,0,0.7)", margin: "0 0 10px", lineHeight: "1.5" },
   impactDescriptionMobile: { fontSize: "13px" },
   impactMeta: { display: "flex", justifyContent: "space-between", width: "100%", marginBottom: "12px", padding: "6px 10px", background: "rgba(0,0,0,0.03)", borderRadius: "10px" },
-  impactPrice: { fontSize: "14px", fontWeight: 700, color: "#15803d" },
+  impactPrice: { fontSize: "14px", fontWeight: 700, color: "var(--eco-c13)" },
   impactStock: { fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.6)" },
   impactActions: { display: "flex", gap: "10px", width: "100%" },
   impactActionsMobile: { justifyContent: "center" },
-  impactPrimaryBtn: { flex: 1, padding: "10px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease" },
+  impactPrimaryBtn: { flex: 1, padding: "10px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease" },
   indicatorRow: { display: "flex", justifyContent: "center", gap: "8px", marginTop: "16px" },
   dot: { width: "6px", height: "6px", borderRadius: "50%", background: "rgba(0,0,0,0.2)", transition: "all 0.3s ease" },
-  dotActive: { background: "#15803d", transform: "scale(1.2)" },
+  dotActive: { background: "var(--eco-c11)", transform: "scale(1.2)" },
 };
 
 styles.primaryBtn = {
@@ -507,8 +493,8 @@ styles.primaryBtn = {
   padding: "13px 30px",
   borderRadius: "999px",
   border: "1px solid rgba(255,255,255,0.35)",
-  background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-  color: "#062018",
+  background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+  color: "var(--eco-c19)",
   fontSize: "14px",
   fontWeight: 700,
   cursor: "pointer",
@@ -519,7 +505,7 @@ styles.primaryBtn = {
   WebkitBackfaceVisibility: "hidden",
   fontFamily: "inherit",
   letterSpacing: "0.2px",
-  boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+  boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
   transition: "transform 0.16s ease",
   backdropFilter: "blur(18px) saturate(165%)",
   WebkitBackdropFilter: "blur(18px) saturate(165%)",
@@ -533,7 +519,7 @@ styles.primaryInnerBlur = {
   borderRadius: "inherit",
   background:
     "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 42%), " +
-    "linear-gradient(135deg, rgba(134,239,172,0.36), rgba(125,211,252,0.32))",
+    "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.36), rgba(var(--eco-c5-rgb), 0.32))",
   backdropFilter: "blur(34px) saturate(185%)",
   WebkitBackdropFilter: "blur(34px) saturate(185%)",
 };

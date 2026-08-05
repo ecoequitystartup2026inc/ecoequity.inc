@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import Reveal, { RevealStyles } from "../components/Reveal";
 
 const iconProps = {
   width: 26,
   height: 26,
   viewBox: "0 0 24 24",
   fill: "none",
-  stroke: "#15803d",
+  stroke: "var(--eco-c11)",
   strokeWidth: 1.7,
   strokeLinecap: "round",
   strokeLinejoin: "round",
@@ -44,6 +45,8 @@ const acquisitionCards = [
     Icon: DigitalIcon,
     tag: "Online",
     heading: "Digital Acquisition",
+    image: "/herb_kit.png",
+    imageAlt: "Close-up of potted basil and mint, the kind of home-growing content shared online",
     bullets: [
       { label: "Content Marketing", desc: "Create highly shareable content leveraging the AI Plant Doctor data for localized insights." },
       { label: "SEO / ASO", desc: "Target high-intent search terms around urban farming, local crop diseases, and \"Plantito/Plantita\" guides in Tagalog and regional dialects." },
@@ -54,6 +57,8 @@ const acquisitionCards = [
     Icon: CommunityIcon,
     tag: "On-Ground",
     heading: "Physical & Community",
+    image: "/kit_vegetable.png",
+    imageAlt: "Two people tending raised vegetable beds at a community garden",
     bullets: [
       { label: "LGU Partnerships", desc: "Partner with LGUs and Barangays to promote Event RSVP for official community training — instant credibility and access to organized groups." },
       { label: "Specialist Workshops", desc: "Host high-value workshops via the Community Hub with verified local specialists, marketed heavily in launch cities." },
@@ -64,6 +69,8 @@ const acquisitionCards = [
     Icon: B2BIcon,
     tag: "B2B",
     heading: "Sector Integration",
+    image: "/farming.jpg",
+    imageAlt: "Farmers working rows of crops at commercial scale",
     bullets: [
       { label: "Direct Sales", desc: "A specialized sales team onboards hotels, restaurants, and food processors — pitched on verifiable cost savings and CSR impact from food-waste reduction." },
       { label: "Farmer Outreach", desc: "Partner with provincial agricultural offices and cooperatives (e.g. Benguet) to prove the value of the Bulk Listing / Surplus Module in preventing spoilage losses." },
@@ -102,38 +109,55 @@ function TargetMarketExplore() {
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
           .tme-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
+
+          @keyframes tmeDotPulse {
+            0%, 100% { transform: scale(1);   opacity: 1; }
+            50%      { transform: scale(1.5); opacity: 0.55; }
+          }
+          .tme-dot { animation: tmeDotPulse 2.4s ease-in-out infinite; }
+
+          .tme-media img { transition: transform .7s cubic-bezier(.22,1,.36,1); }
+          .tme-media:hover img { transform: scale(1.06); }
+          .tme-media .tme-icon { transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease; }
+          .tme-media:hover .tme-icon {
+            transform: translateY(-3px) scale(1.07);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(var(--eco-c11-rgb), 0.28);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .tme-dot { animation: none; }
+            .tme-media img, .tme-media:hover img,
+            .tme-media .tme-icon, .tme-media:hover .tme-icon { transition: none; transform: none; }
+          }
         `}
       </style>
+      <RevealStyles />
 
-      <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
-        <span style={styles.badgeDot} />
+      <Reveal className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
+        <span className="tme-dot" style={styles.badgeDot} />
         <span>Go-To-Market</span>
-      </div>
+      </Reveal>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Distribution Channels <span style={styles.accent}>&amp; Acquisition Tactics</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
-      <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+      <Reveal as="p" delay={120} style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         A three-front strategy to reach households and communities across the
         Philippines — pairing digital reach with grassroots trust and B2B scale.
-      </p>
+      </Reveal>
 
       <div
         style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }}
         className="hide-scroll"
         onScroll={handleScroll}
       >
-        {acquisitionCards.map((c) => (
-          <div
+        {acquisitionCards.map((c, ci) => (
+          <Reveal
             key={c.heading}
-            className="inner-blur-glass tme-card"
+            delay={ci * 120}
+            className="inner-blur-glass tme-card tme-media"
             style={{
               ...styles.card,
               ...(isMobile ? styles.cardMobile : {}),
@@ -143,11 +167,23 @@ function TargetMarketExplore() {
             onMouseLeave={() => setHoveredCard(null)}
           >
             <div style={styles.cardAccent} />
+
+            <div style={{ ...styles.cardMedia, ...(isMobile ? styles.cardMediaMobile : {}) }}>
+              <img
+                src={c.image}
+                alt={c.imageAlt}
+                loading="lazy"
+                decoding="async"
+                style={styles.cardImg}
+              />
+              <span aria-hidden="true" style={styles.cardMediaScrim} />
+              <span style={styles.cardTag}>{c.tag}</span>
+            </div>
+
             <div style={styles.cardHeaderArea}>
-              <div style={styles.cardIconWrap}>
+              <div className="tme-icon" style={styles.cardIconWrap}>
                 <c.Icon />
               </div>
-              <span style={styles.cardTag}>{c.tag}</span>
               <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>
                 {c.heading}
               </h3>
@@ -163,7 +199,7 @@ function TargetMarketExplore() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         ))}
       </div>
 
@@ -210,7 +246,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -220,8 +256,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -237,18 +273,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(22px, 7vw, 32px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -315,7 +341,7 @@ const styles = {
   },
   cardHov: {
     transform: "translateY(-6px)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(var(--eco-c11-rgb), 0.14)",
   },
   cardAccent: {
     position: "absolute",
@@ -323,9 +349,39 @@ const styles = {
     left: 0,
     right: 0,
     height: "4px",
-    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+    zIndex: 2,
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
+  },
+  /* Full-bleed photo banner: negative margins cancel the card's padding so the
+     image meets the card's rounded top edge. */
+  cardMedia: {
+    position: "relative",
+    margin: "-26px -24px 0",
+    height: "140px",
+    overflow: "hidden",
+    flexShrink: 0,
+    alignSelf: "stretch",
+  },
+  cardMediaMobile: {
+    margin: "-24px -20px 0",
+    height: "122px",
+  },
+  cardImg: {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  cardMediaScrim: {
+    position: "absolute",
+    inset: "auto 0 0 0",
+    height: "62%",
+    pointerEvents: "none",
+    background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%)",
   },
   cardHeaderArea: {
+    marginTop: "-30px",
+    zIndex: 1,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -338,19 +394,27 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
-    border: "1px solid rgba(255,255,255,0.7)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+    background: "linear-gradient(150deg, rgba(236,253,243,0.96), rgba(var(--eco-c2-rgb), 0.94))",
+    backdropFilter: "blur(14px) saturate(180%)",
+    WebkitBackdropFilter: "blur(14px) saturate(180%)",
+    border: "1px solid rgba(255,255,255,0.9)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(var(--eco-c11-rgb), 0.1)",
   },
   cardTag: {
+    /* Top-left, clear of the icon chip that overlaps the photo's bottom edge. */
+    position: "absolute",
+    top: "13px",
+    left: "13px",
+    whiteSpace: "nowrap",
     fontSize: "10px",
     fontWeight: 700,
     letterSpacing: "0.7px",
     textTransform: "uppercase",
-    color: "#15803d",
-    background: "rgba(74,222,128,0.14)",
-    padding: "3px 10px",
+    color: "var(--eco-c16)",
+    background: "rgba(255,255,255,0.92)",
+    padding: "4px 11px",
     borderRadius: "999px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.22)",
   },
   cardHeading: {
     fontSize: "17px",
@@ -391,8 +455,8 @@ const styles = {
     height: "6px",
     borderRadius: "50%",
     marginTop: "7px",
-    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
-    boxShadow: "0 0 6px rgba(74,222,128,0.5)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
+    boxShadow: "0 0 6px rgba(var(--eco-c6-rgb), 0.5)",
   },
   bulletText: {
     fontSize: "13px",
@@ -421,9 +485,9 @@ const styles = {
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   dotActive: {
-    background: "#4ade80",
+    background: "var(--eco-c6)",
     transform: "scale(1.25)",
-    boxShadow: "0 0 10px rgba(74, 222, 128, 0.4)",
+    boxShadow: "0 0 10px rgba(var(--eco-c6-rgb), 0.4)",
   },
 };
 

@@ -9,7 +9,7 @@ import {
 // Reuses the same lesson as hydrateIcons: never store JSX, only the name.
 const ICONS = { Cherry, Leaf, Flower2, Wheat, Sprout, Salad, Recycle, Package, Shovel, Citrus, Carrot, Sun, Scissors, Trees, Droplet, Flame, Gift };
 
-const DEFAULT_COLOR = "#16a34a";
+const DEFAULT_COLOR = "var(--eco-c9)";
 
 export function iconElement(name, color = DEFAULT_COLOR, size = "1em") {
   const Cmp = ICONS[name] || Sprout;

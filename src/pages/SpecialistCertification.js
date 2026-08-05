@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Sprout, Microscope, Package, Bug } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaUserTie, FaClock, FaStar, FaPlayCircle, FaTimes, FaCheckCircle, FaChevronDown, FaCreditCard, FaQrcode } from "react-icons/fa";
+import { MODAL_CLOSE_BTN, MODAL_LAYER, modalOverlay, modalPanel } from "../styles/modal";
 
 // Default certification courses shown when the Admin Portal hasn't provided
 // any yet. Courses (title, instructor, price, photo, ...) are managed from
@@ -16,7 +17,7 @@ export const defaultCourses = [
     duration: "4 Weeks",
     lessons: 12,
     price: "₱1,500",
-    icon: <Sprout size="1em" color="#16a34a" />,
+    icon: <Sprout size="1em" color="var(--eco-c9)" />,
     image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?auto=format&fit=crop&q=80&w=800",
     badge: "Best Seller",
     rating: 4.9,
@@ -44,7 +45,7 @@ export const defaultCourses = [
     duration: "3 Weeks",
     lessons: 8,
     price: "₱1,200",
-    icon: <Package size="1em" color="#15803d" />,
+    icon: <Package size="1em" color="var(--eco-c11)" />,
     image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=800",
     badge: "B2B Focus",
     rating: 4.7,
@@ -245,7 +246,6 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
       <h1 style={styles.title}>
         Level Up Your <span style={styles.accent}>Green Skills</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Gain verifiable expertise with our curated online courses. Learn from top agriculture specialists in the Philippines and earn certifications to boost your micro-vendor credibility.
@@ -269,7 +269,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
               ) : (
                 <div style={styles.imagePlaceholder}>
                   <span style={{ fontSize: "52px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.15))" }}>
-                    {course.icon || <Sprout size="1em" color="#16a34a" />}
+                    {course.icon || <Sprout size="1em" color="var(--eco-c9)" />}
                   </span>
                 </div>
               )}
@@ -279,7 +279,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                 </span>
               )}
               <div style={styles.ratingBadge}>
-                <FaStar style={{ color: "#fbbf24", marginRight: "4px" }} />
+                <FaStar style={{ color: "var(--eco-c6)", marginRight: "4px" }} />
                 {course.rating}
               </div>
             </div>
@@ -370,7 +370,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                 {selectedEnrollCourse.image ? (
                   <img src={selectedEnrollCourse.image} alt={selectedEnrollCourse.title} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "12px" }} />
                 ) : (
-                  selectedEnrollCourse.icon || <Sprout size="1em" color="#16a34a" />
+                  selectedEnrollCourse.icon || <Sprout size="1em" color="var(--eco-c9)" />
                 )}
               </div>
               <div style={styles.courseSummaryInfo}>
@@ -455,7 +455,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                   {formData.paymentMethod === 'Credit Card' && (
                     <div style={styles.paymentDetailsContainer}>
                       <div style={styles.paymentHeader}>
-                        <FaCreditCard style={{ color: '#15803d' }} />
+                        <FaCreditCard style={{ color: 'var(--eco-c13)' }} />
                         <span>Pay with Credit/Debit Card</span>
                       </div>
                       <input type="text" placeholder="Cardholder Name" required value={formData.cardName} onChange={e => setFormData({...formData, cardName: e.target.value})} style={styles.inputField} />
@@ -473,7 +473,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                         <div style={styles.qrCodePlaceholder}><FaQrcode size={48} style={{ color: 'rgba(0,0,0,0.1)' }} /></div>
                         <div style={styles.qrInstruction}>
                           <p style={{ margin: "0 0 4px" }}>Scan the QR code using your {formData.paymentMethod} app to pay.</p>
-                          <strong style={{ color: "#15803d" }}>Amount: {selectedEnrollCourse.price}</strong>
+                          <strong style={{ color: "var(--eco-c13)" }}>Amount: {selectedEnrollCourse.price}</strong>
                         </div>
                       </div>
                       <input type="text" placeholder="Transaction Reference Number" required value={formData.refNumber} onChange={e => setFormData({...formData, refNumber: e.target.value})} style={styles.inputField} />
@@ -528,7 +528,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
             </button>
             
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px", paddingRight: "30px" }}>
-              <span style={{ fontSize: "28px" }}>{activeCourse.icon || <Sprout size="1em" color="#16a34a" />}</span>
+              <span style={{ fontSize: "28px" }}>{activeCourse.icon || <Sprout size="1em" color="var(--eco-c9)" />}</span>
               <h2 style={{ ...styles.modalTitle, margin: 0 }}>{activeCourse.title}</h2>
             </div>
 
@@ -557,18 +557,18 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                 return (
                   <div 
                     key={i} 
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", background: isCurrent ? "rgba(22, 163, 74, 0.1)" : "rgba(255,255,255,0.6)", borderRadius: "12px", border: isCurrent ? "1px solid rgba(22, 163, 74, 0.3)" : "1px solid rgba(0,0,0,0.05)", cursor: isCurrent || isCompleted ? "pointer" : "default", transition: "all 0.2s ease", opacity: !isCompleted && !isCurrent ? 0.6 : 1 }} 
-                    onMouseEnter={(e) => { if (isCurrent || isCompleted) e.currentTarget.style.background = isCurrent ? "rgba(22, 163, 74, 0.15)" : "rgba(255,255,255,0.9)" }} 
-                    onMouseLeave={(e) => { if (isCurrent || isCompleted) e.currentTarget.style.background = isCurrent ? "rgba(22, 163, 74, 0.1)" : "rgba(255,255,255,0.6)" }}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", background: isCurrent ? "rgba(var(--eco-c9-rgb), 0.1)" : "rgba(255,255,255,0.6)", borderRadius: "12px", border: isCurrent ? "1px solid rgba(var(--eco-c9-rgb), 0.3)" : "1px solid rgba(0,0,0,0.05)", cursor: isCurrent || isCompleted ? "pointer" : "default", transition: "all 0.2s ease", opacity: !isCompleted && !isCurrent ? 0.6 : 1 }} 
+                    onMouseEnter={(e) => { if (isCurrent || isCompleted) e.currentTarget.style.background = isCurrent ? "rgba(var(--eco-c9-rgb), 0.15)" : "rgba(255,255,255,0.9)" }} 
+                    onMouseLeave={(e) => { if (isCurrent || isCompleted) e.currentTarget.style.background = isCurrent ? "rgba(var(--eco-c9-rgb), 0.1)" : "rgba(255,255,255,0.6)" }}
                     onClick={() => handleLessonClick(i, isCurrent)}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      {isCompleted ? <FaCheckCircle color="#16a34a" size={16} /> : <div style={{ width: "14px", height: "14px", borderRadius: "50%", border: isCurrent ? "2px solid #15803d" : "2px solid rgba(0,0,0,0.2)" }} />}
-                      <span style={{ fontSize: "14px", fontWeight: isCurrent || isCompleted ? 700 : 500, color: isCurrent ? "#15803d" : "#000" }}>
+                      {isCompleted ? <FaCheckCircle color="var(--eco-c9)" size={16} /> : <div style={{ width: "14px", height: "14px", borderRadius: "50%", border: isCurrent ? "2px solid var(--eco-c11)" : "2px solid rgba(0,0,0,0.2)" }} />}
+                      <span style={{ fontSize: "14px", fontWeight: isCurrent || isCompleted ? 700 : 500, color: isCurrent ? "var(--eco-c13)" : "#000" }}>
                         Lesson {i + 1}: {i === 0 ? "Introduction & Overview" : i === 1 ? "Core Concepts & Fundamentals" : `Advanced Module ${i - 1}`}
                       </span>
                     </div>
-                    <span style={{ fontSize: "12px", color: isCurrent ? "#15803d" : "rgba(0,0,0,0.5)", fontWeight: 600 }}>
+                    <span style={{ fontSize: "12px", color: isCurrent ? "var(--eco-c13)" : "rgba(0,0,0,0.5)", fontWeight: 600 }}>
                       {isCurrent ? "Start Lesson" : `${10 + i * 2}:00`}
                     </span>
                   </div>
@@ -577,14 +577,14 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
             </div>
 
             {activeCourse.progress === 100 && (
-              <div style={{ animation: "fadeIn 0.5s ease-out", marginTop: "24px", padding: "20px", background: "linear-gradient(135deg, rgba(134,239,172,0.2), rgba(125,211,252,0.2))", borderRadius: "16px", border: "1px solid rgba(22, 163, 74, 0.3)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+              <div style={{ animation: "fadeIn 0.5s ease-out", marginTop: "24px", padding: "20px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.2), rgba(var(--eco-c5-rgb), 0.2))", borderRadius: "16px", border: "1px solid rgba(var(--eco-c9-rgb), 0.3)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
                 <div>
-                  <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#15803d", margin: "0 0 4px" }}>Course Completed!</h3>
+                  <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--eco-c13)", margin: "0 0 4px" }}>Course Completed!</h3>
                   <p style={{ fontSize: "14px", color: "rgba(0,0,0,0.7)", margin: 0 }}>You've unlocked your Specialist Certificate.</p>
                 </div>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                   <button 
-                    style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "rgba(22, 163, 74, 0.1)", border: "1px solid rgba(22, 163, 74, 0.2)", color: "#15803d", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(34,197,94,0.08)", transition: "transform 0.2s ease" }} 
+                    style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "rgba(var(--eco-c9-rgb), 0.1)", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", color: "var(--eco-c13)", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.08)", transition: "transform 0.2s ease" }} 
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} 
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     onClick={() => setShowCertificatePreview(true)}
@@ -592,7 +592,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                     View
                   </button>
                   <button 
-                    style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "rgba(14, 165, 233, 0.1)", border: "1px solid rgba(14, 165, 233, 0.2)", color: "#0284c7", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(14,165,233,0.08)", transition: "transform 0.2s ease" }} 
+                    style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "rgba(var(--eco-c7-rgb), 0.1)", border: "1px solid rgba(var(--eco-c7-rgb), 0.2)", color: "var(--eco-c13)", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.08)", transition: "transform 0.2s ease" }} 
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} 
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     onClick={() => {
@@ -606,7 +606,7 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
                     Share
                   </button>
                   <button 
-                    style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(34,197,94,0.15)", transition: "transform 0.2s ease" }} 
+                    style={{ flex: 1, padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.15)", transition: "transform 0.2s ease" }} 
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} 
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     onClick={() => setShowDownloadModal(true)}
@@ -633,12 +633,12 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
               <FaTimes />
             </button>
             <h2 style={{ ...styles.modalTitle, marginBottom: "20px" }}>Certificate Preview</h2>
-            <div style={{ width: "100%", aspectRatio: "1.414/1", background: "linear-gradient(135deg, #e0ffe0, #c0f0c0)", border: "1px solid #16a34a", borderRadius: "16px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", boxSizing: "border-box", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}>
-              <h3 style={{ fontSize: "28px", fontWeight: 800, color: "#15803d", marginBottom: "10px" }}>Certificate of Completion</h3>
+            <div style={{ width: "100%", aspectRatio: "1.414/1", background: "linear-gradient(135deg, var(--eco-c0), var(--eco-c5))", border: "1px solid var(--eco-c9)", borderRadius: "16px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", boxSizing: "border-box", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}>
+              <h3 style={{ fontSize: "28px", fontWeight: 800, color: "var(--eco-c13)", marginBottom: "10px" }}>Certificate of Completion</h3>
               <p style={{ fontSize: "18px", color: "rgba(0,0,0,0.7)", marginBottom: "20px" }}>This certifies that</p>
               <h2 style={{ fontSize: "42px", fontWeight: 900, color: "#000", marginBottom: "10px", textDecoration: "underline" }}>Juan Dela Cruz</h2>
               <p style={{ fontSize: "18px", color: "rgba(0,0,0,0.7)", marginBottom: "30px" }}>has successfully completed the course</p>
-              <h3 style={{ fontSize: "32px", fontWeight: 800, color: "#15803d", marginBottom: "40px" }}>"{activeCourse.title}"</h3>
+              <h3 style={{ fontSize: "32px", fontWeight: 800, color: "var(--eco-c13)", marginBottom: "40px" }}>"{activeCourse.title}"</h3>
               <div style={{ display: "flex", justifyContent: "space-between", width: "80%" }}>
                 <div style={{ textAlign: "center" }}>
                   <p style={{ fontSize: "16px", fontWeight: 600, color: "rgba(0,0,0,0.8)", borderTop: "1px solid rgba(0,0,0,0.3)", paddingTop: "5px" }}>Date: {new Date().toLocaleDateString()}</p>
@@ -680,8 +680,8 @@ function SpecialistCertification({ setActiveNav, onCertificateUnlock, courses: c
 
             {formData.downloadSuccess ? (
               <div style={{ animation: "fadeIn 0.5s ease-out", textAlign: "center", marginTop: "20px" }}>
-                <FaCheckCircle style={{ fontSize: "48px", color: "#16a34a", marginBottom: "10px" }} />
-                <p style={{ fontSize: "16px", fontWeight: 700, color: "#15803d" }}>Download Complete!</p>
+                <FaCheckCircle style={{ fontSize: "48px", color: "var(--eco-c13)", marginBottom: "10px" }} />
+                <p style={{ fontSize: "16px", fontWeight: 700, color: "var(--eco-c13)" }}>Download Complete!</p>
                 <p style={{ fontSize: "13px", color: "rgba(0,0,0,0.6)" }}>Your certificate has been downloaded.</p>
               </div>
             ) : (
@@ -737,30 +737,20 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
   },
   badgeDot: {
-    width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 5px rgba(74,222,128,0.9)", display: "inline-block",
+    width: "6px", height: "6px", borderRadius: "50%", background: "var(--eco-c6)", boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)", display: "inline-block",
   },
   title: {
     fontSize: "clamp(32px, 4.5vw, 46px)", fontWeight: 300, color: "#000", margin: "0 auto 16px", lineHeight: 1.15, letterSpacing: "-0.8px", textShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -778,13 +768,13 @@ const styles = {
     gridTemplateColumns: "1fr", gap: "20px",
   },
   card: {
-    background: "linear-gradient(150deg, rgba(255,255,255,0.8), rgba(240,253,244,0.6))", border: "1px solid rgba(255,255,255,0.9)", borderRadius: "24px", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 10px 30px rgba(0,0,0,0.06)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", transition: "transform 0.3s ease, box-shadow 0.3s ease", textAlign: "left",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.8), rgba(var(--eco-c0-rgb), 0.6))", border: "1px solid rgba(255,255,255,0.9)", borderRadius: "24px", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 10px 30px rgba(0,0,0,0.06)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", transition: "transform 0.3s ease, box-shadow 0.3s ease", textAlign: "left",
   },
   cardHov: {
-    transform: "translateY(-6px)", boxShadow: "0 20px 40px rgba(21,128,61,0.12)",
+    transform: "translateY(-6px)", boxShadow: "0 20px 40px rgba(var(--eco-c11-rgb), 0.12)",
   },
   imageContainer: {
-    position: "relative", width: "100%", height: "160px", background: "linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(14, 165, 233, 0.15))", display: "flex", alignItems: "center", justifyContent: "center",
+    position: "relative", width: "100%", height: "160px", background: "linear-gradient(135deg, rgba(var(--eco-c6-rgb), 0.15), rgba(var(--eco-c7-rgb), 0.15))", display: "flex", alignItems: "center", justifyContent: "center",
   },
   imagePlaceholder: {
     width: "80px", height: "80px", borderRadius: "50%", background: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
@@ -793,7 +783,7 @@ const styles = {
     position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
   },
   badgeLabel: {
-    position: "absolute", top: "16px", left: "16px", background: "linear-gradient(135deg, #22c55e, #15803d)", color: "#fff", padding: "6px 14px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 10px rgba(21,128,61,0.3)",
+    position: "absolute", top: "16px", left: "16px", background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c11))", color: "#fff", padding: "6px 14px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", boxShadow: "0 4px 10px rgba(var(--eco-c11-rgb), 0.3)",
   },
   ratingBadge: {
     position: "absolute", top: "16px", right: "16px", background: "rgba(255,255,255,0.9)", color: "#000", padding: "6px 12px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
@@ -814,7 +804,7 @@ const styles = {
     display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "rgba(0,0,0,0.6)", fontWeight: 500,
   },
   metaIcon: {
-    color: "#16a34a", fontSize: "13px",
+    color: "var(--eco-c13)", fontSize: "13px",
   },
   cardDesc: {
     fontSize: "13.5px", color: "rgba(0,0,0,0.7)", lineHeight: 1.6, margin: "0 0 24px", flex: 1,
@@ -829,13 +819,13 @@ const styles = {
     width: "100%", height: "6px", background: "rgba(0,0,0,0.05)", borderRadius: "999px", overflow: "hidden",
   },
   progressBarFill: {
-    height: "100%", background: "linear-gradient(90deg, #4ade80, #16a34a)", borderRadius: "999px", transition: "width 0.5s ease-out",
+    height: "100%", background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c9))", borderRadius: "999px", transition: "width 0.5s ease-out",
   },
   cardFooter: {
     display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "20px", gap: "12px", flexWrap: "wrap",
   },
   cardPrice: {
-    fontSize: "22px", fontWeight: 800, color: "#15803d",
+    fontSize: "22px", fontWeight: 800, color: "var(--eco-c13)",
   },
   actionButtons: {
     display: "flex", gap: "8px", flex: 1, justifyContent: "flex-end",
@@ -844,25 +834,21 @@ const styles = {
     padding: "10px 16px", borderRadius: "10px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.1)", color: "#000", fontSize: "13px", fontWeight: 600, cursor: "pointer", transition: "background 0.2s ease",
   },
   enrollBtn: {
-    padding: "10px 18px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease",
+    padding: "10px 18px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease",
   },
-  modalOverlay: {
-    position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease",
-  },
-  modalContent: {
-    maxWidth: "540px", width: "100%", maxHeight: "90vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "24px", padding: "32px", display: "flex", flexDirection: "column", boxShadow: "0 15px 40px rgba(0,0,0,0.2)", position: "relative", animation: "scaleUp 0.3s ease", overflowY: "auto", textAlign: "left", boxSizing: "border-box",
-  },
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
+  modalContent: modalPanel({
+    maxWidth: "540px", width: "100%", maxHeight: "90vh", padding: "32px", display: "flex", flexDirection: "column", overflowY: "auto", textAlign: "left",
+  }),
   modalContentMobile: {
     padding: "24px 16px"
   },
-  closeBtn: {
-    position: "absolute", top: "16px", right: "16px", zIndex: 50, background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", color: "rgba(0,0,0,0.6)", cursor: "pointer", transition: "background 0.2s ease",
-  },
+  closeBtn: MODAL_CLOSE_BTN,
   modalTitle: {
     fontSize: "24px", fontWeight: 800, color: "#000", margin: "0 0 20px", lineHeight: 1.2, letterSpacing: "-0.5px"
   },
   courseSummaryCard: {
-    display: "flex", alignItems: "center", gap: "12px", padding: "16px", background: "rgba(22, 163, 74, 0.08)", border: "1px solid rgba(22, 163, 74, 0.2)", borderRadius: "16px", marginBottom: "24px"
+    display: "flex", alignItems: "center", gap: "12px", padding: "16px", background: "rgba(var(--eco-c9-rgb), 0.08)", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", borderRadius: "16px", marginBottom: "24px"
   },
   courseSummaryIcon: {
     width: "48px", height: "48px", background: "#fff", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", flexShrink: 0
@@ -877,7 +863,7 @@ const styles = {
     fontSize: "12px", color: "rgba(0,0,0,0.6)", margin: 0, fontWeight: 500
   },
   courseSummaryPrice: {
-    fontSize: "16px", fontWeight: 800, color: "#15803d"
+    fontSize: "16px", fontWeight: 800, color: "var(--eco-c13)"
   },
   enrollForm: {
     display: "flex", flexDirection: "column", gap: "16px"
@@ -899,16 +885,16 @@ const styles = {
     display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255, 255, 255, 0.8)", fontSize: "14px", color: "#000", cursor: "pointer", transition: "all 0.2s ease", outline: "none", textAlign: "left", boxSizing: "border-box", fontFamily: "inherit"
   },
   customDropdownHeaderActive: {
-    borderColor: "#16a34a", boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.1)", background: "rgba(255, 255, 255, 0.95)"
+    borderColor: "var(--eco-c9)", boxShadow: "0 0 0 3px rgba(var(--eco-c7-rgb), 0.1)", background: "rgba(255, 255, 255, 0.95)"
   },
   customDropdownList: {
-    position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, zIndex: 1000, background: "rgba(255, 255, 255, 0.95)", borderRadius: "12px", border: "1px solid rgba(34, 197, 94, 0.2)", padding: "8px", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", maxHeight: "200px", overflowY: "auto", animation: "fadeIn 0.2s ease"
+    position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, zIndex: 1000, background: "rgba(255, 255, 255, 0.95)", borderRadius: "12px", border: "1px solid rgba(var(--eco-c7-rgb), 0.2)", padding: "8px", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", maxHeight: "200px", overflowY: "auto", animation: "fadeIn 0.2s ease"
   },
   customDropdownItem: {
     padding: "10px 12px", borderRadius: "8px", fontSize: "14px", fontWeight: 500, color: "#000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", transition: "all 0.2s ease"
   },
   customDropdownItemActive: {
-    background: "rgba(34, 197, 94, 0.12)", color: "#15803d", fontWeight: 700
+    background: "rgba(var(--eco-c7-rgb), 0.12)", color: "var(--eco-c13)", fontWeight: 700
   },
   paymentOptions: {
     display: "flex", gap: "8px", flexWrap: "wrap"
@@ -917,19 +903,19 @@ const styles = {
     flex: 1, minWidth: "100px", padding: "10px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.6)", fontSize: "13px", fontWeight: 600, color: "rgba(0,0,0,0.7)", cursor: "pointer", transition: "all 0.2s ease"
   },
   paymentBtnActive: {
-    background: "rgba(22, 163, 74, 0.1)", border: "1px solid #16a34a", color: "#15803d", fontWeight: 700, boxShadow: "0 4px 12px rgba(22, 163, 74, 0.15)"
+    background: "rgba(var(--eco-c9-rgb), 0.1)", border: "1px solid var(--eco-c9)", color: "var(--eco-c13)", fontWeight: 700, boxShadow: "0 4px 12px rgba(var(--eco-c9-rgb), 0.15)"
   },
   submitBtn: {
-    marginTop: "8px", padding: "16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(34, 197, 94, 0.2)", transition: "all 0.2s ease"
+    marginTop: "8px", padding: "16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(var(--eco-c7-rgb), 0.2)", transition: "all 0.2s ease"
   },
   successModal: {
-    maxWidth: "400px", width: "100%", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "32px", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", position: "relative", animation: "scaleUp 0.3s ease", boxSizing: "border-box"
+    maxWidth: "400px", width: "100%", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "32px", padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.15)", position: "relative", animation: "scaleUp 0.3s ease", boxSizing: "border-box"
   },
   successIconWrap: {
-    width: "72px", height: "72px", borderRadius: "50%", background: "rgba(34, 197, 94, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px"
+    width: "72px", height: "72px", borderRadius: "50%", background: "rgba(var(--eco-c7-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px"
   },
   successIcon: {
-    fontSize: "36px", color: "#16a34a"
+    fontSize: "36px", color: "var(--eco-c13)"
   },
   successTitle: {
     fontSize: "24px", fontWeight: 800, color: "#000", margin: "0 0 12px", letterSpacing: "-0.5px"
@@ -938,7 +924,7 @@ const styles = {
     fontSize: "14px", color: "rgba(0,0,0,0.6)", marginBottom: "32px", lineHeight: 1.5
   },
   successBtn: {
-    width: "100%", padding: "14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(34, 197, 94, 0.2)", transition: "transform 0.2s ease"
+    width: "100%", padding: "14px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "15px", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(var(--eco-c7-rgb), 0.2)", transition: "transform 0.2s ease"
   },
   paymentDetailsWrapper: { animation: "fadeIn 0.5s ease-out", marginTop: "4px" },
   paymentDetailsContainer: { display: 'flex', flexDirection: 'column', gap: '12px', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.05)' },
@@ -974,7 +960,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
         }}
       >
         <span>{value || placeholder}</span>
-        <FaChevronDown style={{ transition: 'transform 0.3s ease', transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', color: '#15803d' }} size={12} />
+        <FaChevronDown style={{ transition: 'transform 0.3s ease', transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', color: 'var(--eco-c13)' }} size={12} />
       </button>
       {isOpen && (
         <div className="inner-blur-glass custom-scrollbar" style={styles.customDropdownList}>
@@ -983,11 +969,11 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
               key={opt}
               onClick={() => { onChange(opt); setIsOpen(false); }}
               style={{ ...styles.customDropdownItem, ...(value === opt ? styles.customDropdownItemActive : {}) }}
-              onMouseEnter={(e) => { if (value !== opt) { e.currentTarget.style.background = 'rgba(34, 197, 94, 0.08)'; e.currentTarget.style.color = '#15803d'; } }}
+              onMouseEnter={(e) => { if (value !== opt) { e.currentTarget.style.background = 'rgba(var(--eco-c7-rgb), 0.08)'; e.currentTarget.style.color = 'var(--eco-c11)'; } }}
               onMouseLeave={(e) => { if (value !== opt) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#000'; } }}
             >
               <span>{opt}</span>
-              {value === opt && <FaCheckCircle size={14} style={{ color: '#16a34a' }} />}
+              {value === opt && <FaCheckCircle size={14} style={{ color: 'var(--eco-c13)' }} />}
             </div>
           ))}
         </div>

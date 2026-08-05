@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FaRobot, FaCalendarAlt, FaExchangeAlt, FaUserTie, FaArrowLeft } from "react-icons/fa";
+import ComingSoonBanner from "../components/ComingSoonBanner";
+import Reveal, { RevealStyles } from "../components/Reveal";
 
 const servicesData = [
   {
     category: "AI Support",
     name: "AI Plant Doctor",
-    image: "/ai_doctor.png", // Placeholder image
+    image: "/herb_kit.png",
+    imageAlt: "Close-up of potted basil and mint in a balcony planter",
     price: "See Plans",
     description: "24/7 localized care guides tailored to Philippine climate and native crops. Predictive diagnostics for your garden.",
     stock: "Available 24/7",
@@ -14,7 +17,8 @@ const servicesData = [
   {
     category: "Community",
     name: "Event Management",
-    image: "/event.png", // Placeholder image
+    image: "/starter_kit.png",
+    imageAlt: "A vendor tending trays of seedlings at an outdoor market stall",
     price: "Free Access",
     description: "Real-world event management. RSVP to specialist workshops, community trainings, and local venue gatherings.",
     stock: "Limited Slots",
@@ -23,7 +27,8 @@ const servicesData = [
   {
     category: "B2B Solutions",
     name: "Surplus Listing Module",
-    image: "/surplus.png", // Placeholder image
+    image: "/IMG_6223.jpeg",
+    imageAlt: "A large field of cabbages ready for bulk harvest",
     price: "Enterprise",
     description: "Dedicated system for commercial farmers to list large-volume oversupply (surplus) to institutional buyers.",
     stock: "Active Network",
@@ -32,7 +37,8 @@ const servicesData = [
   {
     category: "Education",
     name: "Specialist Workshops",
-    image: "/workshop.png", // Placeholder image
+    image: "/Planting.jpg",
+    imageAlt: "Hands harvesting fresh produce from a garden bed",
     price: "Varies",
     description: "Hands-on, localized training sessions led by top agriculture specialists in your region.",
     stock: "Ongoing",
@@ -41,6 +47,10 @@ const servicesData = [
 ];
 
 function ServicesPage({ setActiveNav, showAIChat, setShowAIChat }) {
+  // App.js passes its `openAIChat` here: call with no argument for the general
+  // assistant, or with { bot: "plantDoctor" } to land straight in Plant Doctor
+  // mode so the "Try Now" buttons open the right assistant.
+  const openChat = (seed) => setShowAIChat && setShowAIChat(seed);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [hoveredItem, setHoveredItem] = useState(null); 
   const [isHoveredBack, setIsHoveredBack] = useState(false);
@@ -53,22 +63,29 @@ function ServicesPage({ setActiveNav, showAIChat, setShowAIChat }) {
 
   return (
     <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
+      <ComingSoonBanner
+        title="Services — Coming Soon"
+        message="Our services platform is still being built out. Have a look at what's planned — full access is on the way."
+        onClose={() => setActiveNav && setActiveNav("Product & Services")}
+      />
       <style>
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
+          .svc-card img { transition: transform .7s cubic-bezier(.22,1,.36,1); }
+          .svc-card:hover img { transform: scale(1.08); }
+          @media (prefers-reduced-motion: reduce) {
+            .svc-card img, .svc-card:hover img { transition: none; transform: none; }
           }
         `}
       </style>
+      <RevealStyles />
 
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <defs>
           <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(134,239,172,0.95)" />
-            <stop offset="100%" stopColor="rgba(125,211,252,0.95)" />
+            <stop offset="0%" stopColor="rgba(var(--eco-c5-rgb), 0.95)" />
+            <stop offset="100%" stopColor="rgba(var(--eco-c5-rgb), 0.95)" />
           </linearGradient>
         </defs>
       </svg>
@@ -99,7 +116,6 @@ function ServicesPage({ setActiveNav, showAIChat, setShowAIChat }) {
           <h1 style={{ ...styles.title, fontSize: "clamp(20px, 2.8vw, 32px)", textAlign: "left", ...(isMobile ? styles.titleMobile : {}), marginTop: "20px" }}>
             Explore Our <span style={styles.titleAccent}>Core Services</span>
           </h1>
-          <div style={{ ...styles.titleUnderline, marginLeft: 0, marginBottom: "16px", ...(isMobile ? { ...styles.titleUnderlineMobile, marginLeft: 0 } : {}) }}></div>
           <p style={{ ...styles.body, fontSize: "clamp(12px, 1.4vw, 15px)", marginBottom: "16px", textAlign: "left", ...(isMobile ? styles.bodyMobile : {}) }}>
             From 24/7 AI-powered diagnostics to real-world community events and B2B surplus management, we offer comprehensive services to elevate your farming.
           </p>
@@ -111,7 +127,7 @@ function ServicesPage({ setActiveNav, showAIChat, setShowAIChat }) {
                 ...(hoveredItem === "exploreServicesBtn" ? styles.primaryBtnHov : {}),
                 marginTop: "10px",
               }}
-onClick={() => setShowAIChat && setShowAIChat(true)}
+onClick={() => openChat()}
               onMouseEnter={() => setHoveredItem("exploreServicesBtn")}
               onMouseLeave={() => setHoveredItem(null)}
             >
@@ -136,7 +152,7 @@ onClick={() => setShowAIChat && setShowAIChat(true)}
                     }}
 onClick={() => {
                       if (cat.navTarget === "AIChat") {
-                        setShowAIChat && setShowAIChat(true);
+                        openChat({ bot: "plantDoctor" });
                       } else {
                         setActiveNav && setActiveNav(cat.navTarget);
                       }
@@ -156,9 +172,10 @@ onClick={() => {
         <div className="hide-scroll" style={{ ...styles.rightColumn, ...(isMobile ? styles.rightColumnMobile : {}), paddingTop: 0 }}>
           <div style={{ ...styles.serviceGrid, ...(isMobile ? styles.serviceGridMobile : {}) }}>
             {servicesData.map((service, index) => (
-              <div
+              <Reveal
                 key={service.name}
-                className="inner-blur-glass"
+                delay={index * 110}
+                className="inner-blur-glass svc-card"
                 style={{
                   ...styles.productCard,
                   ...(isMobile ? styles.productCardMobile : {}),
@@ -169,7 +186,15 @@ onClick={() => {
               >
                 <span aria-hidden="true" style={styles.productCardInnerBlur} />
                 <div style={styles.productImageContainer}>
-                  <span style={{ fontSize: "48px", color: "#15803d", display: "flex" }}>
+                  <img
+                    src={service.image}
+                    alt={service.imageAlt}
+                    loading="lazy"
+                    decoding="async"
+                    style={styles.productImage}
+                  />
+                  <span aria-hidden="true" style={styles.productImageScrim} />
+                  <span aria-hidden="true" style={styles.serviceIconChip}>
                     {service.name === "AI Plant Doctor" ? <FaRobot /> : service.name === "Event Management" ? <FaCalendarAlt /> : service.name === "Surplus Listing Module" ? <FaExchangeAlt /> : <FaUserTie />}
                   </span>
                   <span style={styles.sustainabilityBadge}>{service.sustainabilityBadge}</span>
@@ -186,7 +211,7 @@ onClick={() => {
                       <button 
                         type="button" 
                         style={styles.servicePrimaryBtn} 
-onClick={() => setShowAIChat && setShowAIChat(true)}
+onClick={() => openChat({ bot: "plantDoctor" })}
                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       >Try Now</button>
@@ -220,7 +245,7 @@ onClick={() => setShowAIChat && setShowAIChat(true)}
                     )}
                   </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
 
@@ -272,7 +297,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -282,8 +307,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   headerRow: {
@@ -384,23 +409,8 @@ const styles = {
     overflowWrap: "break-word",
     marginBottom: "clamp(4px, 0.8dvh, 7px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
-  titleUnderlineMobile: {
-    width: "clamp(70px, 22vw, 94px)",
-    height: "3px",
-    margin: "0 auto clamp(7px, 1.2dvh, 11px)",
-  },
   titleAccent: { 
-    background: "linear-gradient(90deg, #15803d, #16a34a)",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -482,17 +492,44 @@ const styles = {
     flexShrink: 0,
     borderRadius: "20px",
     overflow: "hidden",
-    background: "linear-gradient(135deg, rgba(22,163,74,0.1), rgba(22,163,74,0.05))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c9-rgb), 0.1), rgba(var(--eco-c9-rgb), 0.05))",
     border: "4px solid rgba(255,255,255,0.9)",
     boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
+  productImage: {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  productImageScrim: {
+    position: "absolute",
+    inset: 0,
+    pointerEvents: "none",
+    background: "linear-gradient(180deg, rgba(0,0,0,0) 38%, rgba(0,0,0,0.55) 100%)",
+  },
+  serviceIconChip: {
+    position: "absolute",
+    top: "8px",
+    left: "8px",
+    width: "30px",
+    height: "30px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "15px",
+    color: "var(--eco-c13)",
+    borderRadius: "10px",
+    background: "rgba(255,255,255,0.94)",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.22)",
+  },
   sustainabilityBadge: {
     position: "absolute",
     bottom: "10px",
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     padding: "4px 8px",
     borderRadius: "999px",
@@ -514,14 +551,14 @@ const styles = {
   productDescription: { fontSize: "13px", color: "rgba(0,0,0,0.7)", margin: "0 0 10px", lineHeight: "1.5" },
   productDescriptionMobile: { fontSize: "13px" },
   productMeta: { display: "flex", justifyContent: "space-between", width: "100%", marginBottom: "12px", padding: "6px 10px", background: "rgba(0,0,0,0.03)", borderRadius: "10px" },
-  productPrice: { fontSize: "14px", fontWeight: 700, color: "#15803d" },
+  productPrice: { fontSize: "14px", fontWeight: 700, color: "var(--eco-c13)" },
   productStock: { fontSize: "12px", fontWeight: 600, color: "rgba(0,0,0,0.6)" },
   serviceActions: { display: "flex", gap: "10px", width: "100%" },
   serviceActionsMobile: { justifyContent: "center" },
-  serviceActionBtn: { flex: 1, padding: "10px 16px", borderRadius: "999px", background: "rgba(21, 128, 61, 0.1)", color: "#15803d", border: "1px solid rgba(21, 128, 61, 0.2)", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s ease" },
-  servicePrimaryBtn: { flex: 1, padding: "10px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "#062018", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease" },
-  primaryBtn: { position: "relative", overflow: "hidden", isolation: "isolate", padding: "13px 30px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", color: "#062018", fontSize: "14px", fontWeight: 700, cursor: "pointer", transform: "scale(1)", transformOrigin: "center", willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", fontFamily: "inherit", letterSpacing: "0.2px", boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.16s ease", backdropFilter: "blur(18px) saturate(165%)", WebkitBackdropFilter: "blur(18px) saturate(165%)" },
-  primaryInnerBlur: { position: "absolute", inset: "0", zIndex: 0, pointerEvents: "none", borderRadius: "inherit", background: "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 42%), linear-gradient(135deg, rgba(134,239,172,0.36), rgba(125,211,252,0.32))", backdropFilter: "blur(34px) saturate(185%)", WebkitBackdropFilter: "blur(34px) saturate(185%)" },
+  serviceActionBtn: { flex: 1, padding: "10px 16px", borderRadius: "999px", background: "rgba(var(--eco-c11-rgb), 0.1)", color: "var(--eco-c13)", border: "1px solid rgba(var(--eco-c11-rgb), 0.2)", fontSize: "13px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s ease" },
+  servicePrimaryBtn: { flex: 1, padding: "10px 16px", borderRadius: "999px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.35)", color: "var(--eco-c19)", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.2s ease" },
+  primaryBtn: { position: "relative", overflow: "hidden", isolation: "isolate", padding: "13px 30px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", fontSize: "14px", fontWeight: 700, cursor: "pointer", transform: "scale(1)", transformOrigin: "center", willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", fontFamily: "inherit", letterSpacing: "0.2px", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "transform 0.16s ease", backdropFilter: "blur(18px) saturate(165%)", WebkitBackdropFilter: "blur(18px) saturate(165%)" },
+  primaryInnerBlur: { position: "absolute", inset: "0", zIndex: 0, pointerEvents: "none", borderRadius: "inherit", background: "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 42%), linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.36), rgba(var(--eco-c5-rgb), 0.32))", backdropFilter: "blur(34px) saturate(185%)", WebkitBackdropFilter: "blur(34px) saturate(185%)" },
   primaryBtnHov: { transform: "scale(1.035)" },
   emptyGlassContainer: { width: "fit-content", maxWidth: "100%", height: "auto", minHeight: "64px", borderRadius: "14px", background: "rgba(255,255,255,0.3)", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)", backdropFilter: "blur(10px) saturate(150%)", WebkitBackdropFilter: "blur(10px) saturate(150%)", marginTop: "60px", display: "flex", alignItems: "center", justifyContent: "flex-start", flexWrap: "nowrap", overflowX: "auto", padding: "16px 20px", gap: "16px" },
   emptyGlassContainerMobile: { marginTop: "20px" },
@@ -532,7 +569,7 @@ const styles = {
   categoryDivider: { width: "1px", height: "32px", background: "rgba(0,0,0,0.15)", flexShrink: 0 },
   indicatorRow: { display: "flex", justifyContent: "center", gap: "8px", marginTop: "16px" },
   dot: { width: "6px", height: "6px", borderRadius: "50%", background: "rgba(0,0,0,0.2)", transition: "all 0.3s ease" },
-  dotActive: { background: "#15803d", transform: "scale(1.2)" },
+  dotActive: { background: "var(--eco-c11)", transform: "scale(1.2)" },
 };
 
 export default ServicesPage;

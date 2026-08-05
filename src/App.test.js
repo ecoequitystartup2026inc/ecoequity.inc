@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import App from "./App";
 
 // The app is auth-gated: without a session it parks on the login screen. Stub
@@ -26,13 +26,21 @@ jest.mock("./supabaseClient", () => {
 jest.mock("./data/auth", () => ({
   signIn: jest.fn(),
   signUp: jest.fn(),
-  signInWithGoogle: jest.fn(),
   signOut: jest.fn(),
   resendConfirmation: jest.fn(),
   onAuthChange: jest.fn(),
   getCurrentUser: jest.fn(),
   getUserFromSession: jest.fn(),
   consumeAuthErrorFromUrl: jest.fn(),
+  // The password-reset helpers App.js imports. Without them the module mock is
+  // missing exports the component calls at mount, and every test here dies on
+  // "arrivedFromRecoveryLink is not a function" before rendering anything.
+  arrivedFromRecoveryLink: jest.fn(() => false),
+  requestPasswordReset: jest.fn(),
+  updatePassword: jest.fn(),
+  verifyPassword: jest.fn(),
+  passwordProblem: jest.fn(() => null),
+  PASSWORD_MIN_LENGTH: 8,
 }));
 
 beforeEach(() => {
@@ -48,23 +56,27 @@ beforeEach(() => {
 // Renders the app and waits for the restored session to land on Home.
 const renderApp = async () => {
   render(<App />);
-  await waitFor(() => expect(menuToggle()).toBeInTheDocument());
+  await waitFor(() => expect(navButton("About Us")).toBeInTheDocument());
 };
 
-const menuToggle = () => screen.getByRole("button", { name: /toggle navigation menu/i });
-
-// The nav links live behind the hamburger drawer, so open it before clicking.
-const navButton = (name) => {
-  fireEvent.click(menuToggle());
-  return screen.getByRole("button", { name });
+// Every destination sits inline in the navbar row — the hamburger drawer was
+// removed on 2026-08-02, so there is nothing to open before clicking. The
+// query is scoped to that row because the footer repeats several of the same
+// destinations ("About Us", "Learn More", "Get in Touch") as its own links.
+const navRow = () => {
+  const row = document.querySelector(".nav-inline-links");
+  if (!row) throw new Error("navbar row (.nav-inline-links) is not rendered");
+  return within(row);
 };
+
+const navButton = (name) => navRow().getByRole("button", { name });
 
 const clickNav = (name) => fireEvent.click(navButton(name));
 
-// The hero "Learn More" button plays a ~520ms swipe animation before it
-// navigates, so wait for the destination page instead of asserting straight away.
+// The site footer carries its own "Learn More" link, so this name matches
+// twice on Home. The hero's CTA is the one that comes first in the DOM.
 const goToLearnMore = async () => {
-  fireEvent.click(screen.getByRole("button", { name: /Learn More/i }));
+  fireEvent.click(screen.getAllByRole("button", { name: /Learn More/i })[0]);
   await screen.findByRole("button", { name: /Explore more/i }, { timeout: 3000 });
 };
 
@@ -73,10 +85,12 @@ describe("App navigation", () => {
     await renderApp();
 
     expect(screen.getByText("EcoEquity.Inc")).toBeInTheDocument();
-    expect(screen.getByText(/Grow Food\./)).toBeInTheDocument();
-    expect(screen.getByText(/Build Community\./)).toBeInTheDocument();
-    expect(screen.getByText(/Earn Sustainably\./)).toBeInTheDocument();
-    expect(screen.getByText("Agricultural Innovation · Philippines")).toBeInTheDocument();
+    // The hero sets these in sentence case; the eyebrow is uppercased in CSS,
+    // so the DOM text stays as authored.
+    expect(screen.getByText(/Grow food\./)).toBeInTheDocument();
+    expect(screen.getByText(/Build community\./)).toBeInTheDocument();
+    expect(screen.getByText(/Earn sustainably\./)).toBeInTheDocument();
+    expect(screen.getByText(/Agricultural innovation · Philippines/)).toBeInTheDocument();
   });
 
   test("switches to Product & Services page when nav button is clicked", async () => {
@@ -120,14 +134,16 @@ describe("App navigation", () => {
     ).not.toBeInTheDocument();
   });
 
-  // jsdom silently drops a `background` shorthand holding a gradient, so the
-  // active state is asserted through the properties it does keep.
+  // jsdom drops declarations it cannot resolve: a `background` shorthand
+  // holding a gradient, and — since the palette moved into CSS variables so
+  // Settings → Appearance can repaint it — anything whose value contains
+  // `var()`. Browsers keep both. What survives is the shadow (unvalidated) and
+  // the weight; the ramp's own colours are covered by theme.test.js.
   const expectActiveNavStyle = (button) => {
-    expect(button.style.border).toBe("1px solid rgba(134,239,172,0.4)");
-    expect(button.style.boxShadow).toBe(
-      "0 8px 24px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.3)"
+    expect(button.getAttribute("style")).toContain(
+      "box-shadow: 0 8px 24px rgba(var(--eco-c7-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.3)"
     );
-    expect(button).toHaveStyle({ color: "#064e3b", fontWeight: 700 });
+    expect(button).toHaveStyle({ fontWeight: 700 });
   };
 
   test("active navigation button has premium glowing active state for Home", async () => {
@@ -152,7 +168,9 @@ describe("App navigation", () => {
   test("switches to Contact page when Get in Touch button is clicked", async () => {
     await renderApp();
 
-    fireEvent.click(screen.getByRole("button", { name: /Get in Touch/i }));
+    // [0] is the navbar button; the logged-in mobile welcome card carries a
+    // second "Get in Touch" CTA.
+    fireEvent.click(screen.getAllByRole("button", { name: /Get in Touch/i })[0]);
 
     expect(screen.getByText(/We'd love to hear from you!/i)).toBeInTheDocument();
   });
@@ -207,8 +225,9 @@ describe("App navigation", () => {
   test("shows Sustainability App Market in the Target Market dropdown and navigates to it", async () => {
     await renderApp();
 
-    // In the collapsed drawer the sub-menu opens on click, not hover.
-    clickNav("Target Market");
+    // Inline in the navbar the sub-menu opens on hover of the item's wrapper,
+    // not on click — clicking the item itself just navigates to the overview.
+    fireEvent.mouseEnter(navButton("Target Market").parentElement);
 
     const sustainabilityBtn = screen.getByRole("button", { name: "Sustainability App Market" });
     fireEvent.click(sustainabilityBtn);
@@ -224,14 +243,12 @@ describe("Background styling and Chat button", () => {
 
     const chatButton = screen.getByRole("button", { name: "Chat with AI" });
 
-    expect(chatButton).toHaveStyle({
-      width: "48px",
-      height: "48px",
-      borderRadius: "50%",
-      color: "#062018",
-    });
-    expect(chatButton.style.boxShadow).toBe(
-      "0 18px 40px rgba(6,32,24,0.22), inset 0 1px 0 rgba(255,255,255,0.52)"
+    expect(chatButton).toHaveStyle({ width: "48px", height: "48px" });
+    // Shape and themed ink live in the style attribute — see the note on
+    // expectActiveNavStyle for why jsdom cannot compute them.
+    expect(chatButton.getAttribute("style")).toContain("border-radius: 50%");
+    expect(chatButton.getAttribute("style")).toContain(
+      "box-shadow: 0 18px 40px rgba(var(--eco-c19-rgb), 0.22), inset 0 1px 0 rgba(255,255,255,0.52)"
     );
 
     // The floating support cluster pins the button to the bottom-right corner.

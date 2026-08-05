@@ -58,6 +58,9 @@ export async function fetchProducts() {
     .select("*")
     .order("created_at", { ascending: true });
   if (error) throw error;
+  // A null payload with no error isn't a usable result — report it the same way
+  // as "not configured" so the caller keeps its sample data instead of crashing.
+  if (!Array.isArray(data)) return null;
   return data.map(rowToProduct);
 }
 
@@ -100,4 +103,27 @@ export async function fetchProductReviews(productId) {
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data.map((r) => ({ user: r.user_name, rating: r.rating, comment: r.comment }));
+}
+
+// Write a review. `product_id` is a real FK, so this only works for products
+// that came from the database — a review left on a sample product (numeric id)
+// is kept in local state instead of being forced into a column that expects a
+// uuid. reviews_insert in schema.sql requires author_id = auth.uid(), so the
+// review is attributed to whoever is signed in.
+export async function createReview(productId, { rating, comment, userName }) {
+  if (!isSupabaseConfigured) return null;
+  if (typeof productId !== "string") return null; // sample product, not a DB row
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { error } = await supabase.from("product_reviews").insert({
+    product_id: productId,
+    author_id: user.id,
+    user_name: userName || user.email || "Customer",
+    rating: Number(rating) || 5,
+    comment: comment || "",
+  });
+  if (error) throw error;
+  return true;
 }

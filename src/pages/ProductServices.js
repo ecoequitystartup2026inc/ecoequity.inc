@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import Reveal, { RevealStyles } from "../components/Reveal";
 
 const iconProps = {
   width: 26,
   height: 26,
   viewBox: "0 0 24 24",
   fill: "none",
-  stroke: "#15803d",
+  stroke: "var(--eco-c11)",
   strokeWidth: 1.7,
   strokeLinecap: "round",
   strokeLinejoin: "round",
@@ -44,6 +45,8 @@ const productServicesCards = [
     Icon: PackageIcon,
     tag: "Goods",
     heading: "Product",
+    image: "/herb_kit.png",
+    imageAlt: "Potted basil and mint growing in a balcony planter box",
     bullets: [
       { label: "Organic Edibles", desc: "Local produce, herbs, and floriculture grown for Philippine conditions, plus localized seed varieties you can trust to thrive." },
       { label: "Urban Starter Kits & Toolsets", desc: "Themed kits like the Balcony Herb Garden and Tomato Success Kit — customized soil mixes, localized seeds, and starter tools in one box." },
@@ -57,6 +60,8 @@ const productServicesCards = [
     Icon: ServiceIcon,
     tag: "Platform",
     heading: "Services",
+    image: "/starter_kit.png",
+    imageAlt: "A vendor tending trays of seedlings at an outdoor market stall",
     bullets: [
       { label: "AI Plant Doctor", desc: "24/7 photo-based plant diagnosis with care guides tuned to the Philippine climate and native crops." },
       { label: "Events & Workshops", desc: "RSVP to specialist workshops, hands-on trainings, and community gatherings hosted at local venues." },
@@ -70,6 +75,8 @@ const productServicesCards = [
     Icon: SectorIcon,
     tag: "Impact",
     heading: "Sector",
+    image: "/farming.jpg",
+    imageAlt: "Farmers working rows of crops in an open field",
     bullets: [
       { label: "Food Security & Waste Reduction", desc: "Digital tools and localized data support both urban farms and traditional farming centers through oversupply periods — keeping harvests in the food system instead of landfills." },
       { label: "Livelihood Creation", desc: "Supplementary income streams for micro-vendors and home growers, directly addressing high unemployment and underemployment rates." },
@@ -110,38 +117,58 @@ function ProductServices({ setActiveNav }) {
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
           .ps-card { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s cubic-bezier(.22,1,.36,1); }
+
+          @keyframes psDotPulse {
+            0%, 100% { transform: scale(1);   opacity: 1; }
+            50%      { transform: scale(1.5); opacity: 0.55; }
+          }
+          .ps-dot { animation: psDotPulse 2.4s ease-in-out infinite; }
+
+          .ps-media img { transition: transform .7s cubic-bezier(.22,1,.36,1); }
+          .ps-media:hover img { transform: scale(1.06); }
+          .ps-media .ps-icon { transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease; }
+          .ps-media:hover .ps-icon {
+            transform: translateY(-3px) scale(1.07);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(var(--eco-c11-rgb), 0.28);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .ps-dot { animation: none; }
+            .ps-media img, .ps-media:hover img,
+            .ps-media .ps-icon, .ps-media:hover .ps-icon {
+              transition: none;
+              transform: none;
+            }
+          }
         `}
       </style>
+      <RevealStyles />
 
-      <div className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
-        <span style={styles.badgeDot} />
+      <Reveal className="inner-blur-glass glass-hover-zoom-sm" style={styles.badge}>
+        <span className="ps-dot" style={styles.badgeDot} />
         <span>What We Offer</span>
-      </div>
+      </Reveal>
 
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Product &amp; <span style={styles.accent}>Services</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
-      <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
+      <Reveal as="p" delay={120} style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         EcoEquity offers a comprehensive suite of digital tools and resources
         to help you grow food, build community, and earn sustainably.
-      </p>
+      </Reveal>
 
       <div
         style={{ ...styles.cardRow, ...(isMobile ? styles.cardRowMobile : {}) }}
         className="hide-scroll"
         onScroll={handleScroll}
       >
-        {productServicesCards.map((c) => (
-          <div
+        {productServicesCards.map((c, ci) => (
+          <Reveal
             key={c.heading}
-            className="inner-blur-glass ps-card"
+            delay={ci * 120}
+            className="inner-blur-glass ps-card ps-media"
             style={{
               ...styles.card,
               ...(isMobile ? styles.cardMobile : {}),
@@ -151,10 +178,22 @@ function ProductServices({ setActiveNav }) {
             onMouseLeave={() => setHoveredCard(null)}
           >
             <div style={styles.cardAccent} />
-            <div style={styles.cardIconWrap}>
+
+            <div style={{ ...styles.cardMedia, ...(isMobile ? styles.cardMediaMobile : {}) }}>
+              <img
+                src={c.image}
+                alt={c.imageAlt}
+                loading="lazy"
+                decoding="async"
+                style={styles.cardImg}
+              />
+              <span aria-hidden="true" style={styles.cardMediaScrim} />
+              <span style={styles.cardTag}>{c.tag}</span>
+            </div>
+
+            <div className="ps-icon" style={styles.cardIconWrap}>
               <c.Icon />
             </div>
-            <span style={styles.cardTag}>{c.tag}</span>
             <h3 style={{ ...styles.cardHeading, ...(isMobile ? styles.cardHeadingMobile : {}) }}>{c.heading}</h3>
             <div style={styles.cardDivider} />
 
@@ -180,7 +219,7 @@ function ProductServices({ setActiveNav }) {
               <span aria-hidden="true" style={styles.cardBtnInnerBlur} />
               <span style={styles.cardBtnContentLayer}>{c.buttonText} →</span>
             </button>
-          </div>
+          </Reveal>
         ))}
       </div>
 
@@ -227,7 +266,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -237,8 +276,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -254,18 +293,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(26px, 7.5vw, 36px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -330,7 +359,7 @@ const styles = {
   },
   cardHov: {
     transform: "translateY(-6px)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(21,128,61,0.14)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 38px rgba(var(--eco-c11-rgb), 0.14)",
   },
   cardAccent: {
     position: "absolute",
@@ -338,28 +367,65 @@ const styles = {
     left: 0,
     right: 0,
     height: "4px",
-    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
+    zIndex: 2,
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
+  },
+  /* Full-bleed photo banner: negative margins cancel the card's padding so the
+     image meets the card's rounded top edge. */
+  cardMedia: {
+    position: "relative",
+    margin: "-26px -24px 0",
+    height: "148px",
+    overflow: "hidden",
+    flexShrink: 0,
+    alignSelf: "stretch",
+  },
+  cardMediaMobile: {
+    margin: "-24px -20px 0",
+    height: "128px",
+  },
+  cardImg: {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  cardMediaScrim: {
+    position: "absolute",
+    inset: "auto 0 0 0",
+    height: "62%",
+    pointerEvents: "none",
+    background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%)",
   },
   cardIconWrap: {
+    position: "relative",
+    zIndex: 1,
+    marginTop: "-30px",
     width: "52px",
     height: "52px",
     borderRadius: "16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(150deg, rgba(74,222,128,0.18), rgba(125,211,252,0.16))",
-    border: "1px solid rgba(255,255,255,0.7)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(21,128,61,0.1)",
+    background: "linear-gradient(150deg, rgba(236,253,243,0.96), rgba(var(--eco-c2-rgb), 0.94))",
+    border: "1px solid rgba(255,255,255,0.9)",
+    backdropFilter: "blur(14px) saturate(180%)",
+    WebkitBackdropFilter: "blur(14px) saturate(180%)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 8px 20px rgba(var(--eco-c11-rgb), 0.18)",
   },
   cardTag: {
+    position: "absolute",
+    right: "14px",
+    bottom: "12px",
     fontSize: "10px",
     fontWeight: 700,
     letterSpacing: "0.7px",
     textTransform: "uppercase",
-    color: "#15803d",
-    background: "rgba(74,222,128,0.14)",
-    padding: "3px 10px",
+    color: "var(--eco-c16)",
+    background: "rgba(255,255,255,0.92)",
+    padding: "4px 11px",
     borderRadius: "999px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.22)",
   },
   cardHeading: {
     fontSize: "18px",
@@ -398,8 +464,8 @@ const styles = {
     height: "6px",
     borderRadius: "50%",
     marginTop: "7px",
-    background: "linear-gradient(90deg, #4ade80, #7dd3fc)",
-    boxShadow: "0 0 6px rgba(74,222,128,0.5)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
+    boxShadow: "0 0 6px rgba(var(--eco-c6-rgb), 0.5)",
   },
   bulletText: {
     fontSize: "13px",
@@ -423,8 +489,8 @@ const styles = {
     padding: "9px 20px",
     borderRadius: "999px",
     border: "1px solid rgba(255,255,255,0.35)",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+    color: "var(--eco-c19)",
     fontSize: "12px",
     fontWeight: 700,
     cursor: "pointer",
@@ -435,7 +501,7 @@ const styles = {
     WebkitBackfaceVisibility: "hidden",
     fontFamily: "inherit",
     letterSpacing: "0.2px",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.16s ease",
     backdropFilter: "blur(18px) saturate(165%)",
     WebkitBackdropFilter: "blur(18px) saturate(165%)",
@@ -446,7 +512,7 @@ const styles = {
     zIndex: 0,
     pointerEvents: "none",
     borderRadius: "inherit",
-    background: "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 42%), linear-gradient(135deg, rgba(134,239,172,0.36), rgba(125,211,252,0.32))",
+    background: "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 42%), linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.36), rgba(var(--eco-c5-rgb), 0.32))",
     backdropFilter: "blur(34px) saturate(185%)",
     WebkitBackdropFilter: "blur(34px) saturate(185%)",
   },
@@ -476,9 +542,9 @@ const styles = {
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   dotActive: {
-    background: "#4ade80",
+    background: "var(--eco-c6)",
     transform: "scale(1.25)",
-    boxShadow: "0 0 10px rgba(74, 222, 128, 0.4)",
+    boxShadow: "0 0 10px rgba(var(--eco-c6-rgb), 0.4)",
   },
 };
 

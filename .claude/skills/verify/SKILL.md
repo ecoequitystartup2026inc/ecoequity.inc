@@ -23,18 +23,26 @@ npm install playwright@1.61.1 && npx playwright install chromium
 ```
 
 - **Login (demo mode accepts any credentials):** fill
-  `input[placeholder="Email or Phone Number"]` and `input[type="password"]`,
+  `input[placeholder="Username or email"]` and `input[type="password"]`,
   click `button:has-text("Login")`, then wait ~2.2s (simulated 1.5s delay).
+  Signing in lands on Home with nothing over it — the profile dashboard no
+  longer auto-opens (changed 2026-08-02; only a first signup opens it). To
+  reach it, click the avatar chip in the navbar (~1388,85 at 1440w) and pick
+  **Manage Account**; `button[aria-label="Change profile photo"]` (the
+  sidebar avatar, which since 2026-08-03 opens an upload/remove menu) is the
+  reliable "dashboard is open" probe. Close it with the round × top-right.
+  Login / Sign Up are one framed two-panel screen; switch between them with
+  `button:has-text("Create an account")` / `button:has-text("Sign in")`.
   Admin: `admin@ecoequity.com` / `Ecoequity` → lands on Admin Portal.
-- **Navigation:** hamburger at ALL viewport widths (per user request
-  2026-07-09): click `[aria-label="Toggle navigation menu"]`, then the
-  nav item text. The open panel is `.nav-links-panel.mobile-menu-open` —
-  a vertical menu, full-width on phones, a right-anchored 340px dropdown
-  card at ≥768px. Section sub-menus are accordions; the chevron is the
-  last `span` inside the item button. Navigating auto-closes the panel.
-  Items: Home, About Us, Product & Services, Target Market, Seasonal
-  Harvest, Get in Touch, Learn More. Nav is state-based (`activeNav` in
-  App.js), no routes/URLs.
+- **Navigation:** no hamburger — it was removed 2026-08-02. Every item
+  sits inline in the navbar row (`.nav-inline-links`) at all widths:
+  Home, About Us, Product & Services, Target Market, Seasonal Harvest.
+  Click the nav item text directly. Product & Services, Target Market
+  and Seasonal Harvest carry dropdowns that open on **hover** (`.hover()`,
+  not `.click()`) — the menu is an absolutely-positioned card under the
+  item. On phones the row drops to its own full-width line under the logo
+  and scrolls sideways, so `scrollIntoViewIfNeeded()` before clicking the
+  later items. Nav is state-based (`activeNav` in App.js), no routes/URLs.
 - At mobile widths some pages (e.g. About Us) render as a full-screen
   sheet with an X close button that covers the navbar — close it before
   clicking the hamburger.
@@ -45,8 +53,8 @@ npm install playwright@1.61.1 && npx playwright install chromium
 ## Gotchas
 
 - Demo mode has NO session persistence, so bugs in the Supabase
-  session-restore path (page reload, Google OAuth return → `applySession`
-  in App.js) never reproduce in demo browser-driving. Cover that path with
+  session-restore path (page reload, or return from an emailed link →
+  `applySession` in App.js) never reproduce in demo browser-driving. Cover it with
   Jest instead: mock `./data/auth` and `./supabaseClient`
   (`isSupabaseConfigured: true`) — see `src/sessionRestoreNav.test.js`.
   CRA's jest sets `resetMocks: true`, wiping mock-factory implementations;

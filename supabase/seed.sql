@@ -1,6 +1,10 @@
 -- ============================================================================
--- Seed data — your original 10 products.
--- Run AFTER schema.sql, in Supabase → SQL Editor. Safe to re-run (clears first).
+-- Product catalog seed.
+--
+-- NOTE: schema.sql already seeds these rows when `products` is empty, so you do
+-- not need this file for a fresh setup. Use it only to RESET the catalog back
+-- to this list — it deletes every product first, including any an admin added.
+--
 -- The `emoji` column holds the icon NAME (string); the app turns it into <Icon/>.
 -- ============================================================================
 delete from public.products;

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Sprout } from "lucide-react";
 import ReactDOM from "react-dom";
 import { FaTimes, FaMinus, FaPlus, FaStar } from "react-icons/fa";
+import { MODAL_CLOSE_BTN, MODAL_LAYER, modalOverlay, modalPanel } from "../styles/modal";
 
 function QuickViewModal({ product: productProp, allProducts, onClose, onSelectProduct, isMobile, setCartItems, setActiveNav, setCheckoutOpen, onAddReview }) {
   const [quantity, setQuantity] = useState(1);
@@ -83,8 +84,8 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
           {/* Left / main section: image, details and buy actions */}
           <div style={{ flex: 1.5, minWidth: 0, display: "flex", flexDirection: isMobile ? "column" : "row", gap: "20px" }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ width: "100%", aspectRatio: "1/1", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(22, 163, 74, 0.05)", borderRadius: "20px", border: "1px solid rgba(22, 163, 74, 0.1)", position: "relative", overflow: "hidden" }}>
-              <span style={{ position: "absolute", top: "12px", left: "12px", zIndex: 1, background: "#dcfce7", color: "#15803d", padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            <div style={{ width: "100%", aspectRatio: "1/1", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(var(--eco-c9-rgb), 0.05)", borderRadius: "20px", border: "1px solid rgba(var(--eco-c9-rgb), 0.1)", position: "relative", overflow: "hidden" }}>
+              <span style={{ position: "absolute", top: "12px", left: "12px", zIndex: 1, background: "var(--eco-c3)", color: "var(--eco-c13)", padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
                 {product.sustainabilityBadge || product.badge || "Eco-Friendly"}
               </span>
               {product.image && !imgErrored ? (
@@ -96,14 +97,14 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
                 />
               ) : (
                 <span style={{ fontSize: "80px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}>
-                  {product.emoji || <Sprout size="1em" color="#16a34a" />}
+                  {product.emoji || <Sprout size="1em" color="var(--eco-c9)" />}
                 </span>
               )}
             </div>
           </div>
 
           <div style={{ flex: 1.2, display: "flex", flexDirection: "column", justifyContent: "flex-start", textAlign: "left" }}>
-            <span style={{ fontSize: "11px", fontWeight: 700, color: "#15803d", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--eco-c13)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>
               {product.category}
             </span>
             <h2 style={{ fontSize: "clamp(20px, 3.5vw, 26px)", fontWeight: 800, color: "#000", margin: "0 0 10px", lineHeight: 1.1 }}>
@@ -111,22 +112,22 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
             </h2>
            
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "rgba(251, 191, 36, 0.1)", padding: "4px 8px", borderRadius: "8px", border: "1px solid rgba(251, 191, 36, 0.2)" }}>
-                <FaStar style={{ color: "#fbbf24", fontSize: "12px" }} />
-                <span style={{ fontSize: "13px", fontWeight: 700, color: "#b45309" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "rgba(var(--eco-c6-rgb), 0.1)", padding: "4px 8px", borderRadius: "8px", border: "1px solid rgba(var(--eco-c6-rgb), 0.2)" }}>
+                <FaStar style={{ color: "var(--eco-c6)", fontSize: "12px" }} />
+                <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--eco-c13)" }}>
                   {product.rating ? product.rating.toFixed(1) : "0.0"}
                 </span>
              </div>
               <span style={{ fontSize: "13px", color: "rgba(0,0,0,0.5)", fontWeight: 600, textDecoration: "underline", textDecorationColor: "rgba(0,0,0,0.2)" }}>
                 ({product.reviewCount || 0} reviews)
               </span>
-              <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, color: "#059669", background: "#ecfdf5", padding: "4px 8px", borderRadius: "8px" }}>
-                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }}></div>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 700, color: "var(--eco-c13)", background: "var(--eco-c1)", padding: "4px 8px", borderRadius: "8px" }}>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--eco-c8)" }}></div>
                 {product.stock || "In Stock"}
               </span>
            </div>
            
-            <div style={{ fontSize: "24px", fontWeight: 800, color: "#15803d", marginBottom: "12px" }}>
+            <div style={{ fontSize: "24px", fontWeight: 800, color: "var(--eco-c13)", marginBottom: "12px" }}>
               ₱{Number(product.price).toFixed(2)}
             </div>
            
@@ -142,19 +143,19 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
                   <button type="button" style={{ background: "transparent", border: "none", padding: "12px", cursor: "pointer", color: "#000", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setQuantity(quantity + 1)}><FaPlus size={10} /></button>
                </div>
                <button 
-                  style={{ flex: 1, minWidth: "120px", padding: "12px 16px", borderRadius: "12px", background: "rgba(22, 163, 74, 0.1)", border: "1px solid rgba(22, 163, 74, 0.2)", color: "#15803d", fontSize: "14px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s ease" }}
+                  style={{ flex: 1, minWidth: "120px", padding: "12px 16px", borderRadius: "12px", background: "rgba(var(--eco-c9-rgb), 0.1)", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", color: "var(--eco-c13)", fontSize: "14px", fontWeight: 700, cursor: "pointer", transition: "all 0.2s ease" }}
                  onClick={() => {
                    setCartItems(prev => [...prev, ...Array(quantity).fill(product.id)]);
                    onClose();
                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(22, 163, 74, 0.15)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(22, 163, 74, 0.1)'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(var(--eco-c9-rgb), 0.15)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(var(--eco-c9-rgb), 0.1)'; }}
                >
                  Add to Cart
                </button>
              </div>
              <button 
-                style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))", border: "1px solid rgba(255,255,255,0.4)", color: "#062018", fontSize: "14px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(34,197,94,0.2)", transition: "transform 0.2s ease" }}
+                style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", border: "1px solid rgba(255,255,255,0.4)", color: "var(--eco-c19)", fontSize: "14px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.2)", transition: "transform 0.2s ease" }}
                onClick={() => {
                  setCartItems(prev => [...prev, ...Array(quantity).fill(product.id)]);
                  onClose();
@@ -187,7 +188,7 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
             <div>
               <div style={{ display: "flex", gap: "2px" }}>
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <FaStar key={s} style={{ fontSize: "13px", color: Math.round(product.rating || 0) >= s ? "#fbbf24" : "#e5e7eb" }} />
+                  <FaStar key={s} style={{ fontSize: "13px", color: Math.round(product.rating || 0) >= s ? "var(--eco-c6)" : "#e5e7eb" }} />
                 ))}
               </div>
               <span style={styles.ratingSummaryLabel}>
@@ -216,7 +217,7 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setReviewRating(s); } }}
                     onMouseEnter={() => setHoverRating(s)}
                     onMouseLeave={() => setHoverRating(0)}
-                    style={{ cursor: "pointer", fontSize: "24px", outline: "none", color: (hoverRating || reviewRating) >= s ? "#fbbf24" : "#d1d5db", transform: (hoverRating || reviewRating) >= s ? "scale(1.08)" : "scale(1)", transition: "color 0.15s, transform 0.15s" }}
+                    style={{ cursor: "pointer", fontSize: "24px", outline: "none", color: (hoverRating || reviewRating) >= s ? "var(--eco-c6)" : "#d1d5db", transform: (hoverRating || reviewRating) >= s ? "scale(1.08)" : "scale(1)", transition: "color 0.15s, transform 0.15s" }}
                   />
                 ))}
                 <span style={styles.starPickerValue}>{hoverRating || reviewRating}/5</span>
@@ -253,7 +254,7 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
                     <span style={styles.reviewUser}>{r.user || "Anonymous"}</span>
                     <span style={styles.reviewStars}>
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <FaStar key={s} style={{ fontSize: "11px", color: (r.rating || 0) >= s ? "#fbbf24" : "#e5e7eb" }} />
+                        <FaStar key={s} style={{ fontSize: "11px", color: (r.rating || 0) >= s ? "var(--eco-c6)" : "#e5e7eb" }} />
                       ))}
                     </span>
                   </div>
@@ -273,30 +274,30 @@ function QuickViewModal({ product: productProp, allProducts, onClose, onSelectPr
 }
 
 const styles = {
-  modalOverlay: { position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", animation: "fadeIn 0.3s ease" },
-  quickViewModal: { maxWidth: "900px", width: "100%", maxHeight: "90vh", background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))", border: "1px solid rgba(255,255,255,0.8)", borderRadius: "20px", padding: "20px", display: "flex", flexDirection: "column", boxShadow: "0 10px 30px rgba(0,0,0,0.15)", position: "relative", animation: "scaleUp 0.3s ease", overflowY: "auto" },
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
+  quickViewModal: modalPanel({ maxWidth: "900px", width: "100%", maxHeight: "90vh", padding: "20px", display: "flex", flexDirection: "column", overflowY: "auto" }),
   quickViewModalMobile: { padding: "20px 16px", maxHeight: "95vh" },
-  closeModalBtn: { position: "absolute", top: "12px", right: "12px", zIndex: 50, background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", color: "rgba(0,0,0,0.6)", cursor: "pointer", transition: "background 0.2s" },
+  closeModalBtn: MODAL_CLOSE_BTN,
   reviewsSection: { width: "320px", flexShrink: 0, paddingLeft: "24px", borderLeft: "1px solid rgba(0,0,0,0.08)", textAlign: "left", display: "flex", flexDirection: "column" },
   reviewsSectionMobile: { width: "100%", paddingLeft: 0, borderLeft: "none", paddingTop: "18px", borderTop: "1px solid rgba(0,0,0,0.08)" },
   reviewsHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" },
   reviewsTitle: { fontSize: "16px", fontWeight: 800, color: "#0f172a", margin: 0 },
   reviewsCount: { fontSize: "14px", fontWeight: 600, color: "rgba(0,0,0,0.45)" },
-  ratingSummary: { display: "flex", alignItems: "center", gap: "12px", padding: "12px", borderRadius: "14px", background: "rgba(251, 191, 36, 0.08)", border: "1px solid rgba(251, 191, 36, 0.2)", marginBottom: "12px" },
-  ratingAverage: { fontSize: "28px", fontWeight: 800, color: "#b45309", lineHeight: 1 },
+  ratingSummary: { display: "flex", alignItems: "center", gap: "12px", padding: "12px", borderRadius: "14px", background: "rgba(var(--eco-c6-rgb), 0.08)", border: "1px solid rgba(var(--eco-c6-rgb), 0.2)", marginBottom: "12px" },
+  ratingAverage: { fontSize: "28px", fontWeight: 800, color: "var(--eco-c13)", lineHeight: 1 },
   ratingSummaryLabel: { display: "block", marginTop: "4px", fontSize: "11.5px", fontWeight: 600, color: "rgba(0,0,0,0.5)" },
-  writeReviewBtn: { width: "100%", padding: "9px 14px", borderRadius: "10px", background: "rgba(22,163,74,0.1)", border: "1px solid rgba(22,163,74,0.2)", color: "#15803d", fontSize: "12.5px", fontWeight: 700, cursor: "pointer", marginBottom: "12px" },
+  writeReviewBtn: { width: "100%", padding: "9px 14px", borderRadius: "10px", background: "rgba(var(--eco-c9-rgb), 0.1)", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", color: "var(--eco-c13)", fontSize: "12.5px", fontWeight: 700, cursor: "pointer", marginBottom: "12px" },
   reviewForm: { background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: "14px", padding: "14px", marginBottom: "16px" },
   starPickerLabel: { display: "block", fontSize: "11.5px", fontWeight: 700, color: "rgba(0,0,0,0.5)", marginBottom: "6px" },
   starPicker: { display: "flex", alignItems: "center", gap: "4px", marginBottom: "10px" },
   starPickerValue: { marginLeft: "6px", fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.5)" },
   reviewInput: { width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(0,0,0,0.1)", background: "rgba(255,255,255,0.9)", fontSize: "13px", color: "#0f172a", marginBottom: "10px", boxSizing: "border-box", outline: "none" },
-  submitReviewBtn: { width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, #16a34a, #15803d)", border: "none", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(22,163,74,0.25)" },
+  submitReviewBtn: { width: "100%", padding: "10px", borderRadius: "10px", background: "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", border: "none", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 16px rgba(var(--eco-c9-rgb), 0.25)" },
   submitReviewBtnDisabled: { opacity: 0.5, cursor: "not-allowed", boxShadow: "none" },
   reviewList: { display: "flex", flexDirection: "column", gap: "12px", flex: 1, minHeight: 0, maxHeight: "300px", overflowY: "auto", paddingRight: "2px" },
   reviewItem: { padding: "12px", borderRadius: "12px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.05)" },
   reviewItemHead: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" },
-  reviewAvatar: { width: "26px", height: "26px", borderRadius: "50%", background: "linear-gradient(135deg, #16a34a, #15803d)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "12px", flexShrink: 0 },
+  reviewAvatar: { width: "26px", height: "26px", borderRadius: "50%", background: "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "12px", flexShrink: 0 },
   reviewUser: { fontSize: "13px", fontWeight: 700, color: "#0f172a", flex: 1 },
   reviewStars: { display: "inline-flex", gap: "1px" },
   reviewComment: { fontSize: "13px", color: "rgba(0,0,0,0.7)", lineHeight: 1.5, margin: 0 },

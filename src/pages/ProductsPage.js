@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Sprout } from "lucide-react";
 import { FaStore, FaTools, FaHeadset, FaGraduationCap, FaArrowLeft } from "react-icons/fa";
 import QuickViewModal from "./QuickViewModal";
+import ComingSoonBanner from "../components/ComingSoonBanner";
+import { MODAL_LAYER, modalOverlay, modalPanel } from "../styles/modal";
 
 // Real product photo with an emoji/icon fallback if the image is missing or fails.
 function ProductThumb({ src, alt, emoji }) {
   const [errored, setErrored] = useState(false);
   if (!src || errored) {
-    return <span style={{ fontSize: "48px" }}>{emoji || <Sprout size="1em" color="#16a34a" />}</span>;
+    return <span style={{ fontSize: "48px" }}>{emoji || <Sprout size="1em" color="var(--eco-c9)" />}</span>;
   }
   return (
     <img
@@ -51,12 +53,13 @@ function ProductsPage({ setActiveNav, setCartItems, products, setProducts }) {
 
   return (
     <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
+      <ComingSoonBanner
+        title="Products — Coming Soon"
+        message="Our product line-up is still being prepared for launch. Browse everything we're growing, but ordering isn't live just yet."
+        onClose={() => setActiveNav && setActiveNav("Product & Services")}
+      />
       <style>
-        {`@keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
-          @keyframes scaleUp {
+        {`@keyframes scaleUp {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
           }
@@ -73,38 +76,17 @@ function ProductsPage({ setActiveNav, setCartItems, products, setProducts }) {
           .custom-scrollbar::-webkit-scrollbar-thumb:hover {
               background: rgba(0, 0, 0, 0.2);
           }
-          .floating-leaf {
-            position: absolute;
-            opacity: 0.1;
-            pointer-events: none;
-            animation: floatAndRotate 15s infinite ease-in-out;
-            z-index: 0;
-          }
-          .floating-leaf.leaf1 { top: 10%; left: 5%; transform: scale(0.8) rotate(20deg); animation-delay: 0s; }
-          .floating-leaf.leaf2 { top: 30%; right: 10%; transform: scale(1.2) rotate(-30deg); animation-delay: 5s; }
-          .floating-leaf.leaf3 { bottom: 20%; left: 15%; transform: scale(0.9) rotate(45deg); animation-delay: 10s; }
-          .floating-leaf.leaf4 { top: 50%; left: 40%; transform: scale(0.7) rotate(10deg); animation-delay: 3s; }
-          .floating-leaf.leaf5 { bottom: 10%; right: 20%; transform: scale(1.1) rotate(-10deg); animation-delay: 8s; }
-
-          @keyframes floatAndRotate {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
-            100% { transform: translateY(0) rotate(0deg); }
-          }
         `}
       </style>
 
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <defs>
           <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(134,239,172,0.95)" />
-            <stop offset="100%" stopColor="rgba(125,211,252,0.95)" />
+            <stop offset="0%" stopColor="rgba(var(--eco-c5-rgb), 0.95)" />
+            <stop offset="100%" stopColor="rgba(var(--eco-c5-rgb), 0.95)" />
           </linearGradient>
         </defs>
       </svg>
-
-      {/* Floating Leaf Background Elements */}
-      
 
       <div style={{ ...styles.contentContainer, ...(isMobile ? styles.contentContainerMobile : {}) }}>
         <div style={{ ...styles.leftColumn, ...(isMobile ? styles.leftColumnMobile : {}) }}>
@@ -132,7 +114,6 @@ function ProductsPage({ setActiveNav, setCartItems, products, setProducts }) {
           <h1 style={{ ...styles.title, fontSize: "clamp(20px, 2.8vw, 32px)", textAlign: "left", ...(isMobile ? styles.titleMobile : {}), marginTop: "20px" }}>
             Explore Our <span style={styles.titleAccent}>Sustainable Products</span>
           </h1>
-          <div style={{ ...styles.titleUnderline, marginLeft: 0, marginBottom: "16px", ...(isMobile ? { ...styles.titleUnderlineMobile, marginLeft: 0 } : {}) }}></div>
           <p style={{ ...styles.body, fontSize: "clamp(12px, 1.4vw, 15px)", marginBottom: "16px", textAlign: "left", ...(isMobile ? styles.bodyMobile : {}) }}>
             From farm-fresh organic vegetables to essential gardening kits, EcoEquity offers a curated selection of products to support your sustainable lifestyle.
           </p>
@@ -225,8 +206,8 @@ function ProductsPage({ setActiveNav, setCartItems, products, setProducts }) {
                   <button 
                     type="button" 
                     style={styles.viewProductBtn}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 14px 28px rgba(34,197,94,0.3), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 10px 20px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 14px 28px rgba(var(--eco-c7-rgb), 0.3), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 10px 20px rgba(var(--eco-c7-rgb), 0.2), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveNav("Shop All Products");
@@ -299,7 +280,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -309,8 +290,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   headerRow: {
@@ -400,29 +381,14 @@ const styles = {
     overflowWrap: "break-word",
     marginBottom: "clamp(4px, 0.8dvh, 7px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
-  titleUnderlineMobile: {
-    width: "clamp(70px, 22vw, 94px)",
-    height: "3px",
-    margin: "0 auto clamp(7px, 1.2dvh, 11px)",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
   },
   titleAccent: { // Used for the left column title
-    background: "linear-gradient(90deg, #15803d, #16a34a)",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -612,7 +578,7 @@ const styles = {
     position: "absolute",
     top: "8px",
     left: "8px",
-    background: "#15803d",
+    background: "var(--eco-c11)",
     color: "#fff",
     padding: "4px 8px",
     borderRadius: "999px",
@@ -649,7 +615,7 @@ const styles = {
   productPrice: {
     fontSize: "13px",
     fontWeight: 700,
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   productStock: {
     fontSize: "11px",
@@ -665,25 +631,25 @@ const styles = {
     flex: 1,
     padding: "5px 8px",
     borderRadius: "999px",
-    background: "rgba(21, 128, 61, 0.1)",    border: "1px solid #15803d",    color: "#15803d",    fontSize: "11px",
+    background: "rgba(var(--eco-c11-rgb), 0.1)",    border: "1px solid var(--eco-c11)",    color: "var(--eco-c13)",    fontSize: "11px",
     fontWeight: 600,
     cursor: "pointer",
     transition: "background 0.2s ease",
     "&:hover": {
-      background: "#16a34a",
+      background: "var(--eco-c9)",
     },
   },
   viewProductBtn: {
     flex: 1,
     padding: "5px 8px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "11px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 10px 20px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 10px 20px rgba(var(--eco-c7-rgb), 0.2), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
   },
   primaryBtn: {
@@ -693,8 +659,8 @@ const styles = {
     padding: "13px 30px",
     borderRadius: "999px",
     border: "1px solid rgba(255,255,255,0.35)",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
@@ -705,7 +671,7 @@ const styles = {
     WebkitBackfaceVisibility: "hidden",
     fontFamily: "inherit",
     letterSpacing: "0.2px",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     transition: "transform 0.16s ease",
     backdropFilter: "blur(18px) saturate(165%)",
     WebkitBackdropFilter: "blur(18px) saturate(165%)",
@@ -718,7 +684,7 @@ const styles = {
     borderRadius: "inherit",
     background:
       "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.35), transparent 42%), " +
-      "linear-gradient(135deg, rgba(134,239,172,0.36), rgba(125,211,252,0.32))",
+      "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.36), rgba(var(--eco-c5-rgb), 0.32))",
     backdropFilter: "blur(34px) saturate(185%)",
     WebkitBackdropFilter: "blur(34px) saturate(185%)",
   },
@@ -793,34 +759,16 @@ const styles = {
     background: "rgba(0,0,0,0.15)",
     flexShrink: 0,
   },
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 9999,
-    background: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    animation: "fadeIn 0.3s ease",
-  },
-  quickViewModal: {
+  modalOverlay: modalOverlay(MODAL_LAYER.base),
+  quickViewModal: modalPanel({
     maxWidth: "800px",
     width: "100%",
     maxHeight: "90vh",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.9))",
-    border: "1px solid rgba(255,255,255,0.8)",
-    borderRadius: "24px",
     padding: "32px",
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0 15px 40px rgba(0,0,0,0.2)",
-    position: "relative",
-    animation: "scaleUp 0.3s ease",
     overflowY: "auto",
-  },
+  }),
   quickViewModalMobile: {
     padding: "24px 16px",
     maxHeight: "95vh",

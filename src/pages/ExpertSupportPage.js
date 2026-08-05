@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Smartphone } from "lucide-react";
+import { MODAL_LAYER, modalOverlay } from "../styles/modal";
 import ReactDOM from "react-dom";
 import { FaArrowLeft, FaUserTie, FaStar, FaCheckCircle, FaComments, FaCalendarAlt, FaAward, FaTimes, FaVideo, FaPhone, FaPaperPlane, FaClock, FaCalendarCheck, FaExclamationTriangle, FaQuestionCircle, FaMoneyBillWave, FaCheck, FaInfoCircle, FaPaperclip, FaLightbulb, FaLeaf, FaCreditCard, FaLock } from "react-icons/fa";
 
@@ -553,12 +554,12 @@ const handleKeyDown = (e) => {
                   }
                 }}
                 title={isCallPaid ? "Voice Call" : "Locked: Book Phone Call"}
-                onMouseEnter={(e) => e.currentTarget.style.background = isCallPaid ? 'rgba(21,128,61,0.1)' : 'rgba(0,0,0,0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = isCallPaid ? 'rgba(var(--eco-c11-rgb), 0.1)' : 'rgba(0,0,0,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
               >
                 <div style={{ position: 'relative', display: 'flex' }}>
                   <FaPhone />
-                  {!isCallPaid && <FaLock style={{ position: 'absolute', bottom: '-4px', right: '-4px', fontSize: '10px', color: '#dc2626' }} />}
+                  {!isCallPaid && <FaLock style={{ position: 'absolute', bottom: '-4px', right: '-4px', fontSize: '10px', color: 'var(--eco-c13)' }} />}
                 </div>
               </button>
               <button
@@ -575,12 +576,12 @@ const handleKeyDown = (e) => {
                   }
                 }}
                 title={isVideoPaid ? "Video Call" : "Locked: Book Video Call"}
-                onMouseEnter={(e) => e.currentTarget.style.background = isVideoPaid ? 'rgba(21,128,61,0.1)' : 'rgba(0,0,0,0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = isVideoPaid ? 'rgba(var(--eco-c11-rgb), 0.1)' : 'rgba(0,0,0,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
               >
                 <div style={{ position: 'relative', display: 'flex' }}>
                   <FaVideo />
-                  {!isVideoPaid && <FaLock style={{ position: 'absolute', bottom: '-4px', right: '-4px', fontSize: '10px', color: '#dc2626' }} />}
+                  {!isVideoPaid && <FaLock style={{ position: 'absolute', bottom: '-4px', right: '-4px', fontSize: '10px', color: 'var(--eco-c13)' }} />}
                 </div>
               </button>
               <button style={chatModalStyles.closeBtn} onClick={handleCloseChat}>
@@ -699,7 +700,7 @@ const handleKeyDown = (e) => {
                     style={{ ...modalStyles.typeCard, ...(selectedType?.id === type.id ? modalStyles.typeCardSelected : {}) }}
                     onClick={() => setSelectedType(type)}
                   >
-                    <type.icon style={{ fontSize: "20px", color: selectedType?.id === type.id ? "#15803d" : "#6b7280" }} />
+                    <type.icon style={{ fontSize: "20px", color: selectedType?.id === type.id ? "var(--eco-c13)" : "#6b7280" }} />
                     <span style={modalStyles.typeName}>{type.name}</span>
                     <span style={modalStyles.typeDuration}>{type.duration}</span>
                     <span style={modalStyles.typePrice}>₱{formatPrice(type.price)}</span>
@@ -750,12 +751,12 @@ const handleKeyDown = (e) => {
               </h2>
               
               {isInstantCheckout && (
-                <div style={{ padding: "16px", background: "rgba(22, 163, 74, 0.1)", borderRadius: "12px", border: "1px solid rgba(22, 163, 74, 0.2)", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ padding: "16px", background: "rgba(var(--eco-c9-rgb), 0.1)", borderRadius: "12px", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                    <div>
-                     <div style={{ fontSize: "16px", fontWeight: 800, color: "#15803d" }}>Instant {selectedType?.name}</div>
+                     <div style={{ fontSize: "16px", fontWeight: 800, color: "var(--eco-c13)" }}>Instant {selectedType?.name}</div>
                      <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.6)", fontWeight: 600 }}>Duration: {selectedType?.duration}</div>
                    </div>
-                   <div style={{ fontSize: "20px", fontWeight: 800, color: "#15803d" }}>
+                   <div style={{ fontSize: "20px", fontWeight: 800, color: "var(--eco-c13)" }}>
                      ₱{formatPrice(selectedType?.price)}
                    </div>
                 </div>
@@ -786,14 +787,14 @@ const handleKeyDown = (e) => {
                           height="12" 
                           viewBox="0 0 24 24" 
                           fill="none" 
-                          stroke="#15803d" 
+                          stroke="var(--eco-c11)" 
                           strokeWidth="2.5" 
                           strokeLinecap="round" 
                           strokeLinejoin="round"
                           style={{ 
                             transition: 'transform 0.3s ease', 
                             transform: showTopicDropdown ? 'rotate(180deg)' : 'rotate(0)',
-                            color: '#15803d'
+                            color: 'var(--eco-c13)'
                           }}
                         >
                           <polyline points="6 9 12 15 18 9"></polyline>
@@ -812,7 +813,7 @@ const handleKeyDown = (e) => {
                             >
                               <span>{topic}</span>
                               {selectedTopic === topic && (
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--eco-c9)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                   <polyline points="20 6 9 17 4 12"></polyline>
                                 </svg>
                               )}
@@ -827,7 +828,7 @@ const handleKeyDown = (e) => {
                           >
                             <span>Other</span>
                             {selectedTopic === "Other" && (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--eco-c9)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                               </svg>
                             )}
@@ -860,14 +861,14 @@ const handleKeyDown = (e) => {
                           height="16" 
                           viewBox="0 0 24 24" 
                           fill="none" 
-                          stroke="#15803d" 
+                          stroke="var(--eco-c11)" 
                           strokeWidth="2.5" 
                           strokeLinecap="round" 
                           strokeLinejoin="round"
                           style={{ 
                             transition: 'transform 0.3s ease', 
                             transform: showCalendar ? 'rotate(180deg)' : 'rotate(0)',
-                            color: '#15803d'
+                            color: 'var(--eco-c13)'
                           }}
                         >
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -886,7 +887,7 @@ const handleKeyDown = (e) => {
                               onClick={handlePrevMonth}
                               style={modalStyles.calendarNavBtn}
                             >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--eco-c11)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="15 18 9 12 15 6"></polyline>
                               </svg>
                             </button>
@@ -898,7 +899,7 @@ const handleKeyDown = (e) => {
                               onClick={handleNextMonth}
                               style={modalStyles.calendarNavBtn}
                             >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--eco-c11)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                               </svg>
                             </button>
@@ -984,9 +985,9 @@ const handleKeyDown = (e) => {
                 <div style={modalStyles.paymentGrid}>
                   {[
                     { id: "gcash", name: "GCash", icon: <span style={{ color: "#0284c7", fontWeight: 800, fontStyle: "italic", fontSize: "14px" }}>G</span> },
-                    { id: "maya", name: "Maya", icon: <span style={{ color: "#10b981", fontWeight: 800, fontStyle: "italic", fontSize: "12px" }}>maya</span> },
+                    { id: "maya", name: "Maya", icon: <span style={{ color: "var(--eco-c13)", fontWeight: 800, fontStyle: "italic", fontSize: "12px" }}>maya</span> },
                     { id: "card", name: "Credit/Debit Card", icon: <FaCreditCard style={{ color: "#4b5563", fontSize: "14px" }} /> },
-                    { id: "bank", name: "Bank Transfer", icon: <FaMoneyBillWave style={{ color: "#15803d", fontSize: "14px" }} /> }
+                    { id: "bank", name: "Bank Transfer", icon: <FaMoneyBillWave style={{ color: "var(--eco-c13)", fontSize: "14px" }} /> }
                   ].map(method => (
                     <button
                       key={method.id}
@@ -1000,12 +1001,12 @@ const handleKeyDown = (e) => {
                       <div style={{ ...modalStyles.paymentIconWrap, ...(selectedPayment === method.id ? modalStyles.paymentIconWrapSelected : {}) }}>
                         {method.icon}
                       </div>
-                      <span style={{ fontSize: "13px", fontWeight: selectedPayment === method.id ? 700 : 600, color: selectedPayment === method.id ? "#15803d" : "#374151" }}>
+                      <span style={{ fontSize: "13px", fontWeight: selectedPayment === method.id ? 700 : 600, color: selectedPayment === method.id ? "var(--eco-c13)" : "#374151" }}>
                         {method.name}
                       </span>
                       {selectedPayment === method.id && (
                          <div style={modalStyles.paymentCheck}>
-                           <FaCheckCircle size={14} color="#16a34a" />
+                           <FaCheckCircle size={14} color="var(--eco-c9)" />
                          </div>
                       )}
                     </button>
@@ -1020,7 +1021,7 @@ const handleKeyDown = (e) => {
                     <div style={modalStyles.paymentDetailsCard}>
                       <div style={modalStyles.paymentInstructions}>Send payment to GCash Number: <strong>0912 345 6789</strong></div>
                       <div style={modalStyles.qrPlaceholder}>
-                        <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
+                        <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="var(--eco-c11)" /></span>
                         <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                       </div>
                       <input type="text" placeholder="Reference Number (e.g. 1000293812)" value={paymentData.gcashRef} onChange={(e) => setPaymentData({...paymentData, gcashRef: e.target.value})} style={modalStyles.input} />
@@ -1051,7 +1052,7 @@ const handleKeyDown = (e) => {
                     <div style={modalStyles.paymentDetailsCard}>
                       <div style={modalStyles.paymentInstructions}>Send payment to Maya Number: <strong>0912 345 6789</strong></div>
                       <div style={modalStyles.qrPlaceholder}>
-                        <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="#15803d" /></span>
+                        <span style={{ fontSize: "24px" }}><Smartphone size="1em" color="var(--eco-c11)" /></span>
                         <span style={{ fontSize: "12px", fontWeight: 600 }}>Scan QR Code</span>
                       </div>
                       <input type="text" placeholder="Reference Number (e.g. 1000293812)" value={paymentData.mayaRef} onChange={(e) => setPaymentData({...paymentData, mayaRef: e.target.value})} style={modalStyles.input} />
@@ -1190,7 +1191,6 @@ return (
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Verified <span style={styles.accent}>Agriculture Specialists</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
 <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Connect with our network of verified agriculture specialists and advisors for personalized guidance and support.
@@ -1250,8 +1250,8 @@ return (
               </span>
             </div>
             <div style={styles.advisorSchedule}>
-              <span style={styles.scheduleItem}><FaCalendarAlt color="#15803d" /> {advisor.availableDays}</span>
-              <span style={styles.scheduleItem}><FaClock color="#15803d" /> {advisor.availableTime}</span>
+              <span style={styles.scheduleItem}><FaCalendarAlt color="var(--eco-c11)" /> {advisor.availableDays}</span>
+              <span style={styles.scheduleItem}><FaClock color="var(--eco-c11)" /> {advisor.availableTime}</span>
             </div>
             <p style={styles.expertise}>
               <strong>Expertise:</strong> {advisor.expertise.join(", ")}
@@ -1265,9 +1265,9 @@ return (
                   fontSize: "13px",
                   opacity: isChatPaid ? 1 : 0.7,
                   cursor: "pointer",
-                  background: isChatPaid ? "rgba(21, 128, 61, 0.1)" : "rgba(0,0,0,0.05)",
-                  color: isChatPaid ? "#15803d" : "#6b7280",
-                  border: isChatPaid ? "1px solid rgba(21, 128, 61, 0.2)" : "1px solid rgba(0,0,0,0.1)",
+                  background: isChatPaid ? "rgba(var(--eco-c11-rgb), 0.1)" : "rgba(0,0,0,0.05)",
+                  color: isChatPaid ? "var(--eco-c13)" : "#6b7280",
+                  border: isChatPaid ? "1px solid rgba(var(--eco-c11-rgb), 0.2)" : "1px solid rgba(0,0,0,0.1)",
                 }}
                 onClick={() => {
                   if (isChatPaid) {
@@ -1350,7 +1350,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -1360,8 +1360,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   title: {
@@ -1376,18 +1376,8 @@ const styles = {
   titleMobile: {
     fontSize: "clamp(24px, 7vw, 32px)", // Slightly smaller title on mobile
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   accent: {
-    background: "linear-gradient(90deg, #4ade80, #86efac)",
+    background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -1425,10 +1415,10 @@ bodyMobile: {
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.04)",
   },
   filterBtnActive: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
-    boxShadow: "0 4px 16px rgba(34,197,94,0.3), inset 0 1px 0 rgba(255,255,255,0.48)",
+    color: "var(--eco-c19)",
+    boxShadow: "0 4px 16px rgba(var(--eco-c7-rgb), 0.3), inset 0 1px 0 rgba(255,255,255,0.48)",
   },
   gridContainer: {
     display: "flex",
@@ -1488,8 +1478,8 @@ bodyMobile: {
     height: "60px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "3px solid #4ade80",
-    boxShadow: "0 4px 12px rgba(74,222,128,0.3)",
+    border: "3px solid var(--eco-c6)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c6-rgb), 0.3)",
   },
   nameAndBadge: {
     display: "flex",
@@ -1506,8 +1496,8 @@ bodyMobile: {
     display: "flex",
     alignItems: "center",
     gap: "5px",
-    background: "#dcfce7",
-    color: "#15803d",
+    background: "var(--eco-c3)",
+    color: "var(--eco-c13)",
     padding: "4px 8px",
     borderRadius: "999px",
     fontSize: "11px",
@@ -1525,7 +1515,7 @@ bodyMobile: {
     display: "flex",
     alignItems: "center",
     gap: "5px",
-    color: "#fbbf24",
+    color: "var(--eco-c6)",
     fontSize: "13px",
     fontWeight: 600,
   },
@@ -1536,12 +1526,12 @@ bodyMobile: {
     fontWeight: 700,
   },
   online: {
-    background: "#dcfce7",
-    color: "#15803d",
+    background: "var(--eco-c3)",
+    color: "var(--eco-c13)",
   },
   offline: {
-    background: "#fee2e2",
-    color: "#ef4444",
+    background: "var(--eco-c3)",
+    color: "var(--eco-c13)",
   },
   advisorSchedule: {
     display: "flex",
@@ -1599,13 +1589,13 @@ bookConsultationBtn: {
     flex: 1,
     padding: "7px 12px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "11px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -1615,20 +1605,8 @@ bookConsultationBtn: {
 
 // Modal Styles for Consultation Booking
 const modalStyles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 10000,
-    background: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    animation: "fadeIn 0.3s ease",
-  },
-modal: {
+  overlay: modalOverlay(MODAL_LAYER.nested),
+  modal: {
     maxWidth: "560px",
     width: "100%",
     maxHeight: "90vh",
@@ -1670,7 +1648,7 @@ closeBtn: {
     alignItems: "center",
     gap: "12px",
     padding: "12px",
-    background: "rgba(22, 163, 74, 0.05)",
+    background: "rgba(var(--eco-c9-rgb), 0.05)",
     borderRadius: "12px",
   },
   advisorImg: {
@@ -1678,7 +1656,7 @@ closeBtn: {
     height: "50px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "2px solid #4ade80",
+    border: "2px solid var(--eco-c6)",
   },
   advisorName: {
     fontSize: "16px",
@@ -1693,7 +1671,7 @@ closeBtn: {
 stepTitle: {
     fontSize: "18px",
     fontWeight: 700,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     margin: 0,
     display: "flex",
     alignItems: "center",
@@ -1726,9 +1704,9 @@ stepTitle: {
     transition: "all 0.2s ease",
   },
   typeCardSelected: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.2)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.2)",
   },
   typeName: {
     fontSize: "13px",
@@ -1742,17 +1720,17 @@ stepTitle: {
   typePrice: {
     fontSize: "14px",
     fontWeight: 800,
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   emergencyNote: {
     display: "flex",
     alignItems: "center",
     fontSize: "11px",
-    color: "#b45309",
-    background: "rgba(251,191,36,0.1)",
+    color: "var(--eco-c13)",
+    background: "rgba(var(--eco-c6-rgb), 0.1)",
     padding: "10px 12px",
     borderRadius: "8px",
-    border: "1px solid rgba(251,191,36,0.2)",
+    border: "1px solid rgba(var(--eco-c6-rgb), 0.2)",
   },
   faqToggle: {
     display: "flex",
@@ -1765,7 +1743,7 @@ stepTitle: {
     borderRadius: "8px",
     fontSize: "12px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     cursor: "pointer",
   },
   faqContainer: {
@@ -1806,13 +1784,13 @@ stepTitle: {
     gap: "8px",
     padding: "12px 20px",
     borderRadius: "12px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 6px 16px rgba(34,197,94,0.2)",
+    boxShadow: "0 6px 16px rgba(var(--eco-c7-rgb), 0.2)",
     transition: "all 0.2s ease",
   },
   formGroup: {
@@ -1859,8 +1837,8 @@ input: {
     boxSizing: "border-box",
   },
   customCalendarHeaderActive: {
-    border: "1px solid #15803d",
-    boxShadow: "0 0 0 3px rgba(21, 128, 61, 0.1)",
+    border: "1px solid var(--eco-c11)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c11-rgb), 0.1)",
   },
   customCalendarDropdown: {
     position: "absolute",
@@ -1871,9 +1849,9 @@ input: {
     background: "rgba(255,255,255,0.98)",
     backdropFilter: "blur(20px) saturate(180%)",
     WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    border: "1px solid rgba(21, 128, 61, 0.2)",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.2)",
     borderRadius: "14px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.12), 0 4px 12px rgba(21, 128, 61, 0.1)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.12), 0 4px 12px rgba(var(--eco-c11-rgb), 0.1)",
     zIndex: 50,
     padding: "12px",
     animation: "fadeInDown 0.2s ease",
@@ -1891,8 +1869,8 @@ input: {
     height: "28px",
     borderRadius: "8px",
     border: "none",
-    background: "rgba(21, 128, 61, 0.08)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c11-rgb), 0.08)",
+    color: "var(--eco-c13)",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
@@ -1940,16 +1918,16 @@ input: {
     justifyContent: "center",
   },
   calendarDaySelected: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+    color: "var(--eco-c19)",
     fontWeight: 700,
-    boxShadow: "0 2px 8px rgba(34,197,94,0.3)",
+    boxShadow: "0 2px 8px rgba(var(--eco-c7-rgb), 0.3)",
   },
   calendarDayToday: {
-    background: "rgba(21, 128, 61, 0.1)",
-    color: "#15803d",
+    background: "rgba(var(--eco-c11-rgb), 0.1)",
+    color: "var(--eco-c13)",
     fontWeight: 600,
-    border: "1px solid rgba(21, 128, 61, 0.3)",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.3)",
   },
 calendarDayPast: {
     color: "rgba(0,0,0,0.25)",
@@ -1958,7 +1936,7 @@ calendarDayPast: {
   },
   // Calendar Day Hover
   calendarDayHover: {
-    background: "rgba(21, 128, 61, 0.08)",
+    background: "rgba(var(--eco-c11-rgb), 0.08)",
   },
   timeSlots: {
     display: "flex",
@@ -1977,16 +1955,16 @@ calendarDayPast: {
     transition: "all 0.2s ease",
   },
   timeSlotSelected: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
   },
 textarea: {
     padding: "12px 14px",
     borderRadius: "16px",
-    border: "1px solid rgba(21, 128, 61, 0.15)",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.15)",
     fontSize: "13px",
-    background: "linear-gradient(150deg, rgba(255,255,255,0.9), rgba(240,253,244,0.7))",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.9), rgba(var(--eco-c0-rgb), 0.7))",
     minHeight: "100px",
     resize: "vertical",
     fontFamily: "inherit",
@@ -1995,19 +1973,19 @@ textarea: {
     outline: "none",
     backdropFilter: "blur(12px) saturate(150%)",
     WebkitBackdropFilter: "blur(12px) saturate(150%)",
-    boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(21,128,61,0.08)",
+    boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(var(--eco-c11-rgb), 0.08)",
   },
   textareaFocus: {
-    border: "1px solid #15803d",
-    boxShadow: "0 0 0 4px rgba(21, 128, 61, 0.15), 0 6px 20px rgba(21,128,61,0.12)",
-    background: "linear-gradient(150deg, rgba(255,255,255,0.95), rgba(240,253,244,0.85))",
+    border: "1px solid var(--eco-c11)",
+    boxShadow: "0 0 0 4px rgba(var(--eco-c11-rgb), 0.15), 0 6px 20px rgba(var(--eco-c11-rgb), 0.12)",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.95), rgba(var(--eco-c0-rgb), 0.85))",
   },
   pricingSummary: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "12px",
-    background: "rgba(22,163,74,0.05)",
+    background: "rgba(var(--eco-c9-rgb), 0.05)",
     borderRadius: "8px",
     fontSize: "14px",
     fontWeight: 600,
@@ -2016,7 +1994,7 @@ textarea: {
 totalPrice: {
     fontSize: "20px",
     fontWeight: 700,
-    color: "#059669",
+    color: "var(--eco-c13)",
   },
   paymentGrid: {
     display: "grid",
@@ -2036,9 +2014,9 @@ totalPrice: {
     position: "relative",
   },
   paymentCardSelected: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.15), rgba(125,211,252,0.15))",
-    border: "1px solid #16a34a",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.15)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.15), rgba(var(--eco-c5-rgb), 0.15))",
+    border: "1px solid var(--eco-c9)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.15)",
   },
   paymentIconWrap: {
     width: "28px",
@@ -2124,8 +2102,8 @@ backBtnSmall: {
     boxSizing: "border-box",
   },
   customDropdownHeaderActive: {
-    border: "1px solid #15803d",
-    boxShadow: "0 0 0 3px rgba(21, 128, 61, 0.1)",
+    border: "1px solid var(--eco-c11)",
+    boxShadow: "0 0 0 3px rgba(var(--eco-c11-rgb), 0.1)",
   },
   customDropdownList: {
     position: "absolute",
@@ -2136,7 +2114,7 @@ backBtnSmall: {
     background: "rgba(255,255,255,0.95)",
     backdropFilter: "blur(20px) saturate(180%)",
     WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    border: "1px solid rgba(21, 128, 61, 0.2)",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.2)",
     borderRadius: "12px",
     boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
     zIndex: 50,
@@ -2154,15 +2132,15 @@ backBtnSmall: {
     transition: "all 0.15s ease",
   },
   customDropdownItemActive: {
-    background: "linear-gradient(135deg, rgba(134,239,172,0.2), rgba(125,211,252,0.2))",
-    color: "#15803d",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.2), rgba(var(--eco-c5-rgb), 0.2))",
+    color: "var(--eco-c13)",
     fontWeight: 600,
   },
 successIcon: {
     fontSize: "48px",
-    color: "#22c55e",
+    color: "var(--eco-c13)",
     marginBottom: "12px",
-    filter: "drop-shadow(0 2px 8px rgba(34,197,94,0.4))",
+    filter: "drop-shadow(0 2px 8px rgba(var(--eco-c7-rgb), 0.4))",
   },
 confirmTitle: {
     fontSize: "22px",
@@ -2193,20 +2171,20 @@ advisorConfirmCard: {
     alignItems: "center",
     gap: "12px",
     padding: "12px 14px",
-    background: "linear-gradient(135deg, #f0fdf4, #ecfeff)",
+    background: "linear-gradient(135deg, var(--eco-c0), #ecfeff)",
     borderRadius: "16px",
-    border: "1px solid #bbf7d0",
+    border: "1px solid var(--eco-c4)",
     marginBottom: "16px",
     width: "100%",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.1)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.1)",
   },
 advisorConfirmImg: {
     width: "48px",
     height: "48px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "3px solid #22c55e",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.25)",
+    border: "3px solid var(--eco-c7)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.25)",
   },
 advisorConfirmName: {
     fontSize: "16px",
@@ -2223,14 +2201,14 @@ advisorConfirmName: {
     display: "inline-flex",
     alignItems: "center",
     gap: "4px",
-    background: "linear-gradient(135deg, #22c55e, #14b8a6)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c11))",
     color: "#ffffff",
     padding: "5px 12px",
     borderRadius: "999px",
     fontSize: "11px",
     fontWeight: 600,
     marginTop: "6px",
-    boxShadow: "0 2px 8px rgba(34,197,94,0.3)",
+    boxShadow: "0 2px 8px rgba(var(--eco-c7-rgb), 0.3)",
   },
 bookingSummary: {
     background: "#f9fafb",
@@ -2258,13 +2236,13 @@ calendarBtn: {
     gap: "8px",
     padding: "12px 16px",
     borderRadius: "12px",
-    background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))",
     border: "none",
     color: "#ffffff",
     fontSize: "13px",
     fontWeight: 600,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(59,130,246,0.3)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.3)",
     width: "100%",
   },
   rsvpBtn: {
@@ -2274,49 +2252,37 @@ calendarBtn: {
     gap: "8px",
     padding: "12px 16px",
     borderRadius: "12px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "13px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.3)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.3)",
     transition: "all 0.2s ease",
   },
 doneBtn: {
     padding: "12px 20px",
     borderRadius: "12px",
-    background: "linear-gradient(135deg, #22c55e, #14b8a6)",
+    background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c11))",
     border: "none",
     color: "#ffffff",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.35)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.35)",
     width: "100%",
   },
 };
 
 // Chat Modal Styles
 const chatModalStyles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    zIndex: 9999,
-    background: "rgba(0,0,0,0.5)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-    animation: "fadeIn 0.3s ease",
-  },
+  overlay: modalOverlay(MODAL_LAYER.base),
   modal: {
     width: "100%",
     maxWidth: "420px",
     maxHeight: "90vh",
-    background: "linear-gradient(145deg, rgba(255,255,255,0.98), rgba(240,253,244,0.95))",
+    background: "linear-gradient(145deg, rgba(255,255,255,0.98), rgba(var(--eco-c0-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.8)",
     borderRadius: "20px",
     display: "flex",
@@ -2328,8 +2294,8 @@ const chatModalStyles = {
   },
   header: {
     padding: "16px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.15), rgba(125,211,252,0.1))",
-    borderBottom: "1px solid rgba(21,128,61,0.1)",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.15), rgba(var(--eco-c5-rgb), 0.1))",
+    borderBottom: "1px solid rgba(var(--eco-c11-rgb), 0.1)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -2344,7 +2310,7 @@ const chatModalStyles = {
     height: "44px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "2px solid #4ade80",
+    border: "2px solid var(--eco-c6)",
   },
   headerInfo: {
     display: "flex",
@@ -2363,15 +2329,15 @@ const chatModalStyles = {
     gap: "5px",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginTop: "2px",
   },
   statusDot: {
     width: "7px",
     height: "7px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 8px rgba(74,222,128,0.8)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 8px rgba(var(--eco-c6-rgb), 0.8)",
   },
   headerActions: {
     display: "flex",
@@ -2388,7 +2354,7 @@ const chatModalStyles = {
     alignItems: "center",
     justifyContent: "center",
     fontSize: "14px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     cursor: "pointer",
     transition: "background 0.2s",
   },
@@ -2425,14 +2391,14 @@ const chatModalStyles = {
   },
   userMessage: {
     alignSelf: "flex-end",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
-    color: "#062018",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
+    color: "var(--eco-c19)",
     borderBottomRightRadius: "4px",
   },
   advisorMessage: {
     alignSelf: "flex-start",
     background: "#fff",
-    border: "1px solid rgba(21,128,61,0.15)",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.15)",
     color: "#000",
     borderBottomLeftRadius: "4px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -2450,20 +2416,20 @@ const chatModalStyles = {
     width: "8px",
     height: "8px",
     borderRadius: "50%",
-    background: "#15803d",
+    background: "var(--eco-c11)",
     animation: "typingDot 1.4s infinite ease-in-out",
   },
   suggestionsContainer: {
     padding: "12px 16px",
-    background: "rgba(21,128,61,0.03)",
-    borderTop: "1px solid rgba(21,128,61,0.1)",
+    background: "rgba(var(--eco-c11-rgb), 0.03)",
+    borderTop: "1px solid rgba(var(--eco-c11-rgb), 0.1)",
   },
   suggestionsTitle: {
     display: "flex",
     alignItems: "center",
     fontSize: "12px",
     fontWeight: 700,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginBottom: "8px",
   },
   suggestionsGrid: {
@@ -2475,7 +2441,7 @@ const chatModalStyles = {
     padding: "6px 10px",
     borderRadius: "999px",
     background: "rgba(255,255,255,0.8)",
-    border: "1px solid rgba(21,128,61,0.15)",
+    border: "1px solid rgba(var(--eco-c11-rgb), 0.15)",
     color: "#374151",
     fontSize: "11px",
     fontWeight: 600,
@@ -2504,15 +2470,15 @@ const chatModalStyles = {
     width: "40px",
     height: "40px",
     borderRadius: "50%",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 4px 12px rgba(34,197,94,0.2)",
+    boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.2)",
     transition: "transform 0.2s ease",
   },
 };

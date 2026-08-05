@@ -9,7 +9,7 @@ const partnershipData = [
     status: "Active",
     startDate: "2023-01-15",
     impact: "15 community gardens established, 500+ participants",
-    icon: <FaMapMarkerAlt style={{ color: "#15803d" }} />,
+    icon: <FaMapMarkerAlt style={{ color: "var(--eco-c13)" }} />,
   },
   {
     id: 2,
@@ -18,7 +18,7 @@ const partnershipData = [
     status: "Active",
     startDate: "2023-03-01",
     impact: "3 food hubs operational, 200+ local farmers supported",
-    icon: <FaMapMarkerAlt style={{ color: "#15803d" }} />,
+    icon: <FaMapMarkerAlt style={{ color: "var(--eco-c13)" }} />,
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ const partnershipData = [
     status: "Planning",
     startDate: "2024-06-01",
     impact: "Awaiting implementation",
-    icon: <FaMapMarkerAlt style={{ color: "#15803d" }} />,
+    icon: <FaMapMarkerAlt style={{ color: "var(--eco-c13)" }} />,
   },
   {
     id: 4,
@@ -36,7 +36,7 @@ const partnershipData = [
     status: "Completed",
     startDate: "2022-09-10",
     impact: "10 hectares of coastal farms restored, 100+ families benefited",
-    icon: <FaMapMarkerAlt style={{ color: "#15803d" }} />,
+    icon: <FaMapMarkerAlt style={{ color: "var(--eco-c13)" }} />,
   },
 ];
 
@@ -57,10 +57,6 @@ function LGUPartnershipPage({ setActiveNav }) {
         {`
           .hide-scroll::-webkit-scrollbar { display: none; }
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-          @keyframes shimmerLine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
         `}
       </style>
 
@@ -89,7 +85,6 @@ function LGUPartnershipPage({ setActiveNav }) {
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         LGU Partnerships <span style={styles.titleAccent}>Dashboard</span>
       </h1>
-      <div style={styles.titleUnderline} />
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         Explore our collaborative programs with local government units, driving sustainable agricultural development and community empowerment across the Philippines.
@@ -126,7 +121,7 @@ function LGUPartnershipPage({ setActiveNav }) {
                 <p style={styles.programLGU}>{item.lgu}</p>
                 <div style={styles.programMeta}>
                   <span style={styles.programStatus}>
-                    {item.status === "Active" ? <FaCheckCircle style={{ color: "#22c55e" }} /> : <FaHourglassHalf style={{ color: "#fbbf24" }} />} {item.status}
+                    {item.status === "Active" ? <FaCheckCircle style={{ color: "var(--eco-c13)" }} /> : <FaHourglassHalf style={{ color: "var(--eco-c6)" }} />} {item.status}
                   </span>
                   <span style={styles.programDate}><FaCalendarAlt /> {item.startDate}</span>
                 </div>
@@ -218,7 +213,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.05)",
     fontSize: "11px",
     fontWeight: 600,
-    color: "#15803d",
+    color: "var(--eco-c13)",
     letterSpacing: "0.6px",
     textTransform: "uppercase",
     marginBottom: "20px",
@@ -228,8 +223,8 @@ const styles = {
     width: "6px",
     height: "6px",
     borderRadius: "50%",
-    background: "#4ade80",
-    boxShadow: "0 0 5px rgba(74,222,128,0.9)",
+    background: "var(--eco-c6)",
+    boxShadow: "0 0 5px rgba(var(--eco-c6-rgb), 0.9)",
     display: "inline-block",
   },
   glassContentLayer: {
@@ -255,18 +250,8 @@ const styles = {
     overflowWrap: "break-word",
     marginBottom: "clamp(4px, 0.8dvh, 7px)",
   },
-  titleUnderline: {
-    width: "118px",
-    height: "4px",
-    background: "linear-gradient(90deg, rgba(74,222,128,0) 0%, #86efac 30%, #7dd3fc 50%, #86efac 70%, rgba(125,211,252,0) 100%)",
-    backgroundSize: "200% 100%",
-    margin: "0 auto 18px",
-    boxShadow: "0 0 18px rgba(134,239,172,0.75)",
-    borderRadius: "999px",
-    animation: "titleReveal 0.9s cubic-bezier(.22,1,.36,1) 0.15s both, shimmerLine 2.5s linear infinite",
-  },
   titleAccent: {
-    background: "linear-gradient(90deg, #15803d, #16a34a)",
+    background: "linear-gradient(90deg, var(--eco-c11), var(--eco-c9))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -320,7 +305,7 @@ const styles = {
   },
   analyticsIcon: {
     fontSize: "36px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
     marginBottom: "10px",
   },
   analyticsTitle: {
@@ -332,7 +317,7 @@ const styles = {
   analyticsValue: {
     fontSize: "28px",
     fontWeight: 800,
-    color: "#16a34a",
+    color: "var(--eco-c13)",
     margin: 0,
   },
   panelCard: {
@@ -382,7 +367,7 @@ const styles = {
   },
   programIcon: {
     fontSize: "20px",
-    color: "#15803d",
+    color: "var(--eco-c13)",
   },
   programName: {
     fontSize: "16px",
@@ -431,7 +416,7 @@ const styles = {
   },
   managementIcon: {
     fontSize: "24px",
-    color: "#16a34a",
+    color: "var(--eco-c13)",
     flexShrink: 0,
   },
   managementDetails: {
@@ -453,13 +438,13 @@ const styles = {
   ctaButton: {
     padding: "12px 20px",
     borderRadius: "999px",
-    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
     border: "1px solid rgba(255,255,255,0.35)",
-    color: "#062018",
+    color: "var(--eco-c19)",
     fontSize: "14px",
     fontWeight: 700,
     cursor: "default",
-    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
     marginTop: "20px",
     alignSelf: "center",
     width: "fit-content",

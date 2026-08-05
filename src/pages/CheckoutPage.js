@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createReview } from "../data/products";
 import { Check, Sprout, Smartphone } from "lucide-react";
 import { FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaArrowLeft, FaCreditCard, FaMoneyBillWave, FaCheckCircle, FaGift, FaTag, FaSeedling, FaStar, FaTimes, FaTrash } from "react-icons/fa";
 
@@ -6,7 +7,7 @@ import { FaShieldAlt, FaTruck, FaUndo, FaHeadset, FaArrowLeft, FaCreditCard, FaM
 function ProductThumb({ src, alt, emoji }) {
   const [errored, setErrored] = useState(false);
   if (!src || errored) {
-    return <>{emoji || <Sprout size="1em" color="#16a34a" />}</>;
+    return <>{emoji || <Sprout size="1em" color="var(--eco-c9)" />}</>;
   }
   return (
     <img
@@ -25,7 +26,10 @@ const getProductStats = (product) => {
   return { rating: baseRating.toFixed(1), reviewCount: baseCount };
 };
 
-export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, addEcoPoints, setOrders, onTrackOrder, products, setProducts, promoCodes }) {
+// `ecoEarnRate` is the admin-configured points-per-peso (eco_program.earnRate),
+// used here only to preview what the order will earn — the points themselves
+// are awarded by addOrderEcoPoints, which recomputes the amount server-side.
+export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, setOrders, onTrackOrder, products, setProducts, promoCodes, addOrderEcoPoints, ecoEarnRate = 0.1, loggedInUser = null }) {
   const [localCartItems, setLocalCartItems] = useState([]);
   const activeCartItems = cartItems !== undefined ? cartItems : localCartItems;
   const activeSetCartItems = setCartItems !== undefined ? setCartItems : setLocalCartItems;
@@ -173,7 +177,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
   const serviceFee = uniqueCartItems.length > 0 ? 15 : 0;
   const seedDonation = supportSeed ? 20 : 0;
   const totalAmount = Math.max(0, subtotal + shippingFee + serviceFee + seedDonation - discount);
-  const ecoPoints = Math.floor(totalAmount * 0.1);
+  const ecoPoints = Math.floor(totalAmount * ecoEarnRate);
   
   const handleApplyPromo = () => {
     const code = promoCode.toUpperCase().trim();
@@ -245,8 +249,8 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
     setTimeout(() => {
       setIsProcessing(false);
       setShowSuccess(true);
-      if (addEcoPoints && ecoPoints > 0) {
-        addEcoPoints(ecoPoints, "Buy Organic Products");
+      if (addOrderEcoPoints && totalAmount > 0) {
+        addOrderEcoPoints(totalAmount);
       }
       const orderItems = uniqueCartItems.map(item => `${item.quantity}x ${item.name || item.title}`).join(", ");
       const newOrder = {
@@ -270,7 +274,16 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
         serviceFee,
         seedDonation,
         discount,
-        rider: "Unassigned"
+        rider: "Unassigned",
+        // Structured copy of the cart. `items`/`products` above are the display
+        // string the screens render; this is what becomes order_items rows in
+        // Supabase, so what was bought stays queryable in SQL.
+        lineItems: uniqueCartItems.map(item => ({
+          product_id: item.id,
+          name: item.name || item.title,
+          qty: item.quantity,
+          price: Number(item.price) || 0,
+        })),
       };
       setLatestOrder(newOrder);
       if (setOrders) {
@@ -306,7 +319,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
         <div className="flex items-center justify-center w-[85%] max-w-[400px] mx-auto mb-10 mt-2 relative z-10">
           {['Cart', 'Delivery & Payment', 'Confirmation'].map((step, idx) => (
              <div key={step} className={`flex items-center relative ${idx < 2 ? 'flex-1' : 'flex-none'}`}>
-               <div className={`w-[28px] h-[28px] rounded-full flex items-center justify-center text-[12px] font-extrabold z-10 border-2 transition-all ${idx <= 1 ? 'bg-gradient-to-br from-green-600 to-green-700 text-white border-transparent shadow-[0_4px_12px_rgba(21,128,61,0.3)]' : 'bg-gray-100 text-gray-400 border-white shadow-sm'}`}>
+               <div className={`w-[28px] h-[28px] rounded-full flex items-center justify-center text-[12px] font-extrabold z-10 border-2 transition-all ${idx <= 1 ? 'bg-gradient-to-br from-green-600 to-green-700 text-white border-transparent shadow-[0_4px_12px_rgba(var(--eco-c11-rgb), 0.3)]' : 'bg-gray-100 text-gray-400 border-white shadow-sm'}`}>
                  {idx < 1 ? <Check size={14} /> : idx + 1}
                </div>
                <span className={`absolute top-9 left-[14px] -translate-x-1/2 text-[11px] font-bold whitespace-nowrap ${idx <= 1 ? 'text-green-700' : 'text-gray-400'}`}>
@@ -408,9 +421,9 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                    >
                      (?)
                      {showSeedOptionTooltip && (
-                       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#062018] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold w-[240px] text-center z-[100] shadow-xl pointer-events-none leading-relaxed whitespace-normal animate-fadeIn">
+                       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[var(--eco-c19)] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold w-[240px] text-center z-[100] shadow-xl pointer-events-none leading-relaxed whitespace-normal animate-fadeIn">
                          Your ₱20 helps preserve endangered native Philippine seeds like Heirloom Adlai, local Tomato varieties, and indigenous herbs.
-                         <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-solid border-transparent border-t-[#062018]" />
+                         <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-solid border-transparent border-t-[var(--eco-c19)]" />
                        </span>
                      )}
                    </span>
@@ -452,7 +465,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                </div>
 
                {/* Promo Code Input */}
-               <div className={`mt-6 flex items-center bg-white/70 border rounded-xl overflow-hidden transition-all duration-300 shadow-sm ${promoError ? 'border-red-400 bg-red-50/50' : promoSuccess ? 'border-green-500 bg-green-50/50 ring-1 ring-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'border-black/5'}`}>
+               <div className={`mt-6 flex items-center bg-white/70 border rounded-xl overflow-hidden transition-all duration-300 shadow-sm ${promoError ? 'border-red-400 bg-red-50/50' : promoSuccess ? 'border-green-500 bg-green-50/50 ring-1 ring-green-500 shadow-[0_0_15px_rgba(var(--eco-c7-rgb), 0.3)]' : 'border-black/5'}`}>
                   <div className={`pl-4 ${promoError ? "text-red-400" : promoSuccess ? "text-green-600" : "text-gray-400"}`}><FaTag /></div>
                   <input 
                     value={promoCode} 
@@ -488,9 +501,9 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                      >
                        Seed Donation
                        {showSeedTooltip && (
-                         <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#062018] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold w-[240px] text-center z-[100] shadow-xl pointer-events-none leading-relaxed whitespace-normal animate-fadeIn">
+                         <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[var(--eco-c19)] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold w-[240px] text-center z-[100] shadow-xl pointer-events-none leading-relaxed whitespace-normal animate-fadeIn">
                            Your ₱20 helps preserve endangered native Philippine seeds like Heirloom Adlai, local Tomato varieties, and indigenous herbs.
-                           <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-solid border-transparent border-t-[#062018]" />
+                           <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-solid border-transparent border-t-[var(--eco-c19)]" />
                          </span>
                        )}
                      </span>
@@ -520,9 +533,9 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                  >
                    {ecoPoints} EcoPoints
                    {showEcoTooltip && (
-                     <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#062018] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold w-[220px] text-center z-[100] shadow-xl pointer-events-none leading-relaxed whitespace-normal animate-fadeIn">
+                     <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[var(--eco-c19)] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold w-[220px] text-center z-[100] shadow-xl pointer-events-none leading-relaxed whitespace-normal animate-fadeIn">
                        Earn EcoPoints on every order. Redeem them for discounts or use them to fund real tree-planting initiatives!
-                       <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-solid border-transparent border-t-[#062018]" />
+                       <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-solid border-transparent border-t-[var(--eco-c19)]" />
                      </span>
                    )}
                  </strong> from this purchase!</span>
@@ -533,10 +546,10 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                    onClick={handlePlaceOrder}
                className="w-full py-4 rounded-full font-bold text-lg transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2" 
                    style={{
-                     background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+                     background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
                      border: "1px solid rgba(255,255,255,0.35)",
-                     color: "#062018",
-                     boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+                     color: "var(--eco-c19)",
+                     boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
                    }}
                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'}
                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -544,7 +557,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                  >
                {isProcessing ? (
                  <>
-                   <div className="w-5 h-5 border-2 border-[#062018]/30 border-t-[#062018] rounded-full animate-spin"></div>
+                   <div className="w-5 h-5 border-2 border-[var(--eco-c19)]/30 border-t-[var(--eco-c19)] rounded-full animate-spin"></div>
                    <span>Processing...</span>
                  </>
                ) : (
@@ -599,10 +612,10 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                   }}
                   className="w-full py-3.5 rounded-full font-bold text-lg transition-transform"
                   style={{
-                    background: "linear-gradient(135deg, rgba(134,239,172,0.95), rgba(125,211,252,0.95))",
+                    background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))",
                     border: "1px solid rgba(255,255,255,0.35)",
-                    color: "#062018",
-                    boxShadow: "0 18px 38px rgba(34,197,94,0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
+                    color: "var(--eco-c19)",
+                    boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)",
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -630,7 +643,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
               <div className="w-48 h-48 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 border border-gray-200 shadow-inner">
                  <div className="text-center text-gray-400 font-bold text-sm">
                    <div className="w-32 h-32 border-4 border-dashed border-gray-300 mx-auto mb-2 flex items-center justify-center rounded-xl">
-                     <span className="text-3xl"><Smartphone size={30} color="#15803d" /></span>
+                     <span className="text-3xl"><Smartphone size={30} color="var(--eco-c11)" /></span>
                    </div>
                    Mock QR Code
                  </div>
@@ -643,8 +656,8 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                 }}
                 className="w-full py-3.5 rounded-full font-bold text-lg transition-transform text-white"
                 style={{
-                  background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-                  boxShadow: "0 10px 25px rgba(59,130,246,0.3)",
+                  background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))",
+                  boxShadow: "0 10px 25px rgba(var(--eco-c7-rgb), 0.3)",
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.035)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -734,7 +747,16 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
                  <button 
                     onClick={() => { 
                       if (!newReviewText.trim()) return; 
-                      const newReview = { user: "You", rating: newReviewRating, comment: newReviewText }; 
+                      const newReview = { user: "You", rating: newReviewRating, comment: newReviewText };
+                      // Persist to product_reviews. Fire-and-forget: the local
+                      // state below is what the screen shows either way, and a
+                      // review on a sample product (numeric id) or from a
+                      // signed-out visitor returns null rather than throwing.
+                      createReview(productToReview.id, {
+                        rating: newReviewRating,
+                        comment: newReviewText,
+                        userName: loggedInUser?.name || loggedInUser?.email,
+                      }).catch((err) => console.error("Failed to save review to Supabase:", err));
                       if (!productToReview.reviews) productToReview.reviews = [];
                       productToReview.reviews.unshift(newReview);
                       const currentTotalScore = (productToReview.rating || 0) * (productToReview.reviewCount || 0);
@@ -785,7 +807,7 @@ export default function CheckoutPage({ setActiveNav, cartItems, setCartItems, ad
             animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         @keyframes highlightFlash {
-            0% { background-color: rgba(74, 222, 128, 0.3); transform: scale(1.02); box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2); }
+            0% { background-color: rgba(var(--eco-c6-rgb), 0.3); transform: scale(1.02); box-shadow: 0 4px 12px rgba(var(--eco-c6-rgb), 0.2); }
             100% { background-color: #f9fafb; transform: scale(1); box-shadow: none; }
         }
         .animate-highlightFlash {
@@ -816,7 +838,7 @@ const PaymentCard = ({ id, label, icon, selected, onSelect }) => (
     onClick={() => onSelect(id)}
     className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
       selected === id 
-        ? "bg-green-50/90 border-green-500 shadow-[0_4px_15px_rgb(34,197,94,0.15)] ring-1 ring-green-500" 
+        ? "bg-green-50/90 border-green-500 shadow-[0_4px_15px_rgba(var(--eco-c7-rgb), 0.15)] ring-1 ring-green-500" 
         : "bg-white/60 border-black/5 hover:border-black/15 hover:bg-white/90 shadow-sm"
     }`}
   >
@@ -833,7 +855,7 @@ const DeliverySpeedCard = ({ id, label, desc, price, selected, onSelect }) => (
     onClick={() => onSelect(id)}
     className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
       selected === id 
-        ? "bg-green-50/90 border-green-500 shadow-[0_4px_15px_rgb(34,197,94,0.15)] ring-1 ring-green-500" 
+        ? "bg-green-50/90 border-green-500 shadow-[0_4px_15px_rgba(var(--eco-c7-rgb), 0.15)] ring-1 ring-green-500" 
         : "bg-white/60 border-black/5 hover:border-black/15 hover:bg-white/90 shadow-sm"
     }`}
   >
