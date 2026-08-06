@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProblemTimeline from "../components/ProblemTimeline";
 
 const sdgItems = [
@@ -228,6 +229,7 @@ function LearnMore({ setActiveNav }) {
   const [exploreHovered, setExploreHovered] = useState(false);
   const [activeSdg, setActiveSdg] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [edges, setEdges] = useState({ atStart: true, atEnd: false });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const sliderRef = useRef(null);
   // Pointer capability, not width, decides how cards open: hover on a mouse,
@@ -250,8 +252,27 @@ function LearnMore({ setActiveNav }) {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  // An arrow that can't move anything should say so rather than look live, so
+  // both ends of the scroll range are tracked and mirrored onto the buttons.
+  const syncEdges = useCallback((el) => {
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setEdges({
+      atStart: el.scrollLeft <= 1,
+      atEnd: max <= 1 || el.scrollLeft >= max - 1,
+    });
+  }, []);
+
+  useEffect(() => {
+    syncEdges(sliderRef.current);
+    const onResize = () => syncEdges(sliderRef.current);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [syncEdges]);
+
   const handleScroll = (e) => {
     const { scrollLeft, scrollWidth, clientWidth } = e.target;
+    syncEdges(e.target);
     if (scrollWidth <= clientWidth) return;
 
     const ratio = scrollLeft / (scrollWidth - clientWidth);
@@ -523,7 +544,48 @@ function LearnMore({ setActiveNav }) {
             color: rgba(255,255,255,0.96);
           }
 
+          /* ── Slider arrows ──────────────────────────────────── */
+          .sdg-nav {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 999px;
+            border: 1px solid rgba(var(--eco-c9-rgb), 0.28);
+            background: rgba(var(--eco-c0-rgb), 0.9);
+            color: var(--eco-c13);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(var(--eco-c15-rgb), 0.12);
+            transition: background .2s ease, border-color .2s ease,
+                        color .2s ease, box-shadow .2s ease, transform .2s ease;
+          }
+          .sdg-nav--right { justify-self: end; }
+          .sdg-nav svg { display: block; }
+          .sdg-nav:hover:not(:disabled) {
+            background: var(--eco-c11);
+            border-color: var(--eco-c11);
+            color: var(--eco-c0);
+            box-shadow: 0 10px 22px rgba(var(--eco-c15-rgb), 0.2);
+            transform: translateY(-1px);
+          }
+          .sdg-nav:active:not(:disabled) {
+            transform: translateY(0) scale(0.94);
+            box-shadow: 0 4px 10px rgba(var(--eco-c15-rgb), 0.16);
+          }
+          .sdg-nav:focus-visible {
+            outline: 2px solid var(--eco-c11);
+            outline-offset: 3px;
+          }
+          .sdg-nav:disabled {
+            opacity: 0.35;
+            cursor: default;
+            box-shadow: none;
+          }
+
           @media (prefers-reduced-motion: reduce) {
+            .sdg-nav,
             .sdg-card,
             .sdg-card__rest,
             .sdg-card__detail,
@@ -583,15 +645,18 @@ function LearnMore({ setActiveNav }) {
         EcoEquity is a comprehensive platform built to transform agricultural practices and empower local communities. Find out more about our initiatives, our technology, and how you can get involved.
       </p>
 
-      <div style={styles.sliderWrapper}>
-        <button
-          type="button"
-          aria-label="Scroll SDG cards left"
-          onClick={() => scrollSlider(-1)}
-          style={styles.arrowButton}
-        >
-          ‹
-        </button>
+      <div style={{ ...styles.sliderWrapper, ...(isMobile ? styles.sliderWrapperMobile : {}) }}>
+        {!isMobile && (
+          <button
+            type="button"
+            className="sdg-nav"
+            aria-label="Scroll SDG cards left"
+            onClick={() => scrollSlider(-1)}
+            disabled={edges.atStart}
+          >
+            <ChevronLeft size={20} strokeWidth={2.5} aria-hidden="true" />
+          </button>
+        )}
 
         <div
           ref={sliderRef}
@@ -663,14 +728,17 @@ function LearnMore({ setActiveNav }) {
         })}
       </div>
 
-      <button
-        type="button"
-        aria-label="Scroll SDG cards right"
-        onClick={() => scrollSlider(1)}
-        style={{ ...styles.arrowButton, ...styles.arrowButtonRight }}
-      >
-        ›
-      </button>
+      {!isMobile && (
+        <button
+          type="button"
+          className="sdg-nav sdg-nav--right"
+          aria-label="Scroll SDG cards right"
+          onClick={() => scrollSlider(1)}
+          disabled={edges.atEnd}
+        >
+          <ChevronRight size={20} strokeWidth={2.5} aria-hidden="true" />
+        </button>
+      )}
 
       </div>
 
@@ -813,30 +881,16 @@ const styles = {
   },
   sliderWrapper: {
     display: "grid",
-    gridTemplateColumns: "48px minmax(0, 1fr) 48px",
-    gap: "12px",
+    gridTemplateColumns: "44px minmax(0, 1fr) 44px",
+    gap: "10px",
     alignItems: "center",
     width: "100%",
     marginTop: "24px",
   },
-  arrowButton: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "18px",
-    border: "1px solid rgba(0,0,0,0.08)",
-    background: "rgba(255,255,255,0.86)",
-    color: "#111",
-    fontSize: "24px",
-    fontWeight: 700,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    boxShadow: "0 10px 22px rgba(0,0,0,0.1)",
-    transition: "transform 0.16s ease, background 0.2s ease",
-  },
-  arrowButtonRight: {
-    justifySelf: "end",
+  // Touch swipes the cards, so mobile gives the 44px gutters back to them.
+  sliderWrapperMobile: {
+    gridTemplateColumns: "minmax(0, 1fr)",
+    gap: 0,
   },
   indicatorRow: {
     display: "flex",
