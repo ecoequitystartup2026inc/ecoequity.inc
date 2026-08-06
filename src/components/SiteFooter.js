@@ -18,8 +18,8 @@ const SAGE = "var(--eco-c7)";
 const SAGE_LIGHT = "var(--eco-c5)";
 const HAIRLINE = "rgba(var(--eco-c0-rgb), 0.12)";
 
-/* Shared with the Get in Touch page's full contact form, so both entry points
-   land in the same inbox. */
+/* The inbox the Admin Portal reads. The Get in Touch page that used to write
+   here is gone — this footer is now the site's only contact surface. */
 const CONTACT_MESSAGES_STORAGE_KEY = "ecoequity_contact_messages";
 
 const COLUMNS = [
@@ -144,9 +144,9 @@ function SocialButton({ Icon, label }) {
 }
 
 /* The compact message box that sits opposite the closing CTA — a small chat
-   panel, not the full contact form. Two fields and a send key: enough to start
-   a conversation, with the long-form version still living on the Contact page.
-   Messages land in the same localStorage inbox that page writes to. */
+   panel. Two fields and a send key: enough to start a conversation. Since the
+   Contact page was removed this is where every "Get in Touch" click lands, and
+   messages go straight to the localStorage inbox the Admin Portal reads. */
 function FooterMessageBox({ isMobile }) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");

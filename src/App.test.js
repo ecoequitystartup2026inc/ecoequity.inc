@@ -165,14 +165,18 @@ describe("App navigation", () => {
     }
   );
 
-  test("switches to Contact page when Get in Touch button is clicked", async () => {
+  // The Get in Touch page was removed: the footer is the contact section, so
+  // the CTA keeps you on Home and scrolls there instead of routing away.
+  test("Get in Touch stays on Home and reaches the footer contact box", async () => {
     await renderApp();
 
-    // [0] is the navbar button; the logged-in mobile welcome card carries a
-    // second "Get in Touch" CTA.
+    // [0] is the hero CTA; the landing sections and the footer repeat it.
     fireEvent.click(screen.getAllByRole("button", { name: /Get in Touch/i })[0]);
 
-    expect(screen.getByText(/We'd love to hear from you!/i)).toBeInTheDocument();
+    // The footer renders on Home only, so finding its message box proves both
+    // that we stayed put and that the contact surface is on screen.
+    expect(screen.getAllByText(/Send us a message/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/We'd love to hear from you!/i)).not.toBeInTheDocument();
   });
 
   test("switches to Learn More page when Learn More button is clicked", async () => {

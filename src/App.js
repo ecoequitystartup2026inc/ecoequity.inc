@@ -9,7 +9,6 @@ import AuthPanels from "./components/AuthPanels";
 import AboutUs from "./pages/AboutUs";
 import ProductServices from "./pages/ProductServices";
 import TargetMarket from "./pages/TargetMarket";
-import GetInTouch from "./pages/GetInTouch";
 import LearnMore from "./pages/LearnMore";
 import BenefitsOfTheProject from "./pages/BenefitsOfTheProject"; // Import the new component
 import ProductsPage from "./pages/ProductsPage"; // Import the new ProductsPage component
@@ -50,6 +49,7 @@ import FarmPlannerPage, { defaultPlannerConfig } from "./pages/FarmPlannerPage";
 import CommunityForumPage, { forumSeedPosts } from "./pages/CommunityForumPage";
 import SupportTicketModal from "./SupportTicketModal";
 import SiteFeedbackWidget from "./SiteFeedbackWidget";
+import useActiveBrowseTimer from "./useActiveBrowseTimer";
 
 import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
 import { FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell } from "react-icons/fa";
@@ -223,6 +223,26 @@ const SURPLUS_LISTINGS_STORAGE_KEY = "ecoequity_surplus_listings";
 const SURPLUS_DEMANDS_STORAGE_KEY = "ecoequity_surplus_demands";
 const CERT_COURSES_STORAGE_KEY = "ecoequity_cert_courses";
 const SITE_FEEDBACK_STORAGE_KEY = "ecoequity_site_feedback";
+// When this browser was last shown the automatic feedback prompt.
+const FEEDBACK_PROMPT_STORAGE_KEY = "ecoequity_feedback_prompted_at";
+/* Active browsing time before the feedback strip appears on its own. Idle and
+   backgrounded time do not count towards it — see useActiveBrowseTimer, so a
+   minute here means a minute of actually using the site. */
+const FEEDBACK_PROMPT_AFTER_MS = 60 * 1000;
+/* …and how long to leave someone alone afterwards. Asked once, the visitor has
+   either answered or declined; asking again on their next visit is nagging. */
+const FEEDBACK_PROMPT_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Whether this browser was already offered the prompt inside the cooldown. */
+const wasFeedbackPromptedRecently = () => {
+  try {
+    const at = Number(localStorage.getItem(FEEDBACK_PROMPT_STORAGE_KEY));
+    return Boolean(at) && Date.now() - at < FEEDBACK_PROMPT_COOLDOWN_MS;
+  } catch {
+    // Private-mode / blocked storage: better to ask once per session than never.
+    return false;
+  }
+};
 const DELIVERIES_STORAGE_KEY = "ecoequity_deliveries";
 const RIDERS_STORAGE_KEY = "ecoequity_riders";
 const PLATFORM_USERS_STORAGE_KEY = "ecoequity_platform_users";
@@ -912,6 +932,15 @@ function App() {
   // Desktop Home scroller: the hero fills the first screen, the landing
   // sections live below it. Used by the "scroll to explore" cue.
   const homeScrollRef = useRef(null);
+  /* The site footer carries the whole contact experience (details, message
+     box, FAQ), so "Get in Touch" no longer opens a page — it returns Home and
+     scrolls here. The flag survives the nav change so the scroll can run after
+     the activeNav effect has reset the scroller to the top. */
+  const footerRef = useRef(null);
+  // On mobile the navbar is sticky inside that same scroller, so the scroll
+  // has to stop short of it or the footer's headline lands underneath.
+  const navbarRef = useRef(null);
+  const [scrollToFooter, setScrollToFooter] = useState(false);
   // Site-experience feedback (how the app feels to use) — distinct from product reviews.
   const [siteFeedback, setSiteFeedback] = useState(() => getStoredArray(SITE_FEEDBACK_STORAGE_KEY, []));
   // Admin-owned records that the client screens also read (deliveries drive Track Order,
@@ -935,8 +964,16 @@ function App() {
   // "Publish to database" action in Admin Portal → Settings).
   const [contentSeeded, setContentSeeded] = useState(false);
   const [publishingContent, setPublishingContent] = useState(false);
+  /* The feedback strip has no trigger button: it appears on its own once the
+     visitor has actively browsed for FEEDBACK_PROMPT_AFTER_MS. `promptSpent`
+     is what keeps that from being a nuisance — it starts true if this browser
+     was already asked inside the cooldown, which also means the timer below
+     never attaches its listeners for a returning visitor. */
   const [showFeedbackWidget, setShowFeedbackWidget] = useState(false);
-  const [feedbackFabHovered, setFeedbackFabHovered] = useState(false);
+  const [feedbackPromptSpent, setFeedbackPromptSpent] = useState(wasFeedbackPromptedRecently);
+  const browsedLongEnough = useActiveBrowseTimer(FEEDBACK_PROMPT_AFTER_MS, {
+    enabled: !feedbackPromptSpent,
+  });
 
   const [notifications, setNotifications] = useState(() => broadcastsToNotifications(getStoredArray(BROADCASTS_STORAGE_KEY, [])));
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -2532,11 +2569,44 @@ function App() {
     if (homeScrollRef.current) homeScrollRef.current.scrollTop = 0;
   }, [activeNav]);
 
+  /* "Get in Touch" lands here. Declared after the reset above so it runs
+     second in the same commit — otherwise the reset would undo the scroll.
+     Mobile scrolls the shell, desktop the Home box, matching the footer's own
+     "back to top". */
+  useEffect(() => {
+    if (!scrollToFooter) return;
+    const frame = requestAnimationFrame(() => {
+      const scroller = isMobile ? shellRef.current : homeScrollRef.current;
+      const footer = footerRef.current;
+      if (scroller && footer) {
+        const scrollerTop = scroller.getBoundingClientRect().top;
+        const stickyNav = isMobile && navbarRef.current
+          ? Math.max(0, navbarRef.current.getBoundingClientRect().bottom - scrollerTop)
+          : 0;
+        const top =
+          scroller.scrollTop +
+          footer.getBoundingClientRect().top -
+          scrollerTop -
+          stickyNav;
+        if (scroller.scrollTo) scroller.scrollTo({ top, behavior: "smooth" });
+        else scroller.scrollTop = top; // jsdom has no Element.scrollTo
+      }
+      setScrollToFooter(false);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [scrollToFooter, isMobile]);
+
   const handleNavChange = (navName) => {
     // A complaint about one form ("wrong password") makes no sense on the
     // other, so switching between Login and Sign Up starts clean. Anything
     // meant to survive the move is set by the caller after this returns.
     if ((navName === "Login" || navName === "Sign Up") && navName !== activeNav) setAuthMessage(null);
+    /* "Contact" is no longer a page: the footer is the contact section, so the
+       request becomes "go Home and scroll to the footer". */
+    if (navName === "Contact") {
+      setScrollToFooter(true);
+      navName = "Home";
+    }
     setActiveNav(navName);
     if (navCollapsed) {
       setIsMobileMenuOpen(false);
@@ -2556,6 +2626,37 @@ function App() {
      shell's cap, padding, radius, navbar and mobile tab bar for that view.
      AdminPortal carries its own way back to the site and its own logout. */
   const isAdminPortal = activeNav === "Admin Portal" && isAdmin;
+
+  /* Enough active browsing has passed — show the feedback strip, but not on top
+     of whatever the visitor is in the middle of. Signing in, working inside
+     Settings, and the success modals are tasks the person chose; interrupting
+     one of those is precisely the intrusion this prompt is supposed to avoid.
+     The AI chat and support panels matter for a second reason: they dock in the
+     same bottom-right corner, so the strip would land on top of them. When any
+     of these is in the way the prompt simply waits — this effect re-runs when
+     they close, so it lands on the next quiet moment instead of being lost. */
+  const feedbackPromptBlocked =
+    isAuthPage ||
+    activeNav === "Admin Portal" ||
+    showSettingsModal ||
+    showSupportTicketModal ||
+    showAIChat ||
+    showSuccessModal ||
+    showRewardSuccessModal ||
+    isMobileMenuOpen;
+
+  useEffect(() => {
+    if (!browsedLongEnough || feedbackPromptSpent || feedbackPromptBlocked) return;
+    setShowFeedbackWidget(true);
+    // Spend the prompt on showing it, not on answering it: a dismissal is an
+    // answer too, and re-asking someone who just closed it is the nagging.
+    setFeedbackPromptSpent(true);
+    try {
+      localStorage.setItem(FEEDBACK_PROMPT_STORAGE_KEY, String(Date.now()));
+    } catch {
+      /* Storage blocked — the in-memory flag still holds for this session. */
+    }
+  }, [browsedLongEnough, feedbackPromptSpent, feedbackPromptBlocked]);
 
   // The Terms checkbox turns red only while that's the outstanding complaint.
   const termsInvalid = authMessage?.kind === "terms" && !agreeTerms;
@@ -3406,7 +3507,7 @@ function App() {
            own header and brand mark, so the site logo above it is a second
            one stealing a band of the working area. */}
         {!isAuthPage && !isAdminPortal && (
-          <nav style={{ ...styles.navbar, ...(isMobile ? styles.navbarMobile : {}) }}>
+          <nav ref={navbarRef} style={{ ...styles.navbar, ...(isMobile ? styles.navbarMobile : {}) }}>
             <div style={styles.logoWrap}>
               <img src="/Eco.png" alt={`${adminSettings.platformName || "EcoEquity"} Inc Logo`} style={{ ...styles.ecoLogo, ...(isMobile ? styles.ecoLogoMobile : {}) }} />
               <span style={{ ...styles.logoText, ...(isMobile ? styles.logoTextMobile : {}) }}>{adminSettings.platformName || "EcoEquity"}.Inc</span>
@@ -3757,21 +3858,6 @@ function App() {
             )}
             {(!isMobile || isSupportClusterOpen) && (
               <>
-            <button
-              type="button"
-              aria-label="Rate your experience"
-              title="Rate your experience"
-              onClick={() => { setShowFeedbackWidget((v) => !v); setShowAIChat(false); setShowSupportTicketModal(false); setIsSupportClusterOpen(false); }}
-              onMouseEnter={() => setFeedbackFabHovered(true)}
-              onMouseLeave={() => setFeedbackFabHovered(false)}
-              style={{
-                ...styles.aiChatFab,
-                ...(isMobile ? styles.aiChatFabMobile : {}),
-                ...(feedbackFabHovered ? styles.aiChatFabHover : {}),
-              }}
-            >
-              <Star size={isMobile ? 21 : 20} color="#fff" fill={showFeedbackWidget ? "#fff" : "none"} strokeWidth={2.7} />
-            </button>
             <button
               type="button"
               aria-label="Chat with AI"
@@ -4269,21 +4355,24 @@ function App() {
                 walkthrough, the 2026 targets band and the closing CTA. */}
             <LandingSections isMobile={isMobile} measure={HOME_MEASURE} onNavigate={handleNavChange} />
 
-            {/* Site footer — closes the home scroller. On desktop the scroll
-                lives on this container, so "back to top" has to rewind it
-                rather than the window. */}
-            <SiteFooter
-              isMobile={isMobile}
-              onNavigate={handleNavChange}
-              platformName={adminSettings.platformName || "EcoEquity"}
-              supportEmail={adminSettings.supportEmail || "ecoequity.inc2026@gmail.com"}
-              onScrollTop={() => {
-                // Mobile scrolls the shell; desktop scrolls the Home box.
-                const el = isMobile ? shellRef.current : homeScrollRef.current;
-                if (el?.scrollTo) el.scrollTo({ top: 0, behavior: "smooth" });
-                else if (el) el.scrollTop = 0;
-              }}
-            />
+            {/* Site footer — closes the home scroller and doubles as the
+                contact section ("Get in Touch" scrolls to footerRef). On
+                desktop the scroll lives on this container, so "back to top"
+                has to rewind it rather than the window. */}
+            <div ref={footerRef} style={{ width: "100%" }}>
+              <SiteFooter
+                isMobile={isMobile}
+                onNavigate={handleNavChange}
+                platformName={adminSettings.platformName || "EcoEquity"}
+                supportEmail={adminSettings.supportEmail || "ecoequity.inc2026@gmail.com"}
+                onScrollTop={() => {
+                  // Mobile scrolls the shell; desktop scrolls the Home box.
+                  const el = isMobile ? shellRef.current : homeScrollRef.current;
+                  if (el?.scrollTo) el.scrollTo({ top: 0, behavior: "smooth" });
+                  else if (el) el.scrollTop = 0;
+                }}
+              />
+            </div>
 
           </div>
         )}
@@ -4303,7 +4392,6 @@ function App() {
             {activeNav === "ProductsPage" && <ProductsPage setActiveNav={setActiveNav} setCartItems={setCartItems} products={products} setProducts={setProducts} />}
 {activeNav === "ServicesPage" && <ServicesPage setActiveNav={setActiveNav} showAIChat={showAIChat} setShowAIChat={openAIChat} />}
             {activeNav === "Target Market" && <TargetMarket />}
-            {activeNav === "Contact" && <GetInTouch setActiveNav={setActiveNav} />}
             {activeNav === "Learn More" && <LearnMore setActiveNav={setActiveNav} />}
             {activeNav === "Explore More" && <ExploreMore setActiveNav={setActiveNav} />}
             {activeNav === "Target Market Explore" && <TargetMarketExplore />}
