@@ -53,6 +53,30 @@ export async function startCheckout({ items, total, promoCode, shippingAddress }
   window.location.href = data.checkoutUrl;
 }
 
+// Sends the buyer to PayMongo to pay for a subscription plan, then returns.
+// Nothing is written locally: paymongo-webhook creates the `subscriptions` row
+// when the payment actually lands, so an abandoned checkout cannot leave a user
+// looking subscribed. That row is also what ai-chat reads to lift the daily
+// message limit, so paying is all it takes to unlock the higher allowance.
+export async function startSubscription({ planId, planName, price }) {
+  if (!isSupabaseConfigured) throw new Error("Supabase not configured");
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Please log in to subscribe");
+
+  const { data, error } = await supabase.functions.invoke("create-payment", {
+    body: {
+      plan: { id: planId, name: planName, price },
+      successUrl: `${window.location.origin}/?subscription=success&plan=${encodeURIComponent(planId)}`,
+      cancelUrl: `${window.location.origin}/?subscription=cancelled`,
+    },
+  });
+  if (error) throw error;
+  if (!data?.checkoutUrl) throw new Error("No checkout URL returned");
+
+  window.location.href = data.checkoutUrl;
+}
+
 // Poll an order's status after returning from checkout (success page).
 export async function getOrderStatus(orderId) {
   if (!isSupabaseConfigured) return null;

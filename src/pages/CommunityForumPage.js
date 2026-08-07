@@ -5,6 +5,7 @@ import {
   MessageCircle, Heart, Send, Plus, Sprout, Bug, Droplet, Sun, TrendingUp, Users,
   Search, Bookmark, CheckCircle2, HelpCircle, Award, Flame, ShieldCheck, X,
   Calendar, Headphones, ArrowUpRight, MessagesSquare, Lock, Flag,
+  MoreHorizontal, Pencil, Trash2,
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -120,7 +121,14 @@ export const forumSeedPosts = [
   },
 ];
 
-function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts, setPosts = () => {} }) {
+// onEditPost/onDeletePost come from App.js, which owns the Supabase writes —
+// the row sync there only ever INSERTS, so an edit or a delete that never
+// reaches the database would be undone by the next fetch. Without them the page
+// still works, it just edits the local state it was handed.
+function CommunityForumPage({
+  setActiveNav, loggedInUser, posts = forumSeedPosts, setPosts = () => {},
+  onEditPost = null, onDeletePost = null,
+}) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isNarrow, setIsNarrow] = useState(window.innerWidth < 1080);
   const [isHoveredBack, setIsHoveredBack] = useState(false);
@@ -135,6 +143,12 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
   const [expandedReplies, setExpandedReplies] = useState([]);
   const [reportOpen, setReportOpen] = useState(null);
   const [bookmarks, setBookmarks] = useState(readBookmarks);
+  // Author-only controls behind the ⋯ button: which post's menu is open, which
+  // post is being edited, and which one is asking to be confirmed for deletion.
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [editDraft, setEditDraft] = useState({ title: "", body: "", category: "Growing Tips" });
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const composeRef = useRef(null);
   const titleRef = useRef(null);
@@ -312,6 +326,55 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
         p.id === id ? { ...p, likedByMe: !p.likedByMe, likes: p.likes + (p.likedByMe ? -1 : 1) } : p
       )
     );
+  };
+
+  // Own-post editing. The author's name is the only identity this page has, so
+  // it is also the ownership test — the same signal "Your activity" counts on.
+  const ownsPost = (post) => post.author === authorName;
+
+  const openMenu = (id) => {
+    setMenuOpen(menuOpen === id ? null : id);
+    setConfirmDelete(null);
+    setReportOpen(null);
+  };
+
+  const startEdit = (post) => {
+    setEditing(post.id);
+    setEditDraft({
+      title: post.title || "",
+      body: post.body || "",
+      category: post.category || "Growing Tips",
+    });
+    setMenuOpen(null);
+    setConfirmDelete(null);
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setEditDraft({ title: "", body: "", category: "Growing Tips" });
+  };
+
+  const saveEdit = (id) => {
+    const title = editDraft.title.trim();
+    const body = editDraft.body.trim();
+    if (!title || !body) return;
+    const patch = { title, body, category: editDraft.category, edited: true };
+    if (onEditPost) onEditPost(id, patch);
+    else setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+    cancelEdit();
+  };
+
+  // Deleting takes the post's per-device leftovers with it, so a bookmark or an
+  // open reply box can't point at a post that no longer exists.
+  const removePost = (id) => {
+    if (onDeletePost) onDeletePost(id);
+    else setPosts((prev) => prev.filter((p) => p.id !== id));
+    setConfirmDelete(null);
+    setMenuOpen(null);
+    if (editing === id) cancelEdit();
+    if (replyOpen === id) setReplyOpen(null);
+    setBookmarks((prev) => prev.filter((b) => b !== id));
+    setExpandedReplies((prev) => prev.filter((x) => x !== id));
   };
 
   const toggleBookmark = (id) =>
@@ -771,6 +834,9 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
               const shownReplies = expanded ? replies : replies.slice(0, 2);
               const saved = bookmarks.includes(post.id);
               const reportedByMe = alreadyReported(post);
+              const mine = ownsPost(post);
+              const isEditing = editing === post.id;
+              const canSaveEdit = Boolean(editDraft.title.trim() && editDraft.body.trim());
               return (
                 <Reveal
                   key={post.id}
@@ -792,7 +858,9 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
                         {post.author}
                         {post.official && <span style={styles.officialBadge}>OFFICIAL</span>}
                       </span>
-                      <span style={styles.postTime}>{post.time}</span>
+                      <span style={styles.postTime}>
+                        {post.time}{post.edited ? " · edited" : ""}
+                      </span>
                     </div>
                     <span style={styles.catTag}>{catIcon(post.category)} {post.category}</span>
                     <button
@@ -806,10 +874,125 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
                     >
                       <Bookmark size={15} fill={saved ? "currentColor" : "none"} />
                     </button>
+                    {mine && (
+                      <button
+                        type="button"
+                        className="cf-icon-btn"
+                        style={{ ...styles.bookmarkBtn, ...(menuOpen === post.id ? styles.bookmarkBtnActive : {}) }}
+                        onClick={() => openMenu(post.id)}
+                        aria-haspopup="true"
+                        aria-expanded={menuOpen === post.id}
+                        aria-label="Post options"
+                        title="Edit or delete your post"
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+                    )}
                   </div>
 
-                  <h3 style={styles.postTitle}>{post.title}</h3>
-                  <p style={styles.postBody}>{post.body}</p>
+                  {/* Same reason as the report panel below: this card is
+                      .inner-blur-glass (overflow:hidden), so the ⋯ menu opens
+                      inline instead of as an absolutely positioned popover. */}
+                  {menuOpen === post.id && (
+                    <div style={styles.ownerMenu}>
+                      <button type="button" className="cf-chip" style={styles.ownerMenuItem} onClick={() => startEdit(post)}>
+                        <Pencil size={13} /> Edit post
+                      </button>
+                      <button
+                        type="button"
+                        className="cf-chip"
+                        style={{ ...styles.ownerMenuItem, ...styles.ownerMenuDanger }}
+                        onClick={() => { setConfirmDelete(post.id); setMenuOpen(null); }}
+                      >
+                        <Trash2 size={13} /> Delete post
+                      </button>
+                      <button type="button" className="cf-link" style={styles.reportCancel} onClick={() => setMenuOpen(null)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  {confirmDelete === post.id && (
+                    <div style={styles.deletePanel}>
+                      <span style={styles.deletePanelTitle}>Delete this discussion?</span>
+                      <p style={styles.deleteText}>
+                        It leaves the community for good, replies included. This can't be undone.
+                      </p>
+                      <div style={styles.reportOptions}>
+                        <button type="button" className="cf-cta-btn" style={styles.deleteConfirmBtn} onClick={() => removePost(post.id)}>
+                          <Trash2 size={13} /> Yes, delete it
+                        </button>
+                        <button type="button" className="cf-link" style={styles.reportCancel} onClick={() => setConfirmDelete(null)}>
+                          Keep it
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isEditing ? (
+                    <div style={styles.editBox}>
+                      <input
+                        className="forum-field"
+                        style={styles.input}
+                        placeholder="Title — what do you want to ask or share?"
+                        maxLength={120}
+                        value={editDraft.title}
+                        onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })}
+                        onKeyDown={(e) => { if (e.key === "Escape") cancelEdit(); }}
+                        aria-label="Edit title"
+                        autoFocus
+                      />
+                      <textarea
+                        className="forum-field"
+                        rows={4}
+                        style={styles.textarea}
+                        ref={autoGrow}
+                        placeholder="Add details so others can help…"
+                        value={editDraft.body}
+                        onChange={(e) => { setEditDraft({ ...editDraft, body: e.target.value }); autoGrow(e.target); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") cancelEdit();
+                          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) saveEdit(post.id);
+                        }}
+                        aria-label="Edit details"
+                      />
+                      <div style={styles.composePills}>
+                        {CATEGORIES.filter((c) => c.name !== "All").map((c) => (
+                          <button
+                            key={c.name}
+                            type="button"
+                            className="cf-chip"
+                            style={{ ...styles.composePill, ...(editDraft.category === c.name ? styles.composePillActive : {}) }}
+                            onClick={() => setEditDraft({ ...editDraft, category: c.name })}
+                          >
+                            {c.icon} {c.name}
+                          </button>
+                        ))}
+                      </div>
+                      <div style={styles.composeFooter}>
+                        <span style={styles.composeHint}>⌘/Ctrl + Enter to save · Esc to cancel</span>
+                        <div style={styles.editActions}>
+                          <button type="button" className="cf-link" style={styles.reportCancel} onClick={cancelEdit}>
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className="cf-cta-btn"
+                            style={{ ...styles.postBtn, ...(canSaveEdit ? {} : styles.postBtnDisabled) }}
+                            onClick={() => saveEdit(post.id)}
+                            disabled={!canSaveEdit}
+                          >
+                            Save changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 style={styles.postTitle}>{post.title}</h3>
+                      <p style={styles.postBody}>{post.body}</p>
+                    </>
+                  )}
 
                   <div style={styles.postActions}>
                     <button type="button" className="cf-chip" style={{ ...styles.actionBtn, ...(post.likedByMe ? styles.actionBtnActive : {}) }} onClick={() => toggleLike(post.id)}>
@@ -828,17 +1011,21 @@ function CommunityForumPage({ setActiveNav, loggedInUser, posts = forumSeedPosts
                       <MessageCircle size={15} /> {replies.length} {replies.length === 1 ? "reply" : "replies"}
                     </button>
 
-                    <button
-                      type="button"
-                      className="cf-chip"
-                      style={{ ...styles.reportBtn, ...(reportedByMe ? styles.reportBtnDone : {}) }}
-                      onClick={() => setReportOpen(reportOpen === `post-${post.id}` ? null : `post-${post.id}`)}
-                      disabled={reportedByMe}
-                      title={reportedByMe ? "You reported this — moderators are on it" : "Report this post"}
-                    >
-                      <Flag size={13} fill={reportedByMe ? "currentColor" : "none"} />
-                      {reportedByMe ? "Reported" : "Report"}
-                    </button>
+                    {/* No point reporting yourself — the ⋯ menu is the owner's
+                        equivalent, and it edits or deletes outright. */}
+                    {!mine && (
+                      <button
+                        type="button"
+                        className="cf-chip"
+                        style={{ ...styles.reportBtn, ...(reportedByMe ? styles.reportBtnDone : {}) }}
+                        onClick={() => setReportOpen(reportOpen === `post-${post.id}` ? null : `post-${post.id}`)}
+                        disabled={reportedByMe}
+                        title={reportedByMe ? "You reported this — moderators are on it" : "Report this post"}
+                      >
+                        <Flag size={13} fill={reportedByMe ? "currentColor" : "none"} />
+                        {reportedByMe ? "Reported" : "Report"}
+                      </button>
+                    )}
 
                     <span style={{ ...styles.statusChip, ...(isAnswered(post) ? styles.statusAnswered : styles.statusOpen) }}>
                       {isAnswered(post) ? <CheckCircle2 size={13} /> : <HelpCircle size={13} />}
@@ -1145,6 +1332,19 @@ const styles = {
   reportOptions: { display: "flex", gap: "7px", flexWrap: "wrap", alignItems: "center" },
   reportOption: { padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.85)", color: "#334155", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" },
   reportCancel: { fontSize: "12px", marginLeft: "2px" },
+
+  // Author-only controls. Sage throughout — the destructive step reads as
+  // heavier ink rather than a new hue (see the five-tone palette rule).
+  ownerMenu: { display: "flex", alignItems: "center", gap: "7px", flexWrap: "wrap", marginBottom: "10px", padding: "10px", borderRadius: "14px", background: "rgba(var(--eco-c9-rgb), 0.07)", border: "1px solid rgba(var(--eco-c9-rgb), 0.22)" },
+  ownerMenuItem: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.85)", color: "#334155", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" },
+  ownerMenuDanger: { color: "var(--eco-c15)", border: "1px solid rgba(var(--eco-c15-rgb), 0.28)" },
+  deletePanel: { marginBottom: "12px", padding: "12px", borderRadius: "14px", background: "rgba(var(--eco-c15-rgb), 0.06)", border: "1px solid rgba(var(--eco-c15-rgb), 0.24)" },
+  deletePanelTitle: { display: "block", fontSize: "11px", fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: "var(--eco-c15)", marginBottom: "6px" },
+  deleteText: { fontSize: "12.5px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5, margin: "0 0 10px" },
+  deleteConfirmBtn: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "8px 15px", borderRadius: "999px", background: "var(--eco-c15)", border: "none", color: "#fff", fontSize: "12.5px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 6px 16px rgba(var(--eco-c15-rgb), 0.22)" },
+  editBox: { marginBottom: "4px" },
+  editActions: { display: "flex", alignItems: "center", gap: "10px" },
+
   statusChip: { display: "inline-flex", alignItems: "center", gap: "5px", marginLeft: "auto", padding: "5px 11px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, letterSpacing: "0.2px", whiteSpace: "nowrap" },
   statusAnswered: { color: "var(--eco-c13)", background: "rgba(var(--eco-c5-rgb), 0.55)" },
   statusOpen: { color: "#92400e", background: "rgba(245, 158, 11, 0.14)" },

@@ -41,7 +41,7 @@ import { fetchEcoState, earnPoints, earnOrderPoints, redeemRewardRemote, fetchRe
 // a person, so they load per-user on sign-in and save one row at a time.
 import { fetchMyOrders, saveOrder } from "./data/orders";
 import { fetchMyTickets, saveTicket } from "./data/supportTickets";
-import { fetchForumPosts, saveForumPost } from "./data/forum";
+import { fetchForumPosts, saveForumPost, updateForumPost, deleteForumPost } from "./data/forum";
 import { fetchMyScans, saveScan } from "./data/plantScans";
 import { saveFeedback, fetchAllFeedback } from "./data/siteFeedback";
 import SeasonalHarvestPage from "./pages/SeasonalHarvestPage";
@@ -1175,6 +1175,30 @@ function App() {
   useSupabaseRowSync(canSyncUserData, supportTickets, saveTicket, "support ticket");
   useSupabaseRowSync(canSyncUserData, forumPosts, saveForumPost, "forum post");
   useSupabaseRowSync(canSyncUserData, plantScans, saveScan, "plant scan");
+
+  // A forum author editing or deleting their own post. The row sync above only
+  // ever inserts, so these two have to reach the database themselves — an edit
+  // left local would be overwritten by the next fetch, and a deleted post would
+  // come straight back through mergeById on the next sign-in.
+  const handleEditForumPost = (id, patch) => {
+    const next = forumPosts.map((p) => (p.id === id ? { ...p, ...patch } : p));
+    setForumPosts(next);
+    if (!canSyncUserData) return;
+    const updated = next.find((p) => p.id === id);
+    if (updated) {
+      Promise.resolve(updateForumPost(updated)).catch((err) =>
+        console.error("Failed to update forum post in Supabase:", err)
+      );
+    }
+  };
+
+  const handleDeleteForumPost = (id) => {
+    setForumPosts((prev) => prev.filter((p) => p.id !== id));
+    if (!canSyncUserData) return;
+    Promise.resolve(deleteForumPost(id)).catch((err) =>
+      console.error("Failed to delete forum post from Supabase:", err)
+    );
+  };
 
   // One-time bootstrap: pushes everything currently on screen into the database
   // and marks it seeded, so a brand-new Supabase project starts out matching the
@@ -4399,7 +4423,7 @@ function App() {
             {activeNav === "Benefits of the Project" && <BenefitsOfTheProject />}
             {activeNav === "Seasonal Harvest" && !isMobile && <SeasonalHarvestPage setActiveNav={setActiveNav} onNotify={handleNotify} harvests={harvests} />}
             {activeNav === "Farm Planner" && <FarmPlannerPage setActiveNav={setActiveNav} harvests={harvests} planner={farmPlanner} />}
-            {activeNav === "Community" && <CommunityForumPage setActiveNav={setActiveNav} loggedInUser={loggedInUser} posts={forumPosts} setPosts={setForumPosts} />}
+            {activeNav === "Community" && <CommunityForumPage setActiveNav={setActiveNav} loggedInUser={loggedInUser} posts={forumPosts} setPosts={setForumPosts} onEditPost={handleEditForumPost} onDeletePost={handleDeleteForumPost} />}
             {/* "CheckoutPage" is the Quick View "Buy Now" destination on
                 ProductsPage. It lands on the shop with the checkout already
                 open, so there is one checkout in the app rather than a second

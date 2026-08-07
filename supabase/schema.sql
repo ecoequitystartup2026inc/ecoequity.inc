@@ -1,10 +1,30 @@
 -- ============================================================================
--- EcoEquity — COMPLETE database schema. This one file is all you need.
+-- EcoEquity — the core database schema.
 -- Run it in the Supabase SQL Editor (Dashboard → SQL → New query).
 --
 -- Safe to re-run. Every statement is idempotent: "if not exists", "add column
 -- if not exists", "drop policy if exists", a migration that only moves rows it
 -- hasn't moved yet, and a product seed that only fires when the table is empty.
+--
+-- THIS FILE IS NOT THE WHOLE DATABASE. Run these in order, top to bottom:
+--
+--   1. schema.sql              this file — tables, RLS, EcoPoints, seed
+--   2. admin-roles.sql         MUST come after. It redefines handle_new_user()
+--                              so only the owner address is born an admin. This
+--                              file defines an older handle_new_user(), so
+--                              running it alone silently reverts that.
+--   3. ai-chat-usage.sql       the AI assistant's daily quota counter. The
+--                              `ai-chat` Edge Function 500s without it.
+--   4. subscriptions-unique.sql  the unique key the PayMongo webhook upserts
+--                              on. Needed before the first real subscription
+--                              payment, not before that.
+--
+-- Two files here are DESTRUCTIVE and are not part of that sequence:
+--   seed.sql         wipes `products` and re-inserts the catalog below
+--   reset-users.sql  deletes every auth user, yours included
+--
+-- user-data.sql is fully absorbed into this file; it is kept only as a
+-- standalone patch for a database you would rather not re-run this against.
 --
 -- WHAT CHANGED IN THIS VERSION
 --   Previously eleven different admin-managed features were crammed into ONE

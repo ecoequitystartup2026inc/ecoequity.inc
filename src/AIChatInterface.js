@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { Check, X, Sparkles, Smartphone } from "lucide-react";
 import { MODAL_LAYER, modalOverlay } from "./styles/modal";
+import { askAI, scanPlantImage, isLiveAIAvailable } from "./data/aiChat";
+import { startSubscription } from "./data/checkout";
 
 // Core keywords for auto-correction logic
 const CORE_KEYWORDS = [
@@ -24,6 +26,16 @@ const CORE_KEYWORDS = [
   "hub", "market", "acquisition", "tactics", "growth", "partners", "customers",
   "history", "timeline", "contact"
 ];
+
+// Paid plans are built end to end — startSubscription() hands off to PayMongo
+// and paymongo-webhook writes the subscriptions row — but they stay parked
+// until the PayMongo merchant account clears identity verification. Until then
+// the AI chat is a free trial for every signed-in user, and the plan buttons
+// advertise rather than sell.
+//
+// Flip this to true once PAYMONGO_SECRET_KEY is set and create-payment is
+// deployed. Nothing else needs changing.
+const SUBSCRIPTIONS_ENABLED = false;
 
 // Openers offered on the empty chat, per bot — the Plant Doctor is a diagnostic
 // tool now that it lives here rather than on its own page, so its prompts are
@@ -230,6 +242,79 @@ const performSentenceCorrection = async (text) => {
   }
 };
 
+// ============================================================================
+// DAILY AI LIMIT — the client half of the Edge Function's per-account quota.
+//
+// The server counts every AI message and answers 429 once the day's allowance
+// is spent. The lock below is what the user actually sees: a notice inside the
+// chat and a composer that stops accepting input, instead of a box that still
+// looks live but can only produce the same refusal over and over.
+//
+// It is persisted because the quota is: a page reload does not give anybody
+// more messages, so it must not give them back a working text box either.
+// ============================================================================
+const QUOTA_LOCK_KEY = "ecoequity:aiQuotaLock";
+
+const quotaLockKeyFor = (user) => `${QUOTA_LOCK_KEY}:${user || "guest"}`;
+
+// Mirrors the Edge Function's own rollover: the quota is keyed on Postgres
+// `current_date` and Supabase runs in UTC, so the day turns over at UTC
+// midnight. Only used when an older deployment omits `resetsAt`.
+function nextQuotaResetISO() {
+  const now = new Date();
+  return new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+  )).toISOString();
+}
+
+function readQuotaLock(user) {
+  try {
+    const raw = window.localStorage.getItem(quotaLockKeyFor(user));
+    if (!raw) return null;
+    const lock = JSON.parse(raw);
+    // An expired lock is stale storage, not a lockout — drop it on sight so a
+    // user who comes back the next day is never held out by yesterday's cap.
+    if (!lock?.resetsAt || Date.parse(lock.resetsAt) <= Date.now()) {
+      window.localStorage.removeItem(quotaLockKeyFor(user));
+      return null;
+    }
+    return lock;
+  } catch {
+    // Private mode, disabled storage, corrupt JSON. Never let any of that be
+    // the reason the chat is unusable — the server still enforces the real cap.
+    return null;
+  }
+}
+
+function writeQuotaLock(user, lock) {
+  try {
+    window.localStorage.setItem(quotaLockKeyFor(user), JSON.stringify(lock));
+  } catch {
+    // Same reasoning: the in-memory lock still holds for this session.
+  }
+}
+
+function clearQuotaLock(user) {
+  try {
+    window.localStorage.removeItem(quotaLockKeyFor(user));
+  } catch {
+    // Nothing to do; the caller clears the in-memory lock either way.
+  }
+}
+
+// "tomorrow at 8:00 AM" — the reset is a UTC boundary, which lands at some
+// arbitrary local hour, so showing the user's own clock beats saying "midnight"
+// and being wrong for everyone outside UTC.
+function formatQuotaReset(resetsAt) {
+  const when = new Date(resetsAt);
+  if (Number.isNaN(when.getTime())) return "tomorrow";
+  const time = when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const today = when.toDateString() === new Date().toDateString();
+  return `${today ? "later today" : "tomorrow"} at ${time}`;
+}
+
 // `initialBot` / `seedMessage` let another page hand a conversation over to the
 // chat — the AI Plant Doctor passes its scan result so the user can keep asking
 // about the same diagnosis. App.js remounts the panel (via `key`) whenever a new
@@ -249,6 +334,13 @@ function AIChatInterface({
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false); // State for animation
   const [isTyping, setIsTyping] = useState(false); // State to show typing indicator
+  // True when the ai-chat Edge Function is reachable AND someone is logged in.
+  // False keeps every answer on the built-in keyword bot below, which is also
+  // what happens if the backend, the API key, or the daily quota gives out.
+  const [liveAI, setLiveAI] = useState(false);
+  // { message, limit, resetsAt } once today's AI allowance is spent, null while
+  // there is still quota left. Non-null locks the composer — see composerLocked.
+  const [quotaLock, setQuotaLock] = useState(() => readQuotaLock(loggedInUser));
   const [currentBot, setCurrentBot] = useState(initialBot); // 'general' or 'plantDoctor'
   const [selectedImage, setSelectedImage] = useState(null); // State for selected image file
   const [conversationStep, setConversationStep] = useState('initial'); // 'initial', 'awaitingName', 'awaitingContactAndConcern'
@@ -263,6 +355,7 @@ function AIChatInterface({
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false); // State for Payment Success pop-up
   const [paymentMethod, setPaymentMethod] = useState('Credit Card'); // State for selected payment method
+  const [paymentError, setPaymentError] = useState(""); // Why a checkout could not be started
   const [mobilePaymentForm, setMobilePaymentForm] = useState({ mobileNumber: '', accountName: '' }); // State for mobile payments
 
   const messagesEndRef = useRef(null);
@@ -598,6 +691,7 @@ function AIChatInterface({
   };
 
   const handlePaste = (e) => {
+    if (composerLocked) return;
     const items = e.clipboardData.items;
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf("image") !== -1) {
@@ -616,6 +710,10 @@ function AIChatInterface({
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    // Dropping a photo onto a locked chat would stage something that can never
+    // be sent — swallow it rather than leave a preview the user cannot clear by
+    // sending.
+    if (composerLocked) return;
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -676,7 +774,53 @@ function AIChatInterface({
     scrollToBottom(); // Scroll to bottom when messages change
   }, [messages]);
 
+  useEffect(() => {
+    let cancelled = false;
+    isLiveAIAvailable().then((ok) => { if (!cancelled) setLiveAI(ok); });
+    return () => { cancelled = true; };
+  }, [loggedInUser]);
+
+  // The lock belongs to an account, so re-read it whenever the account changes,
+  // and lift it on a timer at the reset. Without the timer a user who leaves
+  // the panel open past the rollover stays locked out with no way to tell that
+  // their messages are back.
+  useEffect(() => {
+    const lock = readQuotaLock(loggedInUser);
+    setQuotaLock(lock);
+    if (!lock) return undefined;
+
+    const timer = setTimeout(() => {
+      clearQuotaLock(loggedInUser);
+      setQuotaLock(null);
+    }, Math.max(Date.parse(lock.resetsAt) - Date.now(), 0));
+    return () => clearTimeout(timer);
+    // Keyed on the reset instant rather than the object so setting a fresh lock
+    // re-arms the timer, but re-reading the same lock does not loop.
+  }, [loggedInUser, quotaLock?.resetsAt]);
+
+  // Called when the server answers 429. Records why, and until when, so the
+  // notice and the composer agree on both.
+  const applyQuotaLock = (err) => {
+    const lock = {
+      message: err?.message
+        || "You have used all of today's AI messages. They reset tomorrow.",
+      limit: typeof err?.limit === "number" ? err.limit : null,
+      resetsAt: err?.resetsAt || nextQuotaResetISO(),
+    };
+    writeQuotaLock(loggedInUser, lock);
+    setQuotaLock(lock);
+  };
+
+  // A conversation already handed to a human is not the AI's to cut off — the
+  // live-agent path never calls the model, so it costs nothing and stays open.
+  const composerLocked = Boolean(quotaLock) && !isLiveAgentChat;
+
   const handleSendMessage = async (textOverride) => {
+    // Out of messages for today. The composer is disabled, but quick prompts
+    // and a stray Enter can still land here, and every one of those would be a
+    // request the server can only refuse.
+    if (composerLocked) return;
+
     const rawInput = typeof textOverride === 'string' ? textOverride : input;
     const hasText = rawInput.trim().length > 0;
     // Allow sending an image on its own (image scan) or with a text caption.
@@ -703,6 +847,11 @@ function AIChatInterface({
       let aiResponseObject = { text: "", nextStep: 'initial' };
       // Slightly longer delay when scanning an image to simulate analysis.
       let responseDelay = 1000;
+      // Set to the 429 when the daily AI allowance runs out. Held until the
+      // reply has rendered so the composer locks and the upgrade modal opens
+      // *after* the explanation is on screen — a box that dies and a modal that
+      // appears with no visible reason both just read as the chat breaking.
+      let quotaError = null;
 
       if (selectedImage) {
         const imageUrl = URL.createObjectURL(selectedImage);
@@ -714,18 +863,42 @@ function AIChatInterface({
           aiResponseObject.text = "Live Agent: Thanks for the photo — I can see it. Let me take a closer look and get back to you.";
           aiResponseObject.nextStep = 'liveAgentActive';
         } else if (currentBot === 'plantDoctor') {
-          // Run a simulated AI image scan and return a structured diagnosis.
-          // Results come from the admin-curated Disease Library when it has
-          // entries, so what users see matches what the Admin Portal manages.
-          const diagnosis = plantDiseases && plantDiseases.length > 0
-            ? diagnosisFromLibrary(plantDiseases[Math.floor(Math.random() * plantDiseases.length)])
-            : PLANT_SCAN_DIAGNOSES[Math.floor(Math.random() * PLANT_SCAN_DIAGNOSES.length)];
-          aiResponseObject.text = formatScanResult(diagnosis);
-          aiResponseObject.nextStep = 'initial';
-          responseDelay = 2200; // emulate scanning time
+          // Ask the real vision model to look at the photo. If that is
+          // unavailable — signed out, quota spent, key missing — fall back to
+          // the admin-curated Disease Library so a scan still returns
+          // something, exactly as it did before there was a live model.
+          let diagnosis = null;
+          if (liveAI) {
+            try {
+              diagnosis = await scanPlantImage({ file: selectedImage, note: correctedText });
+              responseDelay = 300; // the round-trip already was the wait
+            } catch (err) {
+              if (err.quotaExceeded) {
+                aiResponseObject.text = err.message;
+                aiResponseObject.nextStep = 'initial';
+                responseDelay = 300;
+                quotaError = err;
+              } else {
+                console.warn("Live plant scan unavailable, using the offline library:", err);
+              }
+            }
+          }
+          // Out of quota is NOT a case for the offline library: handing back a
+          // random diagnosis would bury the upgrade message and, worse, show a
+          // fabricated result as if the photo had really been analysed.
+          if (!diagnosis && !quotaError) {
+            diagnosis = plantDiseases && plantDiseases.length > 0
+              ? diagnosisFromLibrary(plantDiseases[Math.floor(Math.random() * plantDiseases.length)])
+              : PLANT_SCAN_DIAGNOSES[Math.floor(Math.random() * PLANT_SCAN_DIAGNOSES.length)];
+            responseDelay = 2200; // emulate scanning time
+          }
+          if (diagnosis) {
+            aiResponseObject.text = formatScanResult(diagnosis);
+            aiResponseObject.nextStep = 'initial';
+          }
 
           // Every scan lands in the Admin Portal's AI Plant Doctor records.
-          if (onScanComplete) {
+          if (diagnosis && onScanComplete) {
             onScanComplete({
               id: `SCN-${Math.floor(1000 + Math.random() * 9000)}`,
               plant: diagnosis.plantName,
@@ -764,8 +937,35 @@ function AIChatInterface({
           setInput("");
 
         } else {
-          // Simulate AI response
-          aiResponseObject = currentBot === 'plantDoctor' ? getPlantDoctorAIResponse(correctedText) : getGeneralAIResponse(correctedText);
+          // The keyword bot answers first, and its escalation paths win
+          // outright: anything that moves conversationStep off 'initial' is a
+          // local handoff flow (collecting a name, opening a live agent chat),
+          // and routing a user to a human must never depend on a model call.
+          // Everything else is an ordinary question the live AI answers better.
+          const offline = currentBot === 'plantDoctor'
+            ? getPlantDoctorAIResponse(correctedText)
+            : getGeneralAIResponse(correctedText);
+          aiResponseObject = offline;
+
+          if (liveAI && (offline.nextStep || 'initial') === 'initial') {
+            try {
+              // `messages` is the history before this turn; askAI appends the
+              // new text itself.
+              const reply = await askAI({ bot: currentBot, history: messages, text: correctedText });
+              aiResponseObject = { text: reply, nextStep: 'initial' };
+              responseDelay = 300;
+            } catch (err) {
+              if (err.quotaExceeded) {
+                // Say why, in the bot's own voice, instead of silently
+                // dropping to the keyword bot as if nothing happened.
+                aiResponseObject = { text: err.message, nextStep: 'initial' };
+                responseDelay = 300;
+                quotaError = err;
+              } else {
+                console.warn("Live AI unavailable, using the offline bot:", err);
+              }
+            }
+          }
         }
       } 
 
@@ -781,6 +981,18 @@ function AIChatInterface({
         setMessages((prevMessages) => [...prevMessages, aiResponse]);
         setIsTyping(false);
         setConversationStep(aiResponseObject.nextStep || 'initial'); // Update conversation step
+
+        // Lock the composer in the same frame the refusal appears, so the
+        // notice above the input and the dead text box explain each other.
+        if (quotaError) applyQuotaLock(quotaError);
+
+        // Surface the plans once the user has read WHY they are being asked to
+        // upgrade. The short beat lets the explanation land first. Pointless
+        // while plans cannot be bought — a "coming soon" modal the user did not
+        // ask for is just an interruption.
+        if (quotaError && SUBSCRIPTIONS_ENABLED) {
+          setTimeout(() => setShowProModal(true), 1200);
+        }
       }, responseDelay);
     }
   };
@@ -792,14 +1004,38 @@ function AIChatInterface({
     }
   };
 
-  const isFormValid = paymentMethod === 'Credit Card' 
-    ? paymentForm.name.trim() !== '' && paymentForm.cardNumber.trim() !== '' && paymentForm.expiry.trim() !== '' && paymentForm.cvc.trim() !== ''
-    : mobilePaymentForm.mobileNumber.trim() !== '' && mobilePaymentForm.accountName.trim() !== '';
-    
-  const isPayButtonDisabled = isProcessing || !isFormValid;
+  // Card and e-wallet details are collected by PayMongo's own hosted checkout,
+  // never by this form — handling raw card numbers ourselves would drag the
+  // whole site into PCI scope. So the fields below no longer gate anything and
+  // the button waits only on the redirect being in flight.
+  const isPayButtonDisabled = isProcessing;
 
-  // The composer can send when there's text typed or an image staged.
-  const canSend = input.trim().length > 0 || !!selectedImage;
+  const planId = selectedPlan === 'Enterprise' ? 'PLAN-ENTERPRISE' : 'PLAN-PRO';
+  const planPrice = selectedPlan === 'Enterprise'
+    ? (billingCycle === 'Monthly' ? 1499 : 14390)
+    : (billingCycle === 'Monthly' ? 499 : 4790);
+
+  // Hands off to PayMongo. On success the browser leaves this page entirely, so
+  // anything after the await only runs when the checkout could not be started.
+  const handleSubscribe = async () => {
+    setPaymentError("");
+    setIsProcessing(true);
+    try {
+      await startSubscription({
+        planId,
+        planName: `EcoEquity ${selectedPlan} — ${billingCycle}`,
+        price: planPrice,
+      });
+    } catch (err) {
+      console.warn("Could not start checkout:", err);
+      setPaymentError(err?.message || "Could not start checkout. Please try again.");
+      setIsProcessing(false);
+    }
+  };
+
+  // The composer can send when there's text typed or an image staged — and
+  // when today's allowance has not run out.
+  const canSend = (input.trim().length > 0 || !!selectedImage) && !composerLocked;
 
   // The chat docks to the corner like SiteFeedbackWidget rather than taking the
   // screen over — no scrim, so the page stays readable and usable behind it.
@@ -952,12 +1188,13 @@ function AIChatInterface({
               </p>
               <div style={aiChatStyles.quickPromptsContainer}>
                 {(QUICK_PROMPTS[currentBot] || QUICK_PROMPTS.general).map((prompt, i) => (
-                  <button 
-                    key={i} 
-                    style={aiChatStyles.quickPromptBtn} 
+                  <button
+                    key={i}
+                    disabled={composerLocked}
+                    style={{ ...aiChatStyles.quickPromptBtn, ...(composerLocked ? aiChatStyles.controlDisabled : {}) }}
                     onClick={() => handleSendMessage(prompt)}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(var(--eco-c11-rgb), 0.1)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    onMouseEnter={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'rgba(var(--eco-c11-rgb), 0.1)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                    onMouseLeave={(e) => { if (composerLocked) return; e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'translateY(0)'; }}
                   >
                     {prompt}
                   </button>
@@ -991,13 +1228,35 @@ function AIChatInterface({
           )}
           <div ref={messagesEndRef} />
         </div>
+        {composerLocked && (
+          // Sits directly above the dead composer, because that is the thing it
+          // explains. A message bubble alone would scroll away and leave the
+          // user staring at an input that no longer takes anything.
+          <div style={aiChatStyles.quotaNotice} role="status">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: "1px" }}>
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <div>
+              <strong style={aiChatStyles.quotaNoticeTitle}>
+                {quotaLock.limit
+                  ? `Daily limit reached — ${quotaLock.limit} AI messages`
+                  : "Daily AI message limit reached"}
+              </strong>
+              <span style={aiChatStyles.quotaNoticeBody}>
+                Chat is paused until your allowance resets {formatQuotaReset(quotaLock.resetsAt)}.
+              </span>
+            </div>
+          </div>
+        )}
         <div style={{ ...aiChatStyles.inputContainer, ...(isMobile ? aiChatStyles.inputContainerMobile : {}) }}>
           <button
             type="button"
-            style={{ ...aiChatStyles.iconButton, ...(isMobile ? aiChatStyles.iconButtonMobile : {}) }}
+            disabled={composerLocked}
+            style={{ ...aiChatStyles.iconButton, ...(isMobile ? aiChatStyles.iconButtonMobile : {}), ...(composerLocked ? aiChatStyles.controlDisabled : {}) }}
             aria-label="Voice input"
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = 'var(--eco-c11)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}
+            onMouseEnter={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = 'var(--eco-c11)'; }}
+            onMouseLeave={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -1010,11 +1269,12 @@ function AIChatInterface({
             <button
               type="button"
               onClick={() => document.getElementById('imageUploadInput').click()}
-              style={{ ...aiChatStyles.scanButton, ...(isMobile ? aiChatStyles.scanButtonMobile : {}) }}
+              disabled={composerLocked}
+              style={{ ...aiChatStyles.scanButton, ...(isMobile ? aiChatStyles.scanButtonMobile : {}), ...(composerLocked ? aiChatStyles.controlDisabled : {}) }}
               aria-label="Scan a plant photo"
-              title="Scan a plant photo for instant diagnosis"
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(var(--eco-c11-rgb), 0.18)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(var(--eco-c11-rgb), 0.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+              title={composerLocked ? "Daily AI limit reached" : "Scan a plant photo for instant diagnosis"}
+              onMouseEnter={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'rgba(var(--eco-c11-rgb), 0.18)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
+              onMouseLeave={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'rgba(var(--eco-c11-rgb), 0.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
@@ -1026,11 +1286,12 @@ function AIChatInterface({
             <button
               type="button"
               onClick={() => document.getElementById('imageUploadInput').click()}
-              style={{ ...aiChatStyles.iconButton, ...(isMobile ? aiChatStyles.iconButtonMobile : {}) }}
+              disabled={composerLocked}
+              style={{ ...aiChatStyles.iconButton, ...(isMobile ? aiChatStyles.iconButtonMobile : {}), ...(composerLocked ? aiChatStyles.controlDisabled : {}) }}
               aria-label="Upload image"
-              title="Upload an image"
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = 'var(--eco-c11)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}
+              title={composerLocked ? "Daily AI limit reached" : "Upload an image"}
+              onMouseEnter={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = 'var(--eco-c11)'; }}
+              onMouseLeave={(e) => { if (composerLocked) return; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -1047,6 +1308,7 @@ function AIChatInterface({
             onChange={handleInputChange}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
+            disabled={composerLocked}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = "rgba(var(--eco-c11-rgb), 0.55)";
               e.currentTarget.style.background = "#ffffff";
@@ -1057,9 +1319,14 @@ function AIChatInterface({
               e.currentTarget.style.background = "#f3f4f6";
               e.currentTarget.style.boxShadow = "none";
             }}
-            placeholder={isLiveAgentChat
-              ? "Type your message to the live agent..." : (currentBot === 'general' ? "Ask about EcoEquity..." : "Ask about your plants...")}
-            style={aiChatStyles.chatInput}
+            // Kept short deliberately: the box is one row tall, and anything
+            // longer wraps and gets clipped. The reset time is in the notice
+            // directly above.
+            placeholder={composerLocked
+              ? "Daily message limit reached"
+              : (isLiveAgentChat
+                ? "Type your message to the live agent..." : (currentBot === 'general' ? "Ask about EcoEquity..." : "Ask about your plants..."))}
+            style={{ ...aiChatStyles.chatInput, ...(composerLocked ? aiChatStyles.chatInputLocked : {}) }}
           />
           <input
             type="file"
@@ -1083,6 +1350,7 @@ function AIChatInterface({
               ...(canSend ? {} : aiChatStyles.sendButtonDisabled),
             }}
             aria-label="Send message"
+            title={composerLocked ? "Daily AI limit reached" : undefined}
             onMouseEnter={(e) => { if (!canSend) return; e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
             onMouseLeave={(e) => { if (!canSend) return; e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}
           >
@@ -1112,7 +1380,16 @@ function AIChatInterface({
           }}
           onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setShowProModal(false)} style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}>&times;</button>
-            
+
+            {!SUBSCRIPTIONS_ENABLED && (
+              <div style={{ margin: "8px 0 18px", padding: "12px 14px", borderRadius: "14px", background: "rgba(var(--eco-c7-rgb), 0.1)", border: "1px solid rgba(var(--eco-c7-rgb), 0.25)", textAlign: "center" }}>
+                <div style={{ fontSize: "13px", fontWeight: 800, color: "var(--eco-c13)", marginBottom: "2px" }}>Paid plans are coming soon</div>
+                <div style={{ fontSize: "12px", fontWeight: 500, color: "#475569", lineHeight: 1.5 }}>
+                  While we finish setting up payments, the AI assistant and Plant Doctor are free for every EcoEquity member. Here is what the plans will include.
+                </div>
+              </div>
+            )}
+
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg, rgba(var(--eco-c7-rgb), 0.2), rgba(var(--eco-c9-rgb), 0.1))", marginBottom: "12px" }}>
                 <span style={{ fontSize: "20px" }}><Sparkles size="1em" color="var(--eco-c7)" /></span>
@@ -1165,7 +1442,7 @@ function AIChatInterface({
                   <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 600 }}><span style={{ color: "var(--eco-c13)", fontSize: "12px" }}><Check size="1em" /></span> Priority Support</li>
                   <li style={{ display: "flex", gap: "8px", fontSize: "12px", color: "rgba(0,0,0,0.4)", alignItems: "center", fontWeight: 500 }}><span style={{ fontSize: "12px" }}><X size="1em" /></span> API Access</li>
                 </ul>
-                <button onClick={(e) => { e.stopPropagation(); setShowProModal(false); setShowPaymentModal(true); }} style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: "var(--eco-c19)", fontWeight: 800, fontSize: "13px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Choose Pro</button>
+                <button disabled={!SUBSCRIPTIONS_ENABLED} onClick={(e) => { e.stopPropagation(); if (!SUBSCRIPTIONS_ENABLED) return; setShowProModal(false); setShowPaymentModal(true); }} style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: SUBSCRIPTIONS_ENABLED ? "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))" : "#94a3b8", color: SUBSCRIPTIONS_ENABLED ? "var(--eco-c19)" : "#ffffff", fontWeight: 800, fontSize: "13px", cursor: SUBSCRIPTIONS_ENABLED ? "pointer" : "not-allowed", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>{SUBSCRIPTIONS_ENABLED ? "Choose Pro" : "Coming Soon"}</button>
               </div>
 
               {/* Enterprise Plan */}
@@ -1186,7 +1463,7 @@ function AIChatInterface({
                   <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "var(--eco-c13)", fontSize: "12px" }}><Check size="1em" /></span> Custom API Access</li>
                   <li style={{ display: "flex", gap: "8px", fontSize: "12px", alignItems: "center", color: "#000", fontWeight: 500 }}><span style={{ color: "var(--eco-c13)", fontSize: "12px" }}><Check size="1em" /></span> Team Analytics Dashboard</li>
                 </ul>
-<button onClick={(e) => { e.stopPropagation(); setShowProModal(false); setShowPaymentModal(true); }} style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: "linear-gradient(135deg, var(--eco-c6), var(--eco-c9))", color: "#ffffff", fontWeight: 800, fontSize: "13px", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>Choose Enterprise</button>
+<button disabled={!SUBSCRIPTIONS_ENABLED} onClick={(e) => { e.stopPropagation(); if (!SUBSCRIPTIONS_ENABLED) return; setShowProModal(false); setShowPaymentModal(true); }} style={{ width: "100%", padding: "10px", borderRadius: "999px", border: "1px solid rgba(255,255,255,0.35)", background: SUBSCRIPTIONS_ENABLED ? "linear-gradient(135deg, var(--eco-c6), var(--eco-c9))" : "#94a3b8", color: "#ffffff", fontWeight: 800, fontSize: "13px", cursor: SUBSCRIPTIONS_ENABLED ? "pointer" : "not-allowed", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)" }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.035)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)'; }}>{SUBSCRIPTIONS_ENABLED ? "Choose Enterprise" : "Coming Soon"}</button>
               </div>
             </div>
           </div>
@@ -1292,16 +1569,7 @@ function AIChatInterface({
                 )}
                 
                 <button 
-                  onClick={() => {
-                    setIsProcessing(true);
-                    setTimeout(() => {
-                      setIsProcessing(false);
-                      setShowPaymentModal(false);
-                      setShowPaymentSuccess(true);
-                      setPaymentForm({ name: '', cardNumber: '', expiry: '', cvc: '' });
-                      setMobilePaymentForm({ mobileNumber: '', accountName: '' });
-                    }, 1500);
-                  }}
+                  onClick={handleSubscribe}
                   disabled={isPayButtonDisabled}
                   style={{ width: "100%", padding: "16px", marginTop: "12px", borderRadius: "12px", border: isPayButtonDisabled ? "none" : "1px solid rgba(255,255,255,0.35)", background: isPayButtonDisabled ? "#94a3b8" : "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.95), rgba(var(--eco-c5-rgb), 0.95))", color: isPayButtonDisabled ? "#ffffff" : "var(--eco-c19)", fontWeight: 800, fontSize: "15px", cursor: isPayButtonDisabled ? "not-allowed" : "pointer", boxShadow: isPayButtonDisabled ? "none" : "0 18px 38px rgba(var(--eco-c7-rgb), 0.26), inset 0 1px 0 rgba(255,255,255,0.48)", transition: "all 0.2s ease", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                   onMouseEnter={(e) => { if(!isPayButtonDisabled) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 22px 42px rgba(var(--eco-c7-rgb), 0.35), inset 0 1px 0 rgba(255,255,255,0.48)'; } }}
@@ -1315,10 +1583,15 @@ function AIChatInterface({
                   ) : (
                     <>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                      Pay {selectedPlan === 'Enterprise' ? (billingCycle === 'Monthly' ? '₱1,499' : '₱14,390') : (billingCycle === 'Monthly' ? '₱499' : '₱4,790')}
+                      Pay ₱{planPrice.toLocaleString()}
                     </>
                   )}
                 </button>
+                {paymentError && (
+                  <div role="alert" style={{ padding: "10px 12px", borderRadius: "10px", background: "rgba(220,38,38,0.08)", color: "#b91c1c", fontSize: "12px", fontWeight: 600, textAlign: "center" }}>
+                    {paymentError}
+                  </div>
+                )}
                 <div style={{ textAlign: "center", fontSize: "11px", color: "#64748b", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                   Payments are secure and encrypted
@@ -1691,6 +1964,44 @@ aiMessage: {
     border: "1px solid rgba(0,0,0,0.05)",
     boxShadow: "none",
     cursor: "not-allowed",
+  },
+  // Amber, not red: running out of a daily allowance is a limit being enforced,
+  // not something the user got wrong.
+  quotaNotice: {
+    display: "flex",
+    gap: "9px",
+    alignItems: "flex-start",
+    margin: "0 12px",
+    padding: "10px 12px",
+    borderRadius: "12px",
+    background: "rgba(245, 158, 11, 0.1)",
+    border: "1px solid rgba(245, 158, 11, 0.3)",
+    color: "#92400e",
+    flexShrink: 0,
+  },
+  quotaNoticeTitle: {
+    display: "block",
+    fontSize: "12.5px",
+    fontWeight: 700,
+    lineHeight: 1.4,
+  },
+  quotaNoticeBody: {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: 500,
+    lineHeight: 1.45,
+    opacity: 0.9,
+  },
+  chatInputLocked: {
+    background: "#f3f4f6",
+    color: "#9ca3af",
+    cursor: "not-allowed",
+  },
+  // Shared by every composer control the quota lock switches off.
+  controlDisabled: {
+    opacity: 0.45,
+    cursor: "not-allowed",
+    pointerEvents: "none",
   },
   iconButton: {
     background: "transparent",

@@ -20,6 +20,10 @@ data. Wire entities over one at a time.
 | `src/data/icons.js` | Icon **name** ⇄ JSX (never store React elements in a DB). |
 | `supabase/functions/create-payment/` | Server-side: makes a PayMongo checkout. |
 | `supabase/functions/paymongo-webhook/` | Server-side: confirms payment = source of truth. |
+| `supabase/functions/ai-chat/` | Server-side: the live AI chat + plant photo scan. |
+| `supabase/functions/ai-chat/knowledge.ts` | **What the bot knows** about EcoEquity. Edit this to change its answers. |
+| `supabase/ai-chat-usage.sql` | The daily quota counter that caps AI spend. |
+| `src/data/aiChat.js` | Calls the `ai-chat` function; throws so the chat can fall back. |
 | `.env.example` | Which keys go where. |
 
 ---
@@ -264,3 +268,125 @@ CheckoutPage's pay button.
   user reaching the "success" URL does not by itself mark an order paid.
 
 > Reminder: `.env.local` is git-ignored by Create React App. Never commit real keys.
+
+---
+
+## Step 6 — Turn on the live AI chat (optional)
+
+Until you do this, the chat widget runs on its built-in keyword bot exactly as
+before. Nothing breaks if you skip it.
+
+**1. Create the quota table.** SQL Editor → paste `supabase/ai-chat-usage.sql` →
+Run. This is what stops one account from spending your whole API balance.
+
+**2. Get an API key.** Either provider works — the function supports both:
+
+| | Where | Secret name | Cost |
+|---|---|---|---|
+| **Gemini** | aistudio.google.com/app/apikey | `GEMINI_API_KEY` | **Free tier, no card** |
+| ChatGPT | platform.openai.com | `OPENAI_API_KEY` | Prepaid credit required |
+
+Gemini is the default because its free tier needs no card — the assistant can go
+live before there is any subscription revenue paying for it. The trade-off is
+real: the free tier is rate-limited (requests per minute and per day; check
+ai.google.dev for current numbers) and the answers are not as sharp as a paid
+model. Switch to `openai` when the spend is worth it.
+
+⚠️ A ChatGPT Plus subscription does **not** include API access. The OpenAI API is
+prepaid credit, billed per message, bought separately.
+
+**3. Set the secrets and deploy.**
+
+```bash
+# Gemini (default) — free tier, no card needed
+supabase secrets set AI_PROVIDER=gemini GEMINI_API_KEY=xxx
+
+# …or ChatGPT — same function, no code change
+supabase secrets set AI_PROVIDER=openai OPENAI_API_KEY=sk-xxx
+
+# …or BOTH, with one as automatic backup (see "Running both" below)
+supabase secrets set AI_PROVIDER=gemini AI_FALLBACK_PROVIDER=openai \
+  GEMINI_API_KEY=xxx OPENAI_API_KEY=sk-xxx
+
+supabase functions deploy ai-chat
+```
+
+### Running both at once
+
+With `AI_FALLBACK_PROVIDER` set, every request tries the primary first and
+silently retries on the other one if it errors — an outage, a spent balance, or
+Gemini's free-tier rate limit. The user sees an answer instead of dropping to
+the keyword bot.
+
+It costs nothing extra in normal operation: the fallback is only called when the
+primary actually fails, and the user's daily quota is counted once per message
+no matter how many providers it took to answer.
+
+Gemini primary with ChatGPT as backup is the sensible pairing — free for the
+common case, paid only when the free tier is exhausted. Swap the two values to
+reverse it.
+
+**4. Set a spend cap** if you are on a paid provider (OpenAI: Settings → Limits,
+$10–20 while testing). If something goes wrong, requests fail and the chat falls
+back to the keyword bot instead of running up a bill. On Gemini's free tier
+there is nothing to cap — you hit a rate limit instead of a charge.
+
+### Tuning it
+
+| Secret | Default | What it does |
+|---|---|---|
+| `AI_PROVIDER` | `gemini` | `gemini` or `openai` |
+| `AI_FALLBACK_PROVIDER` | *(unset)* | The other provider, used only when the primary errors |
+| `AI_MODEL` | `gemini-flash-latest` | Model for the primary provider. The alias tracks the current Flash release; pin one (e.g. `gemini-3.6-flash`) for predictable behaviour |
+| `AI_FALLBACK_MODEL` | `gpt-4o-mini` | Model for the fallback provider |
+| `AI_DAILY_LIMIT_FREE` | `100` | Messages/day for users with no active subscription |
+| `AI_DAILY_LIMIT_PAID` | `300` | Messages/day for users with an active subscription |
+
+The free cap is deliberately generous while the assistant is a free trial and
+the paid plans cannot be bought yet. It is not a paywall — it is the brake on a
+shared API key, so one scripted account cannot burn the whole Gemini free-tier
+quota and take the assistant down for everybody. Lower it when plans go live.
+
+### How it degrades
+
+The chat **never** breaks. `src/data/aiChat.js` throws on any failure and
+`AIChatInterface` catches it, so a missing key, a dead function, a spent quota,
+or a signed-out visitor all quietly fall back to the keyword bot. Escalation to
+a human agent is always handled locally and never depends on the model.
+
+Signed-out visitors deliberately never reach the API — an anonymous endpoint
+that costs money per request is the one thing not worth shipping.
+
+### Testing before you deploy
+
+```bash
+supabase functions serve ai-chat --env-file supabase/.env.local
+```
+
+Then run the app, log in, and open the chat, watching the terminal for errors.
+
+Once deployed, the logs are **dashboard-only**: Supabase → Edge Functions →
+ai-chat → Logs. There is no `supabase functions logs` subcommand — the CLI's
+`functions` command only has list/delete/download/deploy/new/serve. The line to
+look for is `ai-chat failed:`, which carries the real exception; the browser
+only ever sees the sanitized "The AI assistant is unavailable right now."
+
+Secrets are stored as a plain SHA-256 of their value, so `supabase secrets list`
+can tell you whether the key you are holding is the key that is deployed,
+without revealing either:
+
+```bash
+printf '%s' "$YOUR_KEY" | shasum -a 256   # compare to the `value` column
+```
+
+To typecheck the function without deploying:
+
+```bash
+deno check --node-modules-dir=none supabase/functions/ai-chat/index.ts
+```
+
+The `--node-modules-dir=none` matters. Without it Deno sees this repo's React
+`node_modules/`, decides npm packages must be installed there, and reports a
+bogus *"Could not find a matching package for 'npm:openai'"*. The flag makes it
+resolve `npm:` specifiers from the registry, which is what the Supabase Edge
+runtime does anyway.

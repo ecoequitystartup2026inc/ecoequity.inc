@@ -43,7 +43,31 @@ function toApiMessages(history, latestText) {
 
 async function invoke(body) {
   const { data, error } = await supabase.functions.invoke("ai-chat", { body });
-  if (error) throw error;
+
+  if (error) {
+    // On a non-2xx, supabase-js gives a generic "Edge Function returned a
+    // non-2xx status code" and buries the real body in error.context (a raw
+    // Response). Dig it out — running out of quota needs a totally different
+    // reaction from the app than the service being broken.
+    const status = error.context?.status;
+    let message = error.message;
+    let details = null;
+    try {
+      details = await error.context.json();
+      if (details?.error) message = details.error;
+    } catch {
+      // Body was not JSON; the generic message is the best we have.
+    }
+    const wrapped = new Error(message);
+    wrapped.status = status;
+    wrapped.quotaExceeded = status === 429;
+    // Carried through so the chat can lock its composer until the counter
+    // rolls over instead of letting the user keep firing doomed requests.
+    wrapped.limit = details?.limit ?? null;
+    wrapped.resetsAt = details?.resetsAt ?? null;
+    throw wrapped;
+  }
+
   if (!data) throw new Error("Empty response from ai-chat");
   if (data.error) throw new Error(data.error);
   return data;
