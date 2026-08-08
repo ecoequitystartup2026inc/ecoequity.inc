@@ -13,7 +13,12 @@ const TABLE = "plant_scans";
 function scanColumns(scan, userId) {
   return {
     user_id: userId,
-    image: scan.image ?? null,
+    // The photo is deliberately NOT copied into the typed `image` column.
+    // `insertRecord` already stores the whole scan — photo included — in the
+    // `data` jsonb, and that jsonb is what `fetchOwnRecords` reads back. Since
+    // the scan now carries a real base64 thumbnail rather than the undefined it
+    // used to, writing it twice would double the size of every row for a column
+    // nothing reads.
     disease: scan.disease || "",
     confidence: scan.confidence != null ? String(scan.confidence) : null,
   };

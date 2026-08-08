@@ -30,6 +30,38 @@ const ANALYSIS_STEPS = [
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // the 10MB the upload area advertises
 
+// --- The copy of the photo that travels with the scan record ----------------
+// The on-screen preview is a `blob:` URL, which is only valid for this page in
+// this tab and is revoked the moment the user navigates away. The Admin Portal
+// reads the scan back later — from localStorage, or from Supabase on another
+// device entirely — so the record has to carry the pixels themselves.
+//
+// A raw 10MB upload cannot go in a JSON record, so the photo is redrawn on a
+// canvas capped at 720px and exported as a JPEG data URL: a few tens of KB,
+// still plenty to see a leaf lesion at review size.
+const SYNC_PHOTO_MAX_PX = 720;
+const SYNC_PHOTO_QUALITY = 0.72;
+
+const buildSyncPhoto = (file) => new Promise((resolve) => {
+  const url = URL.createObjectURL(file);
+  const img = new window.Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    try {
+      const scale = Math.min(1, SYNC_PHOTO_MAX_PX / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", SYNC_PHOTO_QUALITY));
+    } catch (error) {
+      resolve(null); // a photo the browser won't re-encode is not worth failing the scan over
+    }
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+  img.src = url;
+});
+
 // The scan result the page hands to the chat, so the AI Plant Doctor bot opens
 // already knowing what was just diagnosed and the user can keep asking about it.
 const buildChatHandoff = (result) => [
@@ -59,6 +91,10 @@ function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser, plantDiseas
   const fileInputRef = useRef(null);
   const progressTimerRef = useRef(null);
   const previewUrlRef = useRef(null); // the object URL behind <img src>, so it can be revoked
+  // Holds the *promise* of the downscaled photo, not the photo: the encode
+  // starts the moment a file is picked and the scan reads it five seconds
+  // later, so awaiting the promise removes the race entirely.
+  const syncPhotoRef = useRef(null);
 
   // Handle window resize for mobile detection
   useEffect(() => {
@@ -79,6 +115,10 @@ function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser, plantDiseas
       URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = null;
     }
+    // The photo belongs to the file that was just dropped; clearing or
+    // replacing that file must not leave the previous one attached to the
+    // next scan. handleFile re-arms it immediately after.
+    syncPhotoRef.current = null;
   };
 
 /**
@@ -148,6 +188,7 @@ function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser, plantDiseas
     clearInterval(progressTimerRef.current);
     releasePreview();
     previewUrlRef.current = URL.createObjectURL(file);
+    syncPhotoRef.current = buildSyncPhoto(file);
     setUploadError("");
     setSelectedImage(previewUrlRef.current);
     setDiagnosisResult(null);
@@ -199,17 +240,24 @@ function AIPlantDoctor({ setActiveNav, onScanComplete, loggedInUser, plantDiseas
     };
     setDiagnosisResult(result);
 
-    // Sync this scan to the Admin Portal's AI Plant Doctor records
+    // Sync this scan to the Admin Portal's AI Plant Doctor records, photo
+    // included — an admin reviewing a diagnosis needs to see the leaf the
+    // member actually uploaded, not just the label the model put on it.
+    // The record is built inside the .then so it always carries a settled
+    // photo; a photo that failed to encode simply arrives as null.
     if (onScanComplete) {
-      onScanComplete({
-        id: `SCN-${Math.floor(1000 + Math.random() * 9000)}`,
-        plant: result.plantName,
-        disease: entry.name,
-        confidence: result.confidence,
-        user: loggedInUser || "Website User",
-        status: entry.severity === "High" ? "Critical" : "Disease Detected",
-        date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
-        recommendation: recommendations[0],
+      Promise.resolve(syncPhotoRef.current).then((image) => {
+        onScanComplete({
+          id: `SCN-${Math.floor(1000 + Math.random() * 9000)}`,
+          plant: result.plantName,
+          disease: entry.name,
+          confidence: result.confidence,
+          user: loggedInUser || "Website User",
+          status: entry.severity === "High" ? "Critical" : "Disease Detected",
+          date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+          recommendation: recommendations[0],
+          image: image || null,
+        });
       });
     }
   }, [plantDiseases, onScanComplete, loggedInUser]);

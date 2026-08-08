@@ -1,0 +1,11 @@
+# Single-page-app fallback. Read by Netlify and Cloudflare Pages; harmless
+# elsewhere (it is just a file in the build output).
+#
+# The app now has real URLs — /shop, /about-us, /admin. Those paths exist only
+# in the browser: there is no /shop/index.html on disk, so a static host asked
+# for one returns 404. Every visitor arriving on a shared link, or pressing
+# reload anywhere except the home page, would see the host's 404 page.
+#
+# 200 (not 301) so the browser keeps the requested path in the address bar —
+# App.js reads it back to decide which page to open.
+/*  /index.html  200

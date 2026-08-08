@@ -23,7 +23,17 @@ jest.mock("./supabaseClient", () => {
   };
 });
 
+// Spread the real module rather than listing its exports by hand. Hand-listing
+// breaks every time auth.js grows a helper App.js calls at mount: the mock is
+// missing it, the call returns undefined, and all 17 tests below die on
+// "<name> is not a function" before rendering a single element. That has now
+// happened twice (arrivedFromRecoveryLink, then arrivedFromInviteLink).
+//
+// Only the network-touching functions are stubbed. The pure helpers — password
+// rules, email validation, the link-type sniffers that read window.location —
+// are safe to run for real in jsdom and behave correctly there.
 jest.mock("./data/auth", () => ({
+  ...jest.requireActual("./data/auth"),
   signIn: jest.fn(),
   signUp: jest.fn(),
   signOut: jest.fn(),
@@ -32,18 +42,19 @@ jest.mock("./data/auth", () => ({
   getCurrentUser: jest.fn(),
   getUserFromSession: jest.fn(),
   consumeAuthErrorFromUrl: jest.fn(),
-  // The password-reset helpers App.js imports. Without them the module mock is
-  // missing exports the component calls at mount, and every test here dies on
-  // "arrivedFromRecoveryLink is not a function" before rendering anything.
-  arrivedFromRecoveryLink: jest.fn(() => false),
   requestPasswordReset: jest.fn(),
   updatePassword: jest.fn(),
   verifyPassword: jest.fn(),
-  passwordProblem: jest.fn(() => null),
-  PASSWORD_MIN_LENGTH: 8,
+  saveProfilePic: jest.fn(),
 }));
 
 beforeEach(() => {
+  // The app now mirrors the current page into the address bar, and reads a
+  // deep link back out of it on mount. Jest gives the whole file one jsdom, so
+  // without this reset each test starts on whatever page the previous one
+  // navigated to — every test below assumes it begins on Home.
+  window.history.replaceState(null, "", "/");
+
   const auth = require("./data/auth");
   auth.onAuthChange.mockReturnValue({ unsubscribe: jest.fn() });
   auth.consumeAuthErrorFromUrl.mockReturnValue(null);
@@ -77,7 +88,7 @@ const clickNav = (name) => fireEvent.click(navButton(name));
 // twice on Home. The hero's CTA is the one that comes first in the DOM.
 const goToLearnMore = async () => {
   fireEvent.click(screen.getAllByRole("button", { name: /Learn More/i })[0]);
-  await screen.findByRole("button", { name: /Explore more/i }, { timeout: 3000 });
+  await screen.findByText(/Sustainable Development Goals/i, {}, { timeout: 3000 });
 };
 
 describe("App navigation", () => {
@@ -98,7 +109,8 @@ describe("App navigation", () => {
 
     clickNav("Product & Services");
 
-    expect(screen.getByText("What We Offer")).toBeInTheDocument();
+    // Code-split page — await the chunk before asserting on its content.
+    expect(await screen.findByText("What We Offer")).toBeInTheDocument();
     expect(screen.getByText(/EcoEquity offers a comprehensive suite of digital tools/)).toBeInTheDocument();
   });
 
@@ -115,7 +127,9 @@ describe("App navigation", () => {
 
     clickNav("Target Market");
 
-    expect(screen.getByText("Who We Serve")).toBeInTheDocument();
+    // findBy, not getBy: pages are code-split, so the module is fetched on
+    // first navigation and the content lands a tick later.
+    expect(await screen.findByText("Who We Serve")).toBeInTheDocument();
     expect(screen.getByText("Our Goal")).toBeInTheDocument();
   });
 
@@ -134,19 +148,22 @@ describe("App navigation", () => {
     ).not.toBeInTheDocument();
   });
 
-  // jsdom drops declarations it cannot resolve: a `background` shorthand
-  // holding a gradient, and — since the palette moved into CSS variables so
-  // Settings → Appearance can repaint it — anything whose value contains
-  // `var()`. Browsers keep both. What survives is the shadow (unvalidated) and
-  // the weight; the ramp's own colours are covered by theme.test.js.
+  // The navbar labels are plain text — see styles.linkBtn in App.js: "no pill,
+  // border or shadow. Active and hover read through weight and colour alone."
+  // So the active state is a weight step, 600 → 800, and nothing else. An
+  // earlier glowing-pill design is what the shadow assertion here used to
+  // check; asserting it again would re-pin a look that was deliberately dropped.
+  //
+  // Colour is not asserted: jsdom discards any declaration whose value contains
+  // `var()`, and the whole palette moved into CSS variables so Settings →
+  // Appearance can repaint it. theme.test.js covers the ramp itself.
   const expectActiveNavStyle = (button) => {
-    expect(button.getAttribute("style")).toContain(
-      "box-shadow: 0 8px 24px rgba(var(--eco-c7-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.3)"
-    );
-    expect(button).toHaveStyle({ fontWeight: 700 });
+    expect(button).toHaveStyle({ fontWeight: 800 });
+    // The chip really is gone, not merely unasserted.
+    expect(button).toHaveStyle({ boxShadow: "none", background: "transparent" });
   };
 
-  test("active navigation button has premium glowing active state for Home", async () => {
+  test("active navigation button reads as active through weight for Home", async () => {
     await renderApp();
 
     // Home is active by default.
@@ -154,11 +171,14 @@ describe("App navigation", () => {
   });
 
   test.each(["About Us", "Product & Services", "Target Market"])(
-    "active navigation button has premium glowing active state for %s",
+    "active navigation button reads as active through weight for %s",
     async (name) => {
       await renderApp();
 
       const button = navButton(name);
+      // Inactive first — otherwise a button hard-coded to 800 would pass.
+      expect(button).toHaveStyle({ fontWeight: 600 });
+
       fireEvent.click(button);
 
       expectActiveNavStyle(button);
@@ -187,23 +207,26 @@ describe("App navigation", () => {
     expect(screen.getByText(/Sustainable Development Goals/i)).toBeInTheDocument();
   });
 
-  test("renders Explore more button on Learn More and hides it on Target Market pages", async () => {
+  // The timeline used to sit behind an "Explore more" button on its own page;
+  // it now lives in the Problem Addressed band at the foot of Learn More, and
+  // nowhere else.
+  test("renders the Problem Addressed band on Learn More and nowhere else", async () => {
     await renderApp();
 
-    expect(screen.queryByRole("button", { name: /Explore more/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/How the dependency was/i)).not.toBeInTheDocument();
 
     await goToLearnMore();
-    expect(screen.getByRole("button", { name: /Explore more/i })).toBeInTheDocument();
+    expect(screen.getByText(/How the dependency was/i)).toBeInTheDocument();
+    expect(screen.getByText(/Where EcoEquity intervenes/i)).toBeInTheDocument();
 
     clickNav("Target Market");
-    expect(screen.queryByRole("button", { name: /Explore more/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/How the dependency was/i)).not.toBeInTheDocument();
   });
 
-  test("switches to Explore More page when Explore more button is clicked", async () => {
+  test("Learn More carries the full problem timeline", async () => {
     await renderApp();
 
     await goToLearnMore();
-    fireEvent.click(screen.getByRole("button", { name: /Explore more/i }));
 
     expect(screen.getByText("1980")).toBeInTheDocument();
     expect(screen.getByText(/SHIFT FROM SELF-SUFFICIENCY TO IMPORT DEPENDENCY/i)).toBeInTheDocument();
@@ -215,11 +238,10 @@ describe("App navigation", () => {
     expect(screen.getByText(/PANDEMIC & SUPPLY-CHAIN FRAGILITY/i)).toBeInTheDocument();
   });
 
-  test("renders timeline circles vertically on Explore More page", async () => {
+  test("renders timeline circles vertically in the Problem Addressed band", async () => {
     await renderApp();
 
     await goToLearnMore();
-    fireEvent.click(screen.getByRole("button", { name: /Explore more/i }));
 
     const timelineContainer = screen.getByTestId("timeline-container");
     expect(timelineContainer).toHaveStyle("flex-direction: column");
@@ -236,7 +258,8 @@ describe("App navigation", () => {
     const sustainabilityBtn = screen.getByRole("button", { name: "Sustainability App Market" });
     fireEvent.click(sustainabilityBtn);
 
-    expect(screen.getByText(/Sustainability App Market Sizing/i)).toBeInTheDocument();
+    // Code-split page — await the chunk before asserting on its content.
+    expect(await screen.findByText(/Sustainability App Market Sizing/i)).toBeInTheDocument();
     expect(screen.queryByText(/Grow Food\./)).not.toBeInTheDocument();
   });
 });
@@ -261,5 +284,63 @@ describe("Background styling and Chat button", () => {
     expect(wrapper).toHaveStyle("right: 28px");
     expect(wrapper).toHaveStyle("bottom: 48px");
     expect(wrapper).toHaveStyle("z-index: 2100");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// URL ↔ page. Before this the whole site lived at one URL: nothing could be
+// linked to, Back left the site, and a reload dropped you on the landing page.
+// ─────────────────────────────────────────────────────────────────────────────
+describe("addressable pages", () => {
+  test("navigating moves the address bar", async () => {
+    await renderApp();
+    expect(window.location.pathname).toBe("/");
+
+    clickNav("About Us");
+
+    await waitFor(() => expect(window.location.pathname).toBe("/about-us"));
+  });
+
+  test("each navigation is a Back step rather than replacing history", async () => {
+    await renderApp();
+
+    clickNav("About Us");
+    await waitFor(() => expect(window.location.pathname).toBe("/about-us"));
+    clickNav("Target Market");
+    await waitFor(() => expect(window.location.pathname).toBe("/target-market"));
+
+    // Back should return to About Us, not exit the site.
+    window.history.back();
+    await waitFor(() => expect(window.location.pathname).toBe("/about-us"));
+  });
+
+  test("a deep link lands on that page instead of Home", async () => {
+    window.history.replaceState(null, "", "/about-us");
+
+    render(<App />);
+
+    // The restored session lands on About Us, not the role's usual Home: the
+    // navbar marks it active, and the URL is left as the visitor typed it.
+    await waitFor(() => expect(navButton("About Us")).toHaveStyle({ fontWeight: 800 }));
+    expect(navButton("Home")).toHaveStyle({ fontWeight: 600 });
+    expect(window.location.pathname).toBe("/about-us");
+  });
+
+  test("a member deep-linking to the admin portal is sent to Home instead", async () => {
+    window.history.replaceState(null, "", "/admin");
+
+    render(<App />);
+
+    // Lands on Home — the navbar row appears and the URL is corrected.
+    await waitFor(() => expect(navButton("About Us")).toBeInTheDocument());
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+  });
+
+  test("an unknown path falls back to Home rather than a blank page", async () => {
+    window.history.replaceState(null, "", "/no-such-page");
+
+    render(<App />);
+
+    await waitFor(() => expect(navButton("About Us")).toBeInTheDocument());
   });
 });

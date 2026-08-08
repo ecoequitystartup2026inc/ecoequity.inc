@@ -1,3 +1,13 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow:
+
+# Staff and transactional routes: nothing for a crawler to index, and no reason
+# to advertise them. They are protected by the login gate regardless — this is
+# tidiness, not a security control.
+Disallow: /admin
+Disallow: /agent-inbox
+Disallow: /checkout
+
+# Replace the origin with the live domain, matching public/sitemap.xml.
+Sitemap: https://your-live-site.com/sitemap.xml

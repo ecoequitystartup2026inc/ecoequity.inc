@@ -215,6 +215,14 @@ const sdgItems = [
   },
 ];
 
+// The three platform answers the timeline closes on — each one is a programme
+// that already has its own page, so the wording here mirrors those.
+const problemAnswers = [
+  "Zero-setup local marketplace",
+  "24/7 AI Plant Doctor",
+  "Native & heirloom seed banking",
+];
+
 // Only pull a card open on keyboard focus — on touch the tap already toggles it.
 const isKeyboardFocus = (el) => {
   try {
@@ -226,7 +234,6 @@ const isKeyboardFocus = (el) => {
 
 function LearnMore({ setActiveNav }) {
   const [isHovered, setIsHovered] = useState(false);
-  const [exploreHovered, setExploreHovered] = useState(false);
   const [activeSdg, setActiveSdg] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [edges, setEdges] = useState({ atStart: true, atEnd: false });
@@ -584,6 +591,199 @@ function LearnMore({ setActiveNav }) {
             box-shadow: none;
           }
 
+          /* ── Problem Addressed band ─────────────────────────── */
+          /* Deliberately no backdrop-filter: the timeline's own panels and
+             nodes are already glass, and stacking another blurred layer behind
+             them costs the whole page frames for no visible gain. */
+          .lm-problem {
+            position: relative;
+            isolation: isolate;
+            width: 100%;
+            margin-top: 54px;
+            padding: 46px 34px 42px;
+            border-radius: 30px;
+            border: 1px solid rgba(var(--eco-c7-rgb), 0.16);
+            background:
+              radial-gradient(110% 78% at 50% 0%, rgba(var(--eco-c3-rgb), 0.5), transparent 62%),
+              linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.26));
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.8),
+              0 20px 48px rgba(var(--eco-c11-rgb), 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          @media (max-width: 767px) {
+            .lm-problem {
+              margin-top: 34px;
+              padding: 32px 16px 30px;
+              border-radius: 22px;
+            }
+          }
+          /* Seam: the hairline that hands the eye off from the SDG slider to
+             the timeline, with the section's own marker sitting on it. */
+          .lm-problem__seam {
+            position: absolute;
+            top: -1px;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            background: linear-gradient(
+              90deg,
+              rgba(var(--eco-c7-rgb), 0) 0%,
+              rgba(var(--eco-c7-rgb), 0.42) 50%,
+              rgba(var(--eco-c7-rgb), 0) 100%
+            );
+            pointer-events: none;
+          }
+          .lm-problem__seam::after {
+            content: "";
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            width: 7px;
+            height: 7px;
+            margin-left: -3.5px;
+            border-radius: 2px;
+            transform: rotate(45deg);
+            background: linear-gradient(135deg, var(--eco-c6), var(--eco-c7));
+            box-shadow: 0 0 0 4px rgba(var(--eco-c0-rgb), 0.9);
+          }
+
+          .lm-problem__eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            border-radius: 999px;
+            background: rgba(var(--eco-c6-rgb), 0.28);
+            border: 1px solid rgba(var(--eco-c7-rgb), 0.24);
+            color: var(--eco-c13);
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          }
+          .lm-problem__eyebrowDot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--eco-c7);
+          }
+
+          .lm-problem__title {
+            margin: 16px 0 0;
+            font-size: clamp(25px, 3.2vw, 38px);
+            font-weight: 300;
+            line-height: 1.14;
+            letter-spacing: -0.5px;
+            color: #000;
+          }
+          /* The page's usual pale-sage accent disappears against this band's
+             light fill, so the emphasised word takes the deep end of the ramp. */
+          .lm-problem__accent {
+            background: linear-gradient(90deg, var(--eco-c7), var(--eco-c11));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+          .lm-problem__lead {
+            margin: 12px 0 0;
+            max-width: 540px;
+            font-size: clamp(13px, 1.4vw, 15.5px);
+            font-weight: 400;
+            line-height: 1.62;
+            color: rgba(0,0,0,0.66);
+          }
+          @media (max-width: 767px) {
+            .lm-problem__lead { font-size: 12.5px; line-height: 1.5; }
+          }
+
+          /* Span label: names the stretch the timeline covers before the
+             years themselves appear. */
+          .lm-problem__span {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 26px 0 6px;
+            color: rgba(var(--eco-c11-rgb), 0.7);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+          }
+          .lm-problem__span::before,
+          .lm-problem__span::after {
+            content: "";
+            width: clamp(24px, 6vw, 56px);
+            height: 1px;
+            background: rgba(var(--eco-c7-rgb), 0.32);
+          }
+          @media (max-width: 767px) {
+            .lm-problem__span { margin: 20px 0 2px; font-size: 9px; letter-spacing: 1.2px; }
+          }
+
+          /* Closing strip: the timeline ends on the problem, so the section
+             closes by naming the three answers that live elsewhere on the site. */
+          .lm-problem__answers {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 24px;
+            width: 100%;
+            border-top: 1px solid rgba(var(--eco-c7-rgb), 0.16);
+          }
+          .lm-problem__answersLabel {
+            color: rgba(var(--eco-c11-rgb), 0.72);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+          }
+          .lm-problem__chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 9px;
+          }
+          .lm-problem__chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 999px;
+            border: 1px solid rgba(var(--eco-c7-rgb), 0.2);
+            background: rgba(255,255,255,0.6);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+            color: var(--eco-c13);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: -0.1px;
+          }
+          /* Wrapped chips of three different widths stagger badly on a phone,
+             so there they become a stacked list instead. */
+          @media (max-width: 767px) {
+            .lm-problem__chips {
+              flex-direction: column;
+              align-items: stretch;
+              width: 100%;
+              max-width: 320px;
+            }
+            .lm-problem__chip {
+              justify-content: flex-start;
+              padding: 9px 14px;
+              font-size: 11.5px;
+            }
+          }
+          .lm-problem__chipNum {
+            color: rgba(var(--eco-c11-rgb), 0.5);
+            font-size: 9.5px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+          }
+
           @media (prefers-reduced-motion: reduce) {
             .sdg-nav,
             .sdg-card,
@@ -624,22 +824,6 @@ function LearnMore({ setActiveNav }) {
       <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>
         Sustainable Development Goals Aligned with <span style={styles.accent}>EcoEquity</span>
       </h1>
-
-      {!isMobile && (
-        <button
-          type="button"
-          style={{
-            ...styles.exploreMoreBtn,
-            ...(exploreHovered ? styles.exploreMoreBtnHov : {}),
-          }}
-          onClick={() => setActiveNav && setActiveNav("Explore More")}
-          onMouseEnter={() => setExploreHovered(true)}
-          onMouseLeave={() => setExploreHovered(false)}
-        >
-          <span aria-hidden="true" style={styles.exploreMoreBtnInnerBlur} />
-          <span style={styles.exploreMoreBtnContent}>Explore more</span>
-        </button>
-      )}
 
       <p style={{ ...styles.body, ...(isMobile ? styles.bodyMobile : {}) }}>
         EcoEquity is a comprehensive platform built to transform agricultural practices and empower local communities. Find out more about our initiatives, our technology, and how you can get involved.
@@ -754,19 +938,44 @@ function LearnMore({ setActiveNav }) {
         ))}
       </div>
 
-      {isMobile && (
-        <div style={{ marginTop: '32px', width: '100%', paddingBottom: '32px' }}>
-          <h2 style={{ ...styles.titleMobile, fontSize: '24px', marginBottom: '8px' }}>
-            Problem <span style={styles.accent}>Addressed</span>
-          </h2>
-          <p style={{ ...styles.bodyMobile, marginBottom: '20px', padding: '0 16px', maxWidth: '100%' }}>
-            Four decades of policy and market shifts eroded Philippine food
-            self-sufficiency. Tap a year to reveal how the dependency was built.
-          </p>
+      <section className="lm-problem" aria-labelledby="lm-problem-title">
+        <span className="lm-problem__seam" aria-hidden="true" />
 
-          <ProblemTimeline isMobile />
+        <span className="lm-problem__eyebrow">
+          <span className="lm-problem__eyebrowDot" aria-hidden="true" />
+          <span>Problem Addressed</span>
+        </span>
+
+        <h2 id="lm-problem-title" className="lm-problem__title">
+          How the dependency was <span className="lm-problem__accent">built</span>
+        </h2>
+
+        <p className="lm-problem__lead">
+          Four decades of policy and market shifts eroded Philippine food
+          self-sufficiency. {isMobile ? "Tap" : "Select"} a year to see the
+          decision that moved the country further from feeding itself.
+        </p>
+
+        <span className="lm-problem__span" aria-hidden="true">
+          1980 — 2020 · Four decades
+        </span>
+
+        <ProblemTimeline isMobile={isMobile} maxWidth={isMobile ? 660 : 780} />
+
+        <div className="lm-problem__answers">
+          <span className="lm-problem__answersLabel">Where EcoEquity intervenes</span>
+          <div className="lm-problem__chips">
+            {problemAnswers.map((answer, i) => (
+              <span key={answer} className="lm-problem__chip">
+                <span className="lm-problem__chipNum" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {answer}
+              </span>
+            ))}
+          </div>
         </div>
-      )}
+      </section>
     </div>
   );
 }
@@ -913,49 +1122,6 @@ const styles = {
     width: "22px",
     background: "linear-gradient(90deg, var(--eco-c6), var(--eco-c5))",
     boxShadow: "0 0 10px rgba(var(--eco-c6-rgb), 0.6)",
-  },
-  exploreMoreBtn: {
-    position: "relative",
-    overflow: "hidden",
-    isolation: "isolate",
-    alignSelf: "center",
-    margin: "0 auto 18px",
-    padding: "11px 26px",
-    borderRadius: "999px",
-    background: "rgba(255,255,255,0.5)",
-    border: "1px solid rgba(0,0,0,0.05)",
-    color: "#000",
-    fontSize: "13px",
-    fontWeight: 600,
-    cursor: "pointer",
-    transform: "scale(1)",
-    transformOrigin: "center",
-    willChange: "transform",
-    fontFamily: "inherit",
-    letterSpacing: "0.2px",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05)",
-    transition: "transform 0.16s ease",
-    backdropFilter: "blur(18px) saturate(160%)",
-    WebkitBackdropFilter: "blur(18px) saturate(160%)",
-  },
-  exploreMoreBtnHov: {
-    transform: "scale(1.035)",
-  },
-  exploreMoreBtnInnerBlur: {
-    position: "absolute",
-    inset: "0",
-    zIndex: 0,
-    pointerEvents: "none",
-    borderRadius: "inherit",
-    background:
-      "radial-gradient(circle at 28% 18%, rgba(255,255,255,0.8), transparent 45%), " +
-      "linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2))",
-    backdropFilter: "blur(34px) saturate(185%)",
-    WebkitBackdropFilter: "blur(34px) saturate(185%)",
-  },
-  exploreMoreBtnContent: {
-    position: "relative",
-    zIndex: 1,
   },
   backBtn: {
     padding: "8px 16px",

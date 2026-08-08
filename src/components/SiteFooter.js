@@ -3,6 +3,7 @@ import Reveal, { RevealStyles } from "./Reveal";
 import { Mail, Phone, MapPin, Clock, ArrowRight, ArrowUp, Leaf, ShieldCheck, Sprout, Truck, MessageCircle, Send, Check, ChevronDown } from "lucide-react";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FaXTwitter, FaThreads } from "react-icons/fa6";
+import ComingSoonBanner from "./ComingSoonBanner";
 
 /* ── Site footer, closing the home page ──────────────────────────────────
    Unlike the landing sections above it this is NOT a glass container card:
@@ -364,8 +365,12 @@ function FooterFaqItem({ item, isOpen, onToggle }) {
 
 /* The support card — the one lit panel in an otherwise flat slab, so the eye
    lands on how to reach a human before it reaches the legal line. */
-function SupportCard({ isMobile, supportEmail, onNavigate }) {
+function SupportCard({ isMobile, supportEmail }) {
   const [linkHov, setLinkHov] = useState(false);
+  /* Advisor booking isn't live yet, so the CTA raises the shared Coming Soon
+     card instead of navigating to a page that can't take a booking. The banner
+     portals to document.body, so this card's overflow:hidden can't clip it. */
+  const [comingSoon, setComingSoon] = useState(false);
   const rows = [
     { Icon: Mail, label: supportEmail, href: `mailto:${supportEmail}` },
     { Icon: Phone, label: "0927-427-9760", href: "tel:+639274279760" },
@@ -393,7 +398,7 @@ function SupportCard({ isMobile, supportEmail, onNavigate }) {
           <ShieldCheck size={11} strokeWidth={2.6} /> Support
         </span>
         <span style={{ fontSize: isMobile ? "15px" : "16px", fontWeight: 800, color: CREAM, lineHeight: 1.3 }}>
-          A real person answers within 1–2 business days.
+          Talk to a real person — we reply within 1–2 business days.
         </span>
         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
           {rows.map(({ Icon, label, href }) => (
@@ -417,7 +422,7 @@ function SupportCard({ isMobile, supportEmail, onNavigate }) {
         </div>
         <button
           type="button"
-          onClick={() => onNavigate("ExpertSupportPage")}
+          onClick={() => setComingSoon(true)}
           onMouseEnter={() => setLinkHov(true)}
           onMouseLeave={() => setLinkHov(false)}
           style={{
@@ -433,6 +438,16 @@ function SupportCard({ isMobile, supportEmail, onNavigate }) {
           }} />
         </button>
       </div>
+      {comingSoon && (
+        <ComingSoonBanner
+          title="Talk to an Advisor — Coming Soon"
+          message="Our advisors aren't taking bookings through the site just yet. In the meantime, email or call us using the details above — a real person replies within 1–2 business days."
+          closeLabel="Close announcement"
+          /* Mounted on demand, so every exit has to clear the flag —
+             otherwise the card can't be reopened from the same visit. */
+          onDismiss={() => setComingSoon(false)}
+        />
+      )}
     </div>
   );
 }
@@ -600,7 +615,7 @@ export default function SiteFooter({
           </div>
         ))}
 
-        <SupportCard isMobile={isMobile} supportEmail={supportEmail} onNavigate={onNavigate} />
+        <SupportCard isMobile={isMobile} supportEmail={supportEmail} />
       </div>
 
       {/* ── FAQ ── moved here from the Get in Touch page. One row open at a

@@ -31,14 +31,14 @@ const LAST = timelineData.length - 1;
 
 /**
  * The "Problem Addressed" timeline: a horizontal row of year circles, with the
- * selected year's detail shown in the panel below. Rendered as the whole
- * Explore More page on desktop and inline inside Learn More on mobile, so the
- * two stay identical.
+ * selected year's detail shown in the panel below. Lives in the Problem
+ * Addressed band at the foot of Learn More — its own Explore More page was
+ * folded into that band, so `maxWidth` is how a host sizes the track.
  *
  * Built as a tablist — one year is always selected, and arrow keys move between
  * them, which is what the roving tabIndex below is for.
  */
-function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
+function ProblemTimeline({ isMobile = false, initialIndex = 0, maxWidth = 660 }) {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const nodeRefs = useRef([]);
 
@@ -64,7 +64,11 @@ function ProblemTimeline({ isMobile = false, initialIndex = 0 }) {
 
   return (
     <div
-      style={{ ...styles.timeline, ...(isMobile ? styles.timelineMobile : {}) }}
+      style={{
+        ...styles.timeline,
+        maxWidth: `${maxWidth}px`,
+        ...(isMobile ? styles.timelineMobile : {}),
+      }}
       data-testid="timeline-container"
     >
       <style>
@@ -307,7 +311,6 @@ const styles = {
     alignSelf: "center",
     marginTop: "12px",
     width: "100%",
-    maxWidth: "660px",
   },
   timelineMobile: {
     marginTop: "4px",

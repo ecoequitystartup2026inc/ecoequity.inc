@@ -3,7 +3,76 @@ import ReactDOM from "react-dom";
 import { Check, X, Sparkles, Smartphone } from "lucide-react";
 import { MODAL_LAYER, modalOverlay } from "./styles/modal";
 import { askAI, scanPlantImage, isLiveAIAvailable } from "./data/aiChat";
+import {
+  isLiveChatAvailable, openLiveChat, sendLiveMessage,
+  fetchTicketMessages, subscribeToTicket,
+  fetchMyLiveChat, setLiveStatus, ackHandover,
+} from "./data/liveChat";
 import { startSubscription } from "./data/checkout";
+
+// ============================================================================
+// What the member is told about their live conversation.
+//
+// Two separate facts, deliberately not merged into one line: whether an AGENT
+// is at their desk, and where the CONVERSATION is in its lifecycle. A member
+// whose agent has gone offline mid-chat is in a different situation from one
+// whose request nobody has picked up, and a single blended status word — the
+// tempting simplification — cannot tell them apart.
+// ============================================================================
+
+/**
+ * The agent's presence, as a dot and a word.
+ *
+ * `online` is the heartbeat, `status` is what they last clicked. An agent who
+ * shut their laptop still claims 'available', so presence is the AND of the
+ * two — see my_live_chat() in supabase/live-agent-flow.sql. Claiming somebody
+ * is online when they are not is the one lie this panel must never tell.
+ */
+function agentPresence(info) {
+  if (!info?.agentName) return { label: "Not assigned yet", dot: "rgba(0,0,0,0.25)" };
+  if (!info.agentOnline) return { label: "Offline", dot: "rgba(0,0,0,0.25)" };
+  switch (info.agentStatus) {
+    case "busy":  return { label: "Busy", dot: "#f59e0b" };
+    case "away":  return { label: "Away", dot: "#f59e0b" };
+    default:      return { label: "Online", dot: "#22c55e" };
+  }
+}
+
+/**
+ * The conversation's own state, in a sentence the member can act on.
+ *
+ * Every one of these says what happens next, because a status word on its own
+ * ("Pending") answers a question nobody asked. What they want to know is
+ * whether anyone is coming.
+ */
+function conversationStatusLine(info) {
+  if (!info) return null;
+  const agent = info.agentName || "an agent";
+  switch (info.liveStatus) {
+    case "pending":
+      return { tone: "wait", text: "Your request is waiting for a human agent. We'll connect you as soon as someone is free." };
+    case "accepted":
+      return { tone: "good", text: `You're now connected with ${agent}. You can continue your conversation below.` };
+    case "active":
+      return { tone: "good", text: `You're chatting with ${agent}.` };
+    case "reassigned":
+      return { tone: "info", text: `Your conversation has been reassigned to ${agent}, who will continue assisting you.` };
+    case "closed":
+      return { tone: "muted", text: "This conversation has been closed. You can reopen it any time if you need more help." };
+    case "rejected":
+      return { tone: "bad", text: "We couldn't connect you with a human agent this time. You can send the request again whenever you're ready." };
+    default:
+      return null;
+  }
+}
+
+const STATUS_TONES = {
+  good:  { bg: "rgba(34,197,94,0.12)",  fg: "#15803d" },
+  wait:  { bg: "rgba(245,158,11,0.14)", fg: "#92400e" },
+  info:  { bg: "rgba(2,132,199,0.12)",  fg: "#0369a1" },
+  muted: { bg: "rgba(0,0,0,0.06)",      fg: "rgba(0,0,0,0.55)" },
+  bad:   { bg: "rgba(220,38,38,0.1)",   fg: "#b91c1c" },
+};
 
 // Core keywords for auto-correction logic
 const CORE_KEYWORDS = [
@@ -346,6 +415,27 @@ function AIChatInterface({
   const [conversationStep, setConversationStep] = useState('initial'); // 'initial', 'awaitingName', 'awaitingContactAndConcern'
   // State for human support escalation
   const [isLiveAgentChat, setIsLiveAgentChat] = useState(false); // To indicate if a live agent is active
+  // The support ticket this conversation is being written to: { id, ref }, or
+  // null when no live chat is open. `id` is the database uuid every call in
+  // data/liveChat needs; `ref` is the TKT-123456 the member is told to quote.
+  const [liveTicket, setLiveTicket] = useState(null);
+  // True only while the ticket is being created, so a second click cannot open
+  // a second ticket for the same conversation.
+  const [liveConnecting, setLiveConnecting] = useState(false);
+  // Ids of messages already on screen. Our own subscription hears our own
+  // inserts come back, so without this every message the member sends appears
+  // twice — once optimistically, once from the database.
+  const seenLiveIds = useRef(new Set());
+  // The member's most recent live conversation as the database sees it: who is
+  // on it, who was on it before, whether they are at their desk, and where it
+  // is in its lifecycle. Refreshed on a timer while the chat is open, because
+  // an agent going offline is not something that arrives as a message.
+  const [liveInfo, setLiveInfo] = useState(null);
+  // Shown when they have a conversation they have not resumed yet. Separate
+  // from `liveInfo` because dismissing the offer must not lose the facts — the
+  // header still needs them the moment they do continue.
+  const [showResumePrompt, setShowResumePrompt] = useState(false);
+  const [resumeBusy, setResumeBusy] = useState(false);
   const [showProModal, setShowProModal] = useState(false); // State for Upgrade to Pro modal
       const [activePlan, setActivePlan] = useState('Basic'); // Track the user's active plan
   const [billingCycle, setBillingCycle] = useState('Monthly'); // State for billing cycle in Pro modal
@@ -730,31 +820,201 @@ function AIChatInterface({
     }
   };
 
-  const handleHumanAgentToggle = () => {
+  // Opens a real support ticket and puts the panel into live mode. Shared by
+  // the Human agent switch and the keyword bot's escalation path — two doors
+  // into the same conversation must not mean two different behaviours, and the
+  // escalation path used to open a chat that only LOOKED live.
+  //
+  // Returns { ok, text }: the caller decides how to render the line, because
+  // one arrives as a toggle side effect and the other as a bot reply.
+  const startLiveChat = async ({ subject, firstMessage, history } = {}) => {
+    const availability = await isLiveChatAvailable();
+    if (!availability.ok) {
+      return {
+        ok: false,
+        text: availability.reason === "signed-out"
+          // Not a technicality: without an account there is no address for the
+          // team to answer, so this would be a conversation that can only
+          // dead-end. Say what to do about it rather than just refusing.
+          ? "To put you through to a person I need to know who you are — please sign in or create an account, then flip the Human agent switch again. That way the team can reply to you here and by email."
+          : "I can't reach the support desk from here right now. Please use the support form and someone will get back to you by email.",
+      };
+    }
+
+    try {
+      // The bot conversation so far travels with the ticket. See openLiveChat:
+      // it lands on the ticket, not in the thread, because the agent was not
+      // there for it.
+      const opened = await openLiveChat({ subject, history });
+      if (!opened) {
+        return { ok: false, text: "I couldn't open a support chat just now. Please try again in a moment, or use the support form." };
+      }
+
+      seenLiveIds.current = new Set();
+      // Sent before the panel flips, so the first thing the admin sees is what
+      // the member actually wants rather than an empty ticket.
+      if (firstMessage) {
+        const sent = await sendLiveMessage(opened.id, firstMessage);
+        if (sent) seenLiveIds.current.add(sent.id);
+      }
+
+      setLiveTicket({ id: opened.id, ref: opened.ref });
+      setIsLiveAgentChat(true);
+      setConversationStep('liveAgentActive');
+
+      return {
+        ok: true,
+        // Deliberately NOT "you are now connected with a specialist". Nobody is
+        // connected until a person answers, and promising a human who may be
+        // asleep is how a support chat loses someone's trust in one sentence.
+        text: `You're through to the EcoEquity support desk — your reference is ${opened.ref}. Type your question here and a specialist will answer in this window. If the team is away, we'll pick it up and reply by email, so nothing gets lost.`,
+      };
+    } catch (err) {
+      console.error("Could not open a live chat:", err);
+      return { ok: false, text: "Something went wrong opening the support chat. Please try again, or use the support form and we'll reply by email." };
+    }
+  };
+
+  // Pull the thread onto the screen as history. The subscription effect below
+  // renders only agent messages — on a live chat the member's own are already
+  // there from the moment they pressed send — but a conversation being RESUMED
+  // has nothing on screen at all, so both sides have to be drawn here.
+  //
+  // Every id goes into seenLiveIds on the way past, so when the effect does its
+  // own backfill a moment later it finds them all already accounted for and
+  // draws nothing twice.
+  const loadConversationHistory = async (ticketId) => {
+    const rows = await fetchTicketMessages(ticketId);
+    if (!rows) return;
+    seenLiveIds.current = new Set(rows.map((row) => row.id));
+    setMessages(rows.map((row) => ({
+      id: row.id,
+      text: row.text,
+      sender: row.sender === "agent" ? "agent" : "user",
+    })));
+  };
+
+  // "Continue where you left off." Puts the panel back into live mode on the
+  // conversation that already exists, rather than opening a second one.
+  const handleContinueConversation = async () => {
+    if (!liveInfo || resumeBusy) return;
+    setResumeBusy(true);
+    try {
+      // A conversation they closed — or that we declined — comes back as a
+      // fresh request rather than silently resuming: the agent who was on it
+      // has long since moved on, and resuming into an empty room is the exact
+      // silence this feature exists to prevent.
+      if (liveInfo.liveStatus === "closed" || liveInfo.liveStatus === "rejected") {
+        await setLiveStatus(liveInfo.id, "pending");
+      } else if (liveInfo.liveStatus === "reassigned") {
+        // They are about to see the "your agent has changed" banner in context,
+        // which is the acknowledgement. Stop it announcing itself tomorrow.
+        await ackHandover(liveInfo.id);
+      }
+
+      await loadConversationHistory(liveInfo.id);
+      setLiveTicket({ id: liveInfo.id, ref: liveInfo.ref });
+      setIsLiveAgentChat(true);
+      setConversationStep('liveAgentActive');
+      setShowResumePrompt(false);
+      refreshLiveInfo();
+    } catch (err) {
+      console.error("Could not reopen the live chat:", err);
+      setMessages((prev) => [...prev, {
+        id: Date.now(),
+        text: "I couldn't reopen that conversation just now. Please try again in a moment.",
+        sender: "ai",
+      }]);
+      setShowResumePrompt(false);
+    } finally {
+      setResumeBusy(false);
+    }
+  };
+
+  // "Start a new request." Closes the old conversation first, so the member
+  // does not end up with two open chats and the admin with two rows for one
+  // person — and so the transcript of the old one is kept rather than lost.
+  const handleStartNewRequest = async () => {
+    if (resumeBusy) return;
+    setResumeBusy(true);
+    try {
+      if (liveInfo && liveInfo.liveStatus !== "closed" && liveInfo.liveStatus !== "rejected") {
+        await setLiveStatus(liveInfo.id, "closed").catch(() => {});
+      }
+      setShowResumePrompt(false);
+      setMessages([]);
+      seenLiveIds.current = new Set();
+
+      const lastAsked = [...messages].reverse().find((m) => m.sender === "user" && m.text);
+      const result = await startLiveChat({ subject: lastAsked?.text, history: messages });
+      setMessages([{ id: Date.now(), text: result.text, sender: result.ok ? "agent" : "ai" }]);
+      refreshLiveInfo();
+    } finally {
+      setResumeBusy(false);
+    }
+  };
+
+  const handleHumanAgentToggle = async () => {
     if (isLiveAgentChat) {
+      // Clearing the ticket tears down the subscription (see the effect below).
+      // The ticket itself stays open in the Admin Portal: the member closing
+      // the panel is not the member's problem being solved.
       setIsLiveAgentChat(false);
+      setLiveTicket(null);
       setConversationStep('initial');
       setMessages((prevMessages) => [
         ...prevMessages,
         {
           id: Date.now(),
-          text: "Live agent connection ended. You are back with the AI assistant.",
+          text: "Live chat closed — you're back with the AI assistant. Your conversation is saved: flip this switch again to pick it up where you left off, and any reply from the team will still reach you by email.",
           sender: "ai",
         },
       ]);
       return;
     }
 
-    setIsLiveAgentChat(true);
-    setConversationStep('liveAgentActive');
+    if (liveConnecting) return;
+    setLiveConnecting(true);
+
+    // Turning the switch back on resumes rather than starting again. Without
+    // this, someone who closed the chat and changed their mind would open a
+    // SECOND ticket — the admin gets two rows for one person, the agent
+    // answers the one nobody is reading, and the history the member came back
+    // for is sitting in the other.
+    const existing = await fetchMyLiveChat().catch(() => null);
+    const resumable = existing
+      && existing.messageCount > 0
+      && existing.liveStatus !== "closed"
+      && existing.liveStatus !== "rejected";
+
+    if (resumable) {
+      setLiveInfo(existing);
+      try {
+        if (existing.liveStatus === "reassigned") await ackHandover(existing.id);
+        await loadConversationHistory(existing.id);
+        setLiveTicket({ id: existing.id, ref: existing.ref });
+        setIsLiveAgentChat(true);
+        setConversationStep('liveAgentActive');
+        setShowResumePrompt(false);
+        setLiveConnecting(false);
+        return;
+      } catch (err) {
+        // Fall through and open a fresh one rather than stranding them: a
+        // conversation they cannot reach is worse than a duplicate row.
+        console.error("Could not resume the live chat:", err);
+      }
+    }
+
+    // Whatever they last asked the bot becomes the ticket subject, so the admin
+    // opens it already knowing what it is about.
+    const lastAsked = [...messages].reverse().find((m) => m.sender === "user" && m.text);
+    const result = await startLiveChat({ subject: lastAsked?.text, history: messages });
+
+    setLiveConnecting(false);
+    refreshLiveInfo();
     setMessages((prevMessages) => [
       ...prevMessages,
-      {
-        id: Date.now(),
-        text:
-          "You are now connected with a human agriculture specialist. Please type your concern, photos/details you can describe, and your preferred contact information.",
-        sender: "agent",
-      },
+      { id: Date.now(), text: result.text, sender: result.ok ? "agent" : "ai" },
     ]);
   };
 
@@ -779,6 +1039,88 @@ function AIChatInterface({
     isLiveAIAvailable().then((ok) => { if (!cancelled) setLiveAI(ok); });
     return () => { cancelled = true; };
   }, [loggedInUser]);
+
+  // Listen to the open ticket's thread. Every message the database has, the
+  // member gets — but only the agent's are drawn, because their own are already
+  // on screen from the moment they pressed send.
+  useEffect(() => {
+    if (!liveTicket) return undefined;
+    let cancelled = false;
+
+    const absorb = (msg) => {
+      if (seenLiveIds.current.has(msg.id)) return;
+      seenLiveIds.current.add(msg.id);
+      if (msg.sender !== "agent") return;
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { id: msg.id, text: msg.text, sender: "agent" },
+      ]);
+    };
+
+    const unsubscribe = subscribeToTicket(liveTicket.id, (msg) => {
+      if (cancelled) return;
+      absorb(msg);
+      // An agent speaking is the one moment the header is most likely to be
+      // stale — it is usually the assignment itself, or a handover. Re-read
+      // rather than waiting up to 30s for the timer to notice.
+      if (msg.sender === "agent") refreshLiveInfo();
+    });
+
+    // Realtime delivers what happens while you are listening, not what already
+    // happened — so anything said between the ticket opening and the socket
+    // coming up is only ever found by reading it. Same call covers a reply that
+    // landed during a dropped connection.
+    fetchTicketMessages(liveTicket.id)
+      .then((rows) => { if (!cancelled) (rows || []).forEach(absorb); })
+      .catch((err) => console.warn("Could not load the live chat history:", err));
+
+    return () => { cancelled = true; unsubscribe(); };
+  }, [liveTicket]);
+
+  // Who is on this conversation, and are they at their desk. One call, and the
+  // only one that can answer it — a member cannot read an agent's profile row,
+  // so my_live_chat() is the sole route from agent_id to a name.
+  const refreshLiveInfo = async () => {
+    try {
+      const info = await fetchMyLiveChat();
+      setLiveInfo(info);
+      return info;
+    } catch (err) {
+      console.warn("Could not read the live chat state:", err);
+      return null;
+    }
+  };
+
+  // On open: do they already have a conversation? This is what makes the panel
+  // survive a closed tab. Nothing is resumed automatically — an old chat
+  // reopening itself under someone who came back for something else is worse
+  // than one extra click.
+  useEffect(() => {
+    let cancelled = false;
+    fetchMyLiveChat()
+      .then((info) => {
+        if (cancelled || !info) return;
+        setLiveInfo(info);
+        // An empty conversation is not worth offering back. It means they
+        // flipped the switch, said nothing, and left — there is no "where you
+        // left off" to return to.
+        if (info.messageCount > 0) setShowResumePrompt(true);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [loggedInUser]);
+
+  // While the chat is open, keep the agent's presence honest. An agent going
+  // offline, or being swapped for another, produces no message on the member's
+  // socket — the header would otherwise keep showing a green dot beside
+  // somebody who shut their laptop twenty minutes ago.
+  useEffect(() => {
+    if (!isLiveAgentChat || !liveTicket) return undefined;
+    refreshLiveInfo();
+    const timer = setInterval(refreshLiveInfo, 30000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLiveAgentChat, liveTicket]);
 
   // The lock belongs to an account, so re-read it whenever the account changes,
   // and lift it on a timer at the reset. Without the timer a user who leaves
@@ -842,6 +1184,41 @@ function AIChatInterface({
         textareaRef.current.style.height = "auto";
       }
 
+      // A live chat is not a request/response loop. The message goes to the
+      // ticket, and a reply arrives over the subscription or not at all —
+      // nothing is invented in the gap, and the typing dots stay off because
+      // they would be a claim about a person who may not be at their desk.
+      if (isLiveAgentChat) {
+        if (!liveTicket) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { id: Date.now(), text: "That message didn't reach the support desk — the chat isn't connected. Turn the Human agent switch off and on again to reopen it.", sender: "ai" },
+          ]);
+          return;
+        }
+        if (selectedImage) {
+          // Photos need a storage bucket the live path does not have yet.
+          // Saying so beats a silent drop, or a fake "I can see it".
+          setSelectedImage(null);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { id: Date.now(), text: "Photos can't go to a live agent yet — describe what you're seeing and they'll ask for anything else they need. (The AI Plant Doctor can look at photos.)", sender: "ai" },
+          ]);
+        }
+        if (!correctedText) return;
+        try {
+          const sent = await sendLiveMessage(liveTicket.id, correctedText);
+          if (sent) seenLiveIds.current.add(sent.id);
+        } catch (err) {
+          console.error("Could not send the live chat message:", err);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { id: Date.now(), text: "That message didn't send. Check your connection and try again — nothing was lost from what you typed above.", sender: "ai" },
+          ]);
+        }
+        return;
+      }
+
       setIsTyping(true);
 
       let aiResponseObject = { text: "", nextStep: 'initial' };
@@ -859,10 +1236,7 @@ function AIChatInterface({
         setMessages((prevMessages) => [...prevMessages, imageMessage]);
         setSelectedImage(null); // Clear selected image after sending
 
-        if (isLiveAgentChat) {
-          aiResponseObject.text = "Live Agent: Thanks for the photo — I can see it. Let me take a closer look and get back to you.";
-          aiResponseObject.nextStep = 'liveAgentActive';
-        } else if (currentBot === 'plantDoctor') {
+        if (currentBot === 'plantDoctor') {
           // Ask the real vision model to look at the photo. If that is
           // unavailable — signed out, quota spent, key missing — fall back to
           // the admin-curated Disease Library so a scan still returns
@@ -915,23 +1289,23 @@ function AIChatInterface({
           aiResponseObject.nextStep = 'initial';
         }
       } else {
-        if (isLiveAgentChat) {
-          // If already in live agent chat, just simulate agent receiving message
-          aiResponseObject.text = `Live Agent: Thank you for your message. I'm reviewing your query now.`;
-          aiResponseObject.nextStep = 'liveAgentActive'; // Stay in live agent mode
-        } else if (conversationStep === 'awaitingContactAndConcern') {
+        if (conversationStep === 'awaitingContactAndConcern') {
           // Assuming user provides name, contact, and concern in one message
           const fullDetails = correctedText;
           // A very basic attempt to extract name and contact for a more personalized message
           const nameMatch = fullDetails.match(/(my name is|i am)\s+([a-zA-Z\s]+?)(?:,|\.|$)/i);
           const extractedName = nameMatch && nameMatch[2] ? nameMatch[2].trim() : 'valued customer';
 
-          setIsLiveAgentChat(true); // Activate live agent mode
+          // The same real hand-off as the Human agent switch. What they just
+          // typed becomes both the ticket subject and its first message, so the
+          // details they were asked for are not collected and then thrown away.
+          const handoff = await startLiveChat({ subject: fullDetails, firstMessage: fullDetails, history: messages });
 
-          aiResponseObject.text = `Thank you, ${extractedName}! We have your details and are now connecting you. Please wait a moment.
-          \n\n**You are now connected with a Live Support Agent.**
-          \nLive Agent: Hello ${extractedName}, I've received your request regarding "${fullDetails}". How can I further assist you?`;
-          aiResponseObject.nextStep = 'liveAgentActive'; // Set a new step for active live agent chat
+          aiResponseObject.text = handoff.ok
+            ? `Thank you, ${extractedName}! ${handoff.text}`
+            : handoff.text;
+          aiResponseObject.nextStep = handoff.ok ? 'liveAgentActive' : 'initial';
+          aiResponseObject.asAgent = handoff.ok;
 
           // Clear the input field after sending details to agent
           setInput("");
@@ -961,8 +1335,18 @@ function AIChatInterface({
                 aiResponseObject = { text: err.message, nextStep: 'initial' };
                 responseDelay = 300;
                 quotaError = err;
+              } else if (err.providerLimited) {
+                // Shared allowance, not this user's. Say it, then let the
+                // keyword bot carry on — no composer lock, since the quota is
+                // site-wide and may come back before the user's next message.
+                aiResponseObject = { text: err.message, nextStep: 'initial' };
+                responseDelay = 300;
               } else {
-                console.warn("Live AI unavailable, using the offline bot:", err);
+                console.warn(
+                  "Live AI unavailable, using the offline bot:",
+                  err.detail || err.message,
+                  err,
+                );
               }
             }
           }
@@ -973,7 +1357,10 @@ function AIChatInterface({
         const aiResponse = {
           id: Date.now() + 1,
           text: aiResponseObject.text,
-          sender: isLiveAgentChat ? "agent" : "ai", // Differentiate AI from simulated agent
+          // `asAgent` rather than isLiveAgentChat: the hand-off above sets that
+          // state in this same tick, so the closure here still reads the old
+          // false and would draw the welcome as an AI bubble.
+          sender: aiResponseObject.asAgent ? "agent" : "ai",
         };
         // If an image was sent, the AI's response should follow the image message.
         // If only text was sent, the AI's response follows the text message.
@@ -1130,9 +1517,11 @@ function AIChatInterface({
             <button
               type="button"
               onClick={handleHumanAgentToggle}
+              disabled={liveConnecting}
               style={{
                 ...aiChatStyles.agentSwitch,
                 ...(isLiveAgentChat ? aiChatStyles.agentSwitchActive : {}),
+                ...(liveConnecting ? { opacity: 0.6, cursor: "wait" } : {}),
               }}
               aria-pressed={isLiveAgentChat}
             >
@@ -1149,7 +1538,7 @@ function AIChatInterface({
                   }}
                 />
               </span>
-              Human agent
+              {liveConnecting ? "Connecting…" : "Human agent"}
             </button>
 
             {activePlan === 'Basic' ? (
@@ -1175,7 +1564,111 @@ function AIChatInterface({
             )}
           </div>
         </div>
+        {/* -------------------------------------------------------------
+            Who you are talking to.
+
+            Pinned under the header rather than posted into the thread: an
+            agent's presence changes while you are typing, and a message that
+            said "Online" ten minutes ago is a claim the panel can no longer
+            stand behind. A strip can be corrected; a bubble cannot.
+            ------------------------------------------------------------- */}
+        {isLiveAgentChat && liveInfo && (
+          <div style={aiChatStyles.agentStrip}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", flexShrink: 0, background: agentPresence(liveInfo).dot }} />
+                  <span style={{ fontSize: "13px", fontWeight: 800, color: "var(--eco-c19)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {liveInfo.agentName || "Waiting for an agent"}
+                  </span>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)" }}>
+                    {agentPresence(liveInfo).label}
+                  </span>
+                </div>
+                {/* Only once there is a change to describe. On a first
+                    assignment "previous agent: none" is noise. */}
+                {liveInfo.previousAgentName && liveInfo.previousAgentName !== liveInfo.agentName && (
+                  <div style={{ fontSize: "10.5px", fontWeight: 700, color: "rgba(0,0,0,0.42)", marginTop: "2px" }}>
+                    Previously: {liveInfo.previousAgentName}
+                  </div>
+                )}
+              </div>
+              {liveInfo.ref && (
+                <span style={{ fontSize: "10px", fontWeight: 800, color: "rgba(0,0,0,0.35)", flexShrink: 0 }}>{liveInfo.ref}</span>
+              )}
+            </div>
+            {conversationStatusLine(liveInfo) && (
+              <div style={{
+                marginTop: "8px", padding: "7px 10px", borderRadius: "10px",
+                fontSize: "11.5px", fontWeight: 700, lineHeight: 1.4,
+                background: STATUS_TONES[conversationStatusLine(liveInfo).tone].bg,
+                color: STATUS_TONES[conversationStatusLine(liveInfo).tone].fg,
+              }}>
+                {conversationStatusLine(liveInfo).text}
+              </div>
+            )}
+          </div>
+        )}
+
         <div style={aiChatStyles.messagesContainer} className="slim-scroll">
+          {/* -------------------------------------------------------------
+              Welcome back.
+
+              Offered, never taken automatically. Someone who opens the panel
+              to ask the AI a quick question should not find themselves back
+              inside last week's support conversation — but someone who came
+              back FOR that conversation should reach it in one tap.
+              ------------------------------------------------------------- */}
+          {showResumePrompt && !isLiveAgentChat && liveInfo && (
+            <div style={aiChatStyles.resumeCard}>
+              {liveInfo.previousAgentName && liveInfo.previousAgentName !== liveInfo.agentName ? (
+                <>
+                  <div style={aiChatStyles.resumeTitle}>👋 Your agent has changed.</div>
+                  <div style={aiChatStyles.resumeBody}>
+                    Your previous agent was {liveInfo.previousAgentName}. Your conversation is now
+                    with {liveInfo.agentName || "another agent"}, who will continue assisting you.
+                  </div>
+                </>
+              ) : liveInfo.liveStatus === "closed" || liveInfo.liveStatus === "rejected" ? (
+                <>
+                  <div style={aiChatStyles.resumeTitle}>💬 Welcome back!</div>
+                  <div style={aiChatStyles.resumeBody}>
+                    Your last conversation{liveInfo.agentName ? ` with ${liveInfo.agentName}` : ""} was closed.
+                    You can reopen it and pick up where you left off.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={aiChatStyles.resumeTitle}>💬 Welcome back!</div>
+                  <div style={aiChatStyles.resumeBody}>
+                    You have an existing conversation
+                    {liveInfo.agentName ? ` with ${liveInfo.agentName}, your support agent` : " with our support team"}.
+                    Would you like to continue where you left off?
+                  </div>
+                </>
+              )}
+
+              <div style={{ display: "flex", gap: "8px", marginTop: "12px", flexWrap: "wrap" }}>
+                <button
+                  onClick={handleContinueConversation}
+                  disabled={resumeBusy}
+                  style={{ ...aiChatStyles.resumePrimaryBtn, ...(resumeBusy ? { opacity: 0.6, cursor: "wait" } : {}) }}
+                >
+                  {resumeBusy ? "Opening…" : "Continue Conversation"}
+                </button>
+                <button
+                  onClick={handleStartNewRequest}
+                  disabled={resumeBusy}
+                  style={{ ...aiChatStyles.resumeSecondaryBtn, ...(resumeBusy ? { opacity: 0.6, cursor: "wait" } : {}) }}
+                >
+                  Start New Request
+                </button>
+              </div>
+              <button onClick={() => setShowResumePrompt(false)} style={aiChatStyles.resumeDismissBtn}>
+                Not now
+              </button>
+            </div>
+          )}
           {messages.length === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto', gap: '20px' }}>
               <p style={aiChatStyles.welcomeMessage}>
@@ -1841,6 +2334,73 @@ const aiChatStyles = {
     alignItems: "center",
     justifyContent: "center",
     transition: "background 0.2s",
+  },
+  // Sits between the header and the thread, outside the scroll area on
+  // purpose: who you are talking to must not scroll away mid-conversation.
+  agentStrip: {
+    padding: "10px 14px",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
+    background: "rgba(255,255,255,0.55)",
+    flexShrink: 0,
+  },
+  resumeCard: {
+    padding: "14px",
+    borderRadius: "16px",
+    border: "1px solid rgba(var(--eco-c9-rgb), 0.25)",
+    background: "rgba(var(--eco-c9-rgb), 0.07)",
+    marginBottom: "12px",
+  },
+  resumeTitle: {
+    fontSize: "13px",
+    fontWeight: 850,
+    color: "var(--eco-c19)",
+    marginBottom: "5px",
+  },
+  resumeBody: {
+    fontSize: "12px",
+    fontWeight: 650,
+    lineHeight: 1.5,
+    color: "rgba(0,0,0,0.62)",
+  },
+  resumePrimaryBtn: {
+    flex: 1,
+    minWidth: "140px",
+    padding: "9px 12px",
+    borderRadius: "11px",
+    border: "none",
+    background: "var(--eco-c9)",
+    color: "#fff",
+    fontSize: "12px",
+    fontWeight: 800,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+  resumeSecondaryBtn: {
+    flex: 1,
+    minWidth: "120px",
+    padding: "9px 12px",
+    borderRadius: "11px",
+    border: "1px solid rgba(0,0,0,0.1)",
+    background: "rgba(255,255,255,0.85)",
+    color: "var(--eco-c19)",
+    fontSize: "12px",
+    fontWeight: 800,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+  // Deliberately quiet. Dismissing is always available but never the thing the
+  // eye lands on — the two real choices are the ones above it.
+  resumeDismissBtn: {
+    marginTop: "8px",
+    padding: 0,
+    border: "none",
+    background: "none",
+    color: "rgba(0,0,0,0.4)",
+    fontSize: "11px",
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "inherit",
+    textDecoration: "underline",
   },
   messagesContainer: {
     flexGrow: 1,

@@ -24,6 +24,14 @@ data. Wire entities over one at a time.
 | `supabase/functions/ai-chat/knowledge.ts` | **What the bot knows** about EcoEquity. Edit this to change its answers. |
 | `supabase/ai-chat-usage.sql` | The daily quota counter that caps AI spend. |
 | `src/data/aiChat.js` | Calls the `ai-chat` function; throws so the chat can fall back. |
+| `supabase/functions/notify/` | Server-side: sends the email/SMS behind Account Settings → Notifications. |
+| `supabase/notifications.sql` | The channel switches on `profiles` + the delivery log. |
+| `src/data/notifications.js` | Reads/writes the switches; calls the `notify` function. **Message wording lives here.** |
+| `supabase/live-chat.sql` | The live-chat thread table + Realtime, behind the AI Chat panel's "Human agent" switch. Run after `schema.sql`. |
+| `supabase/support-agents.sql` | Support agents: who they are, whether they're at their desk, and assigning a live chat to one. Run after `live-chat.sql`. |
+| `supabase/live-agent-flow.sql` | Pending queue, accept/reject, reassignment, and the conversation a member can leave and come back to. Run after `support-agents.sql`. |
+| `supabase/agent-invites.sql` | The agent roster + auto-promotion when an invited address signs up. Run after `live-agent-flow.sql`. |
+| `supabase/functions/invite-agent/` | Server-side: creates the account and mails the set-password link. Needs the service-role key, so it cannot be done in the browser. |
 | `.env.example` | Which keys go where. |
 
 ---
@@ -347,6 +355,14 @@ the paid plans cannot be bought yet. It is not a paywall — it is the brake on 
 shared API key, so one scripted account cannot burn the whole Gemini free-tier
 quota and take the assistant down for everybody. Lower it when plans go live.
 
+**A secret that is already set overrides the default in the code.** Editing
+`index.ts` and redeploying will NOT change the limit if
+`AI_DAILY_LIMIT_FREE` exists as a secret — the secret always wins. Check what
+is set under **Project Settings → Edge Functions → Secrets** (or
+`supabase secrets list`); to fall back to the default above, **delete** the
+secret rather than blanking it. An empty value is `Number("")` → `0`, which
+blocks every message.
+
 ### How it degrades
 
 The chat **never** breaks. `src/data/aiChat.js` throws on any failure and
@@ -390,3 +406,135 @@ The `--node-modules-dir=none` matters. Without it Deno sees this repo's React
 bogus *"Could not find a matching package for 'npm:openai'"*. The flag makes it
 resolve `npm:` specifiers from the registry, which is what the Supabase Edge
 runtime does anyway.
+
+---
+
+## Step 7 — Turn on notifications (email & SMS)
+
+This is what makes **Account Settings → Notifications** real: the two switches
+stop being a saved preference nobody reads, and start deciding whether a member
+actually gets told when their order moves or support answers their ticket.
+
+Skip this and nothing breaks. The switches still save to the database, the app
+still runs, and every send is recorded as `skipped` with the reason.
+
+### Why the switches live in Postgres
+
+The send is decided **server-side**, by the Edge Function, at the moment an
+admin approves an order. The browser that flipped the switch is long gone. A
+preference the sender cannot read is not a preference — so `notify_email` and
+`notify_sms` are columns on `profiles`, and the function reads the live row.
+Nothing in the browser is ever trusted to decide whether a message goes out.
+
+**1. Run the SQL.** SQL Editor → paste `supabase/notifications.sql` → Run. Safe
+to re-run. It adds:
+
+- `profiles.notify_email` (default **on**) and `profiles.notify_sms`
+  (default **off** — SMS costs money per message and needs a verified phone,
+  so it is opt-in)
+- `notification_log` — every attempt, sent/skipped/failed alike, readable by the
+  member it was sent to and by admins
+- `notification_target()` — the recipient lookup the function uses, kept
+  `security definer` so the `auth.users` read stays server-side
+
+**2. Deploy the function.**
+
+```bash
+supabase functions deploy notify
+```
+
+**3. Set the secrets for the channels you want.** Both are optional and
+independent — email works with no SMS provider, and vice versa.
+
+| | Provider | Secrets | Cost |
+|---|---|---|---|
+| **Email** | Resend (already used for auth mail in Step 2b) | `RESEND_API_KEY`, `NOTIFY_FROM` | Free: 3,000/mo |
+| **SMS** | Semaphore (Philippines) | `SMS_PROVIDER=semaphore`, `SEMAPHORE_API_KEY` | ~₱0.50–0.70/text, prepaid credits |
+| SMS | Twilio | `SMS_PROVIDER=twilio`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | Per-message, card required |
+
+```bash
+# Email — reuse the Resend key from Step 2b
+supabase secrets set RESEND_API_KEY=re_xxx \
+  NOTIFY_FROM="EcoEquity <onboarding@resend.dev>"
+
+# SMS — Philippines
+supabase secrets set SMS_PROVIDER=semaphore SEMAPHORE_API_KEY=xxx
+```
+
+Semaphore is suggested over Twilio for a PH audience: it is domestic, sells
+prepaid credits without a subscription, and skips the sender-ID registration
+Twilio requires for Philippine numbers. Leave `SEMAPHORE_SENDER_NAME` unset to
+use your account's default sender — sending a blank one is rejected outright.
+
+`NOTIFY_FROM` can stay on `onboarding@resend.dev` while testing. Move it to your
+own verified domain before production or the mail lands in spam.
+
+**4. Test it.** Log in as a normal member → **Account Settings → Notifications**
+→ **Send a test**. The result line reports each channel separately:
+
+| What you see | What it means |
+|---|---|
+| `Email: sent · SMS: skipped (SMS updates switched off)` | Working. The switch was honoured. |
+| `Email: skipped (RESEND_API_KEY not set)` | Step 3 not done for that channel. |
+| `Email: skipped (email notifications switched off)` | The switch is off — that is the feature working. |
+| `Email: failed (…)` | The provider rejected it; the detail is theirs. |
+| `SMS: skipped (no phone number on file)` | Add a phone under **My Profile** first. |
+
+Every one of those lines is also a row in `notification_log`.
+
+### What sends, and when
+
+| Trigger | Where | Event slug |
+|---|---|---|
+| Admin approves / disapproves an order | Admin Portal → Orders | `order_status` |
+| Admin changes an order's status | Admin Portal → Orders → Edit | `order_status` |
+| Admin replies to a support ticket | Admin Portal → Support | `ticket_reply` |
+| Member presses "Send a test" | Account Settings → Notifications | `test` |
+
+The wording for each lives in `src/data/notifications.js`
+(`orderStatusMessage`, `ticketReplyMessage`) — one place, so the email and the
+SMS of the same event cannot drift apart.
+
+**Adding a new trigger** is two lines. Build a message, hand it to the function,
+and let it decide the channels:
+
+```js
+import { notifyUser } from "../data/notifications";
+
+notifyUser({
+  to: member.email,
+  event: "event_reminder",
+  subject: "Your workshop is tomorrow",
+  message: "Seed-saving basics, 9am at the community hall.",
+  sms: "EcoEquity: seed-saving workshop tomorrow, 9am.",   // optional shorter text
+}).catch(console.error);
+```
+
+Never check the member's preference yourself before calling — the function reads
+the live one. A cached copy in the browser is exactly how people get mail they
+switched off.
+
+### Security
+
+- The endpoint requires a signed-in caller. An open one is a spam relay for your
+  domain.
+- An **admin** may notify anybody; a **member** may only notify themselves. That
+  is what makes the "Send a test" button safe to ship.
+- `notification_log` has a read policy and no write policy at all — only the
+  function (service role) writes it, so a browser cannot forge a delivery record.
+- Provider keys are Edge Function secrets and never enter the browser bundle.
+
+### Guest checkouts
+
+An order placed by someone with no account has an email and no stored
+preference. They get the email — they gave the address for this order — and
+never an SMS, because nobody opted in.
+
+### Typechecking before deploy
+
+```bash
+deno check --node-modules-dir=none supabase/functions/notify/index.ts
+```
+
+Same `--node-modules-dir=none` reasoning as the AI function above. Logs are
+dashboard-only: Supabase → Edge Functions → notify → Logs.

@@ -4,35 +4,24 @@ import { fetchProducts } from "./data/products";
 import { fetchConfig, saveConfig, fetchCollection, saveCollection } from "./data/adminContent";
 import { isSupabaseConfigured } from "./supabaseClient";
 import { MODAL_LAYER, modalOverlay, nestedConfirmOverlay } from "./styles/modal";
-import { signIn, signUp, signOut, getCurrentUser, getUserFromSession, onAuthChange, resendConfirmation, consumeAuthErrorFromUrl, saveProfilePic, requestPasswordReset, updatePassword, verifyPassword, passwordProblem, PASSWORD_MIN_LENGTH, arrivedFromRecoveryLink, describeAuthError, isValidEmail, isExistingAccount } from "./data/auth";
+import { signIn, signUp, signOut, getCurrentUser, getUserFromSession, onAuthChange, resendConfirmation, consumeAuthErrorFromUrl, saveProfilePic, requestPasswordReset, updatePassword, verifyPassword, passwordProblem, PASSWORD_MIN_LENGTH, arrivedFromRecoveryLink, arrivedFromInviteLink, describeAuthError, isValidEmail, isExistingAccount } from "./data/auth";
 import AuthPanels from "./components/AuthPanels";
-import AboutUs from "./pages/AboutUs";
-import ProductServices from "./pages/ProductServices";
-import TargetMarket from "./pages/TargetMarket";
-import LearnMore from "./pages/LearnMore";
-import BenefitsOfTheProject from "./pages/BenefitsOfTheProject"; // Import the new component
-import ProductsPage from "./pages/ProductsPage"; // Import the new ProductsPage component
-import ServicesPage from "./pages/ServicesPage"; // Import the ServicesPage component
-import IncomeGenerationPage from "./pages/IncomeGenerationPage"; // Import the new IncomeGenerationPage
-import ShopAllProducts from "./pages/ShopAllProducts"; // Import the ShopAllProducts page
-import StarterKits from "./pages/StarterKits";
-import ExploreMore from "./pages/ExploreMore";
-import AIDataSubscription from "./pages/AIDataSubscription";
-import TargetMarketExplore from "./pages/TargetMarketExplore";
+import lazyPage from "./lazyPage"; // code-splits a page out of the main bundle
+
+// ── Pages still bundled statically ───────────────────────────────────────────
+// Each exports seed data App.js reads at startup, which pins the whole module
+// into the main bundle — a named import defeats code splitting. Lifting that
+// data into src/data/ (as was done for the admin portal) would let these split
+// too; until then they ship to every visitor.
 import SpecialistCertification, { defaultCourses as defaultCertCourses } from "./pages/SpecialistCertification"; // Page + course seed data (managed via Admin Portal)
 import AIChatInterface from "./AIChatInterface";
-import SustainabilityAppMarket from "./pages/SustainabilityAppMarket";
 import ExpertSupportPage, { defaultAdvisors } from "./pages/ExpertSupportPage"; // Import the new ExpertSupportPage + specialist seed data
-import ImpactTrackingPage from "./pages/ImpactTrackingPage"; // Import the new ImpactTrackingPage
-import NativeSeedBankPage from "./pages/NativeSeedBankPage"; // Import the new NativeSeedBankPage
-import LGUPartnershipPage from "./pages/LGUPartnershipPage"; // Import the new LGU Partnership Page
-import OurImpactPage from "./pages/OurImpactPage"; // Import the new OurImpactPage
 import SurplusExchangePage, { defaultSurplusListings, defaultRestaurantDemands } from "./pages/SurplusExchangePage"; // Corrected path + marketplace seed data
 /* pages/CheckoutPage.js is deliberately not imported: it is a second checkout
    written entirely in Tailwind classes, and this project has no Tailwind build,
    so it rendered as unstyled HTML. The "CheckoutPage" nav target now opens the
    shop's checkout instead — see the ShopAllProducts render below. */
-import AdminPortal, { mockSubscribers, mockEventsList, mockScansList, mockContentList, mockDiseaseLibrary, mockDeliveriesList, mockRiders, mockUsers, mockTransactions } from "./pages/AdminPortal"; // Import the AdminPortal + shared seed data
+import { mockSubscribers, mockEventsList, mockScansList, mockContentList, mockDiseaseLibrary, mockDeliveriesList, mockRiders, mockUsers, mockTransactions } from "./data/adminSeeds";
 import { SUBSCRIPTION_PLANS_STORAGE_KEY, initialSubscriptionPlans } from "./subscriptionPlans";
 import { ECO_PROGRAM_STORAGE_KEY, defaultEcoProgram, ecoIcon, tierProgress, tierRangeLabel, rewardAvailability, pointsSummary, nextBadgeProgress, earnRuleStats } from "./data/ecoProgram"; // EcoPoints program authored in the Admin Portal
 import { normalizeMember, nextMemberId } from "./data/platformUsers"; // Shared member record behind the profile dashboard
@@ -44,24 +33,62 @@ import { fetchMyTickets, saveTicket } from "./data/supportTickets";
 import { fetchForumPosts, saveForumPost, updateForumPost, deleteForumPost } from "./data/forum";
 import { fetchMyScans, saveScan } from "./data/plantScans";
 import { saveFeedback, fetchAllFeedback } from "./data/siteFeedback";
-import SeasonalHarvestPage from "./pages/SeasonalHarvestPage";
+import { fetchNotificationPrefs, saveNotificationPrefs, notifyUser } from "./data/notifications"; // Email/SMS channel switches
 import FarmPlannerPage, { defaultPlannerConfig } from "./pages/FarmPlannerPage";
 import CommunityForumPage, { forumSeedPosts } from "./pages/CommunityForumPage";
 import SupportTicketModal from "./SupportTicketModal";
 import SiteFeedbackWidget from "./SiteFeedbackWidget";
 import useActiveBrowseTimer from "./useActiveBrowseTimer";
 
-import EventsAndWorkshopsPage from "./pages/EventsAndWorkshopsPage"; // Import the new EventsAndWorkshopsPage
 import { FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell } from "react-icons/fa";
-import { Leaf, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Microscope, Bug, Share2, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, Calendar, CircleUserRound, Gift, Trees, Building2, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, X, Moon, Mail, CheckCircle, Scissors, Flame, Megaphone, Heart, Settings as SettingsIcon, UserCog, Ticket, ShoppingBag, Trash2, Camera, ImagePlus, BadgeCheck, FileText as FileTextIcon, ShieldOff, KeyRound, LogOut, Monitor } from "lucide-react";
+import { Leaf, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, CircleUserRound, Gift, Trees, Building2, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, X, Moon, Mail, CheckCircle, Scissors, Flame, Megaphone, Heart, Settings as SettingsIcon, UserCog, ShoppingBag, Trash2, Camera, ImagePlus, BadgeCheck, FileText as FileTextIcon, ShieldOff, KeyRound, LogOut, Monitor, Lock } from "lucide-react";
 import { SectionHead, StatStrip, EmptyState, Toggle, Pill, IconChip, Panel, Field, ProductThumb, MeterBar, RewardCard, dashCard, dashInput, dashPrimaryBtn, dashGhostBtn, dashToneBtn, dashLabel, DASH, tone as dashTone } from "./components/DashboardUI"; // Shared profile-dashboard design system
 import ColorThemePicker, { PRIMARY_COLOR_PRESETS, ACCENT_ALT_COLOR_PRESETS, SECONDARY_COLOR_PRESETS, BUTTON_COLOR_PRESETS, BUTTON_GRADIENT_PRESETS, suggestedPairFor } from "./components/ColorThemePicker"; // Primary/secondary brand colour chooser
-import { applyThemeRamp, readableInk, DEFAULT_PRIMARY, DEFAULT_SECONDARY, parseButtonGradient, buttonBackground, buttonInk } from "./theme"; // Regenerates the sage ramp from the chosen pair
+import { applyThemeRamp, DEFAULT_PRIMARY, DEFAULT_SECONDARY, parseButtonGradient, buttonBackground, buttonInk } from "./theme"; // Regenerates the sage ramp from the chosen pair
 import { BiCalendarEvent } from "react-icons/bi";
 import { isMobileViewport } from "./mobile";
+import { pathForPage, pageForPath, canLandOn } from "./routes"; // page name ↔ URL
 import LandingSections from "./components/LandingSections"; // Below-the-fold landing content
 import HomeHero from "./components/HomeHero"; // Desktop landing screen (split-panel)
 import SiteFooter from "./components/SiteFooter"; // Home page footer
+import ComingSoonBanner from "./components/ComingSoonBanner"; // "Stay tuned" card for locked dashboard tabs
+
+// ── Code-split pages ─────────────────────────────────────────────────────────
+// Each of these arrives as its own chunk the first time it is opened, instead
+// of riding along in the bundle every visitor downloads before anything can
+// render. The render sites are untouched — <AboutUs /> still works, it just
+// fetches first. See src/lazyPage.js, which supplies the Suspense boundary.
+//
+// A page qualifies only if App.js needs nothing from it but the component; the
+// statically imported pages above export seed data read at startup, which pins
+// them into the main bundle regardless.
+//
+// Home is deliberately absent: it is the landing screen, built from
+// HomeHero/LandingSections above, and splitting it would only add a round trip
+// to the one page everyone sees first.
+const AboutUs = lazyPage(() => import("./pages/AboutUs"));
+const ProductServices = lazyPage(() => import("./pages/ProductServices"));
+const TargetMarket = lazyPage(() => import("./pages/TargetMarket"));
+const LearnMore = lazyPage(() => import("./pages/LearnMore"));
+const BenefitsOfTheProject = lazyPage(() => import("./pages/BenefitsOfTheProject"));
+const ProductsPage = lazyPage(() => import("./pages/ProductsPage"));
+const ServicesPage = lazyPage(() => import("./pages/ServicesPage"));
+const IncomeGenerationPage = lazyPage(() => import("./pages/IncomeGenerationPage"));
+const ShopAllProducts = lazyPage(() => import("./pages/ShopAllProducts"));
+const StarterKits = lazyPage(() => import("./pages/StarterKits"));
+const AIDataSubscription = lazyPage(() => import("./pages/AIDataSubscription"));
+const TargetMarketExplore = lazyPage(() => import("./pages/TargetMarketExplore"));
+const SustainabilityAppMarket = lazyPage(() => import("./pages/SustainabilityAppMarket"));
+const ImpactTrackingPage = lazyPage(() => import("./pages/ImpactTrackingPage"));
+const NativeSeedBankPage = lazyPage(() => import("./pages/NativeSeedBankPage"));
+const LGUPartnershipPage = lazyPage(() => import("./pages/LGUPartnershipPage"));
+const OurImpactPage = lazyPage(() => import("./pages/OurImpactPage"));
+const SeasonalHarvestPage = lazyPage(() => import("./pages/SeasonalHarvestPage"));
+const EventsAndWorkshopsPage = lazyPage(() => import("./pages/EventsAndWorkshopsPage"));
+// Staff-only, and between them the two largest modules in the project. Nobody
+// signing in as a member should be downloading either.
+const AdminPortal = lazyPage(() => import("./pages/AdminPortal"));
+const AgentInbox = lazyPage(() => import("./pages/AgentInbox"));
 
 // Maps an email address to its provider's web inbox, so the "Open Email" button
 // can jump the user straight to where the confirmation email landed.
@@ -380,6 +407,26 @@ const defaultAdminSettings = {
 
 // Generic localStorage-backed initializer: returns the saved array if valid,
 // otherwise falls back to the provided seed data.
+/**
+ * Fills in the event fields the website reads — speaker, short and full
+ * description — on records cached before those fields existed on the admin
+ * event. Browsers that visited while the site kept its own hard-coded copy of
+ * the launch events hold the old, copy-less shape in localStorage; without
+ * this their cards would render a generated "Workshop • ₱1,200 • …" line
+ * instead of the real blurb. Only genuinely absent keys are filled, so an
+ * admin's own edits (including a deliberately blank one) are never overwritten.
+ */
+const backfillEventCopy = (stored) =>
+  (Array.isArray(stored) ? stored : []).map((ev) => {
+    const seed = mockEventsList.find((s) => s.id === ev.id);
+    if (!seed) return ev;
+    const filled = { ...ev };
+    ["speaker", "speakerImage", "description", "fullDescription"].forEach((key) => {
+      if (!(key in filled)) filled[key] = seed[key];
+    });
+    return filled;
+  });
+
 const getStoredArray = (key, fallback) => {
   try {
     const saved = localStorage.getItem(key);
@@ -388,6 +435,30 @@ const getStoredArray = (key, fallback) => {
     return Array.isArray(parsed) ? parsed : fallback;
   } catch (error) {
     return fallback;
+  }
+};
+
+// Plant scans are the one saved list that carries photos, so they are the one
+// list that can outgrow the ~5MB localStorage quota. When it happens, keep the
+// newest photos and drop the older ones — losing an old thumbnail is a far
+// smaller loss than the write throwing and taking the whole scan history down.
+const SCAN_PHOTOS_KEPT_ON_OVERFLOW = 12;
+
+const persistPlantScans = (scans) => {
+  try {
+    localStorage.setItem(PLANT_SCANS_STORAGE_KEY, JSON.stringify(scans));
+  } catch (error) {
+    // `scans` is newest-first (new scans are prepended), so the head is the
+    // set worth keeping the pixels for.
+    const trimmed = scans.map((scan, index) => (
+      index < SCAN_PHOTOS_KEPT_ON_OVERFLOW ? scan : { ...scan, image: null }
+    ));
+    try {
+      localStorage.setItem(PLANT_SCANS_STORAGE_KEY, JSON.stringify(trimmed));
+    } catch (retryError) {
+      // No room even without the photos. The scans stay in React state for
+      // this session, and Supabase still has them for the next one.
+    }
   }
 };
 
@@ -748,7 +819,9 @@ const AvatarEditor = ({ src, name, size = 64, align = "left", busy, error, onFil
 // "Account" is deliberately first and on its own — who you are and the controls
 // for the account itself, kept apart from the things you've done (Activity) and
 // earned (Rewards). `desktopOnly` keeps the two EcoPoints tabs off the mobile
-// strip, where they live under the EcoPoints menu instead.
+// strip, where they live under the EcoPoints menu instead. `locked` marks a tab
+// that is not open to members yet — it still lists, greyed with a padlock, and
+// answers a click with the "Stay Tuned" card instead of opening.
 const DASHBOARD_SECTIONS = [
   {
     section: "Account",
@@ -760,24 +833,44 @@ const DASHBOARD_SECTIONS = [
   {
     section: "Activity",
     items: [
-      { key: "orders", label: "Order History", Icon: Package },
-      { key: "updates", label: "Updates", Icon: Megaphone },
-      { key: "wishlist", label: "Wishlist", Icon: Heart },
+      { key: "orders", label: "Order History", Icon: Package, locked: true },
+      // Updates is not a tab any more — the published feed lives behind the
+      // nav bar's notification bell, next to the broadcasts it belongs with.
+      { key: "wishlist", label: "Wishlist", Icon: Heart, locked: true },
       { key: "support", label: "Support Tickets", Icon: Headset },
     ],
   },
   {
     section: "Rewards",
     items: [
-      { key: "ecopoints", label: "EcoPoints & Rewards", Icon: Gift, desktopOnly: true },
-      { key: "earnHistory", label: "Earn History", Icon: Activity, desktopOnly: true },
-      { key: "certificate", label: "My Certificate", Icon: Award },
+      { key: "ecopoints", label: "EcoPoints & Rewards", Icon: Gift, desktopOnly: true, locked: true },
+      { key: "earnHistory", label: "Earn History", Icon: Activity, desktopOnly: true, locked: true },
+      { key: "certificate", label: "My Certificate", Icon: Award, locked: true },
     ],
   },
 ];
 
+// Flat lookup for the guards outside the sidebar — anything that used to jump
+// straight to one of these tabs (order tracking, the "see how to earn" empty
+// state) has to route through the same lock.
+const LOCKED_DASHBOARD_TABS = Object.fromEntries(
+  DASHBOARD_SECTIONS.flatMap(({ items }) => items.filter(i => i.locked).map(i => [i.key, i.label]))
+);
+
 function App() {
   const [activeNav, setActiveNavPage] = useState("Login");
+  // The page the URL asked for, held until there is a session to show it to.
+  //
+  // Read once, at first render, before the sync effect below has had a chance
+  // to push anything — after that the address bar reflects state rather than
+  // the visitor's intent. The app is auth-gated, so a deep link cannot be
+  // honoured immediately: it waits here until applySession says who this is.
+  // "/" is excluded deliberately: it is where everyone arrives by default, so
+  // it expresses no preference. Treating it as a request for Home would send
+  // admins and agents to the landing page instead of their portal.
+  const pendingDeepLink = useRef(
+    window.location.pathname === "/" ? null : pageForPath(window.location.pathname)
+  );
   const [isMobile, setIsMobile] = useState(isMobileViewport);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredNav, setHoveredNav] = useState(null); // State for navigation buttons
@@ -809,6 +902,10 @@ function App() {
   const [agreeTerms, setAgreeTerms] = useState(false); // Separated terms from rememberMe
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State for logged-in status
   const [isAdmin, setIsAdmin] = useState(false); // State for admin status
+  // A support agent: answers live chats, and nothing else. Separate from
+  // isAdmin on purpose — the two roles are independent, and an agent must not
+  // inherit a portal full of member and order data to do their job.
+  const [isAgent, setIsAgent] = useState(false);
   const [signupModal, setSignupModal] = useState(null); // { email } -> "check your email" modal after signup
   const [welcomeModal, setWelcomeModal] = useState(false); // shown after the email confirmation link returns
   const [resendState, setResendState] = useState("idle"); // idle | sending | sent
@@ -838,6 +935,9 @@ function App() {
   const [showClearWishlistConfirm, setShowClearWishlistConfirm] = useState(false);
   const [showRewardSuccessModal, setShowRewardSuccessModal] = useState(false); // State for reward redemption success modal
   const [settingsTab, setSettingsTab] = useState("profile"); // State for Settings Modal Tabs
+  // Label of the locked dashboard tab the member just tried to open, or null.
+  // Drives the "Stay Tuned" card over the dashboard.
+  const [lockedTabNotice, setLockedTabNotice] = useState(null);
   // Member's personal primary/secondary override, chosen in Account Settings →
   // Appearance. Blank fields fall through to the admin's site-wide pair.
   const [userTheme, setUserTheme] = useState(() => getStoredObject(USER_THEME_STORAGE_KEY, { primary: "", secondary: "", button: "" }));
@@ -895,6 +995,10 @@ function App() {
   const [notificationSettings, setNotificationSettings] = useState({
     email: true, sms: true
   });
+  // idle | saving | saved | error — the write to profiles behind the switches.
+  const [notifySaveState, setNotifySaveState] = useState("idle");
+  // The "Send a test" result, reported per channel.
+  const [notifyTestState, setNotifyTestState] = useState({ status: "idle", detail: "" });
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [orderFilter, setOrderFilter] = useState("All Orders");
   const [selectedOrderForTracking, setSelectedOrderForTracking] = useState(null);
@@ -912,7 +1016,7 @@ function App() {
   const [plantScans, setPlantScans] = useState(() => getStoredArray(PLANT_SCANS_STORAGE_KEY, mockScansList));
   const [plantDiseases, setPlantDiseases] = useState(() => getStoredArray(PLANT_DISEASES_STORAGE_KEY, mockDiseaseLibrary));
   const [subscribers, setSubscribers] = useState(() => getStoredArray(SUBSCRIBERS_STORAGE_KEY, mockSubscribers));
-  const [events, setEvents] = useState(() => getStoredArray(EVENTS_STORAGE_KEY, mockEventsList));
+  const [events, setEvents] = useState(() => backfillEventCopy(getStoredArray(EVENTS_STORAGE_KEY, mockEventsList)));
   const [contentItems, setContentItems] = useState(() => getStoredArray(CONTENT_STORAGE_KEY, mockContentList));
   const [forumPosts, setForumPosts] = useState(() => getStoredArray(FORUM_POSTS_STORAGE_KEY, forumSeedPosts));
   const [farmPlanner, setFarmPlanner] = useState(() => getStoredObject(FARM_PLANNER_STORAGE_KEY, defaultPlannerConfig));
@@ -978,6 +1082,10 @@ function App() {
   const [notifications, setNotifications] = useState(() => broadcastsToNotifications(getStoredArray(BROADCASTS_STORAGE_KEY, [])));
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifBadgeAnim, setNotifBadgeAnim] = useState(false);
+  // Which half of the bell popover is showing: the broadcast alerts, or the
+  // Updates feed that used to be its own dashboard tab. Both are "things the
+  // team sent you", so they share one glyph instead of two entry points.
+  const [notifPanelTab, setNotifPanelTab] = useState("alerts");
 
   // The account button that sits beside the bell in the header. It is its own
   // menu (not the fuller profile accordion inside the hamburger panel), so it
@@ -1100,7 +1208,7 @@ function App() {
         fetchCollection("riders").then(apply(setRiders)).catch(warn("riders")),
         fetchCollection("subscription_plans").then(apply(setSubscriptionPlans)).catch(warn("subscription plans")),
         fetchCollection("plant_diseases").then(apply(setPlantDiseases)).catch(warn("plant diseases")),
-        fetchCollection("admin_events").then(apply(setEvents)).catch(warn("events")),
+        fetchCollection("admin_events").then(apply(setEvents, backfillEventCopy)).catch(warn("events")),
         fetchCollection("admin_promo_codes").then(apply(setPromoCodes)).catch(warn("promo codes")),
         fetchCollection("cert_courses")
           .then(apply(setCertCourses, (rows) => hydrateIcons(rows, defaultCertCourses, "icon", SPROUT_ICON_FALLBACK)))
@@ -1256,7 +1364,16 @@ function App() {
     // for a short-lived recovery session, so the only thing left is to collect
     // the new password — open that modal over whatever page we land on.
     if (arrivedFromRecoveryLink()) {
-      setRecoveryModal({ password: "", confirm: "", status: "idle", error: null });
+      setRecoveryModal({ password: "", confirm: "", status: "idle", error: null, kind: "recovery" });
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+
+    // Arriving on an agent invitation. Supabase has already signed them in —
+    // that is exactly the problem. Without this they land in the app with a
+    // session and no password, and once it expires there is nothing to sign
+    // back in with. Same modal, different words: nothing is being RE-set.
+    if (arrivedFromInviteLink()) {
+      setRecoveryModal({ password: "", confirm: "", status: "idle", error: null, kind: "invite" });
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
 
@@ -1295,6 +1412,47 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── URL ← page ───────────────────────────────────────────────────────────
+  // Mirror the current page into the address bar, so a page can be linked to,
+  // bookmarked, and survive a reload.
+  //
+  // This lives in an effect rather than inside setActiveNav because that setter
+  // also accepts a React updater function (applySession passes one), and there
+  // is no way to know the resulting page name at call time. Reading it back off
+  // the committed state covers both forms with one code path.
+  useEffect(() => {
+    // Hold the address bar still while a deep link is waiting to be honoured —
+    // otherwise signing in rewrites /shop to /login and the destination is lost
+    // before applySession ever sees it.
+    if (pendingDeepLink.current && (activeNav === "Login" || activeNav === "Sign Up")) return;
+
+    const path = pathForPage(activeNav);
+    if (window.location.pathname === path) return;
+    // pushState, not replaceState: each navigation should be a Back step. The
+    // query string is preserved — it may carry a Supabase auth parameter that
+    // has not been consumed yet.
+    window.history.pushState({ page: activeNav }, "", path + window.location.search);
+  }, [activeNav]);
+
+  // ── page ← URL ───────────────────────────────────────────────────────────
+  // Back and Forward. Without this the browser walks the history stack while
+  // the app keeps rendering whatever page it was on, so the URL and the screen
+  // disagree — worse than having no history at all.
+  useEffect(() => {
+    const onPopState = () => {
+      const page = pageForPath(window.location.pathname);
+      // An unknown path (someone edited the URL, or a stale bookmark) goes Home
+      // rather than rendering nothing.
+      if (!page) { setActiveNavPage("Home"); return; }
+      // Never let Back walk a signed-out visitor into the app, or a member into
+      // the admin portal.
+      if (!isLoggedIn || !canLandOn(page, { isAdmin, isAgent })) return;
+      setActiveNavPage(page);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [isLoggedIn, isAdmin, isAgent]);
+
   // Keep the customer notification bell in sync with admin broadcasts. Admin
   // dispatches a storage event when a broadcast is sent (same-tab and across
   // tabs), so we re-read the feed and merge while preserving read flags.
@@ -1319,7 +1477,7 @@ function App() {
   useEffect(() => { localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem(HARVESTS_STORAGE_KEY, JSON.stringify(harvests)); }, [harvests]);
   useEffect(() => { localStorage.setItem(PROMOCODES_STORAGE_KEY, JSON.stringify(promoCodes)); }, [promoCodes]);
-  useEffect(() => { localStorage.setItem(PLANT_SCANS_STORAGE_KEY, JSON.stringify(plantScans)); }, [plantScans]);
+  useEffect(() => { persistPlantScans(plantScans); }, [plantScans]);
   useEffect(() => { localStorage.setItem(PLANT_DISEASES_STORAGE_KEY, JSON.stringify(plantDiseases)); }, [plantDiseases]);
   useEffect(() => { localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify(subscribers)); }, [subscribers]);
   useEffect(() => { localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(events)); }, [events]);
@@ -1371,36 +1529,17 @@ function App() {
   // A user subscribing on the website appears in the Admin Portal subscribers list
   const handleNewSubscriber = (sub) => setSubscribers(prev => [sub, ...prev]);
 
-  // A website event registration syncs the attendee count back to the Admin Portal.
-  // Curated events that don't exist in admin yet are surfaced there on first signup.
+  // A website event registration syncs the attendee count back to the Admin
+  // Portal. Every card on the site is now one of these records, so the match is
+  // on id — and an event the admin deleted mid-registration simply isn't found,
+  // rather than being recreated behind their back.
   const handleEventRegister = (websiteEvent) => {
-    if (!websiteEvent || !websiteEvent.title) return;
-    setEvents(prev => {
-      const idx = prev.findIndex(e => e.title === websiteEvent.title);
-      if (idx >= 0) {
-        const ev = prev[idx];
-        const max = Number(ev.maxAttendees) || Infinity;
-        const updated = [...prev];
-        updated[idx] = { ...ev, attendees: Math.min((Number(ev.attendees) || 0) + 1, max) };
-        return updated;
-      }
-      const mappedType = websiteEvent.type === "Community Gathering" ? "Community"
-        : websiteEvent.type === "Training" ? "Workshop"
-        : websiteEvent.type || "Workshop";
-      const newId = `EVT-${String(prev.length + 1).padStart(3, "0")}`;
-      return [{
-        id: newId,
-        title: websiteEvent.title,
-        date: websiteEvent.date || "",
-        time: websiteEvent.time || "",
-        type: mappedType,
-        attendees: 1,
-        maxAttendees: 50,
-        status: "Upcoming",
-        price: websiteEvent.price || "Free",
-        location: websiteEvent.venue || "",
-      }, ...prev];
-    });
+    if (!websiteEvent || !websiteEvent.id) return;
+    setEvents(prev => prev.map(ev => {
+      if (ev.id !== websiteEvent.id) return ev;
+      const max = Number(ev.maxAttendees) || Infinity;
+      return { ...ev, attendees: Math.min((Number(ev.attendees) || 0) + 1, max) };
+    }));
   };
 
   const handleNotify = (cropName) => {
@@ -1415,27 +1554,50 @@ function App() {
   // profile, then falls back to the auth user's metadata (name/full_name +
   // email) so the name and email still show even before the profiles row has
   // synced.
+  // Where a freshly signed-in account should land: the page the URL asked for
+  // if this account is allowed to see it, otherwise the role's own home page.
+  //
+  // The deep link is consumed on use, whether or not it was honoured. It stands
+  // for one arrival; leaving it set would drag the user back there on the next
+  // session event (a token refresh, a second tab signing in).
+  //
+  // Shared by both sign-in paths — Supabase via applySession, and the simulated
+  // login used when Supabase is not configured. Keeping the decision in one
+  // place is the point: the demo path used to hard-code "Home" and quietly
+  // dropped whatever page the visitor had followed a link to.
+  const landingFor = (homeFor, roles) => {
+    const requested = pendingDeepLink.current;
+    pendingDeepLink.current = null;
+    return canLandOn(requested, roles) ? requested : homeFor;
+  };
+
   const applySession = (current, fallbackEmail) => {
     const profile = current?.profile;
     const user = current?.user;
     const meta = user?.user_metadata || {};
     const email = user?.email || fallbackEmail || meta.email || "";
     const isAdminUser = Boolean(profile?.is_admin);
+    const isAgentUser = Boolean(profile?.is_agent);
     setIsLoggedIn(true);
     setIsAdmin(isAdminUser);
+    setIsAgent(isAgentUser);
+    // Where this account starts. Admin wins when someone is both: the portal
+    // has the agent inbox one menu click away, and landing an owner in a
+    // support queue every morning would be the wrong default.
+    const homeFor = isAdminUser ? "Admin Portal" : isAgentUser ? "Agent Inbox" : "Home";
+    const target = landingFor(homeFor, { isAdmin: isAdminUser, isAgent: isAgentUser });
     // A restored session (page reload, or return from an emailed link) leaves the app
     // parked on the auth screen, which hides the whole navbar — move to the
     // landing page. Explicit login/signup flows navigate right after this
     // anyway, so the guard keeps this from touching any other page.
     setActiveNav((prev) =>
-      prev === "Login" || prev === "Sign Up"
-        ? (isAdminUser ? "Admin Portal" : "Home")
-        : prev
+      prev === "Login" || prev === "Sign Up" ? target : prev
     );
     // First arrival after signing up (straight through, or back from the
     // confirmation email) — open the member dashboard over the landing page.
-    // An admin account keeps going to the portal instead.
-    if (consumeNewSignup() && !isAdminUser) {
+    // An account that belongs in a portal goes there instead: a support agent
+    // invited to answer chats does not want a profile wizard first.
+    if (consumeNewSignup() && homeFor === "Home") {
       setSettingsTab("profile");
       setShowSettingsModal(true);
     }
@@ -1451,8 +1613,28 @@ function App() {
     if (isSupabaseConfigured && user?.id) {
       loadEcoState(user.id);
       loadUserData(user.id);
+      loadNotificationPrefs();
     }
-    return isAdminUser;
+    // The caller navigates with this: normally the role's landing page —
+    // 'Admin Portal', 'Agent Inbox' or 'Home' — but a deep link the account is
+    // allowed to see wins, so signing in from a shared URL ends up on that page
+    // rather than bouncing to Home.
+    return target;
+  };
+
+  // The channel switches belong to the account, not the browser: the Edge
+  // Function reads them server-side when it sends. Pull the stored pair over
+  // whatever this browser last cached, so signing in on a new device shows the
+  // truth rather than that device's defaults.
+  const loadNotificationPrefs = async () => {
+    try {
+      const prefs = await fetchNotificationPrefs();
+      if (!prefs) return; // no database, or notifications.sql not run yet
+      setNotificationSettings(prefs);
+      localStorage.setItem("notificationSettings", JSON.stringify(prefs));
+    } catch (err) {
+      console.error("Failed to load notification preferences:", err);
+    }
   };
 
   // Replace the in-memory balance/ledger with this user's database rows.
@@ -1570,7 +1752,11 @@ function App() {
         setIsAdmin(adminLogin);
         setLoggedInUser(adminLogin ? "Admin" : email.split("@")[0] || "User");
         setLoggedInEmail(email);
-        handleNavChange(adminLogin ? "Admin Portal" : "Home");
+        // Same rule as a real session: a page the URL asked for wins over the
+        // role's home, provided this account is allowed to see it.
+        handleNavChange(landingFor(adminLogin ? "Admin Portal" : "Home", {
+          isAdmin: adminLogin, isAgent: false,
+        }));
         setEmail(""); setPassword(""); setAuthMessage(null);
       }, 1500);
       return;
@@ -1580,13 +1766,18 @@ function App() {
       setAuthMessage({ text: "Signing you in…", type: "info", kind: "pending" });
       await signIn({ email, password });
       const current = await getCurrentUser();
-      const isAdminUser = applySession(current, email);
-      setAuthMessage({ text: isAdminUser ? "Welcome back, Admin!" : "Welcome back!", type: "success" });
-      // An admin lands in the portal; a member lands on Home. Returning members
-      // don't get the profile dashboard thrown at them — it's one tap away in
-      // the account menu, and only a brand-new signup opens it automatically
-      // (see applySession).
-      handleNavChange(isAdminUser ? "Admin Portal" : "Home");
+      const landing = applySession(current, email);
+      setAuthMessage({
+        text: landing === "Admin Portal" ? "Welcome back, Admin!"
+            : landing === "Agent Inbox"  ? "Welcome back — your chats are ready."
+            : "Welcome back!",
+        type: "success",
+      });
+      // Each role lands where its work is: admins in the portal, agents in the
+      // inbox, members on Home. Returning members don't get the profile
+      // dashboard thrown at them — it's one tap away in the account menu, and
+      // only a brand-new signup opens it automatically (see applySession).
+      handleNavChange(landing);
       setEmail(""); setPassword("");
       setTimeout(() => setAuthMessage(null), 1500);
     } catch (err) {
@@ -1810,9 +2001,21 @@ function App() {
     if (isMobile) setIsMobileMenuOpen(false);
   };
 
+  // The single door into a dashboard tab. Locked tabs never become the active
+  // tab — they answer with the "Stay Tuned" card, so no caller can slip past
+  // the padlock by setting `settingsTab` itself.
+  const openDashboardTab = (key) => {
+    if (LOCKED_DASHBOARD_TABS[key]) {
+      setLockedTabNotice(LOCKED_DASHBOARD_TABS[key]);
+      return false;
+    }
+    setSettingsTab(key);
+    return true;
+  };
+
   const handleTrackOrder = (orderToTrack) => {
+    if (!openDashboardTab("orders")) return;
     setShowSettingsModal(true);
-    setSettingsTab("orders");
     if (orderToTrack) {
       setSelectedOrderForTracking(orderToTrack);
     }
@@ -2077,11 +2280,67 @@ function App() {
 
   // Notification preferences live on the member's admin record too, so support
   // can see (and set) which channels someone opted into.
-  const handleNotificationChange = (key) => {
-    const newSettings = { ...notificationSettings, [key]: !notificationSettings[key] };
+  //
+  // The database copy on `profiles` is the one that decides whether a message
+  // is actually sent — the Edge Function reads it, not this state. So the
+  // switch is optimistic but not credulous: if the write fails it springs back,
+  // because a switch that stays flipped after a failed save is a lie about what
+  // will reach the member's inbox.
+  const handleNotificationChange = async (key) => {
+    const previous = notificationSettings;
+    const newSettings = { ...previous, [key]: !previous[key] };
     setNotificationSettings(newSettings);
     localStorage.setItem('notificationSettings', JSON.stringify(newSettings));
     updateMyUserRecord({ notifications: newSettings });
+
+    if (!isSupabaseConfigured) return;
+    setNotifySaveState("saving");
+    try {
+      await saveNotificationPrefs(newSettings);
+      setNotifySaveState("saved");
+      setTimeout(() => setNotifySaveState((s) => (s === "saved" ? "idle" : s)), 2000);
+    } catch (err) {
+      console.error("Failed to save notification preferences:", err);
+      setNotificationSettings(previous);
+      localStorage.setItem('notificationSettings', JSON.stringify(previous));
+      updateMyUserRecord({ notifications: previous });
+      setNotifySaveState("error");
+    }
+  };
+
+  // "Send a test" — the only way to know the whole chain works end to end
+  // (switch -> database -> function -> provider -> inbox) without waiting for
+  // a real order to move. Deliberately routed through the same function as
+  // every other message, so a passing test means the real thing works too.
+  const handleSendTestNotification = async () => {
+    if (!loggedInEmail) return;
+    setNotifyTestState({ status: "sending", detail: "" });
+    try {
+      const result = await notifyUser({
+        to: loggedInEmail,
+        event: "test",
+        subject: "Test notification from EcoEquity",
+        message: `Hi ${loggedInUser || "there"},\n\nThis is the test message from Account Settings → Notifications. If you are reading it, your notification settings are working.`,
+        sms: "EcoEquity: this is your test notification. Everything is working.",
+      });
+      if (!result) {
+        setNotifyTestState({ status: "error", detail: "Notifications need the database to be connected." });
+        return;
+      }
+      // The function answers per channel — report what each one actually did
+      // rather than a blanket "sent", which would be wrong for a switched-off
+      // channel or a provider key that was never set.
+      const line = ["email", "sms"].map((channel) => {
+        const outcome = result[channel] || {};
+        const name = channel === "email" ? "Email" : "SMS";
+        if (outcome.status === "sent") return `${name}: sent`;
+        return `${name}: ${outcome.status || "skipped"} (${outcome.detail || "no detail"})`;
+      }).join(" · ");
+      setNotifyTestState({ status: result.email?.status === "sent" || result.sms?.status === "sent" ? "sent" : "skipped", detail: line });
+    } catch (err) {
+      console.error("Test notification failed:", err);
+      setNotifyTestState({ status: "error", detail: err?.message || "Could not reach the notification service." });
+    }
   };
 
 
@@ -2442,7 +2701,6 @@ function App() {
   const dashboardTabCounts = {
     certificate: myCertificates.length,
     orders: activeOrderCount,
-    updates: publishedContent.length,
     wishlist: (savedProducts || []).length,
     support: openTicketCount,
   };
@@ -2569,7 +2827,49 @@ function App() {
   // so this gates both: whatever the row shows, the panel must not repeat, and
   // whatever it hides, the panel has to carry — otherwise those pages become
   // unreachable. The Admin Portal has its own sidebar and hides the row.
-  const showInlineNav = activeNav !== "Admin Portal";
+  /* The Admin Portal is a console, not a page of the marketing site: it takes
+     the whole viewport rather than sitting inside the 1400px shell card under
+     the site logo. Boxed in the shell it rendered ~1296×724 of a 1600×900
+     window — a quarter of the screen lost to chrome the admin cannot use, on
+     the one view that is all tables and dashboards. This flag strips the
+     shell's cap, padding, radius, navbar and mobile tab bar for that view.
+     AdminPortal carries its own way back to the site and its own logout. */
+  const isAdminPortal = activeNav === "Admin Portal" && isAdmin;
+  /* The agent portal takes over the screen the same way. Same reasoning: a
+     support agent works one conversation at a time and needs the height, and
+     the site's navbar and mobile tab bar are chrome for browsing, not for
+     answering. AgentInbox carries its own sign-out and deliberately offers no
+     way back to the site — it is the agent's whole application, not a detour.
+     `isPortal` is the pair — everywhere the shell asks "is a portal in charge
+     of this screen", it wants both, and forgetting one is how the navbar
+     reappears over half a portal. */
+  const isAgentPortal = activeNav === "Agent Inbox" && isAgent;
+  const isPortal = isAdminPortal || isAgentPortal;
+
+  /* Portals are gated on the ROLE, not on the nav value, so an account without
+     the role renders nothing at all on that route — a blank screen, which
+     reads as a broken app rather than as a refusal. Bounce them to the portal
+     they do have, or to the site.
+
+     This is a usability fix, not the security boundary. That lives in three
+     places already and none of them is here: the route above renders
+     AdminPortal only when `isAdmin`, the account menu only offers the entry
+     when `isAdmin`, and every admin-only table checks `is_admin()` in RLS —
+     which `is_agent` does not satisfy. An agent who edited this flag in their
+     own browser would reach a console whose every query comes back empty.
+
+     Gated on isLoggedIn so it cannot fight the logout flow, which clears the
+     role flags a beat before it changes the page. */
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    if (activeNav === "Admin Portal" && !isAdmin) {
+      setActiveNav(isAgent ? "Agent Inbox" : "Home");
+    } else if (activeNav === "Agent Inbox" && !isAgent) {
+      setActiveNav(isAdmin ? "Admin Portal" : "Home");
+    }
+  }, [activeNav, isAdmin, isAgent, isLoggedIn]);
+
+  const showInlineNav = !isPortal;
 
   useEffect(() => {
     if (!isMobileMenuOpen) return;
@@ -2642,14 +2942,6 @@ function App() {
 
   const isAuthPage = activeNav === "Login" || activeNav === "Sign Up";
 
-  /* The Admin Portal is a console, not a page of the marketing site: it takes
-     the whole viewport rather than sitting inside the 1400px shell card under
-     the site logo. Boxed in the shell it rendered ~1296×724 of a 1600×900
-     window — a quarter of the screen lost to chrome the admin cannot use, on
-     the one view that is all tables and dashboards. This flag strips the
-     shell's cap, padding, radius, navbar and mobile tab bar for that view.
-     AdminPortal carries its own way back to the site and its own logout. */
-  const isAdminPortal = activeNav === "Admin Portal" && isAdmin;
 
   /* Enough active browsing has passed — show the feedback strip, but not on top
      of whatever the visitor is in the middle of. Signing in, working inside
@@ -2661,7 +2953,7 @@ function App() {
      they close, so it lands on the next quiet moment instead of being lost. */
   const feedbackPromptBlocked =
     isAuthPage ||
-    activeNav === "Admin Portal" ||
+    isPortal ||
     showSettingsModal ||
     showSupportTicketModal ||
     showAIChat ||
@@ -3277,7 +3569,7 @@ function App() {
     <div style={{ 
       ...styles.page,
       ...(isMobile ? styles.pageMobile : {}),
-      ...(isAdminPortal ? styles.pageAdminPortal : {}),
+      ...(isPortal ? styles.pageAdminPortal : {}),
       '--text-primary': '#000000',
       '--text-secondary': 'rgba(0, 0, 0, 0.7)',
       '--shell-bg': 'linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))',
@@ -3511,7 +3803,7 @@ function App() {
           on the desktop Home view, where the scroller is deliberately 100vw
           wide so its footer can bleed to the window edges. Nothing else in
           there overflows: the scroller is height-bound by the flex column. */}
-      <div ref={shellRef} className={isMobile && !isAdminPortal ? "mobile-scroll-area" : undefined} style={{ ...styles.shell, ...(isMobile ? styles.shellMobile : {}), ...(!isMobile && activeNav === "Home" ? { overflow: "visible" } : {}), ...(isAdminPortal ? styles.shellAdminPortal : {}) }}>
+      <div ref={shellRef} className={isMobile && !isPortal ? "mobile-scroll-area" : undefined} style={{ ...styles.shell, ...(isMobile ? styles.shellMobile : {}), ...(!isMobile && activeNav === "Home" ? { overflow: "visible" } : {}), ...(isPortal ? styles.shellAdminPortal : {}) }}>
 
         {/* Maintenance mode is toggled in Admin Portal → Settings; admins keep full access */}
         {adminSettings.maintenanceMode && !isAdmin && (
@@ -3530,7 +3822,7 @@ function App() {
            Hidden on the Admin Portal for the same reason: the console has its
            own header and brand mark, so the site logo above it is a second
            one stealing a band of the working area. */}
-        {!isAuthPage && !isAdminPortal && (
+        {!isAuthPage && !isPortal && (
           <nav ref={navbarRef} style={{ ...styles.navbar, ...(isMobile ? styles.navbarMobile : {}) }}>
             <div style={styles.logoWrap}>
               <img src="/Eco.png" alt={`${adminSettings.platformName || "EcoEquity"} Inc Logo`} style={{ ...styles.ecoLogo, ...(isMobile ? styles.ecoLogoMobile : {}) }} />
@@ -3556,7 +3848,7 @@ function App() {
            glass buttons, so they read as one family with the AI chat /
            feedback / support FABs in the opposite corner. The open menu
            hangs off this cluster, which is why it lives in here too. */}
-        {!isAuthPage && activeNav !== "Admin Portal" && (
+        {!isAuthPage && !isPortal && (
           <>
             <div className="nav-actions" style={styles.navActionsCluster}>
               {/* ── APPEARANCE ──
@@ -3711,32 +4003,121 @@ function App() {
                     <FaBell size={isMobile ? 18 : 20} color="currentColor" style={{ animation: notifBadgeAnim ? "shakeIcon 0.5s ease-in-out" : "none" }} />
                   </button>
                   {isNotificationOpen && (
-                    <div style={{ position: "absolute", top: "100%", right: 0, paddingTop: "8px", zIndex: 100, width: "280px" }}>
-                      <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, width: "100%", maxWidth: "100%", maxHeight: "300px", overflowY: "auto", padding: "8px" }}>
-                        {notifications.length === 0 ? (
-                          <div style={{ padding: "12px", textAlign: "center", fontSize: "13px", color: "rgba(0,0,0,0.5)" }}>No notifications</div>
-                        ) : (
-                          <>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 8px 8px", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: "4px" }}>
-                              <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(0,0,0,0.6)" }}>Notifications</span>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setNotifications(notifications.map(n => ({ ...n, read: true }))); }} 
-                                style={{ background: "transparent", border: "none", fontSize: "11px", fontWeight: 600, color: "var(--eco-c13)", cursor: "pointer", padding: 0 }}
+                    <div style={{ position: "absolute", top: "100%", right: 0, paddingTop: "8px", zIndex: 100, width: isMobile ? "min(320px, calc(100vw - 28px))" : "336px" }}>
+                      <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, width: "100%", maxWidth: "100%", padding: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {/* Two feeds behind one glyph: the broadcast alerts, and
+                            the published Updates feed that used to be its own
+                            dashboard tab. Both are things the team sent you. */}
+                        <div style={{ display: "flex", gap: "6px", paddingBottom: "8px", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                          {[
+                            { key: "alerts", label: "Notifications", Icon: FaBell, count: notifications.filter(n => !n.read).length },
+                            { key: "updates", label: "Updates", Icon: Megaphone, count: publishedContent.length },
+                          ].map(({ key, label, Icon, count }) => {
+                            const active = notifPanelTab === key;
+                            return (
+                              <button
+                                key={key}
+                                type="button"
+                                aria-pressed={active}
+                                onClick={(e) => { e.stopPropagation(); setNotifPanelTab(key); }}
+                                style={{
+                                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                                  padding: "8px 6px", borderRadius: "10px", cursor: "pointer",
+                                  fontSize: "12px", fontWeight: 700, fontFamily: "inherit",
+                                  color: active ? "var(--eco-c13)" : "rgba(0,0,0,0.6)",
+                                  background: active ? "rgba(var(--eco-c9-rgb), 0.18)" : "rgba(255,255,255,0.45)",
+                                  border: active ? "1px solid rgba(var(--eco-c9-rgb), 0.55)" : "1px solid rgba(0,0,0,0.06)",
+                                  transition: "background 0.18s ease, border-color 0.18s ease",
+                                }}
                               >
-                                Mark all as read
+                                <Icon size={14} />
+                                {label}
+                                {count > 0 && (
+                                  <span style={{
+                                    minWidth: "17px", height: "17px", padding: "0 5px", borderRadius: "999px",
+                                    background: "rgba(var(--eco-c9-rgb), 0.22)", color: "var(--eco-c13)",
+                                    fontSize: "10px", fontWeight: 800,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                  }}>{count}</span>
+                                )}
                               </button>
-                            </div>
-                            {notifications.map((notif, idx) => (
-                              <div key={idx} style={{ padding: "10px 12px", borderBottom: idx === notifications.length - 1 ? "none" : "1px solid rgba(0,0,0,0.05)", background: notif.read ? "transparent" : "rgba(var(--eco-c7-rgb), 0.05)", fontSize: "13px", color: "#000", textAlign: "left", lineHeight: 1.4, width: "100%", boxSizing: "border-box", display: "flex", gap: "8px", alignItems: "flex-start" }}>
-                                 {!notif.read && <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--eco-c11)", marginTop: "6px", flexShrink: 0 }} />}
-                                 <div>
-                                   {notif.message}
-                                   <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", marginTop: "4px" }}>{notif.time}</div>
-                                 </div>
-                               </div>
-                            ))}
-                          </>
-                        )}
+                            );
+                          })}
+                          {/* The panel already closes on outside click, but on
+                              touch there is very little "outside" left once it
+                              opens — so give it a target of its own. */}
+                          <button
+                            type="button"
+                            aria-label="Close notifications"
+                            onClick={(e) => { e.stopPropagation(); setIsNotificationOpen(false); }}
+                            style={{
+                              flexShrink: 0, width: "32px", alignSelf: "stretch",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              borderRadius: "10px", cursor: "pointer",
+                              color: "rgba(0,0,0,0.55)",
+                              background: "rgba(255,255,255,0.45)",
+                              border: "1px solid rgba(0,0,0,0.06)",
+                              transition: "background 0.18s ease, color 0.18s ease",
+                            }}
+                          >
+                            <X size={14} strokeWidth={2.4} />
+                          </button>
+                        </div>
+
+                        <div className="custom-scrollbar" style={{ maxHeight: "320px", overflowY: "auto" }}>
+                          {notifPanelTab === "alerts" ? (
+                            notifications.length === 0 ? (
+                              <div style={{ padding: "18px 12px", textAlign: "center", fontSize: "13px", color: "rgba(0,0,0,0.5)" }}>No notifications</div>
+                            ) : (
+                              <>
+                                <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 8px 6px" }}>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setNotifications(notifications.map(n => ({ ...n, read: true }))); }}
+                                    style={{ background: "transparent", border: "none", fontSize: "11px", fontWeight: 600, color: "var(--eco-c13)", cursor: "pointer", padding: 0 }}
+                                  >
+                                    Mark all as read
+                                  </button>
+                                </div>
+                                {notifications.map((notif, idx) => (
+                                  <div key={idx} style={{ padding: "10px 12px", borderBottom: idx === notifications.length - 1 ? "none" : "1px solid rgba(0,0,0,0.05)", background: notif.read ? "transparent" : "rgba(var(--eco-c7-rgb), 0.05)", fontSize: "13px", color: "#000", textAlign: "left", lineHeight: 1.4, width: "100%", boxSizing: "border-box", display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                                    {!notif.read && <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--eco-c11)", marginTop: "6px", flexShrink: 0 }} />}
+                                    <div>
+                                      {notif.message}
+                                      <div style={{ fontSize: "10px", color: "rgba(0,0,0,0.5)", marginTop: "4px" }}>{notif.time}</div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </>
+                            )
+                          ) : (
+                            publishedContent.length === 0 ? (
+                              <div style={{ padding: "18px 12px", textAlign: "center", fontSize: "13px", color: "rgba(0,0,0,0.5)", lineHeight: 1.5 }}>
+                                No updates yet.<br />
+                                <span style={{ fontSize: "11.5px" }}>Announcements and guides appear here as the team publishes them.</span>
+                              </div>
+                            ) : (
+                              publishedContent.map((item, idx) => (
+                                <div key={item.id} style={{ padding: "10px 12px", borderBottom: idx === publishedContent.length - 1 ? "none" : "1px solid rgba(0,0,0,0.05)", textAlign: "left", display: "flex", gap: "9px", alignItems: "flex-start" }}>
+                                  <span style={{ width: "28px", height: "28px", borderRadius: "9px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(var(--eco-c9-rgb), 0.14)", color: "var(--eco-c13)" }}>
+                                    {item.type === "Announcement" ? <Megaphone size={14} strokeWidth={2.3} /> : <FileTextIcon size={14} strokeWidth={2.3} />}
+                                  </span>
+                                  <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", color: "rgba(0,0,0,0.45)" }}>
+                                      {item.type} · {item.date}
+                                    </div>
+                                    <div style={{ fontSize: "13px", fontWeight: 800, color: "#000", lineHeight: 1.35, marginTop: "3px" }}>{item.title}</div>
+                                    {item.body && (
+                                      /* Clamped — the popover is a feed, not the
+                                         place to read a whole guide. */
+                                      <p style={{ margin: "4px 0 0", fontSize: "12px", lineHeight: 1.5, color: "rgba(0,0,0,0.62)", whiteSpace: "pre-wrap", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.body}</p>
+                                    )}
+                                    <div style={{ fontSize: "10.5px", fontWeight: 650, color: "rgba(0,0,0,0.45)", marginTop: "5px" }}>by {item.author}</div>
+                                  </div>
+                                </div>
+                              ))
+                            )
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -3808,6 +4189,9 @@ function App() {
                           { key: "manage", label: "Manage Account", Icon: UserCog, onSelect: () => { setSettingsTab("settings"); setShowSettingsModal(true); } },
                           { key: "settings", label: "Settings", Icon: SettingsIcon, onSelect: () => { setSettingsTab("settings"); setShowSettingsModal(true); } },
                           ...(isAdmin ? [{ key: "admin", label: "Admin Portal", Icon: BadgeCheck, onSelect: () => handleNavChange("Admin Portal") }] : []),
+                          // Independent of the admin entry: an account can be
+                          // an agent, an admin, both, or neither.
+                          ...(isAgent ? [{ key: "agent", label: "My Chats", Icon: Headset, onSelect: () => handleNavChange("Agent Inbox") }] : []),
                         ].map(({ key, label, Icon, onSelect }) => (
                           <button
                             key={key}
@@ -3858,7 +4242,7 @@ function App() {
         {/* Support actions — a floating FAB cluster pinned to the bottom-right
            of the viewport on every breakpoint. On phones it sits above the tab
            bar and collapses behind a single toggle. */}
-        {activeNav !== "Admin Portal" && !isAuthPage && (
+        {!isPortal && !isAuthPage && (
           <div style={{ ...styles.supportActionsCluster, ...(isMobile ? styles.supportActionsClusterMobile : {}) }}>
             {/* On phones the three buttons collapse behind a single toggle.
                 Laid out permanently they formed a 160px column pinned over
@@ -4408,7 +4792,7 @@ function App() {
               /* Last so it wins over pageContentMobile: the console owns the
                  full height and scrolls inside its own main column, rather
                  than growing the shell scroller like the site's pages do. */
-              ...(isAdminPortal ? styles.pageContentAdminPortal : {}),
+              ...(isPortal ? styles.pageContentAdminPortal : {}),
             }}
           >
             {activeNav === "About Us" && !isMobile && <AboutUs />}
@@ -4417,7 +4801,6 @@ function App() {
 {activeNav === "ServicesPage" && <ServicesPage setActiveNav={setActiveNav} showAIChat={showAIChat} setShowAIChat={openAIChat} />}
             {activeNav === "Target Market" && <TargetMarket />}
             {activeNav === "Learn More" && <LearnMore setActiveNav={setActiveNav} />}
-            {activeNav === "Explore More" && <ExploreMore setActiveNav={setActiveNav} />}
             {activeNav === "Target Market Explore" && <TargetMarketExplore />}
             {activeNav === "Sustainability App Market" && <SustainabilityAppMarket />}
             {activeNav === "Benefits of the Project" && <BenefitsOfTheProject />}
@@ -4446,6 +4829,17 @@ function App() {
               />
             )}
             {activeNav === "Admin Portal" && isAdmin && <AdminPortal setActiveNav={setActiveNav} handleLogout={handleLogout} adminName={loggedInUser} adminEmail={loggedInEmail} adminAvatar={profilePic} products={products} setProducts={setProducts} harvests={harvests} setHarvests={setHarvests} promoCodes={promoCodes} setPromoCodes={setPromoCodes} orders={orders} setOrders={setOrders} supportTickets={supportTickets} setSupportTickets={setSupportTickets} plantScans={plantScans} setPlantScans={setPlantScans} plantDiseases={plantDiseases} setPlantDiseases={setPlantDiseases} subscribers={subscribers} setSubscribers={setSubscribers} events={events} setEvents={setEvents} content={contentItems} setContent={setContentItems} forumPosts={forumPosts} setForumPosts={setForumPosts} farmPlanner={farmPlanner} setFarmPlanner={setFarmPlanner} advisors={advisors} setAdvisors={setAdvisors} surplusListings={surplusListings} setSurplusListings={setSurplusListings} surplusDemands={surplusDemands} setSurplusDemands={setSurplusDemands} certCourses={certCourses} setCertCourses={setCertCourses} adminSettings={adminSettings} setAdminSettings={setAdminSettings} deliveries={deliveries} setDeliveries={setDeliveries} riders={riders} setRiders={setRiders} platformUsers={platformUsers} setPlatformUsers={setPlatformUsers} transactions={transactions} setTransactions={setTransactions} subscriptionPlans={subscriptionPlans} setSubscriptionPlans={setSubscriptionPlans} ecoProgram={ecoProgram} setEcoProgram={setEcoProgram} supabaseReady={isSupabaseConfigured} contentSeeded={contentSeeded} publishingContent={publishingContent} onPublishContent={handlePublishContent} />}
+            {/* Gated on isAgent alone. An admin who is not also an agent has no
+                inbox here — they assign chats from the portal instead, and the
+                database would return them an empty list anyway (tickets_own
+                matches agent_id, not is_admin, for this query). */}
+            {activeNav === "Agent Inbox" && isAgent && (
+              <AgentInbox
+                agentName={loggedInUser}
+                supabaseReady={isSupabaseConfigured}
+                onLogout={handleLogout}
+              />
+            )}
             {activeNav === "EventsAndWorkshops" && <EventsAndWorkshopsPage setActiveNav={setActiveNav} adminEvents={events} onRegister={handleEventRegister} />}
             {activeNav === "Starter Kits & Toolsets" && <StarterKits setActiveNav={setActiveNav} />}
             {activeNav === "AI Data Subscription" && <AIDataSubscription setActiveNav={setActiveNav} promoCodes={promoCodes} onNewSubscriber={handleNewSubscriber} loggedInUser={loggedInUser} loggedInEmail={loggedInEmail} plans={subscriptionPlans} />}
@@ -4538,16 +4932,20 @@ function App() {
                             {section}
                           </div>
                         )}
-                        {visible.map(({ key, label, Icon }) => {
+                        {visible.map(({ key, label, Icon, locked }) => {
                           const active = settingsTab === key;
                           const hot = hoveredSettingsTab === key;
-                          const count = dashboardTabCounts[key];
+                          // A locked tab shows no unread badge — the count is
+                          // for something it cannot open.
+                          const count = locked ? 0 : dashboardTabCounts[key];
                           return (
                             <button
                               key={key}
-                              onClick={() => setSettingsTab(key)}
+                              onClick={() => openDashboardTab(key)}
                               onMouseEnter={() => setHoveredSettingsTab(key)}
                               onMouseLeave={() => setHoveredSettingsTab(null)}
+                              aria-disabled={locked || undefined}
+                              title={locked ? `${label} — coming soon` : undefined}
                               style={{
                                 display: "flex", alignItems: "center", gap: "11px",
                                 padding: isMobile ? "10px 14px" : "11px 14px",
@@ -4561,12 +4959,18 @@ function App() {
                                 textAlign: "left", cursor: "pointer", whiteSpace: "nowrap",
                                 fontFamily: "inherit", width: isMobile ? "auto" : "100%",
                                 flexShrink: 0,
+                                // Greyed back, but still legible and still
+                                // clickable — the click is what explains why.
+                                opacity: locked ? 0.55 : 1,
                                 boxShadow: active ? "0 8px 20px rgba(var(--eco-c7-rgb), 0.16), inset 0 1px 0 rgba(255,255,255,0.4)" : "none",
-                                transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease",
+                                transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease",
                               }}
                             >
                               <Icon size={17} strokeWidth={active ? 2.5 : 2.1} style={{ flexShrink: 0, opacity: active ? 1 : 0.75 }} />
                               <span style={{ flex: 1, minWidth: 0 }}>{label}</span>
+                              {locked && (
+                                <Lock size={13} strokeWidth={2.4} style={{ flexShrink: 0, opacity: 0.8 }} aria-hidden="true" />
+                              )}
                               {count > 0 && (
                                 <span style={{
                                   flexShrink: 0, minWidth: "20px", height: "20px", padding: "0 6px",
@@ -4672,7 +5076,14 @@ function App() {
                         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3, 1fr)", gap: "16px" }}>
                           <Field label="Member ID" value={myMember.id} />
                           <Field label="Account Type" value={myMember.role} />
-                          <Field label="EcoPoints" value={`${Number(myMember.ecoPoints || 0).toLocaleString()} pts`} tone="green" />
+                          {/* Same as Account Settings — no balance until the
+                              EcoPoints section is unlocked. */}
+                          <Field
+                            label="EcoPoints"
+                            value="Coming soon"
+                            tone="slate"
+                            hint="Locked for now — opening soon."
+                          />
                         </div>
                       </Panel>
                     )}
@@ -4754,7 +5165,7 @@ function App() {
                           title="No points earned yet"
                           body={'Check "How to Earn" under EcoPoints & Rewards for the ways to start collecting.'}
                           action={
-                            <button onClick={() => setSettingsTab("ecopoints")} style={dashToneBtn("green")}>
+                            <button onClick={() => openDashboardTab("ecopoints")} style={dashToneBtn("green")}>
                               See how to earn
                             </button>
                           }
@@ -5853,54 +6264,6 @@ function App() {
                   </div>
                 )}
 
-                {/* Updates — everything the admin publishes in Content Management */}
-                {settingsTab === "updates" && (
-                  <div className="w-full h-full flex-1" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-                    <SectionHead
-                      isMobile={isMobile}
-                      title="Updates"
-                      subtitle={`Announcements, articles and guides published by the ${adminSettings.platformName || "EcoEquity"} team.`}
-                      action={publishedContent.length > 0 && <Pill tone="sky">{publishedContent.length} published</Pill>}
-                    />
-
-                    <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ display: "flex", flexDirection: "column", gap: "12px", paddingRight: "8px" }}>
-                      {publishedContent.length > 0 ? (
-                        publishedContent.map((item) => {
-                          // Announcements are time-sensitive; guides and articles are
-                          // reference material. Colour-code so the feed scans.
-                          const typeTone = item.type === "Announcement" ? "amber" : item.type === "Guide" ? "violet" : "sky";
-                          return (
-                            <article key={item.id} style={{ ...dashCard, padding: "18px 20px", display: "flex", gap: "14px" }}>
-                              <IconChip tone={typeTone} size={40}>
-                                {item.type === "Announcement" ? <Megaphone size={18} strokeWidth={2.2} /> : <FileTextIcon size={18} strokeWidth={2.2} />}
-                              </IconChip>
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "7px" }}>
-                                  <Pill tone={typeTone}>{item.type}</Pill>
-                                  <span style={{ fontSize: "12px", fontWeight: 650, color: DASH.inkFaint }}>{item.date}</span>
-                                </div>
-                                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 850, color: DASH.ink, lineHeight: 1.35 }}>{item.title}</h3>
-                                {item.body && (
-                                  <p style={{ margin: "7px 0 0", fontSize: "13.5px", color: DASH.inkSoft, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{item.body}</p>
-                                )}
-                                <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: `1px solid ${DASH.line}`, fontSize: "12px", fontWeight: 650, color: DASH.inkFaint }}>
-                                  by {item.author}
-                                </div>
-                              </div>
-                            </article>
-                          );
-                        })
-                      ) : (
-                        <EmptyState
-                          icon={<Megaphone size={24} strokeWidth={2.2} />}
-                          title="No updates yet"
-                          body="New announcements and guides will appear here as soon as the team publishes them."
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {settingsTab === "support" && (
                   <div className="w-full h-full flex-1" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
                     <SectionHead
@@ -6022,7 +6385,15 @@ function App() {
                             <Field label="Member ID" value={myMember.id} />
                             <Field label="Account Type" value={myMember.role} />
                             <Field label="Registered Phone" value={myMember.phone || "Not set"} />
-                            <Field label="EcoPoints Balance" value={`${Number(myMember.ecoPoints || 0).toLocaleString()} pts`} tone="green" />
+                            {/* The balance stays hidden while EcoPoints &
+                                Rewards is locked — a figure with nowhere to
+                                spend it only raises questions. */}
+                            <Field
+                              label="EcoPoints Balance"
+                              value="Coming soon"
+                              tone="slate"
+                              hint="EcoPoints & Rewards is still being planted. Your balance will appear here once the section opens."
+                            />
                             <div style={{ gridColumn: isMobile ? "auto" : "1 / -1" }}>
                               <Field label="Delivery Address" value={myMember.address || "Not set"} />
                             </div>
@@ -6030,9 +6401,18 @@ function App() {
                         </Panel>
                       )}
 
+                      {/* The switches are read SERVER-SIDE at send time (see
+                          supabase/functions/notify), so the pill reports the
+                          write to the database, not to this browser. */}
                       <Panel
                         title="Notifications"
                         subtitle={`Which channels support may reach you on. Shared with the ${adminSettings.platformName || "EcoEquity"} team.`}
+                        right={
+                          notifySaveState === "saving" ? <Pill tone="slate">Saving…</Pill>
+                            : notifySaveState === "saved" ? <Pill tone="green">Saved</Pill>
+                            : notifySaveState === "error" ? <Pill tone="rose">Not saved</Pill>
+                            : null
+                        }
                       >
                         <div style={{ display: "flex", flexDirection: "column" }}>
                           <Toggle
@@ -6046,8 +6426,42 @@ function App() {
                             checked={notificationSettings.sms}
                             onChange={() => handleNotificationChange('sms')}
                             label="SMS Updates"
-                            hint="Delivery alerts sent to your registered phone."
+                            hint={
+                              phoneNumber
+                                ? `Delivery alerts sent to ${phoneNumber}.`
+                                : "Delivery alerts sent to your registered phone — add one under My Profile first."
+                            }
                           />
+                        </div>
+
+                        {notifySaveState === "error" && (
+                          <div style={{ marginTop: "10px", fontSize: "12.5px", color: DASH.rose, fontWeight: 650, lineHeight: 1.5 }}>
+                            That change didn't save, so the switch has been put back. Check your connection and try again.
+                          </div>
+                        )}
+
+                        {/* Proof it works, without waiting for a real order to
+                            move. It goes through the same function as every
+                            other message, so a passing test is a real test. */}
+                        <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: `1px solid ${DASH.line}`, display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "center", gap: "12px" }}>
+                          <button
+                            onClick={handleSendTestNotification}
+                            disabled={notifyTestState.status === "sending" || !isSupabaseConfigured}
+                            style={{
+                              ...dashGhostBtn,
+                              flexShrink: 0,
+                              opacity: notifyTestState.status === "sending" || !isSupabaseConfigured ? 0.55 : 1,
+                              cursor: notifyTestState.status === "sending" || !isSupabaseConfigured ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            <Mail size={13} style={{ verticalAlign: "-2px", marginRight: "6px" }} />
+                            {notifyTestState.status === "sending" ? "Sending…" : "Send a test"}
+                          </button>
+                          <span style={{ fontSize: "12px", color: notifyTestState.status === "error" ? DASH.rose : DASH.inkFaint, fontWeight: 620, lineHeight: 1.5, minWidth: 0 }}>
+                            {!isSupabaseConfigured
+                              ? "Connect the database to send notifications."
+                              : notifyTestState.detail || "Sends a test message to the channels switched on above."}
+                          </span>
                         </div>
                       </Panel>
 
@@ -6108,6 +6522,18 @@ function App() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Locked dashboard tab — the padlock's explanation. Portalled to the
+            body at MODAL_LAYER.top, so it sits above the settings shell. */}
+        {lockedTabNotice && (
+          <ComingSoonBanner
+            title="Stay Tuned"
+            message={`${lockedTabNotice} is still being planted. We're finishing this section — it will open up here soon.`}
+            closeLabel="Close announcement"
+            onDismiss={() => setLockedTabNotice(null)}
+            onClose={() => setLockedTabNotice(null)}
+          />
         )}
 
         {/* SECTION 9 — SUCCESS MODAL */}
@@ -6240,7 +6666,7 @@ function App() {
            Off in the Admin Portal: it floats over the console's own content
            and duplicates navigation the portal's drawer already carries. The
            portal's "View site" button is the way back out. */}
-        {isMobile && !isAuthPage && !isAdminPortal && (
+        {isMobile && !isAuthPage && !isPortal && (
           <div style={styles.bottomGlassContainerMobile}>
             <button onClick={() => handleNavChange("Home")} style={{ ...styles.bottomNavBtn, opacity: activeNav === "Home" ? 1 : 0.6 }}>
               <Home size={22} color="#ffffff" />
@@ -6431,22 +6857,39 @@ function App() {
 
               {recoveryModal.status === "done" ? (
                 <>
-                  <h2 style={{ margin: "0 0 10px", fontSize: "22px", fontWeight: 700, color: "var(--eco-c13)" }}>Password updated 🎉</h2>
+                  <h2 style={{ margin: "0 0 10px", fontSize: "22px", fontWeight: 700, color: "var(--eco-c13)" }}>
+                    {recoveryModal.kind === "invite" ? "You're all set 🎉" : "Password updated 🎉"}
+                  </h2>
                   <p style={{ margin: "0 0 24px", fontSize: "14px", color: "rgba(0,0,0,0.65)", lineHeight: 1.5 }}>
-                    You're signed in with your new password. Use it the next time you log in.
+                    {recoveryModal.kind === "invite"
+                      ? "Your account is ready. Use this password the next time you sign in."
+                      : "You're signed in with your new password. Use it the next time you log in."}
                   </p>
                   <button
-                    onClick={() => { setRecoveryModal(null); setPassword(""); handleNavChange(isLoggedIn ? "Home" : "Login"); }}
+                    onClick={() => {
+                      setRecoveryModal(null);
+                      setPassword("");
+                      // An agent goes to the work they were invited for, not to
+                      // the landing page. isAgent is already set by applySession
+                      // — the role was granted when the invitation was sent.
+                      handleNavChange(!isLoggedIn ? "Login" : isAgent ? "Agent Inbox" : "Home");
+                    }}
                     style={{ ...styles.primaryBtn, width: "100%", padding: "14px", fontSize: "15px" }}>
                     <span aria-hidden="true" style={styles.primaryInnerBlur} />
-                    <span style={styles.glassContentLayer}>{isLoggedIn ? "Start exploring" : "Continue to login"}</span>
+                    <span style={styles.glassContentLayer}>
+                      {!isLoggedIn ? "Continue to login" : isAgent ? "Go to my chats" : "Start exploring"}
+                    </span>
                   </button>
                 </>
               ) : (
                 <>
-                  <h2 style={{ margin: "0 0 8px", fontSize: "21px", fontWeight: 700, color: "var(--eco-c13)" }}>Set a new password</h2>
+                  <h2 style={{ margin: "0 0 8px", fontSize: "21px", fontWeight: 700, color: "var(--eco-c13)" }}>
+                    {recoveryModal.kind === "invite" ? "Welcome — set your password" : "Set a new password"}
+                  </h2>
                   <p style={{ margin: "0 0 20px", fontSize: "13.5px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>
-                    Choose a password of at least {PASSWORD_MIN_LENGTH} characters. You'll stay signed in on this device.
+                    {recoveryModal.kind === "invite"
+                      ? `You've been invited to EcoEquity support. Choose a password of at least ${PASSWORD_MIN_LENGTH} characters to finish setting up your account.`
+                      : `Choose a password of at least ${PASSWORD_MIN_LENGTH} characters. You'll stay signed in on this device.`}
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "18px" }}>
                     <input
@@ -6454,7 +6897,7 @@ function App() {
                       autoFocus
                       value={recoveryModal.password}
                       onChange={(e) => setRecoveryModal({ ...recoveryModal, password: e.target.value, error: null })}
-                      placeholder="New password"
+                      placeholder={recoveryModal.kind === "invite" ? "Choose a password" : "New password"}
                       style={{ ...authModalInput, border: `1px solid ${recoveryModal.error ? "var(--eco-c9)" : "rgba(var(--eco-c9-rgb), 0.28)"}` }}
                     />
                     <input
@@ -6462,7 +6905,7 @@ function App() {
                       value={recoveryModal.confirm}
                       onChange={(e) => setRecoveryModal({ ...recoveryModal, confirm: e.target.value, error: null })}
                       onKeyDown={(e) => { if (e.key === "Enter") handleSetNewPassword(); }}
-                      placeholder="Confirm new password"
+                      placeholder={recoveryModal.kind === "invite" ? "Confirm password" : "Confirm new password"}
                       style={{ ...authModalInput, border: `1px solid ${recoveryModal.error ? "var(--eco-c9)" : "rgba(var(--eco-c9-rgb), 0.28)"}` }}
                     />
                     {recoveryModal.error && <span style={authModalError}>{recoveryModal.error}</span>}

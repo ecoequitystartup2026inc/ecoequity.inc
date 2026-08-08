@@ -4,68 +4,12 @@ import { MODAL_LAYER, modalOverlay } from "../styles/modal";
 import ReactDOM from "react-dom";
 import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUser, FaFilter, FaTimes, FaArrowLeft, FaSearch, FaUsers, FaTag } from "react-icons/fa";
 
-const mockEvents = [
-  {
-    id: 1,
-    type: "Training",
-    date: "June 15, 2026",
-    time: "9:00 AM - 12:00 PM",
-    venue: "Baguio City Hall Grounds",
-    speaker: { name: "Dr. Maria Santos", image: "" }, // Photo intentionally blank — set from Admin Portal
-    title: "Urban Hydroponics for Beginners",
-    description: "Learn the basics of hydroponic farming for small urban spaces. Hands-on training on setting up a simple system.",
-    fullDescription: "This comprehensive workshop covers everything you need to start your own hydroponic garden. From nutrient solutions to plant selection, our expert Dr. Maria Santos will guide you through practical exercises. Ideal for city dwellers looking to grow fresh produce year-round.",
-    rsvpLink: "#",
-  },
-  {
-    id: 2,
-    type: "Webinar",
-    date: "July 10, 2026",
-    time: "2:00 PM - 3:30 PM",
-    venue: "Online (Zoom)",
-    speaker: { name: "Engr. Ana Reyes", image: "" }, // Photo intentionally blank — set from Admin Portal
-    title: "Sustainable Pest Management",
-    description: "Discover eco-friendly methods to protect your crops from common pests without harmful chemicals.",
-    fullDescription: "Join Engr. Ana Reyes for an insightful webinar on integrated pest management strategies. Learn about natural predators, organic sprays, and companion planting techniques to keep your garden healthy and productive. Q&A session included.",
-    rsvpLink: "#",
-  },
-  {
-    id: 3,
-    type: "Community Gathering",
-    date: "August 5, 2026",
-    time: "4:00 PM - 6:00 PM",
-    venue: "Local Community Garden",
-    speaker: { name: "Mr. Juan Dela Cruz", image: "" }, // Photo intentionally blank — set from Admin Portal
-    title: "Seed Exchange & Planting Day",
-    description: "Connect with fellow gardeners, exchange heirloom seeds, and participate in a community planting activity.",
-    fullDescription: "A wonderful opportunity to meet local gardening enthusiasts, share your favorite seeds, and contribute to our community garden. Mr. Juan Dela Cruz will lead a short session on seed saving and propagation. Refreshments will be served.",
-    rsvpLink: "#",
-  },
-  {
-    id: 4,
-    type: "Training",
-    date: "September 20, 2026",
-    time: "10:00 AM - 1:00 PM",
-    venue: "EcoEquity Training Center",
-    speaker: { name: "Chef Elena Garcia", image: "" }, // Photo intentionally blank — set from Admin Portal
-    title: "Farm-to-Table Cooking Workshop",
-    description: "Learn to cook delicious and healthy meals using freshly harvested organic produce.",
-    fullDescription: "Chef Elena Garcia will demonstrate how to transform fresh, seasonal ingredients into culinary masterpieces. This hands-on workshop emphasizes healthy eating and sustainable food practices. All ingredients provided.",
-    rsvpLink: "#",
-  },
-  {
-    id: 5,
-    type: "Webinar",
-    date: "October 12, 2026",
-    time: "7:00 PM - 8:00 PM",
-    venue: "Online (Google Meet)",
-    speaker: { name: "Dr. Alex Lim", image: "" }, // Photo intentionally blank — set from Admin Portal
-    title: "Advanced Soil Health & Composting",
-    description: "Deep dive into improving soil fertility and effective composting techniques for sustainable gardening.",
-    fullDescription: "Explore the science behind healthy soil with Dr. Alex Lim. This webinar covers advanced composting methods, soil testing, and strategies for long-term soil fertility. Perfect for experienced gardeners looking to optimize their growing conditions.",
-    rsvpLink: "#",
-  },
-];
+// This page used to carry its own hard-coded copy of the five launch events on
+// top of whatever the Admin Portal held. That made the admin list advisory:
+// deleting or renaming one of those five in the portal changed nothing here,
+// because the page's own copy was still in the array. The admin list
+// (data/adminSeeds.js → App.js state → Supabase `events`) is now the only
+// source, so a delete or an edit in the portal shows up here immediately.
 
 const filterTabs = ["All Events", "Trainings", "Webinars", "Community Gatherings"];
 
@@ -131,7 +75,10 @@ function EventsAndWorkshopsPage({ setActiveNav, adminEvents = [], onRegister }) 
   const [hoveredFilter, setHoveredFilter] = useState(null);
   const [hoveredEventCard, setHoveredEventCard] = useState(null);
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  // The open event is held by id, not by value: the record is looked up again
+  // on every render, so an admin edit lands in the open modal and an admin
+  // delete closes it instead of leaving a card that no longer exists.
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0); // State for scroll indicator
   const [isHoveredBack, setIsHoveredBack] = useState(false);
 const [showIdeasModal, setShowIdeasModal] = useState(false);
@@ -166,7 +113,7 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
       speaker: { name: ae.speaker || "EcoEquity Team", image: ae.speakerImage || "" },
       title: ae.title,
       description: ae.description || `${ae.type || "Event"}${ae.price ? " • " + ae.price : ""}${ae.location ? " • " + ae.location : ""}`,
-      fullDescription: ae.description || `Join us for ${ae.title} on ${ae.date}${ae.time ? " at " + ae.time : ""}.`,
+      fullDescription: ae.fullDescription || ae.description || `Join us for ${ae.title} on ${ae.date}${ae.time ? " at " + ae.time : ""}.`,
       price: ae.price,
       status: ae.status,
       attendees: Number(ae.attendees) || 0,
@@ -175,14 +122,12 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
     };
   };
 
-  // Curated events + admin-created events (deduped by title) for a single,
-  // synced list. Cancelled admin events are hidden from the website.
-  const allEvents = [
-    ...mockEvents,
-    ...adminEvents
-      .filter(ae => ae.title && ae.status !== "Cancelled" && !mockEvents.some(me => me.title === ae.title))
-      .map(mapAdminEventToCard),
-  ];
+  // Everything the Admin Portal holds, and nothing else. Cancelled events are
+  // withheld from the website — an admin who wants one gone entirely deletes
+  // it in the portal, and it drops out of this list on the next render.
+  const allEvents = (Array.isArray(adminEvents) ? adminEvents : [])
+    .filter(ae => ae && ae.title && ae.status !== "Cancelled")
+    .map(mapAdminEventToCard);
 
   const filteredEvents = allEvents.filter(event => {
     const tabMapping = {
@@ -199,14 +144,25 @@ const [showIdeasModal, setShowIdeasModal] = useState(false);
     return matchesTab && matchesSearch;
   });
 
+  // The live record behind the open details modal — null once the admin
+  // deletes (or cancels) it, which closes the modal on the next render.
+  const selectedEvent = selectedEventId
+    ? allEvents.find(ev => ev.id === selectedEventId) || null
+    : null;
+
   const isEventFull = (event) =>
     event.maxAttendees > 0 && event.attendees >= event.maxAttendees;
   const spotsLeft = (event) =>
     event.maxAttendees > 0 ? Math.max(event.maxAttendees - event.attendees, 0) : null;
 
 const openEventDetails = (event) => {
-    setSelectedEvent(event);
+    setSelectedEventId(event.id);
     setShowEventDetailsModal(true);
+  };
+
+  const closeEventDetails = () => {
+    setShowEventDetailsModal(false);
+    setSelectedEventId(null);
   };
 
   const handleJoinNowClick = (e, event) => {
@@ -386,6 +342,21 @@ END:VCALENDAR`;
         ))}
       </div>
 
+      {/* Nothing to show is now a real state: the admin can empty the list. */}
+      {filteredEvents.length === 0 && (
+        <div style={styles.emptyState}>
+          <FaCalendarAlt style={{ fontSize: "26px", opacity: 0.35, marginBottom: "12px" }} />
+          <p style={styles.emptyStateTitle}>
+            {allEvents.length === 0 ? "No events scheduled right now" : "No events match your search"}
+          </p>
+          <p style={styles.emptyStateText}>
+            {allEvents.length === 0
+              ? "New workshops, webinars and community gatherings are announced here — check back soon."
+              : "Try a different keyword or switch back to All Events."}
+          </p>
+        </div>
+      )}
+
       <div
         className="hide-scroll"
         style={{ ...styles.eventGrid, ...(isMobile ? styles.eventGridMobile : {}) }}
@@ -451,9 +422,9 @@ END:VCALENDAR`;
       </div>
 
       {showEventDetailsModal && selectedEvent && ReactDOM.createPortal(
-        <div style={styles.modalOverlay} onClick={() => setShowEventDetailsModal(false)}>
+        <div style={styles.modalOverlay} onClick={closeEventDetails}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button style={styles.modalCloseBtn} onClick={() => setShowEventDetailsModal(false)}><FaTimes /></button>
+            <button style={styles.modalCloseBtn} onClick={closeEventDetails}><FaTimes /></button>
             <h2 style={styles.modalTitle}>{selectedEvent.title}</h2>
             <div style={styles.modalMeta}>
               <p style={styles.eventMetaItem}><FaCalendarAlt /> {selectedEvent.date}</p>
@@ -756,6 +727,28 @@ const styles = {
     background: "linear-gradient(135deg, rgba(var(--eco-c5-rgb), 0.12), rgba(var(--eco-c5-rgb), 0.12))",
     color: "var(--eco-c15)",
     boxShadow: "0 4px 12px rgba(var(--eco-c7-rgb), 0.08)",
+  },
+  emptyState: {
+    width: "100%",
+    maxWidth: "460px",
+    margin: "8px auto 24px",
+    padding: "32px 24px",
+    textAlign: "center",
+    borderRadius: "20px",
+    background: "linear-gradient(150deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4))",
+    border: "1px solid rgba(0,0,0,0.05)",
+    color: "var(--eco-c15)",
+  },
+  emptyStateTitle: {
+    margin: "0 0 6px",
+    fontSize: "16px",
+    fontWeight: 800,
+  },
+  emptyStateText: {
+    margin: 0,
+    fontSize: "13px",
+    lineHeight: 1.5,
+    opacity: 0.7,
   },
   eventGrid: {
     display: "flex", // Changed to flex for horizontal scrolling

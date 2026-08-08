@@ -11,8 +11,19 @@ import { createProduct, updateProduct, deleteProduct } from "../data/products";
 import { defaultEcoProgram, ecoIcon, ecoIconOptions, tierRangeLabel } from "../data/ecoProgram";
 import { normalizeMember, memberEarnEntry, memberCertificate } from "../data/platformUsers";
 import { fetchAllRedemptions, updateRedemptionStatus, cancelRedemption, fetchMemberBalances, adjustMemberPoints, fetchEcoEconomy, REDEMPTION_STATUSES, REDEMPTION_FILTERS } from "../data/ecoPoints";
-import { MODAL_LAYER, modalOverlay } from "../styles/modal";
+import { notifyUser, orderStatusMessage, ticketReplyMessage } from "../data/notifications";
+import { fetchLiveQueue, fetchAgents, assignTicket, acceptTicket, rejectTicket, closeLiveChat } from "../data/supportAgents";
+import { fetchAgentRoster, inviteAgent, setAgentEnabled } from "../data/agentInvites";
+import { fetchTicketMessages, sendLiveMessage, subscribeToTicket } from "../data/liveChat";
+import { MODAL_LAYER, MODAL_CLOSE_BTN, modalOverlay, modalPanel } from "../styles/modal";
 import ColorThemePicker from "../components/ColorThemePicker";
+// Placeholder rows used as default props below. They live in data/ rather than
+// here so App.js can read them without importing this 8,600-line module — that
+// is what lets the portal be code-split away from the main bundle.
+import {
+  mockUsers, mockDeliveriesList, mockRiders, mockTransactions, mockSubscribers,
+  mockEventsList, mockScansList, mockDiseaseLibrary, mockContentList,
+} from "../data/adminSeeds";
 
 /**
  * Portal design tokens.
@@ -92,14 +103,6 @@ const mockVerifications = [
   { name: "Green Valley Co.", location: "Davao", date: "1 day ago", type: "Commercial" },
 ];
 
-export const mockUsers = [
-  { id: "USR-001", name: "Maria Clara", email: "maria@example.com", role: "Customer", lastLogin: "10 mins ago", status: "Online" },
-  { id: "USR-002", name: "Juan Dela Cruz", email: "juan@example.com", role: "Farmer", lastLogin: "1 hour ago", status: "Offline" },
-  { id: "USR-003", name: "Healthy Eats Cafe", email: "contact@healthyeats.com", role: "B2B Buyer", lastLogin: "2 hours ago", status: "Offline" },
-  { id: "USR-004", name: "Urban Roots", email: "hello@urbanroots.ph", role: "Customer", lastLogin: "Just now", status: "Online" },
-  { id: "USR-005", name: "Reyes Organic Farm", email: "admin@reyesorganic.com", role: "Farmer", lastLogin: "5 mins ago", status: "Online" },
-];
-
 const mockActivityFeed = [
   { text: "New commercial farm registered from Benguet.", time: "10 mins ago", color: "var(--eco-c13)" },
   { text: "High volume of AI diagnoses detected for 'Tomato Blight'.", time: "1 hr ago", color: "var(--eco-c13)" },
@@ -114,20 +117,6 @@ const mockDeliveryStats = [
   { label: "Delayed Orders", value: "4", trend: "-2%", up: false, icon: <AlertCircle size={16} color="#dc2626" /> },
   { label: "Active Riders", value: "24", trend: "+10%", up: true, icon: <UserCheck size={16} color="#8b5cf6" /> },
   { label: "Avg Time", value: "35m", trend: "-5m", up: true, icon: <Clock size={16} color="var(--eco-c9)" /> },
-];
-
-export const mockDeliveriesList = [
-  { id: "TRK-001", orderId: "ORD-9823", customer: "Maria Clara", rider: "Mike T.", status: "Out for Delivery", eta: "10 mins", type: "Eco-Bike", distance: "2.5 km" },
-  { id: "TRK-002", orderId: "ORD-9822", customer: "Juan Dela Cruz", rider: "Sarah L.", status: "In Transit", eta: "25 mins", type: "EV-Van", distance: "5.1 km" },
-  { id: "TRK-003", orderId: "ORD-9821", customer: "Healthy Eats", rider: "Unassigned", status: "Pending Pickup", eta: "N/A", type: "Standard", distance: "1.2 km" },
-  { id: "TRK-004", orderId: "ORD-9820", customer: "Urban Roots", rider: "John D.", status: "Delivered", eta: "Delivered", type: "Eco-Bike", distance: "3.8 km" },
-  { id: "TRK-005", orderId: "ORD-9819", customer: "Green Valley", rider: "Alex R.", status: "Delayed", eta: "45 mins", type: "EV-Van", distance: "8.4 km" },
-];
-
-export const mockRiders = [
-  { id: "RDR-001", name: "Mike T.", status: "On Delivery", rating: 4.9, deliveries: 1245, phone: "0917 555 0101", area: "Baguio City", vehicle: "Eco-Bike", currentOrder: "ORD-9823" },
-  { id: "RDR-002", name: "Sarah L.", status: "Available", rating: 4.8, deliveries: 890, phone: "0917 555 0102", area: "La Trinidad", vehicle: "EV-Van", currentOrder: null },
-  { id: "RDR-003", name: "John D.", status: "Offline", rating: 4.7, deliveries: 654, phone: "0917 555 0103", area: "Itogon", vehicle: "Eco-Bike", currentOrder: null },
 ];
 
 const RIDER_STATUS_OPTIONS = [
@@ -326,27 +315,11 @@ const mockPaymentStats = [
   { label: "Refunds", value: "3", trend: "+1%", up: false, icon: <RefreshCcw size={16} color="#dc2626" /> },
 ];
 
-export const mockTransactions = [
-  { id: "TXN-001", orderId: "ORD-9823", customer: "Maria Clara", method: "GCash", amount: "₱1,250", status: "Paid", date: "May 28, 2026, 10:30 AM", refNo: "8291038471" },
-  { id: "TXN-002", orderId: "ORD-9822", customer: "Juan Dela Cruz", method: "Cash on Delivery", amount: "₱850", status: "Pending", date: "May 28, 2026, 11:15 AM", refNo: "N/A" },
-  { id: "TXN-003", orderId: "ORD-9821", customer: "Healthy Eats", method: "Credit Card", amount: "₱5,400", status: "Paid", date: "May 27, 2026, 2:45 PM", refNo: "CH-992817" },
-  { id: "TXN-004", orderId: "ORD-9820", customer: "Urban Roots", method: "Maya", amount: "₱3,200", status: "Refunded", date: "May 27, 2026, 4:20 PM", refNo: "MY-112349" },
-  { id: "TXN-005", orderId: "ORD-9819", customer: "Green Valley", method: "Bank Transfer", amount: "₱12,000", status: "Failed", date: "May 26, 2026, 9:00 AM", refNo: "BT-88219" },
-];
-
 const mockSubscriptionStats = [
   { label: "Total Subscribers", value: "1,245", trend: "+12%", up: true, icon: <Users size={16} color="#0284c7" /> },
   { label: "Monthly Revenue", value: "₱58,400", trend: "+8%", up: true, icon: <CreditCard size={16} color="var(--eco-c11)" /> },
   { label: "Renewal Rate", value: "82%", trend: "+5%", up: true, icon: <Repeat size={16} color="#8b5cf6" /> },
   { label: "Active Pro Users", value: "148", trend: "+15%", up: true, icon: <Crown size={16} color="#f59e0b" /> },
-];
-
-export const mockSubscribers = [
-  { id: "SUB-001", user: "Maria Clara", email: "maria@example.com", plan: "Pro", status: "Active", renewal: "Jun 15, 2026", payment: "GCash", joined: "Jan 10, 2026", aiScans: 85, aiLimit: 100 },
-  { id: "SUB-002", user: "Juan Dela Cruz", email: "juan@example.com", plan: "Basic", status: "Active", renewal: "N/A", payment: "Free", joined: "Feb 05, 2026", aiScans: 8, aiLimit: 10 },
-  { id: "SUB-003", user: "Healthy Eats Cafe", email: "contact@healthyeats.com", plan: "Enterprise", status: "Active", renewal: "Dec 01, 2026", payment: "Bank Transfer", joined: "Dec 01, 2025", aiScans: 1250, aiLimit: 5000 },
-  { id: "SUB-004", user: "Urban Roots", email: "hello@urbanroots.ph", plan: "Pro", status: "Pending Renewal", renewal: "May 30, 2026", payment: "Credit Card", joined: "May 30, 2025", aiScans: 100, aiLimit: 100 },
-  { id: "SUB-005", user: "Reyes Organic", email: "admin@reyesorganic.com", plan: "Pro", status: "Cancelled", renewal: "May 15, 2026", payment: "Maya", joined: "Oct 12, 2025", aiScans: 20, aiLimit: 100 },
 ];
 
 const subscriptionPlanOptions = [
@@ -404,14 +377,6 @@ const subscriberScheduleOptions = [
   { value: "later", label: "Schedule for Later" },
 ];
 
-export const mockEventsList = [
-  { id: "EVT-001", title: "Urban Hydroponics Masterclass", date: "Jun 15, 2026", time: "09:00 AM", type: "Workshop", attendees: 45, maxAttendees: 50, status: "Upcoming", price: "₱1,200", location: "Baguio City Hall" },
-  { id: "EVT-002", title: "Sustainable Pest Management", date: "Jul 10, 2026", time: "02:00 PM", type: "Webinar", attendees: 120, maxAttendees: 500, status: "Upcoming", price: "Free", location: "Online (Zoom)" },
-  { id: "EVT-003", title: "Seed Exchange & Planting Day", date: "Aug 05, 2026", time: "04:00 PM", type: "Community", attendees: 85, maxAttendees: 100, status: "Upcoming", price: "Free", location: "Local Garden" },
-  { id: "EVT-004", title: "Farm-to-Table Cooking", date: "May 20, 2026", time: "10:00 AM", type: "Workshop", attendees: 30, maxAttendees: 30, status: "Completed", price: "₱2,500", location: "EcoEquity Center" },
-  { id: "EVT-005", title: "Advanced Soil Health", date: "May 10, 2026", time: "07:00 PM", type: "Webinar", attendees: 250, maxAttendees: 300, status: "Completed", price: "Free", location: "Online" },
-];
-
 const mockAIStats = [
   { label: "Total AI Scans", value: "12,450", trend: "+18%", up: true, icon: <Scan size={16} color="#0284c7" /> },
   { label: "AI Accuracy Rate", value: "98.4%", trend: "+1.2%", up: true, icon: <Target size={16} color="var(--eco-c9)" /> },
@@ -419,40 +384,8 @@ const mockAIStats = [
   { label: "Reports Generated", value: "2,400", trend: "+22%", up: true, icon: <FileText size={16} color="#8b5cf6" /> },
 ];
 
-export const mockScansList = [
-  { id: "SCN-8821", plant: "Tomato", disease: "Early Blight", confidence: "94%", user: "Maria Clara", status: "Critical", date: "May 28, 2026", recommendation: "Apply copper-based fungicide and remove affected lower leaves to prevent spore spread." },
-  { id: "SCN-8820", plant: "Lettuce", disease: "None", confidence: "99%", user: "Urban Roots", status: "Healthy", date: "May 28, 2026", recommendation: "Plant is healthy. Continue current watering and nutrient schedule." },
-  { id: "SCN-8819", plant: "Mango", disease: "Anthracnose", confidence: "87%", user: "Juan Dela Cruz", status: "Disease Detected", date: "May 27, 2026", recommendation: "Prune infected branches and apply organic fungicide during dry weather." },
-  { id: "SCN-8818", plant: "Banana", disease: "Stem Weevil", confidence: "76%", user: "Green Valley", status: "Under Review", date: "May 27, 2026", recommendation: "Requires agronomist confirmation. Temporarily isolate affected crops." },
-  { id: "SCN-8817", plant: "Eggplant", disease: "Downy Mildew", confidence: "91%", user: "Healthy Eats", status: "Resolved", date: "May 26, 2026", recommendation: "Previous treatment successful. Monitor for 7 more days." },
-];
-
 // Disease Library — authored here in the Admin Portal and consumed by the
 // user-facing AI Plant Doctor so every diagnosis is drawn from admin content.
-export const mockDiseaseLibrary = [
-  { id: "DIS-001", name: "Early Blight (Fungal)", plant: "Tomato", crop: "Tomato, Potato", severity: "High", confidence: "94%", recommendations: [
-    "Remove infected lower leaves to prevent spore splash.",
-    "Apply organic copper-based fungicide every 7-10 days.",
-    "Improve air circulation by pruning excess foliage.",
-    "Water at the base of the plant only, avoiding the leaves.",
-  ] },
-  { id: "DIS-002", name: "Downy Mildew", plant: "Eggplant", crop: "Eggplant, Cucumber", severity: "Medium", confidence: "91%", recommendations: [
-    "Avoid overhead watering to keep foliage dry.",
-    "Apply a potassium bicarbonate spray on affected areas.",
-    "Increase spacing between plants for better airflow.",
-  ] },
-  { id: "DIS-003", name: "Anthracnose", plant: "Mango", crop: "Mango, Papaya", severity: "High", confidence: "87%", recommendations: [
-    "Prune infected branches and dispose of them away from crops.",
-    "Apply organic fungicide during dry weather windows.",
-    "Harvest fruit promptly to reduce infection spread.",
-  ] },
-  { id: "DIS-004", name: "Powdery Mildew", plant: "Squash", crop: "Squash, Melon", severity: "Medium", confidence: "89%", recommendations: [
-    "Spray a diluted neem oil solution weekly.",
-    "Remove and destroy heavily infected leaves.",
-    "Plant in full sun to discourage fungal growth.",
-  ] },
-];
-
 const mockAnalyticsStats = [
   { label: "Total Revenue", value: "₱245,000", trend: "+18%", up: true, icon: <CreditCard size={16} color="var(--eco-c11)" /> },
   { label: "Active Users", value: "4,200", trend: "+12%", up: true, icon: <Users size={16} color="#0284c7" /> },
@@ -482,14 +415,6 @@ const mockContentStats = [
   { label: "Announcements", value: "45", trend: "+2", up: true, icon: <Megaphone size={16} color="#8b5cf6" /> },
 ];
 
-export const mockContentList = [
-  { id: "CNT-001", title: "10 Benefits of Urban Farming", type: "Article", status: "Published", date: "May 28, 2026", author: "Admin" },
-  { id: "CNT-002", title: "Summer Workshop Registration", type: "Page", status: "Draft", date: "May 27, 2026", author: "Editor" },
-  { id: "CNT-003", title: "Platform Maintenance Notice", type: "Announcement", status: "Scheduled", date: "May 26, 2026", author: "Admin" },
-  { id: "CNT-004", title: "How to use the AI Plant Doctor", type: "Tutorial", status: "Published", date: "May 25, 2026", author: "Admin" },
-  { id: "CNT-005", title: "Homepage Hero Banner", type: "Component", status: "Published", date: "May 24, 2026", author: "Designer" },
-];
-
 const mockSettingsStats = [
   { label: "System Status", value: "Online", trend: "99.9% Uptime", up: true, icon: <Activity size={16} color="var(--eco-c11)" /> },
   { label: "Active Admins", value: "5", trend: "Secure", up: true, icon: <ShieldCheck size={16} color="#0284c7" /> },
@@ -510,6 +435,60 @@ const supportPriorityOptions = [
   { value: "High", label: "High" },
   { value: "Urgent", label: "Urgent" },
 ];
+
+// Shared by every "nothing here" state in the Live Chats card, so an empty
+// queue, a missing backend and a failed load all sit in the same box.
+const liveEmptyStyle = {
+  padding: "26px",
+  borderRadius: "16px",
+  border: "1px dashed rgba(0,0,0,0.12)",
+  fontSize: "13px",
+  fontWeight: 700,
+  color: "rgba(0,0,0,0.5)",
+  textAlign: "center",
+  lineHeight: 1.5,
+};
+
+// The member-facing lifecycle, as the admin sees it. Kept apart from
+// getStatusStyle() — that one colours the ticket statuses (Open, Resolved …),
+// and these are a different axis entirely: whether a person is being answered.
+const LIVE_STATUS_LABELS = {
+  pending:    { label: "Pending",    tint: "rgba(234,179,8,0.16)",  ink: "#854d0e" },
+  accepted:   { label: "Accepted",   tint: "rgba(var(--eco-c9-rgb), 0.16)", ink: "var(--eco-c13)" },
+  active:     { label: "Active",     tint: "rgba(var(--eco-c9-rgb), 0.16)", ink: "var(--eco-c13)" },
+  reassigned: { label: "Reassigned", tint: "rgba(2,132,199,0.14)",  ink: "#0369a1" },
+  closed:     { label: "Closed",     tint: "rgba(0,0,0,0.07)",      ink: "rgba(0,0,0,0.5)" },
+  rejected:   { label: "Declined",   tint: "rgba(220,38,38,0.12)",  ink: "#b91c1c" },
+};
+
+const liveStatusChip = (status) => LIVE_STATUS_LABELS[status] || LIVE_STATUS_LABELS.pending;
+
+// A person's standing on the team, which is a third axis again: not the
+// ticket's status, not the conversation's, but whether this human can be given
+// work right now. 'offline' is not a problem to fix — it is most of the day.
+const AGENT_STATE_CHIPS = {
+  pending:  { label: "Pending Invitation", tint: "rgba(234,179,8,0.16)", ink: "#854d0e", dot: "#eab308" },
+  active:   { label: "Active",   tint: "rgba(34,197,94,0.14)", ink: "#15803d", dot: "#22c55e" },
+  offline:  { label: "Offline",  tint: "rgba(0,0,0,0.07)",     ink: "rgba(0,0,0,0.5)", dot: "rgba(0,0,0,0.25)" },
+  disabled: { label: "Disabled", tint: "rgba(220,38,38,0.1)",  ink: "#b91c1c", dot: "rgba(0,0,0,0.25)" },
+};
+
+/**
+ * How long this chat has been sitting there.
+ *
+ * Coarse on purpose: an admin triaging a queue needs "is this person still
+ * here", not a stopwatch. Anything past an hour is already a failure, so the
+ * exact number stops being the useful part.
+ */
+function liveWaitLabel(timestamp) {
+  if (!timestamp) return "just now";
+  const minutes = Math.floor((Date.now() - new Date(timestamp).getTime()) / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
 
 const supportAssigneeOptions = [
   { value: "Unassigned", label: "Unassigned" },
@@ -1185,6 +1164,7 @@ export default function AdminPortal({
   const setEventsList = setEvents;
   const [isEditingEvent, setIsEditingEvent] = useState(false);
   const [editableEvent, setEditableEvent] = useState(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
 
   const [selectedScan, setSelectedScan] = useState(null);
   const [scanSearchTerm, setScanSearchTerm] = useState("");
@@ -1234,7 +1214,24 @@ export default function AdminPortal({
   const [supportSearchTerm, setSupportSearchTerm] = useState("");
   const [supportStatusFilter, setSupportStatusFilter] = useState("All");
   const [supportReplyText, setSupportReplyText] = useState("");
-  
+
+  // --- Live chats -----------------------------------------------------------
+  // Their own state, not a slice of `supportTickets`. That prop is seeded from
+  // localStorage and topped up by fetchMyTickets(), which is scoped to the
+  // signed-in admin's OWN tickets — a chat opened by a member has never been in
+  // it. See fetchLiveQueue() in src/data/supportAgents.js.
+  const [liveQueue, setLiveQueue] = useState([]);
+  const [liveAgents, setLiveAgents] = useState([]);
+  const [liveQueueError, setLiveQueueError] = useState("");
+  const [assigningTicketId, setAssigningTicketId] = useState(null);   // row with its picker open
+  const [selectedLiveChat, setSelectedLiveChat] = useState(null);
+  const [liveMessages, setLiveMessages] = useState([]);
+  const [liveReplyText, setLiveReplyText] = useState("");
+  const [liveSending, setLiveSending] = useState(false);
+  const [agentRoster, setAgentRoster] = useState([]);
+  const [inviteForm, setInviteForm] = useState({ name: "", email: "" });
+  const [inviteBusy, setInviteBusy] = useState(false);
+
   const [isAdminNotifOpen, setIsAdminNotifOpen] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState([
     { id: 1, title: "New Enterprise Request", message: "Healthy Eats Cafe requested Enterprise plan.", time: "10 mins ago", type: "info", unread: true },
@@ -1577,10 +1574,29 @@ export default function AdminPortal({
     setNewOrderStatus(order.status);
   };
 
+  // Tell a member something happened, on whichever channels THEY switched on.
+  //
+  // Fire-and-forget on purpose: the admin's action has already succeeded by the
+  // time this runs, so a provider outage must not roll it back or block the UI.
+  // Failures land in the console and in notification_log, never in the admin's
+  // way. Note we do not consult any cached copy of the member's preference —
+  // the Edge Function reads the live one, which is the only copy that counts.
+  const notifyMember = (email, built) => {
+    if (!email || !built) return;
+    notifyUser({ to: email, ...built }).catch((err) => {
+      console.error("Notification not sent:", err);
+    });
+  };
+
   const handleSaveOrderStatus = (id) => {
     const order = (orders || []).find(o => o.id === id);
     setOrders((orders || []).map(o => o.id === id ? { ...o, status: newOrderStatus } : o));
-    
+    // Only when it actually moved — re-saving the same status is an admin
+    // fixing a typo elsewhere on the row, not news worth a text message.
+    if (order && order.status !== newOrderStatus) {
+      notifyMember(order.email, orderStatusMessage(order, newOrderStatus));
+    }
+
     setDeliveriesList(prev => {
       if (newOrderStatus === "Pending Approval" || newOrderStatus === "Disapproved") {
         return prev.filter(d => d.orderId !== id);
@@ -1731,13 +1747,195 @@ export default function AdminPortal({
       status: selectedSupportTicket.status === "Resolved" ? "Resolved" : "Waiting for Customer",
       assignee: selectedSupportTicket.assignee || "Admin Support",
     });
+    notifyMember(selectedSupportTicket.email, ticketReplyMessage(selectedSupportTicket, reply.message));
     setSupportReplyText("");
     setToastMessage("Support reply added.");
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // --------------------------------------------------------------------------
+  // Live chats: queue, assignment, transcript.
+  //
+  // The queue polls rather than subscribing. Only `ticket_messages` is
+  // published to Realtime (supabase/live-chat.sql section 4), so there is no
+  // event for "a new chat was opened" — and adding one would mean publishing
+  // support_tickets, which pushes every ticket UPDATE to every member's socket
+  // for the sake of a list only an admin ever looks at. A 15s poll while the
+  // tab is open is the cheaper trade. The open TRANSCRIPT does subscribe: that
+  // is a conversation, and 15s late is not a conversation.
+  // --------------------------------------------------------------------------
+  const reloadLiveQueue = React.useCallback(async () => {
+    if (!supabaseReady) return;
+    try {
+      const [queue, agents, roster] = await Promise.all([
+        fetchLiveQueue(),
+        fetchAgents(),
+        // Tolerated separately: the roster needs agent-invites.sql, which is a
+        // later file than the queue's. A database stopped one file short should
+        // still show its live chats rather than one missing table blanking the
+        // whole tab.
+        fetchAgentRoster().catch(() => []),
+      ]);
+      setLiveQueue(queue);
+      setLiveAgents(agents);
+      setAgentRoster(roster);
+      setLiveQueueError("");
+    } catch (err) {
+      // Almost always the SQL not having been run yet. Say which file, because
+      // the raw PostgREST message ("relation does not exist") does not.
+      setLiveQueueError(
+        /available_agents|agent_id|assign_ticket/i.test(err?.message || "")
+          ? "Live chat needs supabase/support-agents.sql to be run first."
+          : "Could not load live chats."
+      );
+    }
+  }, [supabaseReady]);
+
+  useEffect(() => {
+    if (activeTab !== "Support Tickets" || !supabaseReady) return undefined;
+    reloadLiveQueue();
+    const timer = setInterval(reloadLiveQueue, 15000);
+    return () => clearInterval(timer);
+  }, [activeTab, supabaseReady, reloadLiveQueue]);
+
+  // The open transcript. Backfill first, then subscribe — and dedupe on id,
+  // because our own insert comes back down the same subscription.
+  useEffect(() => {
+    const ticketId = selectedLiveChat?.id;
+    if (!ticketId) return undefined;
+
+    let cancelled = false;
+    setLiveMessages([]);
+    fetchTicketMessages(ticketId)
+      .then((rows) => { if (!cancelled) setLiveMessages(rows || []); })
+      .catch(() => { if (!cancelled) setLiveMessages([]); });
+
+    const unsubscribe = subscribeToTicket(ticketId, (message) => {
+      setLiveMessages(prev => (
+        prev.some(m => m.id === message.id) ? prev : [...prev, message]
+      ));
+    });
+
+    return () => { cancelled = true; unsubscribe(); };
+  }, [selectedLiveChat?.id]);
+
+  const handleAssignAgent = async (ticket, agent) => {
+    try {
+      await assignTicket(ticket.id, agent.id);
+      setAssigningTicketId(null);
+      setToastMessage(`${ticket.memberName} is now with ${agent.name}.`);
+      setTimeout(() => setToastMessage(null), 3000);
+      reloadLiveQueue();
+    } catch (err) {
+      setToastMessage(err?.message || "Could not assign that chat.");
+      setTimeout(() => setToastMessage(null), 4000);
+    }
+  };
+
+  const handleSendLiveReply = async () => {
+    const text = liveReplyText.trim();
+    if (!selectedLiveChat || !text || liveSending) return;
+    setLiveSending(true);
+    try {
+      const sent = await sendLiveMessage(selectedLiveChat.id, text, "agent");
+      // Show it now rather than waiting for the round trip back over the
+      // socket. The effect above dedupes on id when the echo arrives.
+      if (sent) {
+        setLiveMessages(prev => (
+          prev.some(m => m.id === sent.id) ? prev : [...prev, sent]
+        ));
+      }
+      setLiveReplyText("");
+      reloadLiveQueue();
+    } catch {
+      setToastMessage("Message not sent — check the connection.");
+      setTimeout(() => setToastMessage(null), 3000);
+    } finally {
+      setLiveSending(false);
+    }
+  };
+
+  const handleResolveLiveChat = async () => {
+    if (!selectedLiveChat) return;
+    try {
+      await closeLiveChat(selectedLiveChat.id);
+      setSelectedLiveChat(null);
+      setToastMessage("Chat closed. The member can reopen it any time.");
+      setTimeout(() => setToastMessage(null), 3000);
+      reloadLiveQueue();
+    } catch {
+      setToastMessage("Could not close that chat.");
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
+  const handleInviteAgent = async (event) => {
+    event?.preventDefault?.();
+    const email = inviteForm.email.trim();
+    if (!email || inviteBusy) return;
+    setInviteBusy(true);
+    try {
+      const result = await inviteAgent({ email, name: inviteForm.name });
+      setInviteForm({ name: "", email: "" });
+      // 'promoted' means the address already had an account, so no email was
+      // sent — saying "invitation sent" there would have the admin waiting for
+      // a message that is never coming.
+      setToastMessage(result?.status === "promoted"
+        ? `${email} already had an account and is now an agent.`
+        : `Invitation sent to ${email}.`);
+      setTimeout(() => setToastMessage(null), 4000);
+      reloadLiveQueue();
+    } catch (err) {
+      setToastMessage(err?.message || "Could not send that invitation.");
+      setTimeout(() => setToastMessage(null), 5000);
+    } finally {
+      setInviteBusy(false);
+    }
+  };
+
+  const handleAgentRosterAction = async (agent, action) => {
+    setInviteBusy(true);
+    try {
+      if (action === "resend") {
+        await inviteAgent({ email: agent.email, name: agent.name, action: "resend" });
+        setToastMessage(`Invitation resent to ${agent.email}.`);
+      } else {
+        await setAgentEnabled(agent.email, action === "enable");
+        setToastMessage(action === "enable"
+          ? `${agent.name || agent.email} can take chats again.`
+          : `${agent.name || agent.email} has been switched off.`);
+      }
+      setTimeout(() => setToastMessage(null), 4000);
+      reloadLiveQueue();
+    } catch (err) {
+      setToastMessage(err?.message || "That didn't work.");
+      setTimeout(() => setToastMessage(null), 5000);
+    } finally {
+      setInviteBusy(false);
+    }
+  };
+
+  // Accept / reject a pending request. Both are one click and both are visible
+  // to the member immediately — accepting stops the "waiting for an agent"
+  // message even before anyone is named, which is most of the value.
+  const handleReviewLiveChat = async (chat, decision) => {
+    try {
+      if (decision === "accept") await acceptTicket(chat.id);
+      else await rejectTicket(chat.id);
+      setToastMessage(decision === "accept"
+        ? `Request from ${chat.memberName} accepted.`
+        : `Request from ${chat.memberName} declined.`);
+      setTimeout(() => setToastMessage(null), 3000);
+      reloadLiveQueue();
+    } catch (err) {
+      setToastMessage(err?.message || "Could not update that request.");
+      setTimeout(() => setToastMessage(null), 4000);
+    }
+  };
+
   const handleApproveOrder = (order) => {
     setOrders((orders || []).map(o => o.id === order.id ? { ...o, status: "Approved" } : o));
+    notifyMember(order.email, orderStatusMessage(order, "Approved"));
     setDeliveriesList(prev => {
       const existingDelivery = prev.find(d => d.orderId === order.id);
       if (!existingDelivery) {
@@ -1769,6 +1967,7 @@ export default function AdminPortal({
 
   const handleCancelOrder = (order) => {
     setOrders((orders || []).map(o => o.id === order.id ? { ...o, status: "Disapproved" } : o));
+    notifyMember(order.email, orderStatusMessage(order, "Disapproved"));
     setDeliveriesList(prev => prev.filter(d => d.orderId !== order.id));
     setSelectedOrder(null);
     setToastMessage("Order disapproved.");
@@ -1936,7 +2135,14 @@ export default function AdminPortal({
   };
 
   const handleCreateNewEvent = () => {
-    const newId = `EVT-00${eventsList.length + 1}`;
+    // Numbering from the highest existing id, not the list length — after a
+    // delete the length repeats an id that is still in use, and the website
+    // keys its event cards on it.
+    const highest = eventsList.reduce((max, ev) => {
+      const n = parseInt(String(ev.id).replace(/\D/g, ""), 10);
+      return Number.isNaN(n) ? max : Math.max(max, n);
+    }, 0);
+    const newId = `EVT-${String(highest + 1).padStart(3, "0")}`;
     const newEvent = {
       id: newId,
       title: "",
@@ -1951,6 +2157,7 @@ export default function AdminPortal({
       speaker: "",
       speakerImage: "",
       description: "",
+      fullDescription: "",
       isNew: true
     };
     setEditableEvent(newEvent);
@@ -2011,6 +2218,22 @@ export default function AdminPortal({
     setSelectedEvent(eventToSave);
     setIsEditingEvent(false);
     setToastMessage("Event saved successfully!");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Events live in App.js state, which is both what the public Events &
+  // Workshops page renders and what useSupabaseSync writes back to the
+  // `events` table — so removing one here removes it from the website too.
+  const confirmDeleteEvent = () => {
+    const removed = eventsList.find(ev => ev.id === eventToDelete);
+    setEventsList(eventsList.filter(ev => ev.id !== eventToDelete));
+    if (selectedEvent && selectedEvent.id === eventToDelete) {
+      setSelectedEvent(null);
+      setIsEditingEvent(false);
+      setEditableEvent(null);
+    }
+    setEventToDelete(null);
+    setToastMessage(`"${removed?.title || "Event"}" deleted — it is now off the website too.`);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -2244,6 +2467,13 @@ export default function AdminPortal({
   });
 
   const openSupportTicketsCount = (supportTickets || []).filter(ticket => ticket.status !== "Resolved").length;
+  // The badge number: someone asked for a human and nobody has answered them.
+  // A pending request counts even if they have said nothing since — the silence
+  // IS the problem — and a closed or declined chat never does.
+  const liveWaitingCount = liveQueue.filter(chat => (
+    chat.liveStatus === "pending" ||
+    (chat.waitingOnUs && chat.liveStatus !== "closed" && chat.liveStatus !== "rejected")
+  )).length;
   const urgentSupportTicketsCount = (supportTickets || []).filter(ticket => ticket.priority === "Urgent" || ticket.priority === "High").length;
 
   /**
@@ -2492,6 +2722,35 @@ export default function AdminPortal({
               >Cancel</button>
               <button 
                 onClick={confirmDeleteHarvest} 
+                style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(var(--eco-c9-rgb), 0.3)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(var(--eco-c9-rgb), 0.4)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--eco-c9-rgb), 0.3)'; }}
+              >Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Nested tier: this confirmation can be raised from inside the event
+          detail modal, which already sits on the base tier. */}
+      {eventToDelete && (
+        <div style={modalOverlay(MODAL_LAYER.nested)}>
+          <div style={{ background: "linear-gradient(145deg, #ffffff, var(--eco-c0))", padding: "32px 24px", borderRadius: "28px", border: "1px solid rgba(var(--eco-c9-rgb), 0.1)", boxShadow: "0 20px 40px rgba(var(--eco-c9-rgb), 0.15)", textAlign: "center", width: "85%", maxWidth: "340px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(var(--eco-c9-rgb), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", animation: "shakeIcon 0.6s ease-in-out" }}>
+              <Trash2 size={24} color="var(--eco-c9)" />
+            </div>
+            <h3 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 800, color: "#000", letterSpacing: "-0.5px" }}>Delete Event?</h3>
+            <p style={{ margin: "0 0 28px", fontSize: "14px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5 }}>
+              “{eventsList.find(ev => ev.id === eventToDelete)?.title || "This event"}” will disappear from the public Events &amp; Workshops page as well. This action cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: "12px", width: "100%" }}>
+              <button
+                onClick={() => setEventToDelete(null)}
+                style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.05)", color: "#000", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.1)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; }}
+              >Cancel</button>
+              <button
+                onClick={confirmDeleteEvent}
                 style={{ flex: 1, padding: "14px", borderRadius: "16px", background: "linear-gradient(135deg, var(--eco-c7), var(--eco-c9))", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", fontWeight: 700, fontSize: "14px", cursor: "pointer", transition: "all 0.2s ease", boxShadow: "0 8px 20px rgba(var(--eco-c9-rgb), 0.3)" }}
                 onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(var(--eco-c9-rgb), 0.4)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--eco-c9-rgb), 0.3)'; }}
@@ -3297,7 +3556,8 @@ export default function AdminPortal({
             {isEditingEvent ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
                 <input type="text" value={editableEvent.speakerImage || ""} onChange={e => setEditableEvent({...editableEvent, speakerImage: e.target.value})} style={styles.editInput} placeholder="Speaker photo URL (leave blank for placeholder)" />
-                <textarea value={editableEvent.description || ""} onChange={e => setEditableEvent({...editableEvent, description: e.target.value})} style={{ ...styles.editInput, height: "70px", resize: "none", fontFamily: "inherit" }} placeholder="Event description shown on the website..." />
+                <textarea value={editableEvent.description || ""} onChange={e => setEditableEvent({...editableEvent, description: e.target.value})} style={{ ...styles.editInput, height: "70px", resize: "none", fontFamily: "inherit" }} placeholder="Short description — shown on the website event card…" />
+                <textarea value={editableEvent.fullDescription || ""} onChange={e => setEditableEvent({...editableEvent, fullDescription: e.target.value})} style={{ ...styles.editInput, height: "90px", resize: "none", fontFamily: "inherit" }} placeholder="Full description — shown when a visitor opens the event (falls back to the short one)…" />
               </div>
             ) : (
               selectedEvent.description ? (
@@ -3315,6 +3575,7 @@ export default function AdminPortal({
                 <>
                   <button onClick={() => setToastMessage(`Attendee list opened for "${selectedEvent?.title || selectedEvent?.name || "event"}"`)} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Users size={16}/> View Attendees</button>
                   <button onClick={() => { setIsEditingEvent(true); setEditableEvent({ ...selectedEvent }); }} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(var(--eco-c7-rgb), 0.1)", color: "var(--eco-c13)", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Edit2 size={16}/> Edit Event</button>
+                  <button onClick={() => setEventToDelete(selectedEvent.id)} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(var(--eco-c7-rgb), 0.16)", color: "var(--eco-c13)", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Trash2 size={16}/> Delete</button>
                 </>
               )}
             </div>
@@ -3333,9 +3594,24 @@ export default function AdminPortal({
               <span style={{ padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getScanStatusStyle(selectedScan.status) }}>{selectedScan.status}</span>
             </div>
 
-            {/* Image Preview & Holographic Scan Line */}
-            <div style={{ position: "relative", height: "200px", borderRadius: "16px", background: "linear-gradient(135deg, rgba(var(--eco-c9-rgb), 0.1), rgba(var(--eco-c9-rgb), 0.05))", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: "inset 0 4px 20px rgba(0,0,0,0.05)" }}>
-              <div style={{ fontSize: "64px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}><Leaf size={28} color="var(--eco-c9)" /></div>
+            {/* Image Preview & Holographic Scan Line.
+                `image` is the photo the member uploaded, downscaled by the AI
+                Plant Doctor before it was attached to the scan. Seed rows and
+                any scan recorded before photo sync existed have none, so the
+                leaf placeholder stays for those. */}
+            <div style={{ position: "relative", height: "260px", borderRadius: "16px", background: "linear-gradient(135deg, rgba(var(--eco-c9-rgb), 0.1), rgba(var(--eco-c9-rgb), 0.05))", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", boxShadow: "inset 0 4px 20px rgba(0,0,0,0.05)" }}>
+              {selectedScan.image ? (
+                <img
+                  src={selectedScan.image}
+                  alt={`Uploaded photo for scan ${selectedScan.id} — ${selectedScan.plant}`}
+                  style={{ width: "100%", height: "100%", objectFit: "contain", background: "rgba(0,0,0,0.03)" }}
+                />
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }}>
+                  <Leaf size={28} color="var(--eco-c9)" />
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "rgba(0,0,0,0.45)" }}>No photo attached</span>
+                </div>
+              )}
               <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "4px", background: "rgba(var(--eco-c6-rgb), 0.8)", boxShadow: "0 0 15px 2px var(--eco-c6)", animation: "scanLine 2.5s ease-in-out infinite" }} />
             </div>
 
@@ -3359,7 +3635,10 @@ export default function AdminPortal({
             </div>
 
             <div style={{ display: "flex", gap: "12px" }}>
-              <button onClick={() => downloadCSV(`scan-report-${selectedScan.id}.csv`, [selectedScan])} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(var(--eco-c7-rgb), 0.1)", color: "var(--eco-c13)", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={16}/> Download Report</button>
+              {/* The photo is a base64 data URL — it would land in the CSV as
+                  one unreadable 50KB cell, so the report records whether there
+                  was one, the same way the course export does. */}
+              <button onClick={() => downloadCSV(`scan-report-${selectedScan.id}.csv`, [{ ...selectedScan, image: selectedScan.image ? "Yes" : "No" }])} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "rgba(var(--eco-c7-rgb), 0.1)", color: "var(--eco-c13)", border: "none", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}><Download size={16}/> Download Report</button>
               <button onClick={() => setToastMessage(`Expert consultation requested for scan ${selectedScan.id}`)} style={{ flex: 1, padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, var(--eco-c9), var(--eco-c11))", color: "#fff", border: "none", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: "0 8px 16px rgba(var(--eco-c9-rgb), 0.2)" }}><MessageSquare size={16}/> Consult Expert</button>
             </div>
           </div>
@@ -3530,6 +3809,94 @@ export default function AdminPortal({
           </div>
         </div>
       )}
+      {/* -----------------------------------------------------------------
+          Live chat transcript.
+
+          Separate from the ticket modal above rather than a mode inside it.
+          That one edits a record — status, priority, assignee, a reply that is
+          really an email. This is a conversation happening now: it subscribes,
+          it scrolls, and its only two actions are "say something" and "we're
+          done". Folding them together would mean a modal where half the
+          controls are inert depending on which kind of ticket you opened.
+          ----------------------------------------------------------------- */}
+      {selectedLiveChat && (
+        <div style={modalOverlay(MODAL_LAYER.base)} onClick={() => setSelectedLiveChat(null)}>
+          {/* A real panel surface, not a bare `.inner-blur-glass` box. That
+              class only paints a blur — with the scrim already blurring the
+              page behind it, the chat had no edge of its own and read as text
+              floating over the console. It also promotes every direct child to
+              `position: relative; z-index: 1`, which let the header block cover
+              the absolutely-positioned close button and swallow its clicks. */}
+          <div style={modalPanel({ width: "min(620px, 94vw)", maxHeight: "88vh", display: "flex", flexDirection: "column", padding: "26px" })} onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setSelectedLiveChat(null)} aria-label="Close chat" style={{ ...MODAL_CLOSE_BTN, top: "14px", right: "14px" }}><X size={16} /></button>
+
+            <div style={{ marginBottom: "16px", paddingRight: "52px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
+                <span style={{ padding: "4px 10px", borderRadius: "999px", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", fontSize: "11px", fontWeight: 800 }}>{selectedLiveChat.ref}</span>
+                <span style={{ padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: 850, background: liveStatusChip(selectedLiveChat.liveStatus).tint, color: liveStatusChip(selectedLiveChat.liveStatus).ink }}>
+                  {liveStatusChip(selectedLiveChat.liveStatus).label}
+                </span>
+                {selectedLiveChat.agentName && (
+                  <span style={{ display: "flex", alignItems: "center", gap: "5px", padding: "4px 10px", borderRadius: "999px", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", fontSize: "11px", fontWeight: 800 }}>
+                    <UserCheck size={12} /> {selectedLiveChat.agentName}
+                  </span>
+                )}
+              </div>
+              <h2 style={{ margin: "0 0 4px", fontSize: "21px", fontWeight: 850, color: "#000", lineHeight: 1.2 }}>{selectedLiveChat.memberName}</h2>
+              <p style={{ margin: 0, fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>
+                {selectedLiveChat.memberEmail}
+                {selectedLiveChat.previousAgentName && selectedLiveChat.previousAgentName !== selectedLiveChat.agentName
+                  ? ` • previously with ${selectedLiveChat.previousAgentName}`
+                  : ""}
+              </p>
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px", padding: "16px", borderRadius: "18px", background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.05)", minHeight: "180px" }}>
+              {liveMessages.length === 0 ? (
+                <div style={{ margin: "auto", fontSize: "13px", fontWeight: 700, color: "rgba(0,0,0,0.42)" }}>No messages yet.</div>
+              ) : liveMessages.map(message => {
+                const fromAgent = message.sender === "agent";
+                return (
+                  <div key={message.id} style={{ alignSelf: fromAgent ? "flex-end" : "flex-start", maxWidth: "82%" }}>
+                    <div style={{ padding: "10px 13px", borderRadius: fromAgent ? "16px 16px 4px 16px" : "16px 16px 16px 4px", background: fromAgent ? "rgba(var(--eco-c9-rgb), 0.14)" : "rgba(255,255,255,0.9)", border: "1px solid rgba(0,0,0,0.05)", fontSize: "13px", lineHeight: 1.45, color: "rgba(0,0,0,0.78)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                      {message.text}
+                    </div>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "rgba(0,0,0,0.38)", marginTop: "3px", textAlign: fromAgent ? "right" : "left" }}>
+                      {fromAgent ? "Agent" : selectedLiveChat.memberName} • {liveWaitLabel(message.createdAt)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", alignItems: "flex-start", marginTop: "14px" }}>
+              <textarea
+                value={liveReplyText}
+                onChange={(e) => setLiveReplyText(e.target.value)}
+                // Enter sends, Shift+Enter breaks the line — the shape every
+                // chat box has. The ticket modal's textarea is a different
+                // thing: that one is composing an email, where Enter is a
+                // paragraph, not a send.
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendLiveReply(); }
+                }}
+                placeholder={selectedLiveChat.agentId ? "Reply to the member..." : "Assign an agent first, or reply as admin..."}
+                rows={2}
+                style={{ ...ecoGlassInputStyle, flex: 1, resize: "vertical", fontFamily: "inherit", lineHeight: 1.4 }}
+              />
+              <button onClick={handleSendLiveReply} disabled={liveSending || !liveReplyText.trim()} style={{ ...ecoPrimaryButtonStyle, padding: "12px 16px", borderRadius: "14px", fontSize: "13px", fontWeight: 850, cursor: liveSending || !liveReplyText.trim() ? "not-allowed" : "pointer", opacity: liveSending || !liveReplyText.trim() ? 0.55 : 1, display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
+                <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "8px" }}><Send size={15} /> Send</span>
+              </button>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
+              <button onClick={handleResolveLiveChat} style={{ padding: "10px 16px", borderRadius: "12px", border: "none", background: "rgba(var(--eco-c9-rgb), 0.12)", color: "var(--eco-c13)", fontWeight: 850, fontSize: "13px", cursor: "pointer" }}>Resolve Chat</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Scrim behind the mobile nav drawer — tapping it closes the drawer. */}
       {isMobile && navDrawerOpen && (
         <div
@@ -4818,6 +5185,245 @@ export default function AdminPortal({
               ))}
             </div>
 
+            {/* ---------------------------------------------------------------
+                Live Chats — people sitting in the chat panel right now.
+
+                A card list, not a <table>. The agent picker below is an
+                absolutely-positioned menu, and the ticket table lives inside an
+                `overflow-x: auto` wrapper on a .inner-blur-glass card — either
+                one would clip the menu to a sliver. Rows in flow, picker
+                expanding inline beneath its row, nothing to clip.
+                --------------------------------------------------------------- */}
+            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px", flexWrap: "wrap", gap: "14px" }}>
+                <div>
+                  <h3 style={{ ...styles.cardHeading, fontSize: "18px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <MessageSquare size={18} color="var(--eco-c9)" /> Live Chats
+                    {liveWaitingCount > 0 && (
+                      <span style={{ padding: "3px 9px", borderRadius: "999px", background: "rgba(var(--eco-c9-rgb), 0.14)", color: "var(--eco-c13)", fontSize: "11px", fontWeight: 850 }}>
+                        {liveWaitingCount} waiting
+                      </span>
+                    )}
+                  </h3>
+                  <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600, marginTop: "4px" }}>
+                    Requests from the AI Chat panel's "Human agent" switch. Assign one to an agent to start replying.
+                  </div>
+                </div>
+                <button onClick={reloadLiveQueue} style={{ ...styles.textBtn, display: "flex", alignItems: "center", gap: "6px", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", padding: "8px 12px", borderRadius: "999px" }}>
+                  <RefreshCcw size={13} /> Refresh
+                </button>
+              </div>
+
+              {!supabaseReady ? (
+                <div style={liveEmptyStyle}>Connect Supabase to receive live chats.</div>
+              ) : liveQueueError ? (
+                <div style={liveEmptyStyle}>{liveQueueError}</div>
+              ) : liveQueue.length === 0 ? (
+                <div style={liveEmptyStyle}>No live chats right now. They appear here the moment a member asks for a human.</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {liveQueue.map(chat => {
+                    const isPicking = assigningTicketId === chat.id;
+                    return (
+                      <div key={chat.id} style={{ borderRadius: "16px", border: "1px solid rgba(0,0,0,0.06)", background: chat.waitingOnUs ? "rgba(var(--eco-c9-rgb), 0.06)" : "rgba(255,255,255,0.72)", padding: "14px 16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px", flexWrap: "wrap" }}>
+                          <div style={{ minWidth: "200px", flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "3px" }}>
+                              <span style={{ fontWeight: 850, color: "#000" }}>{chat.memberName}</span>
+                              <span style={{ padding: "3px 8px", borderRadius: "999px", fontSize: "10px", fontWeight: 850, background: liveStatusChip(chat.liveStatus).tint, color: liveStatusChip(chat.liveStatus).ink }}>
+                                {liveStatusChip(chat.liveStatus).label}
+                              </span>
+                              {chat.waitingOnUs && chat.liveStatus !== "closed" && chat.liveStatus !== "rejected" && (
+                                <span style={{ padding: "3px 8px", borderRadius: "999px", fontSize: "10px", fontWeight: 850, background: "rgba(var(--eco-c9-rgb), 0.16)", color: "var(--eco-c13)" }}>Waiting on us</span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600 }}>
+                              {chat.ref} • {chat.subject} • {liveWaitLabel(chat.lastMessageAt)}
+                            </div>
+                            {/* Only worth saying once there is a handover to describe.
+                                On a first assignment the "previous agent" is nobody. */}
+                            {chat.previousAgentName && chat.previousAgentName !== chat.agentName && (
+                              <div style={{ fontSize: "11px", color: "rgba(0,0,0,0.45)", fontWeight: 700, marginTop: "3px" }}>
+                                Previously with {chat.previousAgentName}
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            {chat.agentName ? (
+                              <span style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 11px", borderRadius: "999px", background: "rgba(var(--eco-c9-rgb), 0.1)", color: "var(--eco-c13)", fontSize: "12px", fontWeight: 800 }}>
+                                <UserCheck size={13} /> {chat.agentName}
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: "12px", fontWeight: 750, color: "rgba(0,0,0,0.45)" }}>Unassigned</span>
+                            )}
+                            {/* Accept/Decline only while the request is still
+                                unanswered. Once it is accepted the decision has
+                                been made, and re-offering it invites an admin to
+                                decline somebody they are already talking to. */}
+                            {chat.liveStatus === "pending" && (
+                              <>
+                                <button
+                                  onClick={() => handleReviewLiveChat(chat, "accept")}
+                                  style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.16)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() => handleReviewLiveChat(chat, "reject")}
+                                  style={{ ...styles.actionBtn, color: "#b91c1c", background: "rgba(220,38,38,0.1)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}
+                                >
+                                  Decline
+                                </button>
+                              </>
+                            )}
+                            <button
+                              onClick={() => setAssigningTicketId(isPicking ? null : chat.id)}
+                              style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.1)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}
+                            >
+                              {chat.agentName ? "Reassign" : "Assign"}
+                            </button>
+                            <button
+                              onClick={() => setSelectedLiveChat(chat)}
+                              style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.1)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}
+                            >
+                              Open chat
+                            </button>
+                          </div>
+                        </div>
+
+                        {isPicking && (
+                          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px dashed rgba(0,0,0,0.1)" }}>
+                            {liveAgents.length === 0 ? (
+                              <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 650, lineHeight: 1.5 }}>
+                                No support agents yet. Add one in the Supabase SQL editor:
+                                <code style={{ display: "block", marginTop: "6px", fontSize: "11px", color: "var(--eco-c13)" }}>
+                                  select * from public.set_agent('them@example.com', true);
+                                </code>
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                                {/* Offline agents stay clickable on purpose. An agent
+                                    only counts as available once their browser has sent
+                                    a heartbeat, so before the agent-side screen exists
+                                    everyone reads offline — disabling them would make
+                                    assignment impossible. The dot tells the truth. */}
+                                {liveAgents.map(agent => (
+                                  <button
+                                    key={agent.id}
+                                    onClick={() => handleAssignAgent(chat, agent)}
+                                    style={{
+                                      display: "flex", alignItems: "center", gap: "8px",
+                                      padding: "9px 13px", borderRadius: "12px", cursor: "pointer",
+                                      border: agent.id === chat.agentId ? "1px solid var(--eco-c9)" : "1px solid rgba(0,0,0,0.08)",
+                                      background: "rgba(255,255,255,0.85)",
+                                      fontSize: "12px", fontWeight: 800, color: "var(--eco-c19)",
+                                      fontFamily: "inherit",
+                                    }}
+                                  >
+                                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", flexShrink: 0, background: agent.available ? "var(--eco-c11)" : "rgba(0,0,0,0.22)" }} />
+                                    {agent.name}
+                                    <span style={{ fontSize: "10px", fontWeight: 750, color: "rgba(0,0,0,0.45)" }}>
+                                      {agent.available ? `${agent.openChats} open` : agent.status}
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ---------------------------------------------------------------
+                Support Agents — the staff list, and the invite form.
+
+                Sits under Live Chats rather than in Settings because the two
+                questions are asked in the same breath: nobody wonders "who are
+                my agents" except while looking at a queue that needs one.
+                --------------------------------------------------------------- */}
+            <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
+              <div style={{ marginBottom: "16px" }}>
+                <h3 style={{ ...styles.cardHeading, fontSize: "18px", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <UserCheck size={18} color="var(--eco-c9)" /> Support Agents
+                </h3>
+                <div style={{ fontSize: "12px", color: "rgba(0,0,0,0.55)", fontWeight: 600, marginTop: "4px" }}>
+                  Invite someone by email. They set their own password, and land straight in the Agent Portal.
+                </div>
+              </div>
+
+              <form onSubmit={handleInviteAgent} style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "16px" }}>
+                <input
+                  value={inviteForm.name}
+                  onChange={(e) => setInviteForm({ ...inviteForm, name: e.target.value })}
+                  placeholder="Full name"
+                  style={{ ...ecoGlassInputStyle, flex: "1 1 160px", minWidth: 0 }}
+                />
+                <input
+                  value={inviteForm.email}
+                  onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                  placeholder="agent@example.com"
+                  type="email"
+                  required
+                  style={{ ...ecoGlassInputStyle, flex: "1 1 200px", minWidth: 0 }}
+                />
+                <button
+                  type="submit"
+                  disabled={inviteBusy || !inviteForm.email.trim()}
+                  style={{ ...ecoPrimaryButtonStyle, padding: "12px 18px", borderRadius: "14px", fontSize: "13px", fontWeight: 850, flexShrink: 0, cursor: inviteBusy || !inviteForm.email.trim() ? "not-allowed" : "pointer", opacity: inviteBusy || !inviteForm.email.trim() ? 0.55 : 1 }}
+                >
+                  <span aria-hidden="true" style={ecoPrimaryInnerStyle} />
+                  <span style={{ position: "relative", zIndex: 1 }}>{inviteBusy ? "Working…" : "Send invite"}</span>
+                </button>
+              </form>
+
+              {agentRoster.length === 0 ? (
+                <div style={liveEmptyStyle}>
+                  No agents yet. Invite one above — or run <code>supabase/agent-invites.sql</code> if you haven't.
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {agentRoster.map(agent => {
+                    const chip = AGENT_STATE_CHIPS[agent.state] || AGENT_STATE_CHIPS.pending;
+                    return (
+                      <div key={agent.email} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", padding: "12px 14px", borderRadius: "14px", border: "1px solid rgba(0,0,0,0.06)", background: "rgba(255,255,255,0.7)" }}>
+                        <div style={{ minWidth: "180px", flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <span style={{ width: "8px", height: "8px", borderRadius: "50%", flexShrink: 0, background: chip.dot }} />
+                            <span style={{ fontWeight: 850, color: "#000", fontSize: "13px" }}>{agent.name || agent.email}</span>
+                            <span style={{ padding: "3px 8px", borderRadius: "999px", fontSize: "10px", fontWeight: 850, background: chip.tint, color: chip.ink }}>{chip.label}</span>
+                          </div>
+                          <div style={{ fontSize: "11.5px", color: "rgba(0,0,0,0.5)", fontWeight: 650, marginTop: "3px" }}>
+                            {agent.email}
+                            {agent.state !== "pending" && ` • ${agent.openChats} open chat${agent.openChats === 1 ? "" : "s"}`}
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                          {/* Resend only means something while they have not
+                              signed up. Offering it to a working agent would
+                              mail them a set-password link out of nowhere. */}
+                          {agent.state === "pending" && (
+                            <button disabled={inviteBusy} onClick={() => handleAgentRosterAction(agent, "resend")} style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.1)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}>Resend</button>
+                          )}
+                          {agent.state === "disabled" ? (
+                            <button disabled={inviteBusy} onClick={() => handleAgentRosterAction(agent, "enable")} style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.16)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}>Re-enable</button>
+                          ) : (
+                            <button disabled={inviteBusy} onClick={() => handleAgentRosterAction(agent, "disable")} style={{ ...styles.actionBtn, color: "#b91c1c", background: "rgba(220,38,38,0.1)", padding: "7px 13px", fontWeight: 850, fontSize: "11px" }}>
+                              {agent.state === "pending" ? "Revoke" : "Disable"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
               <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "14px" }}>
@@ -5274,7 +5880,10 @@ export default function AdminPortal({
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+            {/* Wider than the usual 2fr/1fr split: at 2fr the Action column
+                fell off the end of the table and the row's buttons could only
+                be reached by scrolling it sideways. */}
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2.7fr) minmax(240px, 1fr)", gap: "24px" }}>
               {/* Left Column - Events Table */}
               <div className="inner-blur-glass" style={{ ...styles.chartCard, padding: "24px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
@@ -5324,7 +5933,14 @@ export default function AdminPortal({
                             <span style={{ padding: "4px 8px", borderRadius: "999px", fontSize: "11px", fontWeight: 700, ...getEventStatusStyle(ev.status) }}>{ev.status}</span>
                           </td>
                           <td style={styles.td}>
-                            <button onClick={() => setSelectedEvent(ev)} style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Manage</button>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <button onClick={() => setSelectedEvent(ev)} style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.1)", padding: "4px 12px", fontWeight: "bold", fontSize: "11px" }}>Manage</button>
+                              {/* Icon-only: the Action column is already the
+                                  first thing to fall off the narrow end of
+                                  this table, and a second labelled button
+                                  would push Manage out of reach. */}
+                              <button onClick={() => setEventToDelete(ev.id)} title="Delete event" aria-label={`Delete ${ev.title}`} style={{ ...styles.actionBtn, color: "var(--eco-c13)", background: "rgba(var(--eco-c7-rgb), 0.12)", padding: "5px 8px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><Trash2 size={13} /></button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -5608,10 +6224,11 @@ export default function AdminPortal({
                   </div>
                 </div>
                 <div style={{ overflowX: "auto" }}>
-                  <table style={{ ...styles.table, width: "100%", minWidth: "650px" }}>
+                  <table style={{ ...styles.table, width: "100%", minWidth: "720px" }}>
                     <thead>
                       <tr>
                         <th style={styles.th}>Scan ID</th>
+                        <th style={styles.th}>Photo</th>
                         <th style={styles.th}>Plant / Disease</th>
                         <th style={styles.th}>Confidence</th>
                         <th style={styles.th}>Status</th>
@@ -5622,6 +6239,16 @@ export default function AdminPortal({
                       {filteredScansList.map((scan) => (
                         <tr key={scan.id} style={styles.tr}>
                           <td style={{ ...styles.td, fontWeight: 700 }}>{scan.id}</td>
+                          {/* The member's uploaded photo, so the queue is
+                              scannable by eye before anyone opens a row. Seed
+                              rows carry no photo and show the leaf mark. */}
+                          <td style={styles.td}>
+                            <div style={{ width: "44px", height: "44px", borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(var(--eco-c9-rgb), 0.2)", background: "rgba(var(--eco-c9-rgb), 0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              {scan.image
+                                ? <img src={scan.image} alt={`Scan ${scan.id}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                : <Leaf size={16} color="var(--eco-c9)" />}
+                            </div>
+                          </td>
                           <td style={styles.td}>
                             <div style={{ display: "flex", flexDirection: "column" }}>
                               <span style={{ fontWeight: 700, fontSize: "13px" }}>{scan.plant}</span>

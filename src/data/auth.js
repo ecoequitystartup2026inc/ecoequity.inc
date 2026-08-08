@@ -237,9 +237,22 @@ const initialUrl = typeof window !== "undefined"
 // True when this page load came from a password-recovery email link. The
 // implicit flow puts `type=recovery` in the hash, PKCE in the query string.
 export function arrivedFromRecoveryLink() {
+  return linkType() === "recovery";
+}
+
+// An invitation link (Admin Portal → Support Agents → Send invite). Supabase
+// signs them in on arrival, which is the trap: without this check they land in
+// the app fully authenticated and never set a password, so they can never get
+// back in once that session expires. Same modal as recovery — the difference is
+// only what it is called.
+export function arrivedFromInviteLink() {
+  return linkType() === "invite";
+}
+
+function linkType() {
   const fromHash = new URLSearchParams(initialUrl.hash.replace(/^#/, "")).get("type");
   const fromQuery = new URLSearchParams(initialUrl.search).get("type");
-  return fromHash === "recovery" || fromQuery === "recovery";
+  return fromHash || fromQuery || "";
 }
 
 export async function signOut() {

@@ -55,6 +55,11 @@ const FEATURES = [
   },
 ];
 
+/* Buttons elsewhere on the page that lead to a not-yet-open tool reuse that
+   tool's tile copy, so the "coming soon" card reads the same however it was
+   reached. */
+const feature = (nav) => FEATURES.find((f) => f.nav === nav);
+
 const STEPS = [
   {
     nav: "Farm Planner",
@@ -88,6 +93,10 @@ const STEPS = [
       "EcoPoints convert into supplies for the next cycle",
     ],
     cta: "See the Surplus Exchange",
+    // The exchange isn't open to users yet, so the CTA announces it instead of
+    // navigating — carrying the tile's copy so the banner names the tool
+    // ("Surplus Exchange"), not the step ("Earn as you harvest").
+    comingSoon: feature("SurplusExchangePage"),
   },
 ];
 
@@ -323,7 +332,7 @@ function StepCard({ step, index, active, isMobile, onSelect, onOpen }) {
     <Reveal delay={index * 110} style={{ display: "flex", flex: active ? 1.25 : 1, minWidth: 0, transition: "flex 0.5s cubic-bezier(.22,1,.36,1)" }}>
       <button
         type="button"
-        onClick={() => (active ? onOpen(step.nav) : onSelect(index))}
+        onClick={() => (active ? onOpen(step) : onSelect(index))}
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
         aria-current={active ? "step" : undefined}
@@ -422,7 +431,7 @@ function StepCard({ step, index, active, isMobile, onSelect, onOpen }) {
    view so the sequence is visible without a click, then hands control over
    for good the moment someone touches it (or hovers a card — advancing under
    the cursor would fight the reader). */
-function HowItWorks({ isMobile, onNavigate }) {
+function HowItWorks({ isMobile, onNavigate, onComingSoon }) {
   const [ref, inView] = useInView();
   const [active, setActive] = useState(0);
   const [taken, setTaken] = useState(false);
@@ -462,7 +471,7 @@ function HowItWorks({ isMobile, onNavigate }) {
             active={i === active}
             isMobile={isMobile}
             onSelect={select}
-            onOpen={onNavigate}
+            onOpen={(s) => (s.comingSoon ? onComingSoon(s.comingSoon) : onNavigate(s.nav))}
           />
         ))}
       </div>
@@ -564,7 +573,7 @@ function TargetStat({ target, active, isMobile }) {
   );
 }
 
-function ClosingCTA({ isMobile, onNavigate }) {
+function ClosingCTA({ isMobile, onNavigate, onComingSoon }) {
   const [primaryHov, setPrimaryHov] = useState(false);
   const [ghostHov, setGhostHov] = useState(false);
   return (
@@ -604,7 +613,7 @@ function ClosingCTA({ isMobile, onNavigate }) {
           }}>
             <button
               type="button"
-              onClick={() => onNavigate("Starter Kits & Toolsets")}
+              onClick={() => onComingSoon(feature("Starter Kits & Toolsets"))}
               onMouseEnter={() => setPrimaryHov(true)}
               onMouseLeave={() => setPrimaryHov(false)}
               style={{
@@ -656,8 +665,9 @@ function ClosingCTA({ isMobile, onNavigate }) {
    expression (HOME_MEASURE). */
 export default function LandingSections({ isMobile = false, onNavigate = () => {}, measure = "1240px" }) {
   // The six "what's inside" tiles announce themselves rather than navigating —
-  // the tools behind them are not open to users yet. Holds the clicked feature
-  // so the banner can name it; null means no banner.
+  // the tools behind them are not open to users yet. The Surplus Exchange step
+  // and the closing "Browse Starter Kits" button land here too. Holds the
+  // feature to announce; null means no banner.
   const [comingSoon, setComingSoon] = useState(null);
 
   return (
@@ -708,13 +718,13 @@ export default function LandingSections({ isMobile = false, onNavigate = () => {
       </div>
 
       {/* ── How it works ── */}
-      <HowItWorks isMobile={isMobile} onNavigate={onNavigate} />
+      <HowItWorks isMobile={isMobile} onNavigate={onNavigate} onComingSoon={setComingSoon} />
 
       {/* ── Targets ── */}
       <TargetBand isMobile={isMobile} />
 
       {/* ── Closing CTA ── */}
-      <ClosingCTA isMobile={isMobile} onNavigate={onNavigate} />
+      <ClosingCTA isMobile={isMobile} onNavigate={onNavigate} onComingSoon={setComingSoon} />
     </section>
   );
 }

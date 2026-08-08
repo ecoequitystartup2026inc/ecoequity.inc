@@ -358,14 +358,23 @@ export function ProductThumb({ src, alt, emoji, size = 54 }) {
   );
 }
 
-/** Label/value pair used by the read-only account panels. */
-export function Field({ label, value, tone: toneName }) {
+/**
+ * Label/value pair used by the read-only account panels. `hint` adds a quiet
+ * line under the value — for when the value alone needs explaining (a figure
+ * that is withheld, a section that has not opened yet).
+ */
+export function Field({ label, value, tone: toneName, hint }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
       <span style={dashLabel}>{label}</span>
       <span style={{ ...dashValue, color: toneName ? tone(toneName).fg : dashValue.color, wordBreak: "break-word" }}>
         {value}
       </span>
+      {hint && (
+        <span style={{ fontSize: "11.5px", fontWeight: 600, color: DASH.inkFaint, lineHeight: 1.5 }}>
+          {hint}
+        </span>
+      )}
     </div>
   );
 }

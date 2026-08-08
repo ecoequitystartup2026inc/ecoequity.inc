@@ -1,0 +1,63 @@
+# Runs the test suite and a production build on every push and pull request.
+#
+# Added after the whole App-level suite — 19 tests covering navigation, the
+# landing page and the Learn More timeline — had been failing silently for some
+# time. Nothing was running them, so nothing said so. That is the job here: to
+# make a red suite impossible to miss rather than something you find by chance.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A second push to the same branch cancels the first — no point finishing a run
+# for a commit that has already been replaced.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # `npm ci` rather than `npm install`: it installs exactly what
+      # package-lock.json pins, so CI cannot pass on a dependency tree that
+      # nobody has locally.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        # CI=true makes react-scripts run once and exit instead of entering
+        # watch mode, which would hang the job forever.
+        run: npm test -- --watchAll=false
+        env:
+          CI: true
+
+      - name: Production build
+        # Catches what the tests cannot: an import that resolves in Jest but not
+        # in webpack, and any code-split page whose chunk fails to build.
+        #
+        # The build script sets CI=false deliberately, so lint warnings do not
+        # fail the build. Warnings are still printed in the log.
+        run: npm run build
+
+      - name: Report bundle size
+        # The main bundle is what every visitor downloads before the site can
+        # render. Printing it here means a change that doubles it is visible in
+        # the pull request rather than discovered in production.
+        run: |
+          echo "### Bundle size" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          ls -la build/static/js/main.*.js | awk '{printf "main bundle: %.0f KB\n", $5/1024}' >> "$GITHUB_STEP_SUMMARY"
+          echo "code-split chunks: $(ls build/static/js/*.chunk.js | wc -l)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"

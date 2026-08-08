@@ -1267,3 +1267,18 @@ html[data-btn-custom] :is(button, [role="button"]):is(
   border: none;
   border-radius: 999px;
 }
+
+/* Spinner for a page chunk still downloading — see src/lazyPage.js. A plain
+   rotation on a small bordered circle: no blur, no backdrop-filter, so it does
+   not cost the compositor a frame the way an animating glass layer would. */
+@keyframes lazy-page-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Respect the OS "reduce motion" setting: hold the ring still rather than
+   spinning it. It still reads as a placeholder. */
+@media (prefers-reduced-motion: reduce) {
+  [role="status"] > span[style*="lazy-page-spin"] {
+    animation: none;
+  }
+}

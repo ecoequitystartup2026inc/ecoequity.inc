@@ -61,6 +61,15 @@ async function invoke(body) {
     const wrapped = new Error(message);
     wrapped.status = status;
     wrapped.quotaExceeded = status === 429;
+    // 503: the site's shared provider budget is spent, not this user's. Worth
+    // saying out loud, but it must NOT lock the composer the way a personal
+    // quota does — the allowance is shared and can come back at any moment.
+    wrapped.providerLimited = status === 503;
+    // The provider's own words, when the function was able to capture them.
+    // Never shown to a visitor — `message` stays the friendly line — but it is
+    // the difference between "the AI is down" and "the Gemini key was revoked"
+    // when someone opens the console.
+    wrapped.detail = details?.detail ?? null;
     // Carried through so the chat can lock its composer until the counter
     // rolls over instead of letting the user keep firing doomed requests.
     wrapped.limit = details?.limit ?? null;

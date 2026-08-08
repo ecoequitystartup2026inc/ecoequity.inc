@@ -73,15 +73,16 @@ function callProvider(provider: string, system: string, messages: any[], image: 
 }
 
 // Daily caps per user. Paid plans are parked until PayMongo is verified, so the
-// assistant is currently a free trial for every signed-in member and the free
-// cap is set generously — high enough that no honest user will meet it in a
-// day's real use.
+// assistant is currently a free trial for every signed-in member.
 //
-// It is deliberately not removed. The cap is not a paywall, it is the brake on
-// a shared API key: one scripted account could otherwise burn the whole Gemini
-// free-tier quota in minutes and take the assistant down for everybody. Lower
-// AI_DAILY_LIMIT_FREE again when paid plans go live.
-const LIMIT_FREE = Number(Deno.env.get("AI_DAILY_LIMIT_FREE") ?? 100);
+// The cap is not a paywall, it is the brake on a shared API key. Size it
+// against the PROVIDER's daily budget, not against what feels generous: Gemini
+// bills free-tier requests per project per model, so this number times your
+// active users has to stay under that ceiling. Set to 100 originally, which was
+// roughly the entire project allowance — one ordinary afternoon of use by one
+// account took the assistant down for everybody (Aug 2026). Now 25 via
+// AI_DAILY_LIMIT_FREE. Raise it only alongside a bigger provider quota.
+const LIMIT_FREE = Number(Deno.env.get("AI_DAILY_LIMIT_FREE") ?? 25);
 const LIMIT_PAID = Number(Deno.env.get("AI_DAILY_LIMIT_PAID") ?? 300);
 
 // Replies are meant to be short, but the current Flash models think before
@@ -214,11 +215,40 @@ Deno.serve(async (req) => {
     }
     return json({ reply: text });
   } catch (err) {
-    // Log the real error for `supabase functions logs`, return a safe one.
     console.error("ai-chat failed:", err);
-    return json({ error: "The AI assistant is unavailable right now." }, 500);
+
+    // Provider budget spent, not a malfunction. Say so in the bot's own voice —
+    // the same treatment the per-user quota gets above — rather than dropping
+    // the user to the keyword bot with no explanation for why the assistant
+    // suddenly got dumber. 503, so it is never confused with the 429 that means
+    // "*you* have used your personal allowance".
+    if ((err as any)?.rateLimited) {
+      return json({
+        error: "The AI assistant has used up today's shared allowance for the " +
+          "whole site. It comes back when the quota resets — the built-in " +
+          "assistant can still help in the meantime.",
+        providerLimited: true,
+      }, 503);
+    }
+
+    // The user-facing `error` stays generic, but `detail` carries the provider's
+    // own words to the browser console. Without it every failure mode — revoked
+    // key, exhausted free tier, retired model, safety block — looks identical
+    // from the outside, and the dashboard log viewer is the only way to tell
+    // them apart. Nothing secret travels in it: redact() strips the API key,
+    // which is the only credential that ever appears in these strings.
+    return json({
+      error: "The AI assistant is unavailable right now.",
+      detail: redact(err instanceof Error ? err.message : String(err)).slice(0, 400),
+    }, 500);
   }
 });
+
+// The Gemini key rides in the query string, so a fetch error can echo the whole
+// URL. Strip it before anything leaves the function.
+function redact(text: string): string {
+  return text.replace(/key=[\w-]+/gi, "key=REDACTED");
+}
 
 // --- Providers ---------------------------------------------------------------
 
@@ -260,14 +290,33 @@ async function callGemini(system: string, messages: any[], image: any, model: st
   if (!res.ok) {
     // Surface Google's own message in the logs — "API key not valid" and
     // "quota exceeded" need very different fixes.
-    throw new Error(`Gemini ${res.status}: ${await res.text()}`);
+    const err = new Error(`Gemini ${res.status}: ${await res.text()}`);
+    // Tagged so the handler can tell "we are out of budget for today" apart
+    // from "the service is broken". The first is a normal operating state on a
+    // free tier and deserves an honest sentence to the user; the second is a
+    // bug. Both used to come out as the same opaque 500.
+    if (res.status === 429) (err as any).rateLimited = true;
+    throw err;
   }
 
   const data = await res.json();
-  return (data.candidates?.[0]?.content?.parts ?? [])
+  const candidate = data.candidates?.[0];
+  const text = (candidate?.content?.parts ?? [])
     .map((p: any) => p.text ?? "")
     .join("")
     .trim();
+
+  // A 200 with no text is a real failure, not an empty answer: the model was
+  // cut off (MAX_TOKENS — thinking tokens ate the budget), the prompt was
+  // blocked (SAFETY / promptFeedback), or the response came back malformed.
+  // Throwing here routes it to the fallback provider and names the reason,
+  // instead of returning "" for the client to reject as a mystery.
+  if (!text) {
+    const why = candidate?.finishReason ??
+      data.promptFeedback?.blockReason ?? "no candidates";
+    throw new Error(`Gemini returned no text (${why})`);
+  }
+  return text;
 }
 
 async function callOpenAI(system: string, messages: any[], image: any, model: string) {

@@ -21,7 +21,10 @@ jest.mock("./supabaseClient", () => {
   };
 });
 
+// Spread the real module rather than listing its exports by hand — see the
+// same mock in App.test.js for why. Only the network-touching calls are stubbed.
 jest.mock("./data/auth", () => ({
+  ...jest.requireActual("./data/auth"),
   signIn: jest.fn(),
   signUp: jest.fn(),
   signOut: jest.fn(),
@@ -30,18 +33,17 @@ jest.mock("./data/auth", () => ({
   getCurrentUser: jest.fn(),
   getUserFromSession: jest.fn(),
   consumeAuthErrorFromUrl: jest.fn(),
-  // The password-reset helpers App.js imports. Without them the module mock is
-  // missing exports the component calls at mount, and every test here dies on
-  // "arrivedFromRecoveryLink is not a function" before rendering anything.
-  arrivedFromRecoveryLink: jest.fn(() => false),
   requestPasswordReset: jest.fn(),
   updatePassword: jest.fn(),
   verifyPassword: jest.fn(),
-  passwordProblem: jest.fn(() => null),
-  PASSWORD_MIN_LENGTH: 8,
+  saveProfilePic: jest.fn(),
 }));
 
 beforeEach(() => {
+  // Reset the address bar between tests — the app reads a deep link off it on
+  // mount, and Jest shares one jsdom across this whole file. See App.test.js.
+  window.history.replaceState(null, "", "/");
+
   const auth = require("./data/auth");
   auth.onAuthChange.mockReturnValue({ unsubscribe: jest.fn() });
   auth.consumeAuthErrorFromUrl.mockReturnValue(null);

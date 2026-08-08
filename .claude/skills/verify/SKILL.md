@@ -42,7 +42,11 @@ npm install playwright@1.61.1 && npx playwright install chromium
   not `.click()`) — the menu is an absolutely-positioned card under the
   item. On phones the row drops to its own full-width line under the logo
   and scrolls sideways, so `scrollIntoViewIfNeeded()` before clicking the
-  later items. Nav is state-based (`activeNav` in App.js), no routes/URLs.
+  later items. Nav is state-based (`activeNav` in App.js) but is now mirrored
+  into the URL: clicking About Us pushes `/about-us`, Back works, and a deep
+  link is honoured after sign-in. The page↔path table is `src/routes.js`.
+  Pages are code-split, so assert with `findBy`/`waitFor`, not `getBy` —
+  the chunk lands a tick after the click.
 - At mobile widths some pages (e.g. About Us) render as a full-screen
   sheet with an X close button that covers the navbar — close it before
   clicking the hamburger.

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import Reveal, { RevealStyles } from "../components/Reveal";
+import ComingSoonBanner from "../components/ComingSoonBanner";
 import {
   MessageCircle, Heart, Send, Plus, Sprout, Bug, Droplet, Sun, TrendingUp, Users,
   Search, Bookmark, CheckCircle2, HelpCircle, Award, Flame, ShieldCheck, X,
@@ -149,6 +150,10 @@ function CommunityForumPage({
   const [editing, setEditing] = useState(null);
   const [editDraft, setEditDraft] = useState({ title: "", body: "", category: "Growing Tips" });
   const [confirmDelete, setConfirmDelete] = useState(null);
+  // Sidebar CTAs point at services that aren't live yet, so instead of
+  // navigating they raise the shared Coming Soon card and keep you in the
+  // forum. Holds { title, message }; null means no banner.
+  const [comingSoon, setComingSoon] = useState(null);
 
   const composeRef = useRef(null);
   const titleRef = useRef(null);
@@ -518,10 +523,26 @@ function CommunityForumPage({
       <Reveal variant="up" delay={250} style={{ ...styles.panel, ...styles.panelCta }}>
         <h3 style={{ ...styles.panelTitle, marginBottom: "6px" }}>Need more than a reply?</h3>
         <p style={styles.ctaText}>Book a one-on-one agronomist or join a hands-on workshop near you.</p>
-        <button type="button" className="cf-cta-btn" style={styles.ctaBtn} onClick={() => setActiveNav && setActiveNav("ExpertSupportPage")}>
+        <button
+          type="button"
+          className="cf-cta-btn"
+          style={styles.ctaBtn}
+          onClick={() => setComingSoon({
+            title: "Expert Support",
+            message: "One-on-one agronomist bookings aren't open just yet. In the meantime, post your question here — the community answers fast.",
+          })}
+        >
           <Headphones size={14} /> Talk to an expert <ArrowUpRight size={13} />
         </button>
-        <button type="button" className="cf-cta-btn" style={styles.ctaBtnGhost} onClick={() => setActiveNav && setActiveNav("EventsAndWorkshops")}>
+        <button
+          type="button"
+          className="cf-cta-btn"
+          style={styles.ctaBtnGhost}
+          onClick={() => setComingSoon({
+            title: "Events & Workshops",
+            message: "Hands-on workshop listings are still being scheduled. We'll open sign-ups here as soon as the first sessions are set.",
+          })}
+        >
           <Calendar size={14} /> Browse workshops
         </button>
       </Reveal>
@@ -530,6 +551,16 @@ function CommunityForumPage({
 
   return (
     <div style={{ ...styles.wrap, ...(isMobile ? styles.wrapMobile : {}) }}>
+      {comingSoon && (
+        <ComingSoonBanner
+          title={`${comingSoon.title} — Coming Soon`}
+          message={comingSoon.message}
+          closeLabel="Close announcement"
+          // Mounted on demand, so every exit has to clear the flag — otherwise
+          // the card can't be reopened from the same visit.
+          onDismiss={() => setComingSoon(null)}
+        />
+      )}
       <style>
         {`
           @keyframes forumTextShimmer {
@@ -735,7 +766,7 @@ function CommunityForumPage({
                 <div style={styles.avatar}>{authorName.charAt(0).toUpperCase()}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span style={styles.postAuthor}>{authorName}</span>
-                  <span style={styles.postTime}>Your question reaches every grower on VerdeVersity</span>
+                  <span style={styles.postTime}>Your question reaches every grower on EcoEquity</span>
                 </div>
                 <button type="button" style={styles.composeClose} onClick={() => setShowCompose(false)} aria-label="Close composer">
                   <X size={16} />
