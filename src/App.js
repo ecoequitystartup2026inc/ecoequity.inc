@@ -41,7 +41,7 @@ import SiteFeedbackWidget from "./SiteFeedbackWidget";
 import useActiveBrowseTimer from "./useActiveBrowseTimer";
 
 import { FaRobot, FaTrash, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaChevronDown, FaBell } from "react-icons/fa";
-import { Leaf, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, CircleUserRound, Gift, Trees, Building2, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, X, Moon, Mail, CheckCircle, Scissors, Flame, Megaphone, Heart, Settings as SettingsIcon, UserCog, ShoppingBag, Trash2, Camera, ImagePlus, BadgeCheck, FileText as FileTextIcon, ShieldOff, KeyRound, LogOut, Monitor, Lock } from "lucide-react";
+import { Leaf, Users, Sprout, Sun, Activity, HeartPulse, Globe, MessageCircle, Droplet, Wheat, Store, TrendingUp, Handshake, Sparkles, Home, Headset, Award, GraduationCap, Wrench, CircleUserRound, Gift, Trees, Building2, Star, PartyPopper, CheckCircle2, Check, Flower2, MapPin, Bike, Recycle, Package, Shovel, Carrot, Cherry, Citrus, Salad, X, Moon, Mail, CheckCircle, Scissors, Flame, Megaphone, Heart, Settings as SettingsIcon, UserCog, ShoppingBag, Trash2, Camera, ImagePlus, BadgeCheck, FileText as FileTextIcon, ShieldOff, KeyRound, LogOut, Monitor, Lock, Menu } from "lucide-react";
 import { SectionHead, StatStrip, EmptyState, Toggle, Pill, IconChip, Panel, Field, ProductThumb, MeterBar, RewardCard, dashCard, dashInput, dashPrimaryBtn, dashGhostBtn, dashToneBtn, dashLabel, DASH, tone as dashTone } from "./components/DashboardUI"; // Shared profile-dashboard design system
 import ColorThemePicker, { PRIMARY_COLOR_PRESETS, ACCENT_ALT_COLOR_PRESETS, SECONDARY_COLOR_PRESETS, BUTTON_COLOR_PRESETS, BUTTON_GRADIENT_PRESETS, suggestedPairFor } from "./components/ColorThemePicker"; // Primary/secondary brand colour chooser
 import { applyThemeRamp, DEFAULT_PRIMARY, DEFAULT_SECONDARY, parseButtonGradient, buttonBackground, buttonInk } from "./theme"; // Regenerates the sage ramp from the chosen pair
@@ -89,6 +89,21 @@ const EventsAndWorkshopsPage = lazyPage(() => import("./pages/EventsAndWorkshops
 // signing in as a member should be downloading either.
 const AdminPortal = lazyPage(() => import("./pages/AdminPortal"));
 const AgentInbox = lazyPage(() => import("./pages/AgentInbox"));
+
+/* Warm the chunks behind the phone nav menu the moment it is opened.
+   Opening the menu is a reliable signal that one of these is about to be
+   asked for, and the second or so spent reading the list is otherwise idle
+   network time — so the tap lands on an already-parsed module instead of
+   waiting on one. Measured at 424ms per destination on a throttled phone
+   before this, most of it chunk fetch behind two blocking long tasks.
+
+   Only the four that are actually split: Home renders inline, and Community
+   is a static import (it has a named export, which pulls it into the main
+   bundle regardless — see lazyPage.js). Preload is idempotent, so the
+   repeated opens this causes cost nothing after the first. */
+const warmNavChunks = () => {
+  [AboutUs, ProductServices, TargetMarket, SeasonalHarvestPage].forEach((page) => page.preload?.());
+};
 
 // Maps an email address to its provider's web inbox, so the "Open Email" button
 // can jump the user straight to where the confirmation email landed.
@@ -2871,13 +2886,27 @@ function App() {
 
   const showInlineNav = !isPortal;
 
+  /* Escape, and a tap anywhere off the panel, close the menu — the same
+     dismissal contract the account and appearance popovers use. The check
+     spans the button as well as the panel, or the tap that opens it would
+     immediately close it again. */
   useEffect(() => {
     if (!isMobileMenuOpen) return;
     const onKeyDown = (e) => {
       if (e.key === "Escape") setIsMobileMenuOpen(false);
     };
+    const onPointerDown = (e) => {
+      const cluster = e.target.closest?.(".nav-actions");
+      if (!cluster) setIsMobileMenuOpen(false);
+    };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+    };
   }, [isMobileMenuOpen]);
 
   /* The mobile shell is the scroll container, and it keeps its offset
@@ -3209,14 +3238,14 @@ function App() {
           </button>
 
           {isTargetDropdownOpen && (
-            <div style={{ 
-              position: collapsed ? "relative" : "absolute", 
-              top: collapsed ? "auto" : "100%", 
-              left: collapsed ? "auto" : "50%", 
-              transform: collapsed ? "none" : "translateX(-50%)", 
-              paddingTop: collapsed ? "0px" : "8px", 
-              zIndex: 100, 
-              width: collapsed ? "100%" : "auto" 
+            <div style={{
+              position: collapsed ? "relative" : "absolute",
+              top: collapsed ? "auto" : "100%",
+              left: collapsed ? "auto" : "50%",
+              transform: collapsed ? "none" : "translateX(-50%)",
+              paddingTop: collapsed ? "0px" : "8px",
+              zIndex: 100,
+              width: collapsed ? "100%" : "auto",
             }}>
               <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(collapsed ? styles.dropdownMenuMobile : {}) }}>
               <button
@@ -3360,14 +3389,14 @@ function App() {
           </button>
 
           {isProductDropdownOpen && (
-            <div style={{ 
-              position: collapsed ? "relative" : "absolute", 
-              top: collapsed ? "auto" : "100%", 
-              left: collapsed ? "auto" : "50%", 
-              transform: collapsed ? "none" : "translateX(-50%)", 
-              paddingTop: collapsed ? "0px" : "8px", 
-              zIndex: 100, 
-              width: collapsed ? "100%" : "auto" 
+            <div style={{
+              position: collapsed ? "relative" : "absolute",
+              top: collapsed ? "auto" : "100%",
+              left: collapsed ? "auto" : "50%",
+              transform: collapsed ? "none" : "translateX(-50%)",
+              paddingTop: collapsed ? "0px" : "8px",
+              zIndex: 100,
+              width: collapsed ? "100%" : "auto",
             }}>
               <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(collapsed ? styles.dropdownMenuMobile : {}) }}>
                 <button
@@ -3498,7 +3527,7 @@ function App() {
               transform: collapsed ? "none" : "translateX(-50%)",
               paddingTop: collapsed ? "0px" : "8px",
               zIndex: 100,
-              width: collapsed ? "100%" : "auto"
+              width: collapsed ? "100%" : "auto",
             }}>
               <div className="inner-blur-glass" style={{ ...styles.dropdownMenu, ...(collapsed ? styles.dropdownMenuMobile : {}) }}>
                 <button
@@ -3829,14 +3858,15 @@ function App() {
               <span style={{ ...styles.logoText, ...(isMobile ? styles.logoTextMobile : {}) }}>{adminSettings.platformName || "EcoEquity"}.Inc</span>
             </div> {/* End of logoWrap */}
 
-            {/* Home / About Us / Product & Services sit in the bar itself,
-               never behind the hamburger. They render in the inline form
-               (collapsed=false), so Product & Services opens its sub-menu on
-               hover rather than as an accordion. On phones there is no room
-               beside the logo, so the row drops to its own scrollable line
-               under it — still the navbar, still not the hamburger. */}
-            {showInlineNav && (
-              <div className="nav-inline-links" style={{ ...styles.navInlineLinks, ...(isMobile ? styles.navInlineLinksMobile : {}) }}>
+            {/* Every destination sits in the bar itself from 769px up, in the
+               inline form (collapsed=false), so the three with sub-menus open
+               them on hover rather than as accordions. Phones get none of this
+               row: there is no room beside the logo, and the scrollable line it
+               used to drop to showed three of six items and clipped its own
+               sub-menus. Below 769px the whole menu lives behind the hamburger
+               in the nav-actions cluster instead. */}
+            {showInlineNav && !isMobile && (
+              <div className="nav-inline-links" style={styles.navInlineLinks}>
                 {inlineNavItems.map((item) => renderNavItem(item, false))}
               </div>
             )}
@@ -4232,6 +4262,65 @@ function App() {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* ── HAMBURGER (phones only) ──
+                 On a phone there is no room to lay the six destinations out
+                 beside the logo, and the scrolling row that used to take
+                 their place showed three of them: 756px of items in a 357px
+                 window, with the rest behind a sideways scroll nothing hinted
+                 at. Worse, that row scrolled — and `overflow-x: auto` forces
+                 the computed `overflow-y` to `auto` too, so the submenus it
+                 held were clipped away inside a 36px box and could not be
+                 tapped at all.
+
+                 Behind one button the whole menu is reachable and the
+                 submenus expand in flow as accordions, with no scroll
+                 container to clip them. It lives in this cluster because the
+                 panel's CSS anchors to it (`.nav-links-panel.mobile-menu-open`
+                 in index.css is absolute against the fixed cluster), and
+                 because these round glass buttons are already one family.
+
+                 Desktop is untouched: the inline row still renders there. */}
+              {isMobile && (
+                <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={isMobileMenuOpen}
+                  aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                  title="Menu"
+                  className="nav-icon-btn"
+                  style={{
+                    ...styles.navIconBtn,
+                    ...(isMobileMenuOpen ? { color: "var(--eco-c19)" } : {}),
+                  }}
+                  onClick={() => {
+                    // Exclusive with the other header popovers, matching
+                    // toggleMenu's contract for the bell/account/appearance.
+                    const next = !isMobileMenuOpen;
+                    if (next) { toggleMenu(null); warmNavChunks(); }
+                    setIsMobileMenuOpen(next);
+                  }}
+                >
+                  {isMobileMenuOpen
+                    ? <X size={21} strokeWidth={2.4} />
+                    : <Menu size={21} strokeWidth={2.4} />}
+                </button>
+              )}
+
+              {/* The panel itself. `.nav-links-panel` is display:none until
+                 `mobile-menu-open` is added, and every row style lives in
+                 index.css — collapsed=true gives each item its stacked form,
+                 with Product & Services / Target Market / Seasonal Harvest
+                 expanding in place as indented accordions. */}
+              {isMobile && (
+                <div
+                  id="mobile-nav-panel"
+                  className={`nav-links-panel${isMobileMenuOpen ? " mobile-menu-open" : ""}`}
+                >
+                  <span className="nav-section-label">Menu</span>
+                  {navItems.map((item) => renderNavItem(item, true))}
                 </div>
               )}
 
@@ -7360,16 +7449,6 @@ const styles = {
   /* On phones the logo plus the fixed action cluster already fill the row, so
      the links take a full-width second line and scroll sideways if they run
      past the screen. The scrollbar is hidden via .nav-inline-scroll. */
-  navInlineLinksMobile: {
-    width: "100%",
-    marginLeft: 0,
-    marginRight: 0,
-    marginTop: "8px",
-    paddingBottom: "2px",
-    overflowX: "auto",
-    flexWrap: "nowrap",
-  },
-
   navLinksMobile: {
     width: "100%",
     flexDirection: "column",

@@ -31,6 +31,27 @@ export default function lazyPage(loader) {
     </Suspense>
   );
 
+  /* Start the chunk download before the page is asked for.
+     Tapping a destination cost ~424ms on a throttled phone, most of it
+     spent fetching and parsing the chunk while the main thread sat blocked
+     behind two long tasks. But a menu is opened a beat before it is used —
+     that gap is free network time, so whoever opens the nav can warm the
+     chunks and make the tap itself land on a cached module.
+
+     Idempotent, and deliberately fire-and-forget: this is a speculative
+     fetch, so a failure must not surface. React.lazy will retry through
+     the real render path and PageLoading covers that case. Clearing the
+     flag on failure keeps a flaky first attempt from poisoning the page
+     for the rest of the session. */
+  let warming = false;
+  Lazy.preload = () => {
+    if (warming) return;
+    warming = true;
+    Promise.resolve()
+      .then(loader)
+      .catch(() => { warming = false; });
+  };
+
   return Lazy;
 }
 

@@ -443,9 +443,9 @@ html[data-theme="dark"] .nav-links-panel.mobile-menu-open button svg[width]:not(
   color: var(--eco-c15) !important;
 }
 
-/* The inline navbar links (Home / About Us / Product & Services). On phones
-   the row scrolls sideways rather than wrapping, so the pills keep their width
-   and the scrollbar stays out of the way. */
+/* The inline navbar links. Desktop only — phones render the hamburger panel
+   instead — so this no longer scrolls; the rules just keep the pills at their
+   natural width and any scrollbar out of the way. */
 .nav-inline-links > * {
   flex-shrink: 0;
 }
@@ -823,6 +823,35 @@ html[data-theme="dark"] .inner-blur-glass::before {
 .inner-blur-glass > * {
   position: relative;
   z-index: 1;
+}
+
+/* ── Card glass costs more than it shows on a phone ────────────────────
+   Every .inner-blur-glass card paints a ::before running
+   `backdrop-filter: blur(34px) saturate(185%)`. Each is its own compositor
+   layer that has to re-sample everything behind it every frame, and the
+   phone Home carries ten of them inside a scroll container.
+
+   The blur returns almost nothing here: these cards sit on the flat
+   --eco-c0 surface rather than over photography, so blurring it gives back
+   the colour it started with. Dropping only the filter — keeping the
+   gradient sheen — preserves the look. Desktop keeps the real glass.
+
+   This block has to sit *after* the base rule and its dark-mode variant,
+   not up in the main phone media query: the selectors are no more specific
+   than what they override, so source order is what decides. Put it earlier
+   and it silently does nothing (measured: the ::before layer count did not
+   move). Same reason the dark variant is repeated here — the
+   html[data-theme] prefix outranks a bare class. */
+@media (max-width: 768px), (max-height: 540px) and (pointer: coarse) {
+  .inner-blur-glass::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  html[data-theme="dark"] .inner-blur-glass::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .glass-hover-zoom:hover {
