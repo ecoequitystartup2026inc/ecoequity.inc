@@ -131,7 +131,7 @@ function BenefitsOfTheProject() {
           style={styles.imageCard}
         >
           <img
-            src="/Planting.jpg"
+            src="/Planting.webp"
             alt="Farmers planting crops as part of the project"
             style={styles.image}
           />

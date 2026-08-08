@@ -1558,7 +1558,7 @@ export default function AdminPortal({
       stockQuantity: 10,
       stock: "In Stock",
       emoji: <Sprout size="1em" color="var(--eco-c9)" />,
-      image: "/tomato.png",
+      image: "/tomato.webp",
       badge: "New",
       description: "A brand new sustainable product.",
       sustainabilityBadge: "Eco-Friendly",

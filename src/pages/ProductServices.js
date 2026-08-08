@@ -45,7 +45,7 @@ const productServicesCards = [
     Icon: PackageIcon,
     tag: "Goods",
     heading: "Product",
-    image: "/herb_kit.png",
+    image: "/herb_kit.webp",
     imageAlt: "Potted basil and mint growing in a balcony planter box",
     bullets: [
       { label: "Organic Edibles", desc: "Local produce, herbs, and floriculture grown for Philippine conditions, plus localized seed varieties you can trust to thrive." },
@@ -60,7 +60,7 @@ const productServicesCards = [
     Icon: ServiceIcon,
     tag: "Platform",
     heading: "Services",
-    image: "/starter_kit.png",
+    image: "/starter_kit.webp",
     imageAlt: "A vendor tending trays of seedlings at an outdoor market stall",
     bullets: [
       { label: "AI Plant Doctor", desc: "24/7 photo-based plant diagnosis with care guides tuned to the Philippine climate and native crops." },
@@ -75,7 +75,7 @@ const productServicesCards = [
     Icon: SectorIcon,
     tag: "Impact",
     heading: "Sector",
-    image: "/farming.jpg",
+    image: "/farming.webp",
     imageAlt: "Farmers working rows of crops in an open field",
     bullets: [
       { label: "Food Security & Waste Reduction", desc: "Digital tools and localized data support both urban farms and traditional farming centers through oversupply periods — keeping harvests in the food system instead of landfills." },

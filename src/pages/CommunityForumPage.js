@@ -662,7 +662,7 @@ function CommunityForumPage({
 
       <Reveal variant="scale" delay={160} className="cf-hero" style={{ ...styles.hero, ...(isMobile ? styles.heroMobile : {}) }}>
         <img
-          src="/about-hero-harvest.jpg"
+          src="/about-hero-harvest.webp"
           alt="Farmers working together over a shared harvest"
           loading="lazy"
           decoding="async"

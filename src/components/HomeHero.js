@@ -31,7 +31,7 @@ const STATS = [
 // the copy always end on the same line and neither can run past the column.
 const ROW_MAX = 420;
 const WELCOME_SHOT = {
-  src: "/farming.jpg",
+  src: "/farming.webp",
   alt: "A tended household farm plot",
   ratio: "3 / 2",
 };

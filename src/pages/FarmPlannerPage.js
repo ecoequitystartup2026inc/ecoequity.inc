@@ -142,7 +142,7 @@ function FarmPlannerPage({ setActiveNav, harvests = [], planner = defaultPlanner
 
       <Reveal variant="scale" delay={200} className="fp-hero" style={{ ...styles.hero, ...(isMobile ? styles.heroMobile : {}) }}>
         <img
-          src="/farming.jpg"
+          src="/farming.webp"
           alt="Farmers working rows of crops under open sky"
           loading="lazy"
           decoding="async"

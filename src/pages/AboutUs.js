@@ -262,7 +262,7 @@ function AboutUs() {
           style={isMobile ? styles.heroMediaMobile : undefined}
         >
           <MediaFrame
-            src="/about-hero-harvest.jpg"
+            src="/about-hero-harvest.webp"
             alt="A grower picking ripe cherry tomatoes from a raised garden bed"
             caption="Turning everyday spaces into productive, sustainable gardens"
             ratio={isMobile ? "16 / 10" : "4 / 3"}
@@ -321,7 +321,7 @@ function AboutUs() {
 
           <Reveal variant="right" delay={140} className="about-media">
             <MediaFrame
-              src="/about-raised-bed.jpg"
+              src="/about-raised-bed.webp"
               alt="Overhead view of someone planting seedlings in a backyard raised bed"
               caption="Hands-on learning with local growers"
               ratio={isMobile ? "16 / 10" : "4 / 3"}
@@ -363,7 +363,7 @@ function AboutUs() {
             style={isMobile ? undefined : styles.mediaFirst}
           >
             <MediaFrame
-              src="/about-rice-planting.jpg"
+              src="/about-rice-planting.webp"
               alt="Farmers transplanting rice seedlings in a flooded paddy below green mountains"
               caption="Rooted in generations of rice-growing tradition"
               ratio={isMobile ? "16 / 10" : "4 / 3"}
@@ -397,7 +397,7 @@ function AboutUs() {
         <div style={{ ...styles.mvRow, ...(isMobile ? styles.mvRowMobile : {}) }}>
           <Reveal as="article" className="inner-blur-glass about-media" style={styles.mvCard}>
             <img
-              src="/about-garden-rows.jpg"
+              src="/about-garden-rows.webp"
               alt="Rows of leafy vegetables and flowers growing in a home garden plot"
               loading="lazy"
               decoding="async"
@@ -415,7 +415,7 @@ function AboutUs() {
 
           <Reveal as="article" delay={150} className="inner-blur-glass about-media" style={styles.mvCard}>
             <img
-              src="/about-rooftop-city.jpg"
+              src="/about-rooftop-city.webp"
               alt="Herbs growing on a rooftop garden overlooking a city at sunset"
               loading="lazy"
               decoding="async"

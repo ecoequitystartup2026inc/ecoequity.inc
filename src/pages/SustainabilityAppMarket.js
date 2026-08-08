@@ -49,7 +49,7 @@ const tiers = [
     headline: "₱10T+",
     headlineLabel: "Addressable consumer spending",
     width: "100%",
-    image: "/farming.jpg",
+    image: "/farming.webp",
     imageAlt: "Farmers tending rows of leafy greens in an open field",
     imageCaption: "Nationwide food, wellness, and home-growing spend",
     imagePosition: "center 55%",
@@ -61,7 +61,7 @@ const tiers = [
         size: "₱10T+ PHP (~$170B USD)",
         description:
           "Total annual consumer spending on food, wellness, home goods, and agriculture — the total budget addressable by local organic sustenance.",
-        image: "/IMG_6223.jpeg",
+        image: "/IMG_6223.webp",
         imageAlt: "A dense field of cabbages ready for harvest",
       },
       {
@@ -69,7 +69,7 @@ const tiers = [
         size: "85M+ users",
         description:
           "The population engaging in urban farming, local sustainability, and digital learning — the \"Plantito/Plantita\" movement.",
-        image: "/kit_balcony_herb.png",
+        image: "/kit_balcony_herb.webp",
         imageAlt: "A herb planter box on a sunlit window ledge",
         imagePosition: "center 72%",
       },
@@ -83,7 +83,7 @@ const tiers = [
     headline: "₱5B",
     headlineLabel: "Annual sustainability-app spend",
     width: "74%",
-    image: "/Solar.jpg",
+    image: "/Solar.webp",
     imageAlt: "Solar panels and greenery in the foreground of a dense city skyline",
     imageCaption: "Metro households already spending on green living",
     imagePosition: "center 45%",
@@ -95,7 +95,7 @@ const tiers = [
         size: "15M households",
         description:
           "High-density metros (Manila, Cebu, Davao) with disposable income for events, specialized learning, and micro-commerce.",
-        image: "/Establishment.jpg",
+        image: "/Establishment.webp",
         imageAlt: "High-rise towers under construction in a dense city centre",
       },
       {
@@ -103,7 +103,7 @@ const tiers = [
         size: "₱5B PHP / year",
         description:
           "Users already spending on mobile learning, digital wellness, and home/garden e-commerce — the appetite for digital-first sustainability.",
-        image: "/herb_kit.png",
+        image: "/herb_kit.webp",
         imageAlt: "Potted mint and basil arranged on a home balcony",
       },
     ],
@@ -116,7 +116,7 @@ const tiers = [
     headline: "150K+",
     headlineLabel: "Active monthly users",
     width: "48%",
-    image: "/Planting.jpg",
+    image: "/Planting.webp",
     imageAlt: "A grower harvesting fresh peppers into a crate",
     imageCaption: "Early adopters turning harvests into income",
     imagePosition: "center 75%",
@@ -128,7 +128,7 @@ const tiers = [
         size: "150K+ AMU",
         description:
           "Individuals using 24/7 AI guidance, attending RSVP'd events/workshops, and engaging with the Instructor/Specialist Canvas.",
-        image: "/kids_kit.png",
+        image: "/kids_kit.webp",
         imageAlt: "An adult guiding a child through planting a garden bed",
         imagePosition: "58% 40%",
       },
@@ -137,7 +137,7 @@ const tiers = [
         size: "3,500+ Vendors",
         description:
           "Learners who become micro-entrepreneurs, selling locally grown produce or high-demand florals (Sampaguita, Orchids).",
-        image: "/starter_kit.png",
+        image: "/starter_kit.webp",
         imageAlt: "A vendor tending trays of seedlings at a roadside market stall",
       },
       {
@@ -145,7 +145,7 @@ const tiers = [
         size: "500K+ meals / yr",
         description:
           "People guided toward self-sufficiency in accessible organic sustenance, lessening reliance on imported or market goods.",
-        image: "/Rice.jpg",
+        image: "/Rice.webp",
         imageAlt: "Cupped hands sharing grain with a circle of open palms",
       },
     ],
@@ -215,7 +215,7 @@ function SustainabilityAppMarket() {
           to a single image so it frames the numbers instead of competing with them. */}
       <Reveal variant="scale" delay={200} className="sam-hero" style={{ ...styles.hero, ...(isMobile ? styles.heroMobile : {}) }}>
         <img
-          src="/Establishment.jpg"
+          src="/Establishment.webp"
           alt="High-rise development across a major urban centre at sunset"
           loading="lazy"
           decoding="async"

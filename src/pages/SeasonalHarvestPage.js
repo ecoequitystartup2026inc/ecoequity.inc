@@ -236,7 +236,7 @@ export default function SeasonalHarvestPage({ setActiveNav, onNotify, harvests }
         <aside style={{ ...styles.leftCol, ...(isMobile ? styles.leftColMobile : {}) }}>
           <Reveal variant="scale" delay={160} className="sh-hero" style={{ ...styles.hero, ...(isMobile ? styles.heroMobile : {}) }}>
             <img
-              src="/Planting.jpg"
+              src="/Planting.webp"
               alt="Hands harvesting fresh produce from a garden bed"
               loading="lazy"
               decoding="async"

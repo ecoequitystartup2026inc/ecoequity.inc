@@ -5,8 +5,8 @@ import ProblemTimeline from "../components/ProblemTimeline";
 const sdgItems = [
   {
     number: "01",
-    image: "/1.1.png",
-    bgImage: "/No poverty.jpg", // Image for SDG 01
+    image: "/1.1.webp",
+    bgImage: "/No poverty.webp", // Image for SDG 01
     color: "#d71932",
     expandedTitle: "No Poverty",
     expandedContent: [
@@ -26,8 +26,8 @@ const sdgItems = [
   },
   {
     number: "02",
-    image: "/1.2.png",
-    bgImage: "/Rice.jpg", // Image for SDG 02
+    image: "/1.2.webp",
+    bgImage: "/Rice.webp", // Image for SDG 02
     color: "#dda63a",
     expandedTitle: "Zero Hunger",
     expandedContent: [
@@ -47,8 +47,8 @@ const sdgItems = [
   },
   {
     number: "08",
-    image: "/1.3.png",
-    bgImage: "/Decent.png", // Update this file name for SDG 08
+    image: "/1.3.webp",
+    bgImage: "/Decent.webp", // Update this file name for SDG 08
     color: "#a21942",
     expandedTitle: "Decent Work and Economic Growth",
     expandedContent: [
@@ -68,8 +68,8 @@ const sdgItems = [
   },
   {
     number: "09",
-    image: "/1.4.png",
-    bgImage: "/Establishment.jpg", // Update this file name for SDG 09
+    image: "/1.4.webp",
+    bgImage: "/Establishment.webp", // Update this file name for SDG 09
     color: "#ff6f2c",
     expandedTitle: "Industry, Innovation, and Infrastructure",
     expandedContent: [
@@ -89,7 +89,7 @@ const sdgItems = [
   },
   {
     number: "11",
-    image: "/1.5.png",
+    image: "/1.5.webp",
     bgImage: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&q=80&w=1000", // Urban city street — SDG 11 Sustainable Cities
     color: "#fd9d24",
     expandedTitle: "Sustainable Cities and Communities",
@@ -110,7 +110,7 @@ const sdgItems = [
   },
   {
     number: "12",
-    image: "/6.png",
+    image: "/6.webp",
     bgImage: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&q=80&w=1000", // Fresh produce market — SDG 12 Responsible Consumption
     color: "#bf8b2e",
     expandedTitle: "Responsible Consumption and Production",
@@ -131,8 +131,8 @@ const sdgItems = [
   },
   {
     number: "14",
-    image: "/7.png",
-    bgImage: "/species.jpg", // Update this file name for SDG 14
+    image: "/7.webp",
+    bgImage: "/species.webp", // Update this file name for SDG 14
     color: "#0a97d9",
     expandedTitle: "Life Below Water",
     expandedContent: [
@@ -152,7 +152,7 @@ const sdgItems = [
   },
   {
     number: "15",
-    image: "/8.png",
+    image: "/8.webp",
     bgImage: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1000", // Forest / biodiversity — SDG 15 Life on Land
     color: "var(--eco-c13)",
     expandedTitle: "Life on Land",
@@ -173,7 +173,7 @@ const sdgItems = [
   },
   {
     number: "16",
-    image: "/9.png",
+    image: "/9.webp",
     bgImage: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=1000", // Handshake / fair trade — SDG 16 Peace, Justice, Strong Institutions
     color: "#00689d",
     expandedTitle: "Peace, Justice, and Strong Institutions",
@@ -194,7 +194,7 @@ const sdgItems = [
   },
   {
     number: "17",
-    image: "/10.png",
+    image: "/10.webp",
     bgImage: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1000", // Team collaboration / partnerships — SDG 17 Partnerships for the Goals
     color: "#19486a",
     expandedTitle: "Partnerships for the Goals",

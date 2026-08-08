@@ -33,7 +33,7 @@ const starterKitsData = [
     title: "Balcony Herb Garden",
     desc: "Perfect for urban spaces. Includes 5 organic herb varieties, premium soil, and eco-pots for your apartment balcony.",
     price: "₱850.00",
-    image: "/kit_balcony_herb.png",
+    image: "/kit_balcony_herb.webp",
     icon: <Leaf size="1em" color="var(--eco-c9)" />,
     badge: "Best Seller",
     suggestions: [
@@ -53,7 +53,7 @@ const starterKitsData = [
     title: "Tomato Success Kit",
     desc: "Everything you need for juicy heirloom tomatoes. Includes seeds, trellis, specialized fertilizer, and pest control.",
     price: "₱920.00",
-    image: "/kit_tomato.png",
+    image: "/kit_tomato.webp",
     icon: <Cherry size="1em" color="#dc2626" />,
     badge: "Beginner Friendly",
     suggestions: [
@@ -73,7 +73,7 @@ const starterKitsData = [
     title: "Vegetable Starter Pack",
     desc: "A robust collection of fast-growing local vegetables tailored for the Philippine climate. High yield guaranteed.",
     price: "₱1,200.00",
-    image: "/kit_vegetable.png",
+    image: "/kit_vegetable.webp",
     icon: <Carrot size="1em" color="#ea580c" />,
     badge: "High Yield",
     suggestions: [
@@ -93,7 +93,7 @@ const starterKitsData = [
     title: "Basic Gardening Tools",
     desc: "Ergonomic, rust-resistant essential hand tools including a trowel, pruner, cultivator, and gardening gloves.",
     price: "₱650.00",
-    image: "/kit_tools.png",
+    image: "/kit_tools.webp",
     icon: <Wrench size="1em" color="var(--eco-c11)" />,
     badge: "Essential",
     suggestions: [

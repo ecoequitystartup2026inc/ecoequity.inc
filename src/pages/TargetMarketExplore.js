@@ -45,7 +45,7 @@ const acquisitionCards = [
     Icon: DigitalIcon,
     tag: "Online",
     heading: "Digital Acquisition",
-    image: "/herb_kit.png",
+    image: "/herb_kit.webp",
     imageAlt: "Close-up of potted basil and mint, the kind of home-growing content shared online",
     bullets: [
       { label: "Content Marketing", desc: "Create highly shareable content leveraging the AI Plant Doctor data for localized insights." },
@@ -57,7 +57,7 @@ const acquisitionCards = [
     Icon: CommunityIcon,
     tag: "On-Ground",
     heading: "Physical & Community",
-    image: "/kit_vegetable.png",
+    image: "/kit_vegetable.webp",
     imageAlt: "Two people tending raised vegetable beds at a community garden",
     bullets: [
       { label: "LGU Partnerships", desc: "Partner with LGUs and Barangays to promote Event RSVP for official community training — instant credibility and access to organized groups." },
@@ -69,7 +69,7 @@ const acquisitionCards = [
     Icon: B2BIcon,
     tag: "B2B",
     heading: "Sector Integration",
-    image: "/farming.jpg",
+    image: "/farming.webp",
     imageAlt: "Farmers working rows of crops at commercial scale",
     bullets: [
       { label: "Direct Sales", desc: "A specialized sales team onboards hotels, restaurants, and food processors — pitched on verifiable cost savings and CSR impact from food-waste reduction." },

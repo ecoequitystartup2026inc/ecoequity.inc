@@ -57,9 +57,9 @@ describe("SustainabilityAppMarket Component", () => {
     expect(media).toHaveLength(3);
 
     expect([...media].map((img) => img.getAttribute("src"))).toEqual([
-      "/farming.jpg",
-      "/Solar.jpg",
-      "/Planting.jpg",
+      "/farming.webp",
+      "/Solar.webp",
+      "/Planting.webp",
     ]);
 
     media.forEach((img) => {
@@ -79,13 +79,13 @@ describe("SustainabilityAppMarket Component", () => {
     expect(thumbs).toHaveLength(7); // 2 TAM + 2 SAM + 3 SOM
 
     expect([...thumbs].map((img) => img.getAttribute("src"))).toEqual([
-      "/IMG_6223.jpeg",
-      "/kit_balcony_herb.png",
-      "/Establishment.jpg",
-      "/herb_kit.png",
-      "/kids_kit.png",
-      "/starter_kit.png",
-      "/Rice.jpg",
+      "/IMG_6223.webp",
+      "/kit_balcony_herb.webp",
+      "/Establishment.webp",
+      "/herb_kit.webp",
+      "/kids_kit.webp",
+      "/starter_kit.webp",
+      "/Rice.webp",
     ]);
 
     thumbs.forEach((img) => {

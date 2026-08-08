@@ -7,7 +7,7 @@ const servicesData = [
   {
     category: "AI Support",
     name: "AI Plant Doctor",
-    image: "/herb_kit.png",
+    image: "/herb_kit.webp",
     imageAlt: "Close-up of potted basil and mint in a balcony planter",
     price: "See Plans",
     description: "24/7 localized care guides tailored to Philippine climate and native crops. Predictive diagnostics for your garden.",
@@ -17,7 +17,7 @@ const servicesData = [
   {
     category: "Community",
     name: "Event Management",
-    image: "/starter_kit.png",
+    image: "/starter_kit.webp",
     imageAlt: "A vendor tending trays of seedlings at an outdoor market stall",
     price: "Free Access",
     description: "Real-world event management. RSVP to specialist workshops, community trainings, and local venue gatherings.",
@@ -27,7 +27,7 @@ const servicesData = [
   {
     category: "B2B Solutions",
     name: "Surplus Listing Module",
-    image: "/IMG_6223.jpeg",
+    image: "/IMG_6223.webp",
     imageAlt: "A large field of cabbages ready for bulk harvest",
     price: "Enterprise",
     description: "Dedicated system for commercial farmers to list large-volume oversupply (surplus) to institutional buyers.",
@@ -37,7 +37,7 @@ const servicesData = [
   {
     category: "Education",
     name: "Specialist Workshops",
-    image: "/Planting.jpg",
+    image: "/Planting.webp",
     imageAlt: "Hands harvesting fresh produce from a garden bed",
     price: "Varies",
     description: "Hands-on, localized training sessions led by top agriculture specialists in your region.",
