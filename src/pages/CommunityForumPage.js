@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import ReactDOM from "react-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import Reveal, { RevealStyles } from "../components/Reveal";
 import ComingSoonBanner from "../components/ComingSoonBanner";
+import { MODAL_LAYER } from "../styles/modal";
 import {
   MessageCircle, Heart, Send, Plus, Sprout, Bug, Droplet, Sun, TrendingUp, Users,
   Search, Bookmark, CheckCircle2, HelpCircle, Award, Flame, ShieldCheck, X,
@@ -44,6 +46,95 @@ const replyCount = (p) => visibleReplies(p).length;
 const isAnswered = (p) => replyCount(p) > 0;
 
 const REPORT_REASONS = ["Spam or scam", "Harmful or abusive", "Misleading advice", "Off-topic"];
+
+/* ── The ⋯ menu ───────────────────────────────────────────────────────────
+   A small card pinned under the button that opened it, not a bar stretched
+   across the post.
+
+   It has to be portalled to <body> to manage that. The post card is
+   `.inner-blur-glass`, which sets BOTH `overflow: hidden` (clips an absolute
+   menu) and a `transform` (which makes even `position: fixed` resolve against
+   the card, not the viewport). There is no positioning trick out of that box
+   from inside — leaving the subtree is the whole fix.
+
+   `anchor` is the trigger element itself, which gives us the rect to pin to
+   and the node to exclude from the click-away test in one reference. */
+const MENU_WIDTH = 194;
+const MENU_ITEM_H = 40;
+
+/* Where the card sits: right edge aligned to the ⋯ button, pulled back onto
+   the screen near an edge, flipped above the button when there is no room
+   below. Returns null once the button has scrolled out of sight, which is the
+   signal to close — a menu pinned to something you can no longer see is just
+   a card floating over unrelated posts. */
+function placeMenu(anchor, itemCount) {
+  if (!anchor) return null;
+  const rect = anchor.getBoundingClientRect();
+  if (rect.bottom < 0 || rect.top > window.innerHeight) return null;
+  const height = itemCount * MENU_ITEM_H + 12;
+  return {
+    top: rect.bottom + 8 + height > window.innerHeight
+      ? Math.max(12, rect.top - height - 8)
+      : rect.bottom + 8,
+    left: Math.min(
+      Math.max(12, rect.right - MENU_WIDTH),
+      Math.max(12, window.innerWidth - MENU_WIDTH - 12)
+    ),
+  };
+}
+
+function PostMenu({ anchor, itemCount, label, onClose, children }) {
+  const ref = useRef(null);
+  const [pos, setPos] = useState(() => placeMenu(anchor, itemCount));
+
+  useEffect(() => {
+    // Clicking the trigger again must close the menu, not close-then-reopen —
+    // so the trigger counts as "inside" for the purposes of clicking away.
+    const away = (e) => {
+      if (ref.current?.contains(e.target) || anchor?.contains(e.target)) return;
+      onClose();
+    };
+    const key = (e) => { if (e.key === "Escape") onClose(); };
+
+    // The feed scrolls inside its own container, so the menu has to follow its
+    // button rather than sit at the coordinates it opened on. Following beats
+    // closing on scroll: a tap that lands while the page is still gliding to a
+    // stop would otherwise close the menu the moment it opened. Throttled to a
+    // frame, because this page is already carrying a stack of glass layers.
+    let frame = null;
+    const follow = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        const next = placeMenu(anchor, itemCount);
+        if (next) setPos(next);
+        else onClose();
+      });
+    };
+
+    document.addEventListener("mousedown", away);
+    document.addEventListener("keydown", key);
+    // Capture: scroll on an inner element does not bubble to window.
+    window.addEventListener("scroll", follow, true);
+    window.addEventListener("resize", follow);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      document.removeEventListener("mousedown", away);
+      document.removeEventListener("keydown", key);
+      window.removeEventListener("scroll", follow, true);
+      window.removeEventListener("resize", follow);
+    };
+  }, [anchor, itemCount, onClose]);
+
+  if (!pos) return null;
+
+  return ReactDOM.createPortal(
+    <div ref={ref} role="menu" aria-label={label} style={{ ...styles.menuPop, ...pos }}>
+      {children}
+    </div>,
+    document.body
+  );
+}
 
 const readBookmarks = () => {
   try {
@@ -144,9 +235,13 @@ function CommunityForumPage({
   const [expandedReplies, setExpandedReplies] = useState([]);
   const [reportOpen, setReportOpen] = useState(null);
   const [bookmarks, setBookmarks] = useState(readBookmarks);
-  // Author-only controls behind the ⋯ button: which post's menu is open, which
-  // post is being edited, and which one is asking to be confirmed for deletion.
+  // Controls behind the ⋯ button — edit/delete on your own posts, report on
+  // everyone else's: which post's menu is open, which post is being edited, and
+  // which one is asking to be confirmed for deletion.
   const [menuOpen, setMenuOpen] = useState(null);
+  // The ⋯ button the open menu is pinned to. Held as the DOM node, not a rect:
+  // a stale rect would place the menu wherever the page used to be.
+  const [menuAnchor, setMenuAnchor] = useState(null);
   const [editing, setEditing] = useState(null);
   const [editDraft, setEditDraft] = useState({ title: "", body: "", category: "Growing Tips" });
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -337,8 +432,12 @@ function CommunityForumPage({
   // it is also the ownership test — the same signal "Your activity" counts on.
   const ownsPost = (post) => post.author === authorName;
 
-  const openMenu = (id) => {
-    setMenuOpen(menuOpen === id ? null : id);
+  const closeMenu = () => { setMenuOpen(null); setMenuAnchor(null); };
+
+  const openMenu = (id, el) => {
+    const closing = menuOpen === id;
+    setMenuOpen(closing ? null : id);
+    setMenuAnchor(closing ? null : el);
     setConfirmDelete(null);
     setReportOpen(null);
   };
@@ -350,7 +449,7 @@ function CommunityForumPage({
       body: post.body || "",
       category: post.category || "Growing Tips",
     });
-    setMenuOpen(null);
+    closeMenu();
     setConfirmDelete(null);
   };
 
@@ -375,7 +474,7 @@ function CommunityForumPage({
     if (onDeletePost) onDeletePost(id);
     else setPosts((prev) => prev.filter((p) => p.id !== id));
     setConfirmDelete(null);
-    setMenuOpen(null);
+    closeMenu();
     if (editing === id) cancelEdit();
     if (replyOpen === id) setReplyOpen(null);
     setBookmarks((prev) => prev.filter((b) => b !== id));
@@ -616,6 +715,11 @@ function CommunityForumPage({
           .cf-chip:hover { transform: translateY(-1px); border-color: rgba(var(--eco-c9-rgb), 0.45); }
           .cf-icon-btn { transition: transform .18s ease, background .2s ease, color .2s ease; }
           .cf-icon-btn:hover { transform: translateY(-1px); background: rgba(var(--eco-c9-rgb), 0.10); }
+          /* The ⋯ menu is portalled to <body>, so these live here as plain
+             global rules rather than anything scoped to the page subtree. */
+          .cf-menu-item { transition: background .16s ease; }
+          .cf-menu-item:hover:not(:disabled) { background: rgba(var(--eco-c9-rgb), 0.10); }
+          .cf-menu-item:disabled:hover { background: transparent; }
           .cf-trend { transition: background .2s ease; }
           .cf-trend:hover { background: rgba(var(--eco-c9-rgb), 0.08); }
           .cf-cta-btn { transition: transform .18s ease, box-shadow .2s ease; }
@@ -905,42 +1009,68 @@ function CommunityForumPage({
                     >
                       <Bookmark size={15} fill={saved ? "currentColor" : "none"} />
                     </button>
-                    {mine && (
-                      <button
-                        type="button"
-                        className="cf-icon-btn"
-                        style={{ ...styles.bookmarkBtn, ...(menuOpen === post.id ? styles.bookmarkBtnActive : {}) }}
-                        onClick={() => openMenu(post.id)}
-                        aria-haspopup="true"
-                        aria-expanded={menuOpen === post.id}
-                        aria-label="Post options"
-                        title="Edit or delete your post"
-                      >
-                        <MoreHorizontal size={16} />
-                      </button>
-                    )}
+                    {/* Every post carries the ⋯ — what's behind it is what
+                        changes: your own posts get edit/delete, everyone
+                        else's gets report. */}
+                    <button
+                      type="button"
+                      className="cf-icon-btn"
+                      style={{ ...styles.bookmarkBtn, ...(menuOpen === post.id ? styles.bookmarkBtnActive : {}) }}
+                      onClick={(e) => openMenu(post.id, e.currentTarget)}
+                      aria-haspopup="menu"
+                      aria-expanded={menuOpen === post.id}
+                      aria-label={mine ? "Options for your post" : `Options for ${post.author}'s post`}
+                      title={mine ? "Edit or delete your post" : "Report this post"}
+                    >
+                      <MoreHorizontal size={16} />
+                    </button>
                   </div>
 
-                  {/* Same reason as the report panel below: this card is
-                      .inner-blur-glass (overflow:hidden), so the ⋯ menu opens
-                      inline instead of as an absolutely positioned popover. */}
+                  {/* No Cancel row: clicking away, Escape or scrolling all
+                      close it, which is what a pinned menu is expected to do. */}
                   {menuOpen === post.id && (
-                    <div style={styles.ownerMenu}>
-                      <button type="button" className="cf-chip" style={styles.ownerMenuItem} onClick={() => startEdit(post)}>
-                        <Pencil size={13} /> Edit post
-                      </button>
-                      <button
-                        type="button"
-                        className="cf-chip"
-                        style={{ ...styles.ownerMenuItem, ...styles.ownerMenuDanger }}
-                        onClick={() => { setConfirmDelete(post.id); setMenuOpen(null); }}
-                      >
-                        <Trash2 size={13} /> Delete post
-                      </button>
-                      <button type="button" className="cf-link" style={styles.reportCancel} onClick={() => setMenuOpen(null)}>
-                        Cancel
-                      </button>
-                    </div>
+                    <PostMenu
+                      anchor={menuAnchor}
+                      itemCount={mine ? 2 : 1}
+                      label={mine ? "Options for your post" : `Options for ${post.author}'s post`}
+                      onClose={closeMenu}
+                    >
+                      {mine ? (
+                        <>
+                          <button type="button" role="menuitem" className="cf-menu-item" style={styles.menuPopItem} onClick={() => startEdit(post)}>
+                            <Pencil size={14} /> Edit post
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="cf-menu-item"
+                            style={{ ...styles.menuPopItem, ...styles.menuPopDanger }}
+                            onClick={() => { setConfirmDelete(post.id); closeMenu(); }}
+                          >
+                            <Trash2 size={14} /> Delete post
+                          </button>
+                        </>
+                      ) : (
+                        /* Reporting twice would just double-count the same
+                           complaint, so a post you already flagged says so
+                           rather than offering the reasons again. */
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="cf-menu-item"
+                          style={{
+                            ...styles.menuPopItem, ...styles.menuPopReport,
+                            ...(reportedByMe ? styles.menuPopDone : {}),
+                          }}
+                          onClick={() => { setReportOpen(`post-${post.id}`); closeMenu(); }}
+                          disabled={reportedByMe}
+                          title={reportedByMe ? "You reported this — moderators are on it" : "Report this post"}
+                        >
+                          <Flag size={14} fill={reportedByMe ? "currentColor" : "none"} />
+                          {reportedByMe ? "Already reported" : "Report post"}
+                        </button>
+                      )}
+                    </PostMenu>
                   )}
 
                   {confirmDelete === post.id && (
@@ -1042,20 +1172,14 @@ function CommunityForumPage({
                       <MessageCircle size={15} /> {replies.length} {replies.length === 1 ? "reply" : "replies"}
                     </button>
 
-                    {/* No point reporting yourself — the ⋯ menu is the owner's
-                        equivalent, and it edits or deletes outright. */}
-                    {!mine && (
-                      <button
-                        type="button"
-                        className="cf-chip"
-                        style={{ ...styles.reportBtn, ...(reportedByMe ? styles.reportBtnDone : {}) }}
-                        onClick={() => setReportOpen(reportOpen === `post-${post.id}` ? null : `post-${post.id}`)}
-                        disabled={reportedByMe}
-                        title={reportedByMe ? "You reported this — moderators are on it" : "Report this post"}
-                      >
-                        <Flag size={13} fill={reportedByMe ? "currentColor" : "none"} />
-                        {reportedByMe ? "Reported" : "Report"}
-                      </button>
+                    {/* Reporting moved into the ⋯ menu — a moderation action
+                        doesn't belong beside Like and Reply. A post you've
+                        already flagged still says so here, so the state is
+                        visible without opening the menu. */}
+                    {!mine && reportedByMe && (
+                      <span style={styles.reportedChip}>
+                        <Flag size={13} fill="currentColor" /> Reported
+                      </span>
                     )}
 
                     <span style={{ ...styles.statusChip, ...(isAnswered(post) ? styles.statusAnswered : styles.statusOpen) }}>
@@ -1354,8 +1478,9 @@ const styles = {
   actionBtnActive: { color: "var(--eco-c13)", background: "rgba(var(--eco-c9-rgb), 0.08)", borderColor: "rgba(var(--eco-c9-rgb), 0.2)" },
   actionBtnDisabled: { opacity: 0.6, cursor: "default" },
   lockedBadge: { display: "inline-flex", alignItems: "center", gap: "5px", fontSize: "10.5px", fontWeight: 800, color: "rgba(0,0,0,0.55)", background: "rgba(0,0,0,0.06)", padding: "4px 9px", borderRadius: "999px", letterSpacing: "0.3px", marginBottom: "9px" },
-  reportBtn: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "999px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.06)", color: "#64748b", fontSize: "12.5px", fontWeight: 600, cursor: "pointer" },
-  reportBtnDone: { color: "#b45309", background: "rgba(245, 158, 11, 0.12)", borderColor: "rgba(245, 158, 11, 0.3)", cursor: "default" },
+  /* Read-only marker left in the action row once you've reported a post — the
+     button itself now lives in the ⋯ menu. */
+  reportedChip: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "999px", color: "#b45309", background: "rgba(245, 158, 11, 0.12)", border: "1px solid rgba(245, 158, 11, 0.3)", fontSize: "12.5px", fontWeight: 600 },
   replyFlagBtn: { width: "24px", height: "24px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", border: "none", background: "transparent", color: "rgba(0,0,0,0.3)", cursor: "pointer" },
   replyFlagBtnDone: { color: "#b45309", background: "rgba(245, 158, 11, 0.14)", cursor: "default" },
   reportPanel: { marginTop: "12px", padding: "12px", borderRadius: "14px", background: "rgba(245, 158, 11, 0.07)", border: "1px solid rgba(245, 158, 11, 0.25)" },
@@ -1366,9 +1491,26 @@ const styles = {
 
   // Author-only controls. Sage throughout — the destructive step reads as
   // heavier ink rather than a new hue (see the five-tone palette rule).
-  ownerMenu: { display: "flex", alignItems: "center", gap: "7px", flexWrap: "wrap", marginBottom: "10px", padding: "10px", borderRadius: "14px", background: "rgba(var(--eco-c9-rgb), 0.07)", border: "1px solid rgba(var(--eco-c9-rgb), 0.22)" },
-  ownerMenuItem: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "999px", border: "1px solid rgba(0,0,0,0.08)", background: "rgba(255,255,255,0.85)", color: "#334155", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" },
-  ownerMenuDanger: { color: "var(--eco-c15)", border: "1px solid rgba(var(--eco-c15-rgb), 0.28)" },
+  /* The ⋯ menu card. Portalled to <body>, so `top`/`left` are supplied per
+     post and a real drop shadow is right here — it floats over the feed rather
+     than sitting on the pale card ground where a shadow greys out. */
+  menuPop: {
+    position: "fixed", zIndex: MODAL_LAYER.popover, width: `${MENU_WIDTH}px`,
+    display: "flex", flexDirection: "column", gap: "2px",
+    padding: "6px", borderRadius: "14px",
+    background: "rgba(255,255,255,0.97)",
+    backdropFilter: "blur(18px) saturate(180%)",
+    WebkitBackdropFilter: "blur(18px) saturate(180%)",
+    border: "1px solid rgba(0,0,0,0.07)",
+    boxShadow: "0 18px 44px rgba(15,23,42,0.18)",
+    animation: "fadeIn 0.16s ease",
+  },
+  menuPopItem: { display: "flex", alignItems: "center", gap: "10px", width: "100%", padding: "10px 11px", borderRadius: "10px", border: "none", background: "transparent", color: "#334155", fontSize: "13px", fontWeight: 650, textAlign: "left", cursor: "pointer", fontFamily: "inherit" },
+  menuPopDanger: { color: "var(--eco-c15)" },
+  /* Amber, like every other report affordance on the page — the one place the
+     sage ramp is deliberately left for a status colour. */
+  menuPopReport: { color: "#b45309" },
+  menuPopDone: { opacity: 0.6, cursor: "default" },
   deletePanel: { marginBottom: "12px", padding: "12px", borderRadius: "14px", background: "rgba(var(--eco-c15-rgb), 0.06)", border: "1px solid rgba(var(--eco-c15-rgb), 0.24)" },
   deletePanelTitle: { display: "block", fontSize: "11px", fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: "var(--eco-c15)", marginBottom: "6px" },
   deleteText: { fontSize: "12.5px", color: "rgba(0,0,0,0.6)", lineHeight: 1.5, margin: "0 0 10px" },

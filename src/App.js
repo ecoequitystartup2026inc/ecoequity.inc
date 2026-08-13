@@ -4440,7 +4440,10 @@ function App() {
                     <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--eco-c13)", lineHeight: 1.3 }}>
                       Grow Food. Build Community. Earn Sustainably.
                     </span>
-                    <span style={{ fontSize: "13px", fontWeight: 500, color: "rgba(0,0,0,0.68)", lineHeight: 1.5 }}>
+                    {/* Body copy, so it is justified like every other paragraph
+                        on the site. The site-wide rule in index.css only reaches
+                        `<p>`; this block is a span, so it says so itself. */}
+                    <span style={{ fontSize: "13px", fontWeight: 500, color: "rgba(0,0,0,0.68)", lineHeight: 1.5, textAlign: "justify", hyphens: "auto", WebkitHyphens: "auto" }}>
                       EcoEquity is a digital-first, high-engagement platform designed to boost agricultural self-sufficiency in the Philippines, starting at the household and community level.
                     </span>
                   </div>

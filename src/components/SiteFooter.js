@@ -545,7 +545,10 @@ export default function SiteFooter({
           }}>
             Start your backyard farm this season.
           </span>
-          <span style={{ fontSize: isMobile ? "13px" : "14px", fontWeight: 500, lineHeight: 1.65, color: CREAM_SOFT }}>
+          {/* Body copy, so it is justified like every other paragraph on the
+              site. The site-wide rule in index.css only reaches `<p>`; this
+              block is a span for layout reasons, so it says so itself. */}
+          <span style={{ fontSize: isMobile ? "13px" : "14px", fontWeight: 500, lineHeight: 1.65, color: CREAM_SOFT, textAlign: "justify", hyphens: "auto", WebkitHyphens: "auto" }}>
             Kits, seeds, planning tools and a community of growers — everything you
             need to turn a few square metres into food on the table.
           </span>

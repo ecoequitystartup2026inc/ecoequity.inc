@@ -14,6 +14,10 @@
 
 /** Stacking tiers. A modal opened from inside another modal goes one tier up. */
 export const MODAL_LAYER = {
+  /** A menu pinned to the control that opened it. Portalled out of the page to
+   *  escape a clipping ancestor, so it needs a layer — but it is page furniture,
+   *  not a modal, and must lose to anything that scrims the page. */
+  popover: 9990,
   /** Page-level modals (quick view, cart, checkout, forms). */
   base: 9999,
   /** A modal launched from inside a base modal. */

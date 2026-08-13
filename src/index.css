@@ -276,6 +276,66 @@ body {
   overflow-x: hidden;
 }
 
+/* ── Body copy is justified ───────────────────────────────────────────────
+   Prose only. `<p>` is the one element in this codebase that always means a
+   run of body text — headings are h1–h6, and every label, chip, button and
+   stat sits in a span or a div — so scoping to the tag justifies the copy
+   without going anywhere near the UI furniture.
+
+   Justification is invisible on text that fits one line (the last line of a
+   block is never stretched), so the short `<p>` hints in the settings panels
+   are unaffected; only real multi-line paragraphs change.
+
+   The exception below is what makes the rule safe. Centred sections are built
+   by putting `textAlign: "center"` on a *wrapper* and letting the paragraph
+   inherit it — but an explicit rule on `p` beats an inherited value however
+   weak its specificity, so without this every centred section intro and
+   call-to-action band on the site would silently have gone justified.
+   Matching the wrapper's serialised style attribute and handing the paragraph
+   back to `inherit` restores exactly what it had. (Same technique as the
+   dark-mode `[style*="rgba(191,207,187,0.9"]` rule above: React writes inline
+   styles into the attribute, so CSS can read them.)
+
+   The combinators are the whole design, and they were arrived at by dumping
+   every paragraph's chain of aligning ancestors rather than by guessing.
+   What that showed: alignment here is set at many depths, and the *nearest*
+   ancestor is always the one that expresses the intent. Centring is local —
+   it appears one or two hops above the paragraph, on the box that draws the
+   centred block. Left is ambient — it sits 1 to 11 hops up, on page shells and
+   cards, and it is what most body copy is already sitting in.
+
+   So this matches a centred box only one or two hops up, and the two-hop form
+   requires the in-between element to declare no alignment of its own. Written
+   as a plain descendant selector instead, one centred page header put every
+   paragraph on the community forum under a centred ancestor and nothing on
+   that page justified at all. A paragraph under `left < left < center` — the
+   forum's shape — correctly falls through to the base rule and justifies.
+
+   A centred block nested three or more levels deep would justify where it
+   should centre. Nothing on the site is built that way today; if something
+   ever is, put `textAlign` on the paragraph inline and it wins outright.
+
+   Hyphenation comes with justification because the two belong together:
+   without it a justified line in a narrow card or a phone-width column opens
+   rivers of white space between words. The document is `lang="en"`, so the
+   browser hyphenates against an English dictionary. */
+p {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+[style*="text-align: center"] > p,
+[style*="text-align: right"] > p,
+[style*="text-align: end"] > p,
+[style*="text-align: center"] > :not([style*="text-align"]) > p,
+[style*="text-align: right"] > :not([style*="text-align"]) > p,
+[style*="text-align: end"] > :not([style*="text-align"]) > p {
+  text-align: inherit;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
 /* ── Navbar: the hamburger button hides/unhides the menu at all widths ──
    Closed: only the hamburger shows. Open: a clean vertical menu — full
    width on phones, a right-anchored dropdown card on wider screens. */
